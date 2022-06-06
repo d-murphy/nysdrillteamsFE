@@ -1,5 +1,7 @@
 import * as React from "react";
 import { useEffect } from "react";
+import Home from './Home';
+import Nav from './Nav';  
 
 export default function App() {
 
@@ -16,8 +18,11 @@ export default function App() {
     }, []); 
 
     return (
-        <div>
-            <h1>NYS Drill Teams</h1>
+        <div className="container">
+            <h1 className="d-flex justify-content-center p-3">NYS Drill Teams</h1>
+            <Nav />
+            <Home/>
+
         </div>
     );
 }
