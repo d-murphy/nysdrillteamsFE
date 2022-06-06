@@ -1,5 +1,7 @@
 import * as React from "react";
 import { useEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Home from './Home';
 import Nav from './Nav';  
 
@@ -18,11 +20,19 @@ export default function App() {
     }, []); 
 
     return (
-        <div className="container">
-            <h1 className="d-flex justify-content-center p-3">NYS Drill Teams</h1>
-            <Nav />
-            <Home/>
-
-        </div>
+        <BrowserRouter>
+            <div className="page-color">
+                <Nav />
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="test" element={<div>test</div>} />
+                    <Route path="*" element={
+                            <div>
+                                <p>Sorry, this URL doesn't mean anything to me.  <a href="/">Return Home?</a></p>
+                            </div>
+                        }/>
+                </Routes>
+            </div>
+        </BrowserRouter>
     );
 }

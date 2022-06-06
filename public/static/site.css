@@ -1,4 +1,42 @@
-.flex-center {
-    display: flex; 
-    justify-content: center;
+
+/* Page */
+
+.page-color {
+    background-color: var(--bs-gray-700); 
 }
+
+
+/* Nav */
+
+.header-logo {
+    width: 300px; 
+}
+
+.nav-bg-color {
+    background-color: #013369;
+}
+
+.hover-nav-font-change {
+    color: var(--bs-white)
+}
+
+
+.hover-nav-font-change:hover {
+    color: var(--bs-gray-500)
+}
+
+.underline-hover {
+    border-bottom: 2px solid #013369; 
+}
+
+.underline-hover:hover {
+    border-bottom: 2px solid white;
+    color: var(--bs-white);
+    cursor: pointer;
+}
+
+/* Home */
+
+.carousel-inner img {
+    margin: auto;
+  }

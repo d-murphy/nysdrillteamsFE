@@ -1,13 +1,22 @@
 const path = require("path");
 const webpack = require("webpack");
 
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+
 module.exports = {
   entry: "./src/index.tsx",
   mode: "development",
+  devServer: {
+    hot: true,
+    static: {
+        publicPath: "/", 
+        directory: path.join(__dirname, 'public'),
+    }
+  },
   output: {
     filename: "bundle.js",
     path: path.resolve("dist"),
-    publicPath: "/",
+    publicPath: "/dist/",
   },
   module: {
     rules:[
@@ -15,9 +24,12 @@ module.exports = {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/,
-      },
+      }
     ], 
   },
+  plugins: [
+    new ReactRefreshWebpackPlugin(),
+  ],
   resolve: {
       extensions: ['.tsx', '.ts', '.js']
   }
