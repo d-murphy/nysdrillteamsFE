@@ -8,7 +8,15 @@
 [React Router Tutorial](https://reactrouter.com/docs/en/v6/getting-started/tutorial)
 
 
+#### To Do:
+* detect scroll and apply class to nav with position fixed
 
+    position: fixed;
+    top: 0px;
+    z-index: 999;
+    width: 100%;
+    opacity: 95%;
+}
 
 
 #### Pages: 
