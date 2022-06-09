@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { Tournament } from "./types/types"; 
+import ScheduleEntry from "./ScheduleEntry"; 
 
 interface ScheduleProp {
     year: number;
@@ -20,6 +21,7 @@ export default function Schedule(props:ScheduleProp) {
         .then(data => {
             setTimeout(() => {
                 console.log(data);
+                data = data.sort((a:Tournament,b:Tournament) => a.date < b.date ? -1 : 1)
                 setTournaments(data); 
                 setFilteredRows(data); 
                 setLoading(false);     
@@ -86,16 +88,22 @@ export default function Schedule(props:ScheduleProp) {
 
     if(!loading && !errorLoading){
         content = (
-            <table>
-                <tr>
-                    <th>Tournament Name</th>
-                    <th>Circuit</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                </tr>
-                {tableRows}
-            </table>
-        
+            <div>
+                <div className="d-flex">
+                    <div className="circuit-selected px-3">All Events</div>
+                    <div className="circuit-not-selected">Nassau</div>
+                    <div className="circuit-not-selected">Northern</div>
+                    <div className="circuit-not-selected">Suffolk</div>
+                    <div className="circuit-not-selected">Western</div>
+                    <div className="circuit-not-selected px-3">Old Fashioned</div>
+                    <div className="circuit-not-selected px-3">Juniors</div>
+                </div>
+                <div>
+                    {filteredRows.map(el => {
+                        return <ScheduleEntry tournament={el}/>
+                    })}
+                </div>
+            </div>        
         )
     }
 
