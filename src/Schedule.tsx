@@ -19,6 +19,7 @@ export default function Schedule(props:ScheduleProp) {
         .then(response => response.json())
         .then(data => {
             setTimeout(() => {
+                console.log(data);
                 setTournaments(data); 
                 setFilteredRows(data); 
                 setLoading(false);     
@@ -49,8 +50,9 @@ export default function Schedule(props:ScheduleProp) {
         fetchTournaments(); 
     }, []); 
 
+    let content; 
     if(loading){
-        return(
+        content = (
             <div className="container">
                 <div className="spinner-border text-secondary" role="status"></div>
                 <span className="sr-only">Loading...</span>   
@@ -58,18 +60,49 @@ export default function Schedule(props:ScheduleProp) {
         )
     }
     if(errorLoading){
-        return (
+        content = (
             <div className="container">Sorry, there was an error loading the schedule.</div>
         )
     }
 
     let tableRows = filteredRows.map(el => {
-        return (<div>{el.name}</div>)
+        let circuitsStr = ''; 
+        el.circuits.forEach(circ => {
+            circuitsStr += circ; 
+        })
+        el.date = new Date(el.date)
+        let timeStr = String(el.date.getHours()) + ":"
+        timeStr += String(el.date.getMinutes()).length<2 ? "0" + String(el.date.getMinutes()) : String(el.date.getMinutes()); 
+        return (
+            <tr>
+                <td>{el.name}</td>
+                <td>{circuitsStr}</td>
+                <td>{`${el.date.getMonth()+1}/${el.date.getDate()}/${el.date.getFullYear()}`}</td>
+                <td>{timeStr}</td>
+            </tr>
+        )
     })
+
+
+    if(!loading && !errorLoading){
+        content = (
+            <table>
+                <tr>
+                    <th>Tournament Name</th>
+                    <th>Circuit</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                </tr>
+                {tableRows}
+            </table>
+        
+        )
+    }
+
     
     return (
         <div className="container">
-            {tableRows}
+            {content}
         </div>
     )
 }

@@ -18,18 +18,20 @@
     opacity: 95%;
 }
 
+* 
+
 
 #### Pages: 
-* Welcome Page, see napkin
+* home page, next drills and most recent drills (links to videos)
+* live tournament updating, websocket opportunity?
 * RunDB - Three Man, sorted by time.  Controls to filter by Team, Year, Tournament, County
 * TotalPointsDB - Sum of Points.  Controls to filter by Year, Tournament, County
+* Contest Year Pt Totals and Percentages?
 * List of tournaments, sorted by date.  Filters for County, Year, Team?, Tournament  (schedule view - year filter)
 * For each tournament, "view best times at [track]" or [tournament] - launches run DB pre-filtered
 * Tracks - display facts and images, list of tournaments.  (schedule view, no circuit or year filter)
 * Tournament View - (is this an opportunity for web socket) (scorecard view)
-* most points scored in contest view?
 * home page - [test if live](https://stackoverflow.com/questions/32454238/how-to-check-if-youtube-channel-is-streaming-live)
-    * bootstrap for image car.
 
 #### Components
 * schedule view
@@ -47,3 +49,5 @@
 #### Finished: 
 * nav bar - dark blue and white, on hover other items turn to gray?
 * react router
+* picture carousel
+

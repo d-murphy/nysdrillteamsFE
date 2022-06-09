@@ -16,7 +16,7 @@ export default function App() {
                 <div className="">
                     <Routes>
                         <Route path="/" element={<Home />} />
-                        <Route path="/Schedule" element={<Schedule year={2020} />} />
+                        <Route path="/Schedule" element={<Schedule year={new Date().getFullYear()} />} />
                         <Route path="test" element={<div>test</div>} />
                         <Route path="*" element={
                                 <div>
