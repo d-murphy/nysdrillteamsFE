@@ -58,6 +58,46 @@ html, body, #root {
     margin: auto;
   }
 
+/* Schedule */
+
+.circuit-selected {
+    background-color: var(--bs-primary);
+    color: var(--bs-white)
+}
+
+.schedule-entry-tournament-track, .circuit-selected, .circuit-not-selected {
+    cursor: pointer;
+}
+
+.schedule-entry-tournament-circuit-nassau, 
+.schedule-entry-tournament-circuit-northern, 
+.schedule-entry-tournament-circuit-suffolk,
+.schedule-entry-tournament-circuit-western,
+.schedule-entry-tournament-circuit-oldfashioned,
+.schedule-entry-tournament-circuit-junior {
+    background-color: var(--bs-gray-700);
+    width: 40px;
+    color: var(--bs-white);
+    user-select: none;
+}
+
+.circuit-inactive {
+    opacity: 30%;
+}
+
+.track-info-icon {
+    opacity: 80%;
+}
+
+.video-icon {
+    cursor: pointer;
+    min-width: 50px;
+}
+
+.video-icon > a {
+    color: #013369; 
+}
+
 /* General */
 
 .font-xx-small {
