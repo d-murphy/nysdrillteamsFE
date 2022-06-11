@@ -19,13 +19,16 @@ export default function Schedule(props:ScheduleProp) {
         fetch(`http://localhost:4400/tournaments/getTournaments?years=${props.year}`)
         .then(response => response.json())
         .then(data => {
-            setTimeout(() => {
-                console.log(data);
-                data = data.sort((a:Tournament,b:Tournament) => a.date < b.date ? -1 : 1)
-                setTournaments(data); 
-                setFilteredRows(data); 
-                setLoading(false);     
-            }, 2000)
+            data = data.sort((a:Tournament,b:Tournament) => a.date < b.date ? -1 : 1)
+            data = data.map((el:Tournament) => {
+                return {
+                    ...el, 
+                    date: new Date(el.date)
+                }
+            })
+            setTournaments(data); 
+            setFilteredRows(data); 
+            setLoading(false);     
         })
         .catch(err => {
             console.error(err)
@@ -33,22 +36,25 @@ export default function Schedule(props:ScheduleProp) {
         })
     }
 
-    const applyFilter = (circuitsArr: string[]) => {
-        let result = tournaments.filter(el => {
-            let filterOverlapsTourn = false;
-            for (let circuit of el.circuits){
-                if(circuitsArr.includes(circuit)) {
-                    filterOverlapsTourn = true;
-                    break; 
-                }  
-            }
-            return filterOverlapsTourn;  
-        })
-        setFilteredRows(result); 
+    const applyFilter = () => {
+        console.log('testttt')
     }
 
+    // const applyFilter = (circuitsArr: string[]) => {
+    //     let result = tournaments.filter(el => {
+    //         let filterOverlapsTourn = false;
+    //         for (let circuit of el.circuits){
+    //             if(circuitsArr.includes(circuit)) {
+    //                 filterOverlapsTourn = true;
+    //                 break; 
+    //             }  
+    //         }
+    //         return filterOverlapsTourn;  
+    //     })
+    //     setFilteredRows(result); 
+    // }
+
     useEffect(() => {
-        console.log('hiya')
         fetchTournaments(); 
     }, []); 
 
@@ -67,40 +73,24 @@ export default function Schedule(props:ScheduleProp) {
         )
     }
 
-    let tableRows = filteredRows.map(el => {
-        let circuitsStr = ''; 
-        el.circuits.forEach(circ => {
-            circuitsStr += circ; 
-        })
-        el.date = new Date(el.date)
-        let timeStr = String(el.date.getHours()) + ":"
-        timeStr += String(el.date.getMinutes()).length<2 ? "0" + String(el.date.getMinutes()) : String(el.date.getMinutes()); 
-        return (
-            <tr>
-                <td>{el.name}</td>
-                <td>{circuitsStr}</td>
-                <td>{`${el.date.getMonth()+1}/${el.date.getDate()}/${el.date.getFullYear()}`}</td>
-                <td>{timeStr}</td>
-            </tr>
-        )
-    })
-
 
     if(!loading && !errorLoading){
         content = (
-            <div>
-                <div className="d-flex">
-                    <div className="circuit-selected px-3">All Events</div>
-                    <div className="circuit-not-selected">Nassau</div>
-                    <div className="circuit-not-selected">Northern</div>
-                    <div className="circuit-not-selected">Suffolk</div>
-                    <div className="circuit-not-selected">Western</div>
-                    <div className="circuit-not-selected px-3">Old Fashioned</div>
-                    <div className="circuit-not-selected px-3">Juniors</div>
+            <div className="">
+                <div className="d-flex justify-content-between mt-4 mb-3 p-3">
+                    <div className="mx-5">&nbsp;</div>
+                    <div className="circuit-selected mx-5" onClick={applyFilter}>All Events</div>
+                    <div className="circuit-not-selected mx-3">Nassau</div>
+                    <div className="circuit-not-selected mx-3">Northern</div>
+                    <div className="circuit-not-selected mx-3">Suffolk</div>
+                    <div className="circuit-not-selected mx-3">Western</div>
+                    <div className="circuit-not-selected mx-5">Old Fashioned</div>
+                    <div className="circuit-not-selected mx-5">Juniors</div>
+                    <div className="mx-5">&nbsp;</div>
                 </div>
-                <div>
+                <div className="pb-5">
                     {filteredRows.map(el => {
-                        return <ScheduleEntry tournament={el}/>
+                        return <ScheduleEntry key={el.id} tournament={el}/>
                     })}
                 </div>
             </div>        

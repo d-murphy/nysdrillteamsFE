@@ -4,13 +4,10 @@
 html, body, #root {
     height: 100%;
     min-height: 100% !important;
-}
-
-
-.page-color {
     background-color: var(--bs-gray-200); 
-    height: 100%;
 }
+
+
 
 
 /* Nav */
@@ -27,12 +24,17 @@ html, body, #root {
     width: 300px; 
 }
 
-.nav-bg-color {
+.nav-bg-color, .schedule-entry-button {
     background-color: #013369;
 }
 
-.hover-nav-font-change {
+.hover-nav-font-change, .schedule-entry-button {
     color: var(--bs-white)
+}
+
+.schedule-entry-button:hover {
+    opacity: 80%;
+    cursor: pointer;
 }
 
 
@@ -55,3 +57,37 @@ html, body, #root {
 .carousel-inner img {
     margin: auto;
   }
+
+/* General */
+
+.font-xx-small {
+    font-size: xx-small;
+}
+
+.font-x-small {
+    font-size: x-small;
+}
+
+.font-small {
+    font-size: small;
+}
+
+.font-medium {
+    font-size: medium;
+}
+
+.font-large {
+    font-size: large;
+}
+
+.font-x-large {
+    font-size: x-large;
+}
+
+.font-xx-large {
+    font-size: xx-large;
+}
+
+.font-xxx-large {
+    font-size: xxx-large;
+}

@@ -11,7 +11,7 @@ export default function App() {
 
     return (
         <BrowserRouter>
-            <div className="page-color">
+            <div className="">
                 <Nav />
                 <div className="">
                     <Routes>
