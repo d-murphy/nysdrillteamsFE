@@ -7,7 +7,7 @@ export default function Nav() {
     return (
         <div className="">
             <div className="row d-flex justify-content-center p-4 header-bg">
-                <img className="header-logo" src="./static/img/logo_nysdt-3d.1.png" />
+                <img className="header-logo" src="/static/img/logo_nysdt-3d.1.png" />
             </div>
             <div className="row p-1 nav-bg-color hover-nav-font-change">
                 <div className="col">&nbsp;</div>

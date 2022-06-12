@@ -6,6 +6,7 @@
 [Starting react app](https://dev.to/ruppysuppy/create-react-app-from-scratch-like-a-pro-de0)
 [Adding TS to react app](https://blog.logrocket.com/using-typescript-with-react-tutorial-examples/)
 [React Router Tutorial](https://reactrouter.com/docs/en/v6/getting-started/tutorial)
+[Fixing 'Cannot Get' Error](https://ui.dev/react-router-cannot-get-url-refresh)
 
 
 #### To Do:
