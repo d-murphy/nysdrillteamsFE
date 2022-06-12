@@ -1,31 +1,42 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+
 import { Tournament } from "./types/types"; 
+
+import TournamentHeader from "./TournamentHeader";
+
 
 
 
 export default function Schedule() {
 
     const [loading, setLoading] = useState(true); 
-    const [errorLoading, setErrorLoading] = useState(false); 
+    const [errorLoading, setErrorLoading] = useState(false);
+    const [tournament, setTournament] = useState<Tournament>();   
 
-    const fetchTournaments = () => {
-        fetch(`http://google.com`)
+    let params = useParams();
+    const tournamentId = params.id
+
+    const fetchTournament = () => {
+        console.log("ft called for id: ", tournamentId);  
+        fetch(`http://localhost:4400/tournaments/getTournament?tournamentId=${tournamentId}`)
         .then(response => response.json())
         .then(data => {
-            data = data.sort((a:Tournament,b:Tournament) => a.date < b.date ? -1 : 1)
-            data = data.map((el:Tournament) => {
-                return {
-                    ...el, 
-                    date: new Date(el.date)
-                }
-            })
+            data.date = new Date(data.date)
+            setTournament(data)
+            console.log(data)
             setLoading(false);
         })
         .catch(err => {
+            console.log(err)
             setErrorLoading(true); 
         })
     }
+
+    useEffect(() => {
+        fetchTournament()
+    }, [])
 
     let content; 
     if(loading){
@@ -38,7 +49,7 @@ export default function Schedule() {
     }
     if(errorLoading){
         content = (
-            <div className="container">Sorry, there was an error loading the schedule.</div>
+            <div className="container">Sorry, there was an error loading the tournament.</div>
         )
     }
 
@@ -46,7 +57,9 @@ export default function Schedule() {
     if(!loading && !errorLoading){
         content = (
             <div className="">
-                new hiya test, trying to move on
+                <div className="row">
+                    <TournamentHeader tournament={tournament} />
+                </div>
             </div>        
         )
     }

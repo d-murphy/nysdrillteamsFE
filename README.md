@@ -37,6 +37,7 @@
 * connect schedule view scorecard to scorecard
 * connect track info icon to track page
 * schedule css not nice for mobile
+* env var
 
 #### Components
 * schedule view
