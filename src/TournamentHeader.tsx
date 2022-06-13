@@ -2,6 +2,7 @@ import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faVideo, faCircleInfo } from '@fortawesome/free-solid-svg-icons'
+import TournamentWinners from "./TournamentWinners"
 
 import { Tournament } from "./types/types"; 
 import dateUtil from "./utils/dateUtils"; 
@@ -25,7 +26,7 @@ export default function TournamentHeader(props:TournamentProp) {
         })    
     }
     let pointsStr: string = ''; 
-    if(!tournament.circuits) {
+    if(!tournament.circuits.length) {
         pointsStr += "Not a Total Points Drill"
     } else {
         pointsStr += "This is a Total Points Drill for: "
@@ -40,7 +41,13 @@ export default function TournamentHeader(props:TournamentProp) {
         let path = `/`; 
         navigate(path);
     }
-    
+
+    let urlList = <div>
+        <div className="video-icon font-x-large ms-3">
+            {printUrlWithIcon(tournament)}
+        </div>
+    </div>
+
     return (
         <div className="row m-2 bg-white pt-2 pb-3 shadow-sm rounded">
             <div className="row">
@@ -75,12 +82,23 @@ export default function TournamentHeader(props:TournamentProp) {
             </div>
             <div className="schedule-entry-button-section col-3 d-flex justify-content-around align-items-center pe-5">
                 <div className="video-icon font-x-large ms-3">
-                    {tournament?.urls?.length ?  <a href={`${tournament?.urls[0] }`} target="_blank"><FontAwesomeIcon icon={faVideo} /></a> : <></> }
-                    add others
+                    {tournament?.urls?.length ?  <div>{urlList}</div> : 
+                        <div><TournamentWinners tournamentName={tournament.name} numberShown={3} /></div>
+                    }
                 </div>
             </div>
         </div>
     )
+}
+
+function printUrlWithIcon(tournament:Tournament){
+    if(tournament.urls && tournament.urls.length) {
+        return tournament?.urls.map((el) => { 
+            return <div className="font-medium">
+                <a className="video-links" href={`${el}`} target="_blank">Watch the Drill <FontAwesomeIcon icon={faVideo} /></a>
+            </div> })     
+    }
+    return <div></div>
 }
 
 

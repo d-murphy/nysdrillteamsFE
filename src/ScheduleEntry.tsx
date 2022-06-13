@@ -5,6 +5,7 @@ import { faVideo, faCircleInfo } from '@fortawesome/free-solid-svg-icons'
 
 import { Tournament } from "./types/types"; 
 import dateUtil from "./utils/dateUtils"; 
+import getTournamentWinner from "./utils/getTournamentWinners"; 
 
 interface ScheduleEntryProp {
     tournament: Tournament;
@@ -13,17 +14,8 @@ interface ScheduleEntryProp {
 
 export default function ScheduleEntry(props:ScheduleEntryProp) {
     const tournament = props.tournament;
-    let winnerStr: string = ''
-    if(tournament.top5) {
-        tournament.top5.forEach(team => {
-            let numOfFirsts = 0; 
-            if(team.finishingPosition=="1") {
-                numOfFirsts++; 
-                if(numOfFirsts == 1) winnerStr += team.teamName; 
-                if(numOfFirsts > 1) winnerStr += " | " + team.teamName;
-            }
-        })    
-    }
+    let winnerStr = getTournamentWinner(tournament, " | "); 
+
     let nassauIcon = tournament.circuits.includes("Nassau"); 
     let northernIcon = tournament.circuits.includes("Northern"); 
     let suffolkIcon = tournament.circuits.includes("Suffolk"); 
