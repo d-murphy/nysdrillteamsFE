@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faVideo, faCircleInfo } from '@fortawesome/free-solid-svg-icons'
 
-import { Tournament } from "./types/types"; 
-import dateUtil from "./utils/dateUtils"; 
-import getTournamentWinner from "./utils/getTournamentWinners"; 
+import { Tournament } from "../types/types"; 
+import dateUtil from "../utils/dateUtils"; 
+import getTournamentWinner from "../utils/getTournamentWinners"; 
 
 interface ScheduleEntryProp {
     tournament: Tournament;

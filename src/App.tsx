@@ -2,10 +2,10 @@ import * as React from "react";
 import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Home from './Home';
-import Nav from './Nav';  
-import Schedule from './Schedule'; 
-import Tournament from './Tournament';
+import Home from './Pages/Home';
+import Nav from './Components/Nav';  
+import Schedule from './Pages/Schedule'; 
+import Tournament from './Pages/Tournament';
 
 export default function App() {
 

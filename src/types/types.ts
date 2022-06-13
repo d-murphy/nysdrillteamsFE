@@ -12,3 +12,23 @@ export type Tournament = {
     liveStreamPlanned?: boolean
     urls?: string[]
 }
+
+export type Run = {
+    id?: number, 
+    team: string, 
+    contest: string,
+    year?: number, 
+    tournament?: string
+    tournamentId: number,
+    track: string, 
+    time: string, 
+    runningPosition?: number, 
+    circuit?: string, 
+    date: Date, 
+    urls: string[], 
+    sanctioned: boolean
+    points?: number, 
+    notes?: string,
+    stateRecord?: boolean
+}
+

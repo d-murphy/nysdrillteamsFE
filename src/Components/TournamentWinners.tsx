@@ -3,9 +3,9 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
 
-import { Tournament } from "./types/types"; 
+import { Tournament } from "../types/types"; 
 
-import getTournamentWinner from "./utils/getTournamentWinners"; 
+import getTournamentWinner from "../utils/getTournamentWinners"; 
 
 interface TournamentWinnersProp {
     tournamentName: string;

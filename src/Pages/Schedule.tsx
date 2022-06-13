@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { Tournament } from "./types/types"; 
-import ScheduleEntry from "./ScheduleEntry"; 
+import { Tournament } from "../types/types"; 
+import ScheduleEntry from "../Components/ScheduleEntry"; 
 
 interface ScheduleProp {
     year: number;

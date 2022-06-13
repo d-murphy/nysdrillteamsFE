@@ -38,6 +38,8 @@
 * connect track info icon to track page
 * schedule css not nice for mobile
 * env var
+* mobile css on all of the tables
+* add top 5 to tournament header
 
 #### Components
 * schedule view
