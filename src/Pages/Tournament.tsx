@@ -12,7 +12,8 @@ import Scorecard from "../Components/Scorecard"
 
 export default function Schedule() {
 
-    const [loading, setLoading] = useState(true); 
+    const [tournLoading, setTournLoading] = useState(true); 
+    const [runLoading, setRunLoading] = useState(true); 
     const [errorLoading, setErrorLoading] = useState(false);
     const [tournament, setTournament] = useState<Tournament>(); 
     const [runs, setRuns] = useState<Run[]>(); 
@@ -28,7 +29,7 @@ export default function Schedule() {
                 data.date = new Date(data.date)
                 setTournament(data)
                 console.log('tourn: ', data)
-                setLoading(false);
+                setTournLoading(false);
             })
             .catch(err => {
                 console.log(err)
@@ -42,9 +43,12 @@ export default function Schedule() {
             .then(data => {
                 setRuns(data)
                 console.log('runs: ', data)
+                setTimeout(() => {setRunLoading(false)}, 500); 
+                // setRunLoading(false);
             })
             .catch(err => {
                 console.log(err)
+                setErrorLoading(true); 
             })
     }
 
@@ -54,22 +58,27 @@ export default function Schedule() {
     }, [])
 
     let content; 
-    if(loading){
+    if(tournLoading || runLoading){
         content = (
-            <div className="">
-                <div className="spinner-border text-secondary" role="status"></div>
-                <span className="sr-only">Loading...</span>   
+            <div className="row">
+                <div className="col-12 d-flex flex-column align-items-center mt-5">
+                    <div className="spinner-border text-secondary" role="status"></div>
+                </div>
             </div>
         )
     }
     if(errorLoading){
         content = (
-            <div className="">Sorry, there was an error loading the tournament.</div>
+            <div className="row">
+                <div className="col-12 d-flex flex-column align-items-center mt-5">
+                    <div className="">Sorry, there was an error loading the tournament.</div>
+                </div>
+            </div>
         )
     }
 
 
-    if(!loading && !errorLoading){
+    if((!tournLoading && !runLoading) && !errorLoading){
         content = (
             <div className="">
                 <div className="row">
@@ -88,7 +97,7 @@ export default function Schedule() {
                             <Scorecard tournament={tournament} runs={runs}/>
                         </div> : 
                         <div className="row">
-                            Sorted View
+                            <p>Under Construction.</p>
                         </div>
                     }
                 </div>

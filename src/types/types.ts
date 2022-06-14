@@ -5,12 +5,13 @@ export type Tournament = {
     date: Date, 
     circuits: string[], 
     track: string,
-    runningOrder?: { [teamName: string]: number },
+    runningOrder?: { [runningPosition:number]: string },
     sanctioned: boolean, 
-    top5?: [ {teamName: string, finishingPosition: string} ] 
+    top5?: {teamName: string, finishingPosition: string, points: number}[] 
     contests: string[],
     liveStreamPlanned?: boolean
-    urls?: string[]
+    urls?: string[], 
+    waterTime?: string
 }
 
 export type Run = {
@@ -29,6 +30,6 @@ export type Run = {
     sanctioned: boolean
     points?: number, 
     notes?: string,
-    stateRecord?: boolean
+    stateRecord?: boolean,
+    currentStateRecord?: boolean
 }
-

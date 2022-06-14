@@ -7,6 +7,7 @@
 [Adding TS to react app](https://blog.logrocket.com/using-typescript-with-react-tutorial-examples/)
 [React Router Tutorial](https://reactrouter.com/docs/en/v6/getting-started/tutorial)
 [Fixing 'Cannot Get' Error](https://ui.dev/react-router-cannot-get-url-refresh)
+[Table with Stick Col and Row](https://css-tricks.com/a-table-with-both-a-sticky-header-and-a-sticky-first-column/)
 
 
 #### To Do:
@@ -40,6 +41,7 @@
 * env var
 * mobile css on all of the tables
 * add top 5 to tournament header
+* finish sorted view on tournament page
 
 #### Components
 * schedule view

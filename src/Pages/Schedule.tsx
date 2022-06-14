@@ -29,7 +29,9 @@ export default function Schedule(props:ScheduleProp) {
             })
             setTournaments(data); 
             setFilteredRows(data); 
-            setLoading(false);
+//            setLoading(false);
+            setTimeout(() => {setLoading(false)}, 500); 
+
             console.log('how often is this running?')     
         })
         .catch(err => {
@@ -100,15 +102,20 @@ export default function Schedule(props:ScheduleProp) {
     let content; 
     if(loading){
         content = (
-            <div className="container">
-                <div className="spinner-border text-secondary" role="status"></div>
-                <span className="sr-only">Loading...</span>   
+            <div className="row">
+                <div className="col-12 d-flex flex-column align-items-center mt-5">
+                    <div className="spinner-border text-secondary" role="status"></div>
+                </div>
             </div>
         )
     }
     if(errorLoading){
         content = (
-            <div className="container">Sorry, there was an error loading the schedule.</div>
+            <div className="row">
+                <div className="col-12 d-flex flex-column align-items-center mt-5">
+                    <div className="">Sorry, there was an error loading the schedule.</div>
+                </div>
+            </div>
         )
     }
 
