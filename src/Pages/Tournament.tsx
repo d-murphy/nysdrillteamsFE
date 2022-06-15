@@ -5,7 +5,8 @@ import { useParams } from "react-router-dom";
 import { Tournament, Run } from "../types/types"; 
 
 import TournamentHeader from "../Components/TournamentHeader";
-import Scorecard from "../Components/Scorecard"
+import Scorecard from "../Components/Scorecard";
+import SortedView from "../Components/SortedView";
 
 
 
@@ -52,9 +53,10 @@ export default function Schedule() {
             })
     }
 
+
     useEffect(() => {
-        fetchTournament();
-        fetchRuns(); 
+            fetchTournament(),
+            fetchRuns()     
     }, [])
 
     let content; 
@@ -97,7 +99,7 @@ export default function Schedule() {
                             <Scorecard tournament={tournament} runs={runs}/>
                         </div> : 
                         <div className="row">
-                            <p>Under Construction.</p>
+                            <SortedView tournament={tournament} runs={runs}/>
                         </div>
                     }
                 </div>

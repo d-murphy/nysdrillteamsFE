@@ -4,7 +4,7 @@ import { Tournament, Run } from "../types/types";
 
 interface ScorecardProp {
     tournament: Tournament;
-    runs: Run[]
+    runs: Run[]; 
 }
 
 
@@ -12,14 +12,14 @@ export default function Scorecard(props:ScorecardProp) {
     const tournament = props.tournament;
     const runs = props.runs; 
 
-    let runsLU:{ [key:string]: Run } = {}; 
+    let runsLU:{ [key:string]: Run } = {};
+    let totalPointsLU: { [key:string]: number } = {}; 
     runs.forEach(el => {
         let key = el.team + " - " + el.contest; 
         runsLU[key] = el; 
     })
-
-    let totalPointsLU: { [key:string]: number } = {}; 
     tournament.contests.forEach((contest, contestIndex) => {
+        console.log('totalPointsLU running')
         Object.values(tournament.runningOrder).forEach(team => {
             let key = team + " - " + contest; 
             if(contestIndex == 0) {
@@ -32,8 +32,6 @@ export default function Scorecard(props:ScorecardProp) {
             
         })
     })
-    console.log('tp LU', totalPointsLU)
-
 
     let headers = tournament && runs ? generateHeaders(tournament) : <></>;
     let tableRows = tournament && runs ? generateRows(tournament, runsLU, totalPointsLU) : <></>;
