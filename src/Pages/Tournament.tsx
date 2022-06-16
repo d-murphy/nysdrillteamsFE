@@ -86,7 +86,7 @@ export default function Schedule() {
                 <div className="row">
                     <TournamentHeader tournament={tournament} />
                 </div>
-                <div className="row bg-white my-1 shadow-sm rounded p-2">
+                <div className="row bg-white my-1 shadow-sm rounded p-2 ">
                     <div className="row">
                         <div className="col-2"></div>
                         <div className={`scorecard-type col-3 text-center p-2 ${view == 'scorecard' ? "border-bottom" : ""} `} onClick={()=>{setView('scorecard')}}>Scorecard View</div>
