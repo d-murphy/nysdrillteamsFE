@@ -64,7 +64,7 @@ function calculateTotalPoints(tournament:Tournament, runs: Run[]):calculatingTot
             }
         }
     })
-    console.log(totalPtsArr)
+    totalPtsArr = totalPtsArr.filter(el => el.points)
     return totalPtsArr; 
 }
 
@@ -72,12 +72,8 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
     let buffer: JSX.Element[] = []; 
     buffer.push(
         <div className="sorted-view-result-row row">
-            <div className="col-11 text-center font-x-large my-4">
+            <div className="col-12 text-center font-x-large my-4">
                 Total Points
-            </div>
-            <div className="col-1 custom-control custom-switch">
-                <input type="checkbox" className="custom-control-input" id="customSwitch1" />
-                <label className="custom-control-label" htmlFor="customSwitch1">Top 5 Only?</label>
             </div>
         </div>
     )
