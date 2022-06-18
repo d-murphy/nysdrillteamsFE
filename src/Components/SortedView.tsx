@@ -4,6 +4,9 @@ import { RuntimeGlobals } from "webpack";
 
 import { Tournament, Run } from "../types/types"; 
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
+import { faVideo } from '@fortawesome/free-solid-svg-icons'
+
 interface SortedViewProp {
     tournament: Tournament;
     runs: Run[]; 
@@ -169,8 +172,20 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
                 {runsToShow.map(run => {
                     return (
                         <div className="row pb-1">
-                            <div className="col-6 text-center font-large">{run.team}</div>
-                            <div className="col-3 text-center font-large">{run.time}</div>
+                            <div className="col-6 text-center font-large">{`${run.team}`}<span className="ms-2 font-medium text-secondary">{`#${run.runningPosition}`}</span></div>
+                            <div className="col-3 font-large d-flex justify-content-center">
+                                    <div className="scorecard-video-link-parent">
+                                        {run.time}
+                                        <span className="scorecard-video-link">
+                                            {
+                                                run.urls.length ? 
+                                                    <span>
+                                                        <a className="video-links" href={`${ run.urls.length ? run.urls[0] : "" }`} target="_blank"> <FontAwesomeIcon icon={faVideo} /></a>
+                                                    </span> : <></>
+                                            }
+                                        </span>
+                                    </div>
+                            </div>
                             <div className="col-3 text-center font-large">{run?.points && run.points == 0 ? "" : run.points}</div>
                         </div>
                     )

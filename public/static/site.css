@@ -187,6 +187,15 @@ table {
     z-index: 1;
   }
 
+  .scorecard-video-link-parent {
+    position: relative; 
+  }
+
+  .scorecard-video-link {
+    position: absolute;
+    left: 40px;
+  }
+
 
 /* General */
 
