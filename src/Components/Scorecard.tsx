@@ -61,13 +61,13 @@ function generateHeaders(tournament:Tournament){
 
     tournament.contests.forEach((el, ind) => {
         if(ind==0){
-            buffer.push(<th scope="col" className="scorecard-cell-md scorecard-lineup-header fixed-col p-1">Team Lineup</th>) 
-            buffer.push(<th scope="col" className="scorecard-cell-lg scorecard-contest-header text-center p-1">{el}</th>) 
-            buffer.push(<th scope="col" className="scorecard-cell-sm scorecard-points-header text-center p-1">Points</th>) 
+            buffer.push(<th scope="col" className="scorecard-cell-md scorecard-lineup-header fixed-col p-2">Team Lineup</th>) 
+            buffer.push(<th scope="col" className="scorecard-cell-lg scorecard-contest-header text-center p-2">{el}</th>) 
+            buffer.push(<th scope="col" className="scorecard-cell-sm scorecard-points-header text-center p-2">Points</th>) 
         } else {
-            buffer.push(<th scope="col" className="scorecard-cell-lg scorecard-contest-header text-center p-1">{el}</th>) 
-            buffer.push(<th scope="col" className="scorecard-cell-sm scorecard-points-header text-center p-1">Points</th>) 
-            buffer.push(<th scope="col" className="scorecard-cell-sm scorecard-totalpoints-header text-center p-1">Total</th>) 
+            buffer.push(<th scope="col" className="scorecard-cell-lg scorecard-contest-header text-center p-2">{el}</th>) 
+            buffer.push(<th scope="col" className="scorecard-cell-sm scorecard-points-header text-center p-2">Points</th>) 
+            buffer.push(<th scope="col" className="scorecard-cell-sm scorecard-totalpoints-header text-center p-2">Total</th>) 
         }
     })
     return buffer; 
@@ -84,13 +84,13 @@ function generateRows(tournament:Tournament, runsLU:{ [key:string]: Run }, total
         tournament.contests.forEach((el, ind) => {
             let key = tournament.runningOrder[i] + " - " + el; 
             if(ind==0){
-                rowBuffer.push(<th scope="col" className="scorecard-cell-md scorecard-lineup-cell fixed-col p-1">{tournament.runningOrder[i] ? `${i}. ${tournament.runningOrder[i]}` : `${i}.`}</th>) 
-                rowBuffer.push(<td scope="col" className="scorecard-cell-lg scorecard-contest-cell text-center p-1">{runsLU[key] ? runsLU[key].time : "" }</td>) 
-                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-points-cell text-center p-1">{runsLU[key]?.points ? runsLU[key].points : ""}</td>) 
+                rowBuffer.push(<th scope="col" className="scorecard-cell-md scorecard-lineup-cell fixed-col p-2">{tournament.runningOrder[i] ? `${i}. ${tournament.runningOrder[i]}` : `${i}.`}</th>) 
+                rowBuffer.push(<td scope="col" className="scorecard-cell-lg scorecard-contest-cell text-center p-2">{runsLU[key] ? runsLU[key].time : "" }</td>) 
+                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-points-cell text-center p-2">{runsLU[key]?.points ? runsLU[key].points : ""}</td>) 
             } else {
-                rowBuffer.push(<td scope="col" className="scorecard-cell-lg scorecard-contest-cell text-center p-1">{runsLU[key] ? runsLU[key].time : "" }</td>) 
-                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-points-cell text-center p-1">{runsLU[key]?.points ? runsLU[key].points : ""}</td>) 
-                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-totalpoints-cell text-center p-1">{totalPointsLU[key]}</td>) 
+                rowBuffer.push(<td scope="col" className="scorecard-cell-lg scorecard-contest-cell text-center p-2">{runsLU[key] ? runsLU[key].time : "" }</td>) 
+                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-points-cell text-center p-2">{runsLU[key]?.points ? runsLU[key].points : ""}</td>) 
+                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-totalpoints-cell text-center p-2">{totalPointsLU[key]}</td>) 
             }    
         })
         buffer.push(<tr>{...rowBuffer}</tr>)

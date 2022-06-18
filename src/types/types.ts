@@ -31,5 +31,6 @@ export type Run = {
     points?: number, 
     notes?: string,
     stateRecord?: boolean,
-    currentStateRecord?: boolean
+    currentStateRecord?: boolean,
+    finish?:string
 }

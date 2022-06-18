@@ -42,6 +42,7 @@
 * mobile css on all of the tables
 * add top 5 to tournament header
 * finish sorted view on tournament page
+* add url link to scorecard view
 
 #### Components
 * schedule view

@@ -1,4 +1,6 @@
 import * as React from "react";
+import { useState } from "react";
+import { RuntimeGlobals } from "webpack";
 
 import { Tournament, Run } from "../types/types"; 
 
@@ -9,9 +11,10 @@ interface SortedViewProp {
 
 
 export default function SortedView(props:SortedViewProp) {
-    console.log('sort view called')
     const tournament = props.tournament;
     const runs = props.runs; 
+    const [contestSelected, setContestSelected] = useState(tournament.contests.length ? tournament.contests[0] : "")
+
     let runsLU:{ [key:string]: Run } = {};
     runs.forEach(el => {
         let key = el.team + " - " + el.contest; 
@@ -21,9 +24,17 @@ export default function SortedView(props:SortedViewProp) {
 
     const totalPoints:calculatingTotalPoints[] = calculateTotalPoints(tournament, runs); 
     const totalPointsTable = generateTotalPointsTable(totalPoints, runsLU, tournament); 
+    const contestTable = generateContestSection(tournament, runs, contestSelected, setContestSelected )
 
     return (
-        totalPointsTable
+        <div>
+            <div>
+                {totalPointsTable}
+            </div>
+            <div>
+                {contestTable}
+            </div>
+        </div>
     )
 }
 
@@ -68,18 +79,18 @@ function calculateTotalPoints(tournament:Tournament, runs: Run[]):calculatingTot
     return totalPtsArr; 
 }
 
-function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:{ [key:string]: Run }, tournament:Tournament ){
-    let buffer: JSX.Element[] = []; 
-    buffer.push(
-        <div className="sorted-view-result-row row">
-            <div className="col-12 text-center font-x-large my-4">
+function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:{ [key:string]: Run }, tournament:Tournament ): JSX.Element {
+    let totalPointsBuffer: JSX.Element[] = []; 
+    totalPointsBuffer.push(
+        <div className="row ">
+            <div className="col-12 text-center font-x-large mt-4 mb-2">
                 Total Points
             </div>
         </div>
     )
     totalPoints.forEach(el => {
-        buffer.push(
-            <div className="row py-4 border-bottom bg-light my-1 mx-4">
+        totalPointsBuffer.push(
+            <div className="row py-4 border bg-light rounded my-1 mx-4">
                 <div className="team col-1 font-large d-flex justify-content-center align-items-center p-3 ">{el.finish ? el.finish : ''}</div>
                 <div className="col-10 px-4">
                     <div className="row">
@@ -109,10 +120,72 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
             </div>
         )
     })
+
     return (
-        <div className="">
-            {...buffer}
+        <div className="border rounded border-shadow pb-4 mt-4">
+            {...totalPointsBuffer}
         </div>
+    )
+}
+
+function generateContestSection(tournament:Tournament, runs:Run[], contestSelected:string, setContestSelected:Function ){
+
+    let runsToShow = runs.filter(el => {
+        return el.contest == contestSelected; 
+    })
+    runsToShow = runsToShow.sort((a:Run,b:Run) => {
+        let aNum = a.time == "NT" ? 99 : a.time == "OT" ? 98 : parseFloat(a.time);  
+        let bNum = b.time == "NT" ? 99 : b.time == "OT" ? 98 : parseFloat(b.time);  
+        console.log(aNum, bNum, aNum < bNum ? -1 : 1); 
+        return aNum < bNum ? -1 : 1; 
+    })
+    console.log('runsToShow', runsToShow)
+
+
+    let contestBuffer = []; 
+    contestBuffer.push(
+        <div className="col-12 text-center font-x-large mt-4 mb-2">
+            Contest Results
+        </div>
+    )
+    contestBuffer.push(
+        <div className="d-flex justify-content-center flex-wrap align-content-center mt-4 mb-3 px-5">
+            {
+                tournament.contests.map(contest => {
+                    return <div className={`${contestSelected == contest ? "contest-selected" : "contest-not-selected" } mx-1 px-3 py-2 rounded`} onClick={() => setContestSelected(contest)}>{contest}</div>
+                })
+            }
+        </div>
+    )
+    contestBuffer.push(
+        runsToShow.length ? 
+            <div className="border bg-light rounded pt-2 pb-3">
+                <div className="row py-3">
+                    <div className="col-6 font-x-large text-center">Team</div>
+                    <div className="col-3 font-x-large text-center">Time</div>
+                    <div className="col-3 font-x-large text-center">Points</div>
+                </div>
+
+                {runsToShow.map(run => {
+                    return (
+                        <div className="row pb-1">
+                            <div className="col-6 text-center font-large">{run.team}</div>
+                            <div className="col-3 text-center font-large">{run.time}</div>
+                            <div className="col-3 text-center font-large">{run?.points && run.points == 0 ? "" : run.points}</div>
+                        </div>
+                    )
+                })}
+            </div> : 
+            <div className="border bg-light rounded p-5 m-5 text-center">
+                No runs have been recorded for this event.                
+            </div>
+    )
+
+    return (
+        <div className="border rounded border-shadow my-4 p-4 ">
+            {...contestBuffer}
+        </div>
+
     )
 }
 

@@ -86,23 +86,29 @@ export default function Schedule() {
                 <div className="row">
                     <TournamentHeader tournament={tournament} />
                 </div>
-                <div className="row bg-white my-1 shadow-sm rounded p-2 ">
-                    <div className="row">
-                        <div className="col-2"></div>
-                        <div className={`scorecard-type col-3 text-center p-2 ${view == 'scorecard' ? "border-bottom" : ""} `} onClick={()=>{setView('scorecard')}}>Scorecard View</div>
-                        <div className="col-2"></div>
-                        <div className={`scorecard-type col-3 text-center p-2 ${view != 'scorecard' ? "border-bottom" : ""}`} onClick={()=>{setView('sorted')}}>Sorted View</div>
-                        <div className="col-2"></div>
-                    </div>
-                    {view == "scorecard" ? 
-                        <div className="">
-                            <Scorecard tournament={tournament} runs={runs}/>
-                        </div> : 
+                {
+                !Object.keys(tournament.runningOrder).length ? 
+                    <div className="row bg-white my-1 shadow-sm rounded p-5 d-flex justify-content-center">The lineup for the drill is not yet available.</div> : 
+                    <div className="row bg-white my-1 shadow-sm rounded p-2 ">
                         <div className="row">
-                            <SortedView tournament={tournament} runs={runs}/>
+                            <div className="col-2"></div>
+                            <div className={`scorecard-type col-3 text-center p-2 ${view == 'scorecard' ? "border-bottom" : ""} `} onClick={()=>{setView('scorecard')}}>Scorecard View</div>
+                            <div className="col-2"></div>
+                            <div className={`scorecard-type col-3 text-center p-2 ${view != 'scorecard' ? "border-bottom" : ""}`} onClick={()=>{setView('sorted')}}>Sorted View</div>
+                            <div className="col-2"></div>
                         </div>
-                    }
-                </div>
+                        <div className="d-flex justify-content-center">
+                            {view == "scorecard" ? 
+                                <div className="w-100">
+                                    <Scorecard tournament={tournament} runs={runs}/>
+                                </div> : 
+                                <div className="row w-100 ">
+                                    <SortedView tournament={tournament} runs={runs}/>
+                                </div>
+                            }                            
+                        </div>
+                    </div>
+                }
             </div>        
         )
     }

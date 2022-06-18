@@ -1,3 +1,10 @@
+/* CSS Vars */
+
+:root {
+    --button-blue: hwb(210 25% 33%);
+    --button-blue-hover: hwb(210 19% 44%);
+}
+
 
 /* Page */
 
@@ -23,6 +30,7 @@ html, body, #root {
 
 .header-logo {
     width: 300px; 
+    cursor: pointer;
 }
 
 .nav-bg-color, .schedule-entry-button {
@@ -61,12 +69,19 @@ html, body, #root {
 
 /* Schedule */
 
-.circuit-selected {
-    background-color: var(--bs-primary);
+.circuit-selected, .contest-selected {
+    background-color: var(--button-blue);
     color: var(--bs-white)
 }
 
-.schedule-entry-tournament-track, .circuit-selected, .circuit-not-selected {
+.circuit-not-selected:hover, .contest-not-selected:hover {
+    background-color: var(--button-blue-hover);
+    color: var(--bs-white);
+}
+
+
+
+.schedule-entry-tournament-track, .circuit-selected, .circuit-not-selected, .contest-selected, .contest-not-selected {
     cursor: pointer;
 }
 
