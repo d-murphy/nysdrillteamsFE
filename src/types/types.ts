@@ -34,3 +34,14 @@ export type Run = {
     currentStateRecord?: boolean,
     finish?:string
 }
+
+export type Track = {
+    id: number, 
+    name: string, 
+    address: string, 
+    city: string, 
+    notes: string,
+    imageUrls: string[], 
+    archHeight: string | null,
+    distanceToHydrant: number | null
+}

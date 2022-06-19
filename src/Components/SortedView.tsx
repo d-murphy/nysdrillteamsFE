@@ -155,7 +155,7 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
         <div className="d-flex justify-content-center flex-wrap align-content-center mt-4 mb-3 px-5">
             {
                 tournament.contests.map(contest => {
-                    return <div className={`${contestSelected == contest ? "contest-selected" : "contest-not-selected" } mx-1 px-3 py-2 rounded`} onClick={() => setContestSelected(contest)}>{contest}</div>
+                    return <div className={`${contestSelected == contest ? "contest-selected" : "contest-not-selected" } m-1 px-3 py-2 rounded`} onClick={() => setContestSelected(contest)}>{contest}</div>
                 })
             }
         </div>

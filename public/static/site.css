@@ -116,7 +116,7 @@ html, body, #root {
 
 /* Tournament */
 
-.video-links {
+.video-links, .map-location-links {
     text-decoration: none;
     color: #013369;
 }
@@ -229,4 +229,8 @@ table {
 
 .font-xxx-large {
     font-size: xxx-large;
+}
+
+.break-spaces {
+    white-space: break-spaces;
 }

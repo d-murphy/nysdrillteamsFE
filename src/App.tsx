@@ -6,6 +6,7 @@ import Home from './Pages/Home';
 import Nav from './Components/Nav';  
 import Schedule from './Pages/Schedule'; 
 import Tournament from './Pages/Tournament';
+import Track from './Pages/Track';
 
 export default function App() {
 
@@ -20,6 +21,7 @@ export default function App() {
                         <Route path="/Schedule" element={<Schedule year={new Date().getFullYear()} />} />
                         <Route path="/test" element={<div>test</div>} />
                         <Route path="/Tournament/:id" element={<Tournament />} />
+                        <Route path="/Track/:trackName" element={<Track />} />
                         <Route
                         path="*"
                         element={
