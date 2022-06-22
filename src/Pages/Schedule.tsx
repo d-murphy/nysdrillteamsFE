@@ -44,13 +44,10 @@ export default function Schedule(props:ScheduleProp) {
         if(region == 'All Events') setRegionsSelected([]); 
         if(["Nassau", "Northern", "Western", "Suffolk"].includes(region)){
             if(regionsSelection.includes(region)){
-                console.log('region was included')
                 removeRegion(region); 
             } else {
-                console.log('region was not included')
                 let currentSelected = regionsSelection; 
                 currentSelected.push(region); 
-                console.log('setting regions to: ', currentSelected)
                 setRegionsSelected([...currentSelected]); 
                 if(regionsSelection.includes("Old Fashioned")) removeRegion("Old Fashioned"); 
                 if(regionsSelection.includes("Junior")) removeRegion("Junior"); 
@@ -69,7 +66,6 @@ export default function Schedule(props:ScheduleProp) {
         let currentSelected = regionsSelection; 
         let ind = currentSelected.findIndex(el => el == region); 
         if(ind>=0) currentSelected.splice(ind,1);
-        console.log('setting regions to: ', currentSelected)
         setRegionsSelected([...currentSelected]); 
     }
 
@@ -81,7 +77,7 @@ export default function Schedule(props:ScheduleProp) {
         let result = tournaments.filter(el => {
             let overlapFound = false; 
             regionsSelection.forEach(region => {
-                if(el.circuits.includes(region)) overlapFound = true; 
+                if(el.circuitsForSchedule.includes(region)) overlapFound = true; 
             })
             return overlapFound; 
         })
@@ -129,7 +125,7 @@ export default function Schedule(props:ScheduleProp) {
                     <div className={`${regionsSelection.includes("Northern") ? "circuit-selected" : "circuit-not-selected" } mx-1 px-3 py-2 rounded`} onClick={() => selectRegion("Northern")}>Northern</div>
                     <div className={`${regionsSelection.includes("Suffolk") ? "circuit-selected" : "circuit-not-selected" } mx-1 px-3 py-2 rounded`} onClick={() => selectRegion("Suffolk")}>Suffolk</div>
                     <div className={`${regionsSelection.includes("Western") ? "circuit-selected" : "circuit-not-selected" } mx-1 px-3 py-2 rounded`} onClick={() => selectRegion("Western")}>Western</div>
-                    <div className={`${regionsSelection.includes("Old Fashioned") ? "circuit-selected" : "circuit-not-selected" } mx-5 px-3 py-2 rounded`} onClick={() => selectRegion("Old Fashioned")}>Old Fashioned</div>
+                    <div className={`${regionsSelection.includes("Old Fashioned") ? "circuit-selected" : "circuit-not-selected" } mx-5 px-3 py-2 rounded`} onClick={() => selectRegion("Old Fashioned")}>OF</div>
                     <div className={`${regionsSelection.includes("Junior") ? "circuit-selected" : "circuit-not-selected" } mx-5 px-3 py-2 rounded`} onClick={() => selectRegion("Junior")}>Juniors</div>
                 </div>
                 <div className="pb-5">

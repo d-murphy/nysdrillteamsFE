@@ -43,6 +43,7 @@
 * add top 5 to tournament header
 * finish sorted view on tournament page
 * add url link to scorecard view
+* mouseover for county drills on scorecard page.
 
 #### Components
 * schedule view

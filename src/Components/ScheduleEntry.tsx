@@ -25,7 +25,7 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
 
     const navigate = useNavigate(); 
     const routeChange = () =>{ 
-        let path = `/`; 
+        let path = `/Track/${tournament.track}`; 
         navigate(path);
     }
     

@@ -4,6 +4,7 @@ export type Tournament = {
     year: number, 
     date: Date, 
     circuits: string[], 
+    circuitsForSchedule: string[],
     track: string,
     runningOrder?: { [runningPosition:number]: string },
     sanctioned: boolean, 

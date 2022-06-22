@@ -39,7 +39,7 @@ export default function TournamentHeader(props:TournamentProp) {
 
     const navigate = useNavigate(); 
     const routeChange = () =>{ 
-        let path = `/`; 
+        let path = `/Track/${tournament.track}`; 
         navigate(path);
     }
 
@@ -81,8 +81,8 @@ export default function TournamentHeader(props:TournamentProp) {
                     }
                 </div>
                 <div className="schedule-entry-button-section col-3 d-flex justify-content-around align-items-center pe-5">
-                    <div className="video-icon font-x-large ms-3">
-                        {tournament?.urls?.length ?  <div>{urlList}</div> : 
+                    <div className=" ms-3">
+                        {tournament?.urls?.length ?  <div className="video-icon font-x-large">{urlList}</div> : 
                             <div><TournamentWinners tournamentName={tournament.name} numberShown={3} /></div>
                         }
                     </div>

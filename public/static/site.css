@@ -33,11 +33,11 @@ html, body, #root {
     cursor: pointer;
 }
 
-.nav-bg-color, .schedule-entry-button {
+.nav-bg-color, .schedule-entry-button, .track-name-bg-color {
     background-color: #013369;
 }
 
-.hover-nav-font-change, .schedule-entry-button {
+.hover-nav-font-change, .schedule-entry-button, .track-name-color {
     color: var(--bs-white)
 }
 
@@ -196,6 +196,12 @@ table {
     left: 40px;
   }
 
+
+/* Track */ 
+.track-img-height {
+    min-height: 500px; 
+    height: 100%; 
+}
 
 /* General */
 

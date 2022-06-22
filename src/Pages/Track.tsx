@@ -6,6 +6,8 @@ import { Tournament, Track } from "../types/types";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faMapLocationDot } from "@fortawesome/free-solid-svg-icons";
+import ScheduleEntry from "../Components/ScheduleEntry"; 
+
 
 
 export default function Track() {
@@ -39,6 +41,13 @@ export default function Track() {
         fetch(`http://localhost:4400/tournaments/getTournamentsByTrack?track=${trackName}`)
             .then(response => response.json())
             .then(data => {
+                data = data.sort((a:Tournament,b:Tournament) => a.date > b.date ? -1 : 1)
+                data = data.map((el:Tournament) => {
+                    return {
+                        ...el, 
+                        date: new Date(el.date)
+                    }
+                })    
                 setTournaments(data)
                 console.log('tournaments: ', data)
                 setTimeout(() => {setTournLoading(false)}, 1000); 
@@ -78,70 +87,113 @@ export default function Track() {
 
     if(!trackLoading && !errorTrackLoading){
         content = (
-            <div className="bg-white shadow-sm rounded">
+            <div className="bg-white shadow-sm rounded mt-2 pt-4 container">
                 <div className="row">
-                    <div className="col-12 text-center mt-3 mb-2 pb-4 "><h3>{track.name}</h3></div>
+                    <div className="col-12 text-left track-name-bg-color track-name-color p-4"><h3>{track.name}</h3></div>
                 </div>
-                <div className="row">
-                    <div className="col-2"></div>
-                    <div className="col-8">
-                        <div id="carouselExampleControls" className="carousel slide" data-ride="carousel">
-                        <div className="carousel-inner ">
-                                {
-                                    track.imageUrls.map((img,ind) => {
-                                        return <div key={ind} className={`carousel-item ${ind == 0 ? 'active':''}`}>
-                                            <img src={img} className="d-block w-100"  alt="..."/>
+                <div className="row align-items-center bg-white">
+                    <div className="col-8 ">
+                        <div className="row my-2">
+                            {
+                                track?.imageUrls && track.imageUrls.length ? 
+                                    <div className="carousel slide" data-bs-ride="carousel">
+                                        <div className="carousel-inner ">
+                                            {
+                                                track.imageUrls.map((img,ind) => {
+                                                    return <div key={ind} className={`carousel-item ${ind == 0 ? 'active':''}`}>
+                                                        <img src={img} className="d-block track-img-height "  alt="..."/>
+                                                    </div>
+                        
+                                                })
+                                            }
                                         </div>
-            
-                                    })
-                                }
-                            </div>
-                            <a className="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
-                                <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                                <span className="sr-only">Previous</span>
-                            </a>
-                            <a className="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
-                                <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                                <span className="sr-only">Next</span>
-                            </a>
+                                    </div>
+                                    : 
+                                    <div className="m-5 p-5">
+                                        <i>We don't have any images of this track.  If you do, please consider sharing with the media committee. </i>
+                                    </div>
+
+                            }
                         </div>
                     </div>
-                    <div className="col-2"></div>
-                </div>
-
-
-                <div className="row">
-                    <div className="col-12 font-x-large p-5">
-                        
-                        {
-                        track?.notes ? 
-                            <div className="text-center font-large text-secondary my-4 break-spaces">
-                                {track?.notes}
-                            </div> : <></>
-                        }
-                        {
-                        track?.archHeight || track?.distanceToHydrant ? 
+                    <div className="col-4">
+                        <div className="my-3 mx-1 p-2 border">
+                            <h6 className="text-center mt-3">{track.name}</h6>
                             <div className="text-center my-4">
-                                {track?.archHeight ? `Arch Height: ${track.archHeight} - ` : ""}{track?.distanceToHydrant ? `Distance to Hydrant: ${track.distanceToHydrant}` : ""}
-                            </div> : <></>
-                        }
-                        <div className="text-center my-4">
-                            {track.address}, {track.city}
-                            <a className="ms-3 font-x-large map-location-links" href={`https://www.google.com/maps/place/${track.address} ${track.city}`} target="_blank">
-                                <FontAwesomeIcon icon={faMapLocationDot} />
-                            </a>
+                                {track.address}, {track.city}
+                                <a className="ms-3 font-x-large map-location-links" href={`https://www.google.com/maps/place/${track.address} ${track.city}`} target="_blank">
+                                    <FontAwesomeIcon icon={faMapLocationDot} />
+                                </a>
+                            </div>
+                            {
+                            track?.archHeight || track?.distanceToHydrant ? 
+                                <div className="text-center my-4">
+                                    {track?.archHeight ? `Arch Height: ${track.archHeight}` : ""}
+                                    {track?.distanceToHydrant ? `${track?.archHeight ? " | " : ""}Distance to Hydrant: ${track.distanceToHydrant}` : ""}
+                                </div> : <></>
+                            }
                         </div>
-                            
+                        <div className="row">
+                        
+                            {
+                            track?.notes ? 
+                                <div className="text-center font-large text-secondary my-4 break-spaces">
+                                    {track?.notes}
+                                </div> : <></>
+                            }
+                        
+                        </div>
+ 
                     </div>
                 </div>
             </div>        
         )
     }
 
+    let tournContent;     
+    if(tournLoading){
+        tournContent = (
+            <div className="row">
+                <div className="col-12 d-flex flex-column align-items-center mt-5">
+                    <div className="spinner-border text-secondary" role="status"></div>
+                </div>
+            </div>
+        )
+    }
+    if(errorTournLoading){
+        tournContent = (
+            <div className="row">
+                <div className="col-12 d-flex flex-column align-items-center mt-5">
+                    <div className="">Sorry, there was an error loading past tournaments.</div>
+                </div>
+            </div>
+        )
+    }
+
+
+    if(!tournLoading && !errorTournLoading){
+        tournContent = 
+        
+        <div className="pt-4 pb-2 mt-2 bg-light rounded shadow-sm">
+            <div className="row mb-4">
+                <div className="col-3"></div>
+                <div className="col-6">
+                    <div className="pt-3 pb-2 mx-5 w-20 bg-white rounded border shadow-sm">
+                        <h4 className="text-center">Tournaments at {track.name}</h4>
+                    </div>
+                </div>
+                <div className="col-3"></div>
+            </div>
+            {tournaments.map(el => {
+                return <ScheduleEntry key={el.id} tournament={el}/>
+            })}
+        </div>
+    }
     
     return (
         <div className="container">
             {content}
+            {tournContent}
         </div>
     )
 }
