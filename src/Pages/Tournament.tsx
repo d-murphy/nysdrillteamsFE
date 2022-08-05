@@ -23,40 +23,25 @@ export default function Schedule() {
     let params = useParams();
     const tournamentId = params.id
 
-    const fetchTournament = () => {
-        fetch(`http://localhost:4400/tournaments/getTournament?tournamentId=${tournamentId}`)
-            .then(response => response.json())
-            .then(data => {
-                data.date = new Date(data.date)
-                setTournament(data)
-                console.log('tourn: ', data)
-                setTournLoading(false);
-            })
-            .catch(err => {
-                console.log(err)
-                setErrorLoading(true); 
-            })
+    async function getTournAndRuns(){
+        let response = await fetch(`http://localhost:4400/tournaments/getTournament?tournamentId=${tournamentId}`); 
+        let data = await response.json(); 
+        data.date = new Date(data.date); 
+        setTournament(data); 
+        console.log('tourn: ', data)
+        setTournLoading(false);
+        let response2 = await fetch(`http://localhost:4400/runs/getRunsFromTournament?tournamentId=${data.id}`)
+        let runs = await response2.json(); 
+        console.log(runs); 
+        setRuns(runs)
+        setRunLoading(false); 
     }
-
-    const fetchRuns = () => {
-        fetch(`http://localhost:4400/runs/getRunsFromTournament?tournamentId=${tournamentId}`)
-            .then(response => response.json())
-            .then(data => {
-                setRuns(data)
-                console.log('runs: ', data)
-                setTimeout(() => {setRunLoading(false)}, 500); 
-                // setRunLoading(false);
-            })
-            .catch(err => {
-                console.log(err)
-                setErrorLoading(true); 
-            })
-    }
-
 
     useEffect(() => {
-            fetchTournament(),
-            fetchRuns()     
+        getTournAndRuns().catch(e => {
+            console.log(e)
+            setErrorLoading(true); 
+        })
     }, [])
 
     let content; 

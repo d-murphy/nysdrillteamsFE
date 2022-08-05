@@ -16,7 +16,7 @@ interface SortedViewProp {
 export default function SortedView(props:SortedViewProp) {
     const tournament = props.tournament;
     const runs = props.runs; 
-    const [contestSelected, setContestSelected] = useState(tournament.contests.length ? tournament.contests[0] : "")
+    const [contestSelected, setContestSelected] = useState(tournament.contests.length ? tournament.contests[0] : {name:''})
 
     let runsLU:{ [key:string]: Run } = {};
     runs.forEach(el => {
@@ -27,7 +27,7 @@ export default function SortedView(props:SortedViewProp) {
 
     const totalPoints:calculatingTotalPoints[] = calculateTotalPoints(tournament, runs); 
     const totalPointsTable = generateTotalPointsTable(totalPoints, runsLU, tournament); 
-    const contestTable = generateContestSection(tournament, runs, contestSelected, setContestSelected )
+    const contestTable = generateContestSection(tournament, runs, contestSelected.name, setContestSelected )
 
     return (
         <div>
@@ -105,10 +105,10 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
                     <div className="row">
                         {
                             tournament.contests.map(contest => {
-                                let key:string = el.team + " - " + contest
+                                let key:string = el.team + " - " + contest.name
                                 return (
                                     <div className="col">
-                                        <div className="row text-secondary font-x-small">{contest}</div>
+                                        <div className="row text-secondary font-x-small">{contest.name}</div>
                                         <div className="row font-small">{ runsLU[key]?.time ? runsLU[key].time : "" } / { runsLU[key]?.points ? runsLU[key].points : "" } </div>
                                     </div>
                                 )
@@ -155,7 +155,7 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
         <div className="d-flex justify-content-center flex-wrap align-content-center mt-4 mb-3 px-5">
             {
                 tournament.contests.map(contest => {
-                    return <div className={`${contestSelected == contest ? "contest-selected" : "contest-not-selected" } m-1 px-3 py-2 rounded`} onClick={() => setContestSelected(contest)}>{contest}</div>
+                    return <div className={`${contestSelected == contest.name ? "contest-selected" : "contest-not-selected" } m-1 px-3 py-2 rounded`} onClick={() => setContestSelected(contest)}>{contest.name}</div>
                 })
             }
         </div>

@@ -17,7 +17,7 @@ export default function Schedule(props:ScheduleProp) {
     const [errorLoading, setErrorLoading] = useState(false); 
 
     const fetchTournaments = () => {
-        fetch(`http://localhost:4400/tournaments/getTournaments?years=${props.year}`)
+        fetch(`http://localhost:4400/tournaments/getFilteredTournaments?years=${props.year}`)
         .then(response => response.json())
         .then(data => {
             data = data.sort((a:Tournament,b:Tournament) => a.date < b.date ? -1 : 1)
@@ -76,9 +76,9 @@ export default function Schedule(props:ScheduleProp) {
         }
         let result = tournaments.filter(el => {
             let overlapFound = false; 
-            regionsSelection.forEach(region => {
-                if(el.circuitsForSchedule.includes(region)) overlapFound = true; 
-            })
+            // regionsSelection.forEach(region => {
+            //     if(el.circuitsForSchedule.includes(region)) overlapFound = true; 
+            // })
             return overlapFound; 
         })
         setFilteredRows(result); 

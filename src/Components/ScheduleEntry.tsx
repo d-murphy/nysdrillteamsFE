@@ -16,12 +16,12 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
     const tournament = props.tournament;
     let winnerStr = getTournamentWinner(tournament, " | "); 
 
-    let nassauIcon = tournament.circuits.includes("Nassau"); 
-    let northernIcon = tournament.circuits.includes("Northern"); 
-    let suffolkIcon = tournament.circuits.includes("Suffolk"); 
-    let westernIcon = tournament.circuits.includes("Western"); 
-    let oldfashionedIcon = tournament.circuits.includes("Old Fashioned"); 
-    let juniorIcon = tournament.circuits.includes("Junior"); 
+    let nassauIcon = tournament.nassauSchedule; 
+    let northernIcon = tournament.northernSchedule; 
+    let suffolkIcon = tournament.suffolkSchedule; 
+    let westernIcon = tournament.westernSchedule; 
+    let oldfashionedIcon = tournament.liOfSchedule; 
+    let juniorIcon = tournament.juniorSchedule; 
 
     const navigate = useNavigate(); 
     const routeChange = () =>{ 
@@ -63,7 +63,7 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
                 }
             </div>
             <div className="schedule-entry-button-section col-3 d-flex justify-content-around align-items-center pe-5">
-                <div className="schedule-entry-button font-medium px-3 py-2 rounded text-center" onClick={() => navigate(`/Tournament/${tournament.id}`)}>View Scorecard</div>
+                <div className="schedule-entry-button font-medium px-3 py-2 rounded text-center" onClick={() => navigate(`/Tournament/${tournament._id}`)}>View Scorecard</div>
                 <div className="video-icon font-x-large ms-3">
                     {tournament?.urls?.length ?  <a href={`${tournament?.urls[0] }`} target="_blank"><FontAwesomeIcon icon={faVideo} /></a> : <></> }
                 </div>

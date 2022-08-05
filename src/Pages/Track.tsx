@@ -87,9 +87,9 @@ export default function Track() {
 
     if(!trackLoading && !errorTrackLoading){
         content = (
-            <div className="bg-white shadow-sm rounded mt-2 pt-4 container">
+            <div className="bg-white shadow-sm rounded mt-4 container">
                 <div className="row">
-                    <div className="col-12 text-left track-name-bg-color track-name-color p-4"><h3>{track.name}</h3></div>
+                    <div className="col-12 text-left track-name-bg-color track-name-color p-4 rounded"><h3>{track.name}</h3></div>
                 </div>
                 <div className="row align-items-center bg-white">
                     <div className="col-8 ">
@@ -174,15 +174,11 @@ export default function Track() {
     if(!tournLoading && !errorTournLoading){
         tournContent = 
         
-        <div className="pt-4 pb-2 mt-2 bg-light rounded shadow-sm">
-            <div className="row mb-4">
-                <div className="col-3"></div>
-                <div className="col-6">
-                    <div className="pt-3 pb-2 mx-5 w-20 bg-white rounded border shadow-sm">
-                        <h4 className="text-center">Tournaments at {track.name}</h4>
-                    </div>
+        <div className="pb-2 mt-5 bg-light rounded shadow-sm">
+            <div className="row">
+                <div className="col-12">
+                    <div className="text-left track-name-bg-color track-name-color p-4 rounded"><h3>Tournaments at {track.name}</h3></div>
                 </div>
-                <div className="col-3"></div>
             </div>
             {tournaments.map(el => {
                 return <ScheduleEntry key={el.id} tournament={el}/>

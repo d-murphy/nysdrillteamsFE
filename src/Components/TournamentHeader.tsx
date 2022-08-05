@@ -26,16 +26,17 @@ export default function TournamentHeader(props:TournamentProp) {
         })    
     }
     let pointsStr: string = ''; 
-    if(!tournament.circuits.length) {
-        pointsStr += "Not a Total Points Drill"
-    } else {
-        pointsStr += "This is a Total Points Drill for: "
-        tournament.circuits = tournament.circuits.sort((a,b) => a < b ? -1 : 1)
-        tournament.circuits.forEach((el, ind) => {
-            if(ind>0) pointsStr += ", "
-            pointsStr += el
-        })
-    }
+    pointsStr += 'Fix the circuits later!!!!'
+    // if(!tournament.circuits.length) {
+    //     pointsStr += "Not a Total Points Drill"
+    // } else {
+    //     pointsStr += "This is a Total Points Drill for: "
+    //     tournament.circuits = tournament.circuits.sort((a,b) => a < b ? -1 : 1)
+    //     tournament.circuits.forEach((el, ind) => {
+    //         if(ind>0) pointsStr += ", "
+    //         pointsStr += el
+    //     })
+    // }
 
     const navigate = useNavigate(); 
     const routeChange = () =>{ 

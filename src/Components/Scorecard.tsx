@@ -62,10 +62,10 @@ function generateHeaders(tournament:Tournament){
     tournament.contests.forEach((el, ind) => {
         if(ind==0){
             buffer.push(<th scope="col" className="scorecard-cell-md scorecard-lineup-header fixed-col p-2">Team Lineup</th>) 
-            buffer.push(<th scope="col" className="scorecard-cell-lg scorecard-contest-header text-center p-2">{el}</th>) 
+            buffer.push(<th scope="col" className="scorecard-cell-lg scorecard-contest-header text-center p-2">{el.name}</th>) 
             buffer.push(<th scope="col" className="scorecard-cell-sm scorecard-points-header text-center p-2">Points</th>) 
         } else {
-            buffer.push(<th scope="col" className="scorecard-cell-lg scorecard-contest-header text-center p-2">{el}</th>) 
+            buffer.push(<th scope="col" className="scorecard-cell-lg scorecard-contest-header text-center p-2">{el.name}</th>) 
             buffer.push(<th scope="col" className="scorecard-cell-sm scorecard-points-header text-center p-2">Points</th>) 
             buffer.push(<th scope="col" className="scorecard-cell-sm scorecard-totalpoints-header text-center p-2">Total</th>) 
         }

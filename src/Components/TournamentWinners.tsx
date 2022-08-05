@@ -23,7 +23,7 @@ export default function TournamentWinners(props:TournamentWinnersProp) {
 
     const fetchPastTournaments = () => {
         console.log("ft called for id: ", tournamentName);  
-        fetch(`http://localhost:4400/tournaments/getTournamentsByName?name=${tournamentName}`)
+        fetch(`http://localhost:4400/tournaments/getFilteredTournaments?tournaments=${tournamentName}`)
         .then(response => response.json())
         .then(data => {
             console.log('gtbn', data)
