@@ -24,13 +24,24 @@ html, body, #root {
     position: sticky;
 }
 
-.header-bg {
-    background-color: var(--bs-gray-700); 
+.banner-bg {
+    background-color: lightgoldenrodyellow; 
 }
 
+
+.big8-bg {
+    background-color: var(--bs-gray-100); 
+}
+
+
+
 .header-logo {
-    width: 300px; 
+    width: 450px; 
     cursor: pointer;
+}
+
+.nav-bg-color-dk {
+    background-color: #001d3c;
 }
 
 .nav-bg-color, .schedule-entry-button, .track-name-bg-color {
