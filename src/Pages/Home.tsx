@@ -1,5 +1,7 @@
 import * as React from "react";
 import Big8Contest from "../Components/Big8Contest";
+import UpcomingEvents from "../Components/UpcomingEvents"; 
+
 
 export default function Home() {
 
@@ -30,10 +32,11 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-            <div className="row mt-5">
+            <div className="row mt-3">
                 <div className="col-8">
-                    <div className="d-flex flex column align-items center py-3 m-2">
+                    <div className="d-flex flex-column align-items center py-3 m-2">
                         <h4>Upcoming Events</h4>
+                        <UpcomingEvents year={new Date().getFullYear()} />
                     </div>
                 </div>
             </div>

@@ -29,10 +29,7 @@ export default function Schedule(props:ScheduleProp) {
             })
             setTournaments(data); 
             setFilteredRows(data); 
-//            setLoading(false);
-            setTimeout(() => {setLoading(false)}, 500); 
-
-            console.log('how often is this running?')     
+            setLoading(false);
         })
         .catch(err => {
             console.error(err)

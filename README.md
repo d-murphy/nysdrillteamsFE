@@ -24,6 +24,8 @@
 
 
 #### Pages: 
+* reduce to host team photos?
+* interface to edit banner messages (can save this in memory on the BE)
 * home page, next drills and most recent drills (links to videos)
 * live tournament updating, websocket opportunity?
 * RunDB - Three Man, sorted by time.  Controls to filter by Team, Year, Tournament, County

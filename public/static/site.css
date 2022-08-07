@@ -78,6 +78,14 @@ html, body, #root {
     margin: auto;
   }
 
+.live-stream-planned {
+    background-color: #013369; 
+    padding: 5px;
+    border-radius: 5px;
+    color: white; 
+    font-weight: bold;
+}
+
 /* Schedule */
 
 .circuit-selected, .contest-selected {
@@ -122,6 +130,11 @@ html, body, #root {
 }
 
 .video-icon > a {
+    color: #013369; 
+}
+
+.video-icon-nolink {
+    min-width: 50px;
     color: #013369; 
 }
 
