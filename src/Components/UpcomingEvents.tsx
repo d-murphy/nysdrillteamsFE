@@ -77,7 +77,7 @@ export default function Schedule(props:ScheduleProp) {
                     </div>
                     )
                 }) : 
-                <div>"No additional events schedule this year."</div>
+                <div>"No additional events scheduled this year."</div>
             }
         </div>
         )
