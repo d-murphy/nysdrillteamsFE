@@ -145,7 +145,7 @@ html, body, #root {
     color: #013369;
 }
 
-.scorecard-type {
+.scorecard-type, .big8-contest {
     cursor: pointer;
 }
 

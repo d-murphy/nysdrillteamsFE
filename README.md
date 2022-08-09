@@ -25,6 +25,7 @@
 
 #### Pages: 
 * reduce to host team photos?
+* react-popper?
 * interface to edit banner messages (can save this in memory on the BE)
 * home page, next drills and most recent drills (links to videos)
 * live tournament updating, websocket opportunity?

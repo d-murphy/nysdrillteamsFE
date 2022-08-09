@@ -27,6 +27,7 @@ export default function Schedule(props:ScheduleProp) {
                     date: new Date(el.date)
                 }
             })
+            console.log(data); 
             setTournaments(data); 
             setFilteredRows(data); 
             setLoading(false);
@@ -71,11 +72,14 @@ export default function Schedule(props:ScheduleProp) {
             setFilteredRows(tournaments); 
             return; 
         }
-        let result = tournaments.filter(el => {
+        let result = tournaments.filter((el:Tournament) => {
             let overlapFound = false; 
-            // regionsSelection.forEach(region => {
-            //     if(el.circuitsForSchedule.includes(region)) overlapFound = true; 
-            // })
+            if(regionsSelection.includes("Nassau") && el.nassauSchedule) overlapFound = true; 
+            if(regionsSelection.includes("Suffolk") && el.suffolkSchedule) overlapFound = true; 
+            if(regionsSelection.includes("Northern") && el.northernSchedule) overlapFound = true; 
+            if(regionsSelection.includes("Western") && el.westernSchedule) overlapFound = true; 
+            if(regionsSelection.includes("Old Fashioned") && el.liOfSchedule) overlapFound = true; 
+            if(regionsSelection.includes("Junior") && el.juniorSchedule) overlapFound = true; 
             return overlapFound; 
         })
         setFilteredRows(result); 
@@ -87,7 +91,6 @@ export default function Schedule(props:ScheduleProp) {
     }, []); 
 
     useEffect(() => {
-        console.log('calling filtered tournaments')
         filterTournaments(); 
     }, [regionsSelection]); 
 

@@ -40,7 +40,7 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
                 <div className="schedule-entry-tournament-name font-large font-weight-bold mb-2"><b>{tournament.name}</b></div>
                 <div className="schedule-entry-tournament-track font-medium text-uppercase mb-2" onClick={routeChange}>
                     {tournament.track}
-                    <span className="track-info-icon font-small ms-1"><FontAwesomeIcon icon={faCircleInfo} /></span>
+                    {tournament.track ? <span className="track-info-icon font-small ms-1"><FontAwesomeIcon icon={faCircleInfo} /></span> : <></> }
                 </div>
                 <div className="schedule-entry-tournament-circuits d-flex my-2">
                     <div className={`schedule-entry-tournament-circuit-nassau font-small mx-1 p-1 d-flex justify-content-center rounded ${nassauIcon ? "" : "circuit-inactive"} `}>Na</div>
@@ -63,7 +63,7 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
                 }
             </div>
             <div className="schedule-entry-button-section col-3 d-flex justify-content-around align-items-center pe-5">
-                <div className="schedule-entry-button font-medium px-3 py-2 rounded text-center" onClick={() => navigate(`/Tournament/${tournament._id}`)}>View Scorecard</div>
+                <div className="schedule-entry-button font-medium px-3 py-2 rounded text-center" onClick={() => navigate(`/Tournament/${tournament.id}`)}>View Scorecard</div>
                 <div className="video-icon font-x-large ms-3">
                     {tournament?.urls?.length ?  <a href={`${tournament?.urls[0] }`} target="_blank"><FontAwesomeIcon icon={faVideo} /></a> : <></> }
                 </div>

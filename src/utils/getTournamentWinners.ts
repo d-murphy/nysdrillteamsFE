@@ -5,14 +5,13 @@ const getTournamentWinner = function(tournament:Tournament, seperator:string):st
     if(tournament.top5) {
         let numOfFirsts = 0; 
         tournament.top5.forEach(team => {
-            if(team.finishingPosition=="1") {
+            if(team.finishingPosition=="1st Place") {
                 if(numOfFirsts >= 1) winnerStr += seperator
                 winnerStr += team.teamName; 
                 numOfFirsts++; 
             }
         })    
     }
-    console.log('here winner str', winnerStr)
     return winnerStr; 
 }
 

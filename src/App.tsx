@@ -10,7 +10,6 @@ import Track from './Pages/Track';
 
 export default function App() {
 
-
     return (
         <BrowserRouter>
             <div className="">
