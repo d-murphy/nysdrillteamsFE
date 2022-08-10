@@ -24,6 +24,7 @@
 
 
 #### Pages: 
+* tournaments with data issues: 2505, 2571, 2446, 2452, 2483
 * reduce to host team photos?
 * react-popper?
 * interface to edit banner messages (can save this in memory on the BE)
@@ -66,3 +67,5 @@
 * react router
 * picture carousel
 
+#### Things to tell people: 
+* tournaments can be added without being in TP, needs to be edited 

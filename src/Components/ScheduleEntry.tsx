@@ -30,13 +30,13 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
     }
     
     return (
-        <div className="row m-2 bg-white pt-2 pb-1 shadow-sm rounded">
-            <div className="schedule-entry-date-section col-2 d-flex flex-column align-items-start justify-content-center ps-5">
+        <div className="row bg-white shadow-sm rounded my-2">
+            <div className="schedule-entry-date-section col-lg-2 col-4 d-flex flex-column align-items-center justify-content-center p-3">
                 <div className="schedule-entry-date-day font-medium text-uppercase"><b>{dateUtil.getDay(tournament?.date.getDay())}</b></div>
                 <div className="schedule-entry-date-date font-large "><b>{dateUtil.getMMDDYYYY(tournament.date)}</b></div>
                 <div className="schedule-entry-date-time font-medium "><b>{dateUtil.getTime(tournament.date)}</b></div>
             </div>
-            <div className="schedule-entry-tournament-info col-4 d-flex flex-column align-items-center">
+            <div className="schedule-entry-tournament-info col-lg-4 col-8 d-flex flex-column align-items-center p-3">
                 <div className="schedule-entry-tournament-name font-large font-weight-bold mb-2"><b>{tournament.name}</b></div>
                 <div className="schedule-entry-tournament-track font-medium text-uppercase mb-2" onClick={routeChange}>
                     {tournament.track}
@@ -51,7 +51,7 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
                     <div className={`schedule-entry-tournament-circuit-junior font-small mx-3 p-1 d-flex justify-content-center rounded ${juniorIcon ? "" : "circuit-inactive"} `}>Jr</div>
                 </div>
             </div>
-            <div className="schedule-entry-winner-or-link col-3 d-flex flex-column align-items-center justify-content-center">
+            <div className="schedule-entry-winner-or-link col-lg-3 col-4 d-flex flex-column align-items-center justify-content-center p-3">
                 {
                     (tournament.top5 && tournament.top5.length) ? 
                         <div className="schedule-entry-winner text-center border-top border-bottom py-2 font-large">
@@ -62,11 +62,12 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
                             <div className=""></div>
                 }
             </div>
-            <div className="schedule-entry-button-section col-3 d-flex justify-content-around align-items-center pe-5">
+            <div className="schedule-entry-button-section col-lg-3 col-8 d-flex justify-content-center align-items-center px-2 py-3">
                 <div className="schedule-entry-button font-medium px-3 py-2 rounded text-center" onClick={() => navigate(`/Tournament/${tournament.id}`)}>View Scorecard</div>
-                <div className="video-icon font-x-large ms-3">
-                    {tournament?.urls?.length ?  <a href={`${tournament?.urls[0] }`} target="_blank"><FontAwesomeIcon icon={faVideo} /></a> : <></> }
-                </div>
+                {tournament?.urls?.length ?
+                    <div className="video-icon font-x-large ms-3">
+                        <a href={`${tournament?.urls[0] }`} target="_blank"><FontAwesomeIcon icon={faVideo} /></a>
+                    </div>  : <></> }
             </div>
         </div>
     )

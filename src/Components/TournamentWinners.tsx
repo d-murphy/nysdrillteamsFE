@@ -35,7 +35,7 @@ export default function TournamentWinners(props:TournamentWinnersProp) {
             })
             data = data.sort((a:Tournament,b:Tournament) => a.date < b.date ? 1 : -1); 
             data = data.filter((el:Tournament) => {
-                return el.top5 && el.top5.length > 0; 
+                return el.top5 && el.top5.length > 0 && el.date.getFullYear() < new Date().getFullYear(); 
             })
             data = data.slice(0,props.numberShown); 
             data = data.map((el:Tournament) => {

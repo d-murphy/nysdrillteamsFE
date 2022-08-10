@@ -18,25 +18,28 @@ export default function TournamentHeader(props:TournamentProp) {
     if(tournament.top5) {
         tournament.top5.forEach(team => {
             let numOfFirsts = 0; 
-            if(team.finishingPosition=="1") {
+            if(team.finishingPosition=="1st Place") {
                 numOfFirsts++; 
                 if(numOfFirsts == 1) winnerStr += team.teamName; 
                 if(numOfFirsts > 1) winnerStr += " | " + team.teamName;
             }
         })    
     }
-    let pointsStr: string = ''; 
-    pointsStr += 'Fix the circuits later!!!!'
-    // if(!tournament.circuits.length) {
-    //     pointsStr += "Not a Total Points Drill"
-    // } else {
-    //     pointsStr += "This is a Total Points Drill for: "
-    //     tournament.circuits = tournament.circuits.sort((a,b) => a < b ? -1 : 1)
-    //     tournament.circuits.forEach((el, ind) => {
-    //         if(ind>0) pointsStr += ", "
-    //         pointsStr += el
-    //     })
-    // }
+    console.log('tourn:', tournament)
+    let pointsArr = []; 
+    let pointsStr: string = 'Total Points for: '; 
+    if(tournament.suffolkPoints) pointsArr.push("Suffolk"); 
+    if(tournament.nassauPoints) pointsArr.push("Nassau"); 
+    if(tournament.northernPoints) pointsArr.push("Northern"); 
+    if(tournament.westernPoints) pointsArr.push("Western"); 
+    if(tournament.liOfPoints) pointsArr.push("OF"); 
+    if(tournament.juniorPoints) pointsArr.push("Juniors"); 
+    pointsArr.sort((a,b) => a < b ? -1 : 1);
+    pointsArr.forEach((el, ind) => {
+        if(ind != 0) pointsStr += ", "
+        pointsStr += el
+    })
+    if(!pointsArr.length) pointsStr = "Not a total points drill"
 
     const navigate = useNavigate(); 
     const routeChange = () =>{ 
@@ -53,15 +56,15 @@ export default function TournamentHeader(props:TournamentProp) {
     return (
         <div className="bg-white shadow-sm rounded mb-1 mt-2">
             <div className="row">
-                <div className="col-12 text-center mt-3 mb-4 pb-4 border-bottom"><h3>{tournament.name}</h3></div>
+                <div className="col-12 text-center mt-3 mb-4 p-2 border-bottom"><h3>{tournament.name}</h3></div>
             </div>
             <div className="row mb-2 p-2 ">
-                <div className="schedule-entry-date-section col-2 d-flex flex-column align-items-start justify-content-center ps-5">
+                <div className="schedule-entry-date-section col-lg-2 col-4 d-flex flex-column align-items-center justify-content-center p-2">
                     <div className="schedule-entry-date-day font-medium text-uppercase"><b>{dateUtil.getDay(tournament?.date.getDay())}</b></div>
                     <div className="schedule-entry-date-date font-large "><b>{dateUtil.getMMDDYYYY(tournament.date)}</b></div>
                     <div className="schedule-entry-date-time font-medium "><b>{dateUtil.getTime(tournament.date)}</b></div>
                 </div>
-                <div className="schedule-entry-tournament-info col-4 d-flex flex-column align-items-center">
+                <div className="schedule-entry-tournament-info col-lg-4 col-8 d-flex flex-column align-items-center">
                     <div className="schedule-entry-tournament-track font-medium text-uppercase my-2" onClick={routeChange}>
                         Location: {tournament.track}
                         <span className="track-info-icon font-small ms-1"><FontAwesomeIcon icon={faCircleInfo} /></span>
@@ -70,7 +73,7 @@ export default function TournamentHeader(props:TournamentProp) {
                         {pointsStr}
                     </div>
                 </div>
-                <div className="schedule-entry-winner-or-link col-3 d-flex flex-column align-items-center justify-content-center">
+                <div className="schedule-entry-winner-or-link col-lg-3 col-4 d-flex flex-column align-items-center justify-content-center p-2">
                     {
                         (tournament.top5 && tournament.top5.length) ? 
                             <div className="schedule-entry-winner text-center border-top border-bottom py-2 font-large">
@@ -81,7 +84,7 @@ export default function TournamentHeader(props:TournamentProp) {
                                 <div className=""></div>
                     }
                 </div>
-                <div className="schedule-entry-button-section col-3 d-flex justify-content-around align-items-center pe-5">
+                <div className="schedule-entry-button-section col-lg-3 col-8 d-flex justify-content-around align-items-center p-2">
                     <div className=" ms-3">
                         {tournament?.urls?.length ?  <div className="video-icon font-x-large">{urlList}</div> : 
                             <div><TournamentWinners tournamentName={tournament.name} numberShown={3} /></div>
