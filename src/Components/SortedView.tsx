@@ -54,14 +54,22 @@ interface calculatingTotalPoints {
 }
 
 function calculateTotalPoints(tournament:Tournament, runs: Run[]):calculatingTotalPoints[]{
-    let positions = Object.keys(tournament.runningOrder).map(el => parseInt(el))
     let totalPtsLu: { [team:string]:  calculatingTotalPoints} = {}; 
-    positions.forEach(el => {
-        let team = tournament.runningOrder[el]; 
-        totalPtsLu[team] = {runningPos: el, team: team, points:0}
-    })
+    let positions = Object.keys(tournament.runningOrder).map(el => parseInt(el))
+    if(positions.length){
+        positions.forEach(el => {
+            let team = tournament.runningOrder[el]; 
+            totalPtsLu[team] = {runningPos: el, team: team, points:0}
+        })    
+    } else {
+        let teamsSet:Set<string> = new Set(); 
+        runs.forEach(run => teamsSet.add(run.team)); 
+        Array.from(teamsSet).forEach(team => {
+            totalPtsLu[team] = {runningPos: null, team: team, points:0}
+        })
+    }
     runs.forEach(run => {
-        totalPtsLu[run.team].points += run.points ? run.points : 0; 
+        totalPtsLu[run.team].points += run?.points ? parseInt(run.points) : 0; 
     })
     let totalPtsArr = Object.values(totalPtsLu).sort((a:calculatingTotalPoints,b:calculatingTotalPoints) => {
         return a.points > b.points ? -1 : 1; 
@@ -186,7 +194,7 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
                                         </span>
                                     </div>
                             </div>
-                            <div className="col-3 text-center font-large">{run?.points && run.points == 0 ? "" : run.points}</div>
+                            <div className="col-3 text-center font-large">{run?.points && run.points == '0' ? "" : run.points}</div>
                         </div>
                     )
                 })}

@@ -14,7 +14,9 @@ const dateUtil = {
         return days[dayNum]; 
     },
     getMMDDYYYY: function(date:Date):string{
-        return `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()}`;
+        date = new Date(date); 
+        if(date) return `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()}`;
+        return ''; 
     },
     getTime: function(date:Date):string{
         let hrsString:string = date.getHours() == 0 ? "12" : 

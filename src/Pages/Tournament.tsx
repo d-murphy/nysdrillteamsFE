@@ -17,7 +17,7 @@ export default function Schedule() {
     const [runLoading, setRunLoading] = useState(true); 
     const [errorLoading, setErrorLoading] = useState(false);
     const [tournament, setTournament] = useState<Tournament>(); 
-    const [runs, setRuns] = useState<Run[]>(); 
+    const [runs, setRuns] = useState<Run[]>([]); 
     const [view, setView] =useState("scorecard")  
 
     let params = useParams();
@@ -32,7 +32,7 @@ export default function Schedule() {
         setTournLoading(false);
         let response2 = await fetch(`http://localhost:4400/runs/getRunsFromTournament?tournamentId=${data.id}`)
         let runs = await response2.json(); 
-        console.log(runs); 
+        console.log('runs', runs); 
         setRuns(runs)
         setRunLoading(false); 
     }
@@ -72,7 +72,7 @@ export default function Schedule() {
                     <TournamentHeader tournament={tournament} />
                 </div>
                 {
-                !Object.keys(tournament.runningOrder).length ? 
+                !Object.keys(tournament.runningOrder).length  && !runs.length? 
                     <div className="row bg-white my-1 shadow-sm rounded p-5 d-flex justify-content-center">The lineup for the drill is not yet available.</div> : 
                     <div className="row bg-white my-1 shadow-sm rounded p-2 ">
                         <div className="row">

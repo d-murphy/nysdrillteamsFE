@@ -54,7 +54,7 @@ export type Run = {
     date: Date, 
     urls: string[], 
     sanctioned: boolean, 
-    points?: number, 
+    points?: string, 
     rank?: string, 
     notes?: string,
     stateRecord?: string,

@@ -1,14 +1,24 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { Run } from "../types/types"; 
+import dateUtil from "../utils/dateUtils";
 
 interface Big8ContestProp {
     run: Run;
+    optionalRow?: null | 'hometown'; 
+    lastRow: 'hometown' | 'date'; 
 }
 
 export default function Big8Contest(props:Big8ContestProp) {
     const run = props.run;
-
+    let key: 'hometown' | 'date' = props.lastRow;  
+    let lastRow:string; 
+    if(key =='date'){
+        lastRow = run ? dateUtil.getMMDDYYYY(run[key]) : '' ; 
+    } else {
+        lastRow = run ? run[key] : ''; 
+    }
+    let optionalRow: null | string = props.optionalRow && run ? run[props.optionalRow] : null; 
     const navigate = useNavigate(); 
 
      return (
@@ -19,7 +29,8 @@ export default function Big8Contest(props:Big8ContestProp) {
         >
             <h5>{run?.contest ? run.contest == 'Three Man Ladder' ? '3 Man Ladder' : run.contest : ''}</h5>
             <h4>{run?.time ? run.time : ''}</h4>
-            <span>{run?.hometown ? run.hometown : ''}</span>
+            {optionalRow ? <span>{optionalRow}</span> : <></>}
+            <span>{lastRow}</span>
         </div>
         )
 }
