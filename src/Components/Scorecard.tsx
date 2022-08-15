@@ -89,12 +89,14 @@ function generateRows(tournament:Tournament, runsLU:{ [key:string]: Run }, total
     let minPos = Math.min(...positions); 
     let maxPos = Math.max(...positions); 
 
+    let less100 = minPos >= 100; 
+
     for(let i=minPos; i<=maxPos; i++){
         let rowBuffer: JSX.Element[] = []; 
         tournament.contests.forEach((el, ind) => {
             let key = tournament.runningOrder[i] + " - " + el.name; 
             if(ind==0){
-                rowBuffer.push(<th scope="col" className="scorecard-cell-md scorecard-lineup-cell fixed-col p-2">{tournament.runningOrder[i] ? `${i}. ${tournament.runningOrder[i]}` : `${i}.`}</th>) 
+                rowBuffer.push(<th scope="col" className="scorecard-cell-md scorecard-lineup-cell fixed-col p-2">{tournament.runningOrder[i] ? `${less100 ? i-100 : i}. ${tournament.runningOrder[i]}` : `${i}.`}</th>) 
                 rowBuffer.push(<td scope="col" className="scorecard-cell-lg scorecard-contest-cell text-center p-2">{runsLU[key] ? runsLU[key].time : "" }</td>) 
                 rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-points-cell text-center p-2">{runsLU[key]?.points ? runsLU[key].points : ""}</td>) 
             } else {

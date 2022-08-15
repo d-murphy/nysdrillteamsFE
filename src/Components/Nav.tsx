@@ -30,6 +30,9 @@ export default function Nav() {
                         onClick={() => navigate("/test")}>Past Seasons</div>
                     <div 
                         className="d-flex justify-content-center text-center underline-hover mx-4 my-3 px-3 py-2"
+                        onClick={() => navigate("/test")}>Top Runs and Run Search</div>
+                    <div 
+                        className="d-flex justify-content-center text-center underline-hover mx-4 my-3 px-3 py-2"
                         onClick={() => navigate("/test")}>About</div>
                 </div>
             </div>

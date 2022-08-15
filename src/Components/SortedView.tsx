@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RuntimeGlobals } from "webpack";
 
 import { Tournament, Run } from "../types/types"; 
@@ -18,6 +18,7 @@ export default function SortedView(props:SortedViewProp) {
     const runs = props.runs; 
     const [contestSelected, setContestSelected] = useState(tournament.contests.length ? tournament.contests[0] : {name:''})
     const [showBeyondTop5, setShowBeyondTop5] = useState(false)
+    const [less100, setLess100] = useState(false); 
 
     let runsLU:{ [key:string]: Run } = {};
     runs.forEach(el => {
@@ -25,10 +26,17 @@ export default function SortedView(props:SortedViewProp) {
         runsLU[key] = el; 
     })
 
+    useEffect(() => {
+        let positions = Object.keys(tournament.runningOrder).map(el => parseInt(el))
+        let minPos = Math.min(...positions); 
+        if (minPos >= 100) setLess100(true); 
+    }, [])
+
+
 
     const totalPoints:calculatingTotalPoints[] = calculateTotalPoints(tournament, runs); 
-    const totalPointsTable = generateTotalPointsTable(totalPoints, runsLU, tournament, showBeyondTop5, setShowBeyondTop5); 
-    const contestTable = generateContestSection(tournament, runs, contestSelected.name, setContestSelected )
+    const totalPointsTable = generateTotalPointsTable(totalPoints, runsLU, tournament, showBeyondTop5, setShowBeyondTop5, less100); 
+    const contestTable = generateContestSection(tournament, runs, contestSelected.name, setContestSelected, less100 )
 
     return (
         <div>
@@ -93,7 +101,7 @@ function calculateTotalPoints(tournament:Tournament, runs: Run[]):calculatingTot
     return totalPtsArr; 
 }
 
-function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:{ [key:string]: Run }, tournament:Tournament, showBeyondTop5:boolean, setShowBeyondTop5:Function ): JSX.Element {
+function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:{ [key:string]: Run }, tournament:Tournament, showBeyondTop5:boolean, setShowBeyondTop5:Function, less100:boolean ): JSX.Element {
     let totalPointsBuffer: JSX.Element[] = []; 
     totalPointsBuffer.push(
         <div className="row ">
@@ -111,7 +119,7 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
                         <div className="row">
                             <div className="font-large border-bottom ">
                                 {`${el.team}`}
-                                {el.runningPos ? <span className="ms-2 font-small text-secondary ">{`# ${el.runningPos}`}</span> : <></>}
+                                {el.runningPos ? <span className="ms-2 font-small text-secondary ">{`# ${less100 ? el.runningPos-100 : el.runningPos}`}</span> : <></>}
                             </div>
                         </div>
                         <div className="row">
@@ -152,7 +160,7 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
     )
 }
 
-function generateContestSection(tournament:Tournament, runs:Run[], contestSelected:string, setContestSelected:Function ){
+function generateContestSection(tournament:Tournament, runs:Run[], contestSelected:string, setContestSelected:Function, less100:boolean ){
 
     let runsToShow = runs.filter(el => {
         return el.contest == contestSelected; 
@@ -192,7 +200,7 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
                         <div className="row pb-1">
                             <div className="col-6 text-center font-large">
                                 {`${run.team}`}
-                                {run.runningPosition ? <span className="ms-2 font-medium text-secondary">{`#${run.runningPosition}`}</span>  : <></>} 
+                                {run.runningPosition ? <span className="ms-2 font-medium text-secondary">{`#${less100 ? run.runningPosition - 100 : run.runningPosition}`}</span>  : <></>} 
                             </div>
                             <div className="col-3 font-large d-flex justify-content-center">
                                     <div className="scorecard-video-link-parent">
