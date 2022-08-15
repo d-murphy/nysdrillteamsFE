@@ -17,6 +17,7 @@ export default function SortedView(props:SortedViewProp) {
     const tournament = props.tournament;
     const runs = props.runs; 
     const [contestSelected, setContestSelected] = useState(tournament.contests.length ? tournament.contests[0] : {name:''})
+    const [showBeyondTop5, setShowBeyondTop5] = useState(false)
 
     let runsLU:{ [key:string]: Run } = {};
     runs.forEach(el => {
@@ -26,7 +27,7 @@ export default function SortedView(props:SortedViewProp) {
 
 
     const totalPoints:calculatingTotalPoints[] = calculateTotalPoints(tournament, runs); 
-    const totalPointsTable = generateTotalPointsTable(totalPoints, runsLU, tournament); 
+    const totalPointsTable = generateTotalPointsTable(totalPoints, runsLU, tournament, showBeyondTop5, setShowBeyondTop5); 
     const contestTable = generateContestSection(tournament, runs, contestSelected.name, setContestSelected )
 
     return (
@@ -69,7 +70,9 @@ function calculateTotalPoints(tournament:Tournament, runs: Run[]):calculatingTot
         })
     }
     runs.forEach(run => {
-        totalPtsLu[run.team].points += run?.points ? parseInt(run.points) : 0; 
+        if(totalPtsLu[run.team] ) {
+            totalPtsLu[run.team].points += run?.points && parseInt(run?.points) ? parseInt(run.points) : 0; 
+        }
     })
     let totalPtsArr = Object.values(totalPtsLu).sort((a:calculatingTotalPoints,b:calculatingTotalPoints) => {
         return a.points > b.points ? -1 : 1; 
@@ -90,7 +93,7 @@ function calculateTotalPoints(tournament:Tournament, runs: Run[]):calculatingTot
     return totalPtsArr; 
 }
 
-function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:{ [key:string]: Run }, tournament:Tournament ): JSX.Element {
+function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:{ [key:string]: Run }, tournament:Tournament, showBeyondTop5:boolean, setShowBeyondTop5:Function ): JSX.Element {
     let totalPointsBuffer: JSX.Element[] = []; 
     totalPointsBuffer.push(
         <div className="row ">
@@ -99,38 +102,48 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
             </div>
         </div>
     )
-    totalPoints.forEach(el => {
-        totalPointsBuffer.push(
-            <div className="row py-4 border bg-light rounded my-1 mx-4">
-                <div className="team col-1 font-large d-flex justify-content-center align-items-center p-3 ">{el.finish ? el.finish : ''}</div>
-                <div className="col-10 px-4">
-                    <div className="row">
-                        <div className="font-large border-bottom ">
-                            {`${el.team}`}
-                            <span className="ms-2 font-small text-secondary ">{`# ${el.runningPos}`}</span>
+    totalPoints.forEach((el, ind) => {
+        if((!showBeyondTop5 && el.finish) || showBeyondTop5){
+            totalPointsBuffer.push(
+                <div className="row py-4 border bg-light rounded my-1 mx-4">
+                    <div className="team col-1 font-large d-flex justify-content-center align-items-center p-3 ">{el.finish ? el.finish : ''}</div>
+                    <div className="col-10 px-4">
+                        <div className="row">
+                            <div className="font-large border-bottom ">
+                                {`${el.team}`}
+                                {el.runningPos ? <span className="ms-2 font-small text-secondary ">{`# ${el.runningPos}`}</span> : <></>}
+                            </div>
+                        </div>
+                        <div className="row">
+                            {
+                                tournament.contests.map(contest => {
+                                    let key:string = el.team + " - " + contest.name
+                                    return (
+                                        <div className="col">
+                                            <div className="row text-secondary font-x-small">{contest.name}</div>
+                                            <div className="row font-small">{ runsLU[key]?.time && runsLU[key]?.time != 'NULL' ? runsLU[key].time : "" } / { runsLU[key]?.points && runsLU[key]?.points != 'NULL' ? runsLU[key].points : "" } </div>
+                                        </div>
+                                    )
+                                })
+                            }
                         </div>
                     </div>
-                    <div className="row">
-                        {
-                            tournament.contests.map(contest => {
-                                let key:string = el.team + " - " + contest.name
-                                return (
-                                    <div className="col">
-                                        <div className="row text-secondary font-x-small">{contest.name}</div>
-                                        <div className="row font-small">{ runsLU[key]?.time ? runsLU[key].time : "" } / { runsLU[key]?.points ? runsLU[key].points : "" } </div>
-                                    </div>
-                                )
-                            })
-                        }
+                    <div className="col-1 font-large p-2  d-flex flex-column justify-content-center align-items-center">
+                        <span >{el?.points ? el.points : ''}</span>
+                        <span className=" font-small ">{ el?.points ? el?.points > 1 ? "Points" : "Point" : ''}</span>
                     </div>
                 </div>
-                <div className="col-1 font-large p-2  d-flex flex-column justify-content-center align-items-center">
-                    <span >{el?.points ? el.points : ''}</span>
-                    <span className=" font-small ">{ el?.points ? el?.points > 1 ? "Points" : "Point" : ''}</span>
-                </div>
-            </div>
-        )
+            )    
+        }
     })
+    totalPointsBuffer.push(
+        <div className="d-flex justify-content-center align-items-center my-3">
+            {showBeyondTop5 ? 
+                <div className="btn btn-outline-secondary" onClick={() => setShowBeyondTop5(false)}>Show Top 5 Only</div>: 
+                <div className="btn btn-outline-secondary" onClick={() => setShowBeyondTop5(true)}>Show All Scoring Teams</div>
+            } 
+        </div>
+    )
 
     return (
         <div className="border rounded border-shadow pb-4 mt-4">
@@ -145,13 +158,10 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
         return el.contest == contestSelected; 
     })
     runsToShow = runsToShow.sort((a:Run,b:Run) => {
-        let aNum = a.time == "NT" ? 99 : a.time == "OT" ? 98 : parseFloat(a.time);  
-        let bNum = b.time == "NT" ? 99 : b.time == "OT" ? 98 : parseFloat(b.time);  
-        console.log(aNum, bNum, aNum < bNum ? -1 : 1); 
+        let aNum = a.time == "NT" ? 98 : a.time == "OT" ? 97 : parseFloat(a.time) ? parseFloat(a.time) : 99 ;  
+        let bNum = b.time == "NT" ? 98 : b.time == "OT" ? 97 : parseFloat(b.time) ? parseFloat(b.time) : 99 ;  
         return aNum < bNum ? -1 : 1; 
     })
-    console.log('runsToShow', runsToShow)
-
 
     let contestBuffer = []; 
     contestBuffer.push(
@@ -180,10 +190,13 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
                 {runsToShow.map(run => {
                     return (
                         <div className="row pb-1">
-                            <div className="col-6 text-center font-large">{`${run.team}`}<span className="ms-2 font-medium text-secondary">{`#${run.runningPosition}`}</span></div>
+                            <div className="col-6 text-center font-large">
+                                {`${run.team}`}
+                                {run.runningPosition ? <span className="ms-2 font-medium text-secondary">{`#${run.runningPosition}`}</span>  : <></>} 
+                            </div>
                             <div className="col-3 font-large d-flex justify-content-center">
                                     <div className="scorecard-video-link-parent">
-                                        {run.time}
+                                        {run.time && run.time != 'NULL' ? run.time : '--'}
                                         <span className="scorecard-video-link">
                                             {
                                                 run.urls.length ? 
@@ -194,7 +207,7 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
                                         </span>
                                     </div>
                             </div>
-                            <div className="col-3 text-center font-large">{run?.points && run.points == '0' ? "" : run.points}</div>
+                            <div className="col-3 text-center font-large">{run?.points && ( run.points == '0' || run.points == 'NULL' ) ? "" : run.points}</div>
                         </div>
                     )
                 })}

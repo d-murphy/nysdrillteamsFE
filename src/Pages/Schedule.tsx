@@ -27,7 +27,6 @@ export default function Schedule(props:ScheduleProp) {
                     date: new Date(el.date)
                 }
             })
-            console.log(data); 
             setTournaments(data); 
             setFilteredRows(data); 
             setLoading(false);

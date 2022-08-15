@@ -86,9 +86,10 @@ function generateRows(tournament:Tournament, runsLU:{ [key:string]: Run }, total
     let buffer: JSX.Element[] = []
 
     const positions = Object.keys(tournament.runningOrder).map(el => parseInt(el));
-    let maxPos = Math.max(...positions)
+    let minPos = Math.min(...positions); 
+    let maxPos = Math.max(...positions); 
 
-    for(let i=1; i<=maxPos; i++){
+    for(let i=minPos; i<=maxPos; i++){
         let rowBuffer: JSX.Element[] = []; 
         tournament.contests.forEach((el, ind) => {
             let key = tournament.runningOrder[i] + " - " + el.name; 
@@ -116,7 +117,6 @@ function generateAlphaRows(teamArr:string[], tournament:Tournament, runsLU:{ [ke
         let rowBuffer: JSX.Element[] = []; 
         tournament.contests.forEach((el, ind) => {
             let key = team + " - " + el.name; 
-            console.log(key, runsLU[key], totalPointsLU[key])
             if(ind==0){
                 rowBuffer.push(<th scope="col" className="scorecard-cell-md scorecard-lineup-cell fixed-col p-2">{team}</th>) 
                 rowBuffer.push(<td scope="col" className="scorecard-cell-lg scorecard-contest-cell text-center p-2">{runsLU[key] ? runsLU[key].time != 'NULL' ? runsLU[key].time : "--" : "--" }</td>) 

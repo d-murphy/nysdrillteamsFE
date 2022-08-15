@@ -34,7 +34,7 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
             <div className="schedule-entry-date-section col-lg-2 col-4 d-flex flex-column align-items-center justify-content-center p-3">
                 <div className="schedule-entry-date-day font-medium text-uppercase"><b>{dateUtil.getDay(tournament?.date.getDay())}</b></div>
                 <div className="schedule-entry-date-date font-large "><b>{dateUtil.getMMDDYYYY(tournament.date)}</b></div>
-                <div className="schedule-entry-date-time font-medium "><b>{dateUtil.getTime(tournament.date)}</b></div>
+                <div className="schedule-entry-date-time font-medium "><b>{String(tournament.startTime)}</b></div>
             </div>
             <div className="schedule-entry-tournament-info col-lg-4 col-8 d-flex flex-column align-items-center p-3">
                 <div className="schedule-entry-tournament-name font-large font-weight-bold mb-2"><b>{tournament.name}</b></div>

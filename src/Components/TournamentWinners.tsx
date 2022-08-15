@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { Tournament } from "../types/types"; 
 
@@ -9,7 +10,8 @@ import getTournamentWinner from "../utils/getTournamentWinners";
 
 interface TournamentWinnersProp {
     tournamentName: string;
-    numberShown: number; 
+    numberShown: number;
+    yearOfDrill: number;  
 }
 
 
@@ -19,7 +21,8 @@ export default function TournamentWinners(props:TournamentWinnersProp) {
     const [loading, setLoading] = useState(true); 
     const [errorLoading, setErrorLoading] = useState(false);
     const [tournaments, setTournaments] = useState([]); 
-   
+
+    const navigate = useNavigate();   
 
     const fetchPastTournaments = () => {
         console.log("ft called for id: ", tournamentName);  
@@ -35,7 +38,7 @@ export default function TournamentWinners(props:TournamentWinnersProp) {
             })
             data = data.sort((a:Tournament,b:Tournament) => a.date < b.date ? 1 : -1); 
             data = data.filter((el:Tournament) => {
-                return el.top5 && el.top5.length > 0 && el.date.getFullYear() < new Date().getFullYear(); 
+                return el.top5 && el.top5.length > 0 && el.date.getFullYear() < props.yearOfDrill; 
             })
             data = data.slice(0,props.numberShown); 
             data = data.map((el:Tournament) => {
@@ -56,7 +59,7 @@ export default function TournamentWinners(props:TournamentWinnersProp) {
 
     useEffect(() => {
         fetchPastTournaments()
-    }, [])
+    }, [props.yearOfDrill])
 
 
     let content; 
@@ -77,14 +80,18 @@ export default function TournamentWinners(props:TournamentWinnersProp) {
 
     if(!loading && !errorLoading){
         let list = tournaments.map(el => {
-            return <div>{el.winnerStr}</div>
+            return <div className="past-tourn-entry" onClick={() => navigate(`/Tournament/${el.id}`)}>{el.winnerStr}</div>
         })
-        content = (
-            <div className="font-small ">
-                {list.length ? <div><b>Past Winners:</b> </div> : <div/> }
-                {list}
-            </div>        
-        )
+        if(tournaments.length){
+            content = (
+                <div className="font-small ">
+                    {list.length ? <div><b>Past Winners:</b> </div> : <div/> }
+                    {list}
+                </div>        
+            )    
+        } else {
+            content = ''; 
+        }
     }
 
     

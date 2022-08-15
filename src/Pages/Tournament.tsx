@@ -42,7 +42,7 @@ export default function Schedule() {
             console.log(e)
             setErrorLoading(true); 
         })
-    }, [])
+    }, [tournamentId])
 
     let content; 
     if(tournLoading || runLoading){

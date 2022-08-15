@@ -25,7 +25,6 @@ export default function TournamentHeader(props:TournamentProp) {
             }
         })    
     }
-    console.log('tourn:', tournament)
     let pointsArr = []; 
     let pointsStr: string = 'Total Points for: '; 
     if(tournament.suffolkPoints) pointsArr.push("Suffolk"); 
@@ -87,7 +86,7 @@ export default function TournamentHeader(props:TournamentProp) {
                 <div className="schedule-entry-button-section col-lg-3 col-8 d-flex justify-content-around align-items-center p-2">
                     <div className=" ms-3">
                         {tournament?.urls?.length ?  <div className="video-icon font-x-large">{urlList}</div> : 
-                            <div><TournamentWinners tournamentName={tournament.name} numberShown={3} /></div>
+                            <div><TournamentWinners tournamentName={tournament.name} numberShown={3} yearOfDrill={tournament.date.getFullYear()} /></div>
                         }
                     </div>
                 </div>
