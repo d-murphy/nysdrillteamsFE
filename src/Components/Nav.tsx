@@ -27,7 +27,7 @@ export default function Nav() {
                         onClick={() => navigate("/")}>Total Points</div>
                     <div 
                         className="d-flex justify-content-center text-center underline-hover mx-4 my-3 px-3 py-2"
-                        onClick={() => navigate("/test")}>Past Seasons</div>
+                        onClick={() => navigate("/PastSeasons")}>Past Seasons</div>
                     <div 
                         className="d-flex justify-content-center text-center underline-hover mx-4 my-3 px-3 py-2"
                         onClick={() => navigate("/test")}>Top Runs and Run Search</div>

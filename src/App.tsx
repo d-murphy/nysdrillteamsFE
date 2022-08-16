@@ -7,6 +7,8 @@ import Nav from './Components/Nav';
 import Schedule from './Pages/Schedule'; 
 import Tournament from './Pages/Tournament';
 import Track from './Pages/Track';
+import PastSeasons from "./Pages/PastSeasons";
+import PastSeason from "./Pages/PastSeason"; 
 
 export default function App() {
 
@@ -21,6 +23,8 @@ export default function App() {
                         <Route path="/test" element={<div>test</div>} />
                         <Route path="/Tournament/:id" element={<Tournament />} />
                         <Route path="/Track/:trackName" element={<Track />} />
+                        <Route path="/PastSeasons" element={<PastSeasons />} />
+                        <Route path="/Season/:id" element={<PastSeason />} />
                         <Route
                         path="*"
                         element={

@@ -20,7 +20,7 @@ export default function Schedule(props:ScheduleProp) {
         fetch(`http://localhost:4400/tournaments/getFilteredTournaments?years=${props.year}`)
         .then(response => response.json())
         .then(data => {
-            data = data.sort((a:Tournament,b:Tournament) => a.date < b.date ? -1 : 1)
+            data = data.sort((a:Tournament,b:Tournament) => new Date(a.date) < new Date(b.date) ? -1 : 1)
             data = data.map((el:Tournament) => {
                 return {
                     ...el, 

@@ -264,3 +264,7 @@ table {
 .break-spaces {
     white-space: break-spaces;
 }
+
+.year-count-width {
+    min-width: 250px;
+}
