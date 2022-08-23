@@ -42,6 +42,7 @@ export type Run = {
     tournamentId: number,
     track: string, 
     time: string, 
+    timeNum: number,
     runningPosition?: number, 
     nassauPoints?: boolean, 
     suffolkPoints?: boolean, 

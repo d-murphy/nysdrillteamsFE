@@ -1,7 +1,5 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Tournament } from "../types/types";
 import Big8 from "../Components/Big8"; 
 import Schedule from "./Schedule";
 

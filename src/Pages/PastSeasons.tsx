@@ -64,8 +64,9 @@ export default function PastSeasons() {
                 <div className="d-flex flex-wrap justify-content-center align-items-center mt-4 mb-3 px-5">
                     {tournYrCts.map(el => {
                         return (
-                            <div className="btn btn-light m-2 year-count-width" onClick={() => {navigate(`/Season/${el._id}`)}}>
-                                <b>{el._id}</b> Events: {el.yearCount}
+                            <div className="btn btn-light m-2 py-2 year-count-width" onClick={() => {navigate(`/Season/${el._id}`)}}>
+                                <h5>{el._id}</h5>
+                                <div>{el.yearCount} Events</div>
                             </div>
                         )
                     })}

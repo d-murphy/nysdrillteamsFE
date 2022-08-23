@@ -9,6 +9,7 @@ import Tournament from './Pages/Tournament';
 import Track from './Pages/Track';
 import PastSeasons from "./Pages/PastSeasons";
 import PastSeason from "./Pages/PastSeason"; 
+import RunSearch from "./Pages/RunSearch";
 
 export default function App() {
 
@@ -20,17 +21,17 @@ export default function App() {
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/Schedule" element={<Schedule year={new Date().getFullYear()} />} />
-                        <Route path="/test" element={<div>test</div>} />
                         <Route path="/Tournament/:id" element={<Tournament />} />
                         <Route path="/Track/:trackName" element={<Track />} />
                         <Route path="/PastSeasons" element={<PastSeasons />} />
                         <Route path="/Season/:id" element={<PastSeason />} />
+                        <Route path="/TopRunsAndSearch" element={<RunSearch />} />
                         <Route
                         path="*"
                         element={
-                                <main style={{ padding: "1rem" }}>
-                                <p>There's nothing here!</p>
-                                </main>
+                                <div className="d-flex justify-content-center align-items-center my-5">
+                                    <div>Sorry, there's nothing at this URL.</div>
+                                </div>
                             }
                         />
                     </Routes>
