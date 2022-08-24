@@ -23,7 +23,7 @@ export default function TopRunsContest(props:TopRunsContestProp) {
     
     return (
         <div className="col-12 col-lg-6">
-            <div className="bg-white shadow-sm rounded my-2 text-center p-2 my-2 mx-1">
+            <div className="bg-white shadow-sm rounded text-center p-2 my-2 mx-1">
                 <h3 className="my-3">{contestName}</h3>
                 {runs.map(el => {
                     return (

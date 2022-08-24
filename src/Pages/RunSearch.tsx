@@ -1,7 +1,8 @@
 import * as React from "react";
-import { useParams } from "react-router-dom";
 import { useState } from "react";
 import TopRuns from "../Components/TopRuns"
+import RunsFilter from "../Components/RunsFilter";
+
 
 export default function RunSearch() {
 
@@ -11,11 +12,8 @@ export default function RunSearch() {
     
     return (
         <div className="container">
-            <div className="row">
-                <div className="col-12 text-center mt-3 mb-4 p-2 "><h3>Top Runs in Each Contest</h3></div>
-                {/* <RunsFilter setTeams={setTeams} setTracks={setTracks} setYears={setYears} /> */}
-                <TopRuns teams={teams} years={years} tracks={tracks} />
-            </div>
+            <RunsFilter setTeams={setTeams} setTracks={setTracks} setYears={setYears} />
+            <TopRuns teams={teams} years={years} tracks={tracks} />
         </div>
     )
 }

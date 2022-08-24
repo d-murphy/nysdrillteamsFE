@@ -53,6 +53,10 @@ export default function RunSearch(props:TopRunsProp) {
         fetchTopRuns(); 
     }, []); 
 
+    useEffect(() => {
+        fetchTopRuns(); 
+    }, [teams, tracks, years]); 
+
     let content; 
     if(loading){
         content = (
@@ -75,10 +79,12 @@ export default function RunSearch(props:TopRunsProp) {
 
 
     if(!errorLoading && !loading){
-        content = (<>
-            {topRuns.map((el, ind) => {
-                return <TopRunsContest runs={el} name={contestNames[ind]}/>
-            })}</>
+        content = (
+            <div className="row">
+                {topRuns.map((el, ind) => {
+                    return <TopRunsContest runs={el} name={contestNames[ind]}/>
+                })}
+            </div>
         )
     }
     return ( content )
