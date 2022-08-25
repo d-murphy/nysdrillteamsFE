@@ -248,6 +248,10 @@ table {
     background-color: var(--bs-gray-200);
 }
 
+.min-loading-height {
+    min-height: 600px;
+}
+
 /* General */
 
 .font-xx-small {

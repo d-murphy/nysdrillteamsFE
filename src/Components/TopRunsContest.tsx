@@ -32,13 +32,13 @@ export default function TopRunsContest(props:TopRunsContestProp) {
                                 <h4><b>{timeUtil.niceTime(el.timeNum)}</b></h4>
                             </div>
                             <div className="col-2">
-                                <div>
+                                <div className="h-100 d-flex justify-content-center align-items-center">
                                     {   
                                     el.urls.length ? 
                                         el.urls.map(url => {
                                             return (
                                                 <div className="video-icon">
-                                                    <a href={`${url}`} target="_blank"><FontAwesomeIcon icon={faVideo} /></a>
+                                                    <a href={`${url}`} target="_blank"><FontAwesomeIcon icon={faVideo} size='lg'/></a>
                                                 </div>  
                                             )
                                         }) : <></>

@@ -1,6 +1,6 @@
 import * as React from "react";
-import { SetStateAction } from 'react';
-import { useState, useEffect } from "react";
+import { useState, useEffect, SetStateAction } from "react";
+import { URLSearchParamsInit } from "react-router-dom";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faFilter} from '@fortawesome/free-solid-svg-icons'
@@ -11,6 +11,11 @@ interface RunsFilterProp {
     setTeams: React.Dispatch<SetStateAction<string[]>>
     setTracks: React.Dispatch<SetStateAction<string[]>>
     setYears: React.Dispatch<SetStateAction<number[]>>
+    setLoading: React.Dispatch<SetStateAction<boolean>>
+    setSearchParams: (nextInit: URLSearchParamsInit, navigateOptions?: {
+        replace?: boolean;
+        state?: any;
+    }) => void
 }
 
 export default function RunsFilter(props:RunsFilterProp) {
@@ -32,9 +37,15 @@ export default function RunsFilter(props:RunsFilterProp) {
     }, []); 
 
     const handleSubmit = () => {
-        if(yearsSelected.length) props.setYears(yearsSelected); 
-        if(teamsSelected.length) props.setTeams(teamsSelected); 
-        if(tracksSelected.length) props.setTracks(tracksSelected); 
+        props.setLoading(true); 
+        props.setYears(yearsSelected); 
+        props.setTeams(teamsSelected); 
+        props.setTracks(tracksSelected); 
+        let paramsObj: {years?:string, teams?: string, tracks?:string} = {}; 
+        if(yearsSelected.length) paramsObj.years = yearsSelected.join(",") 
+        if(teamsSelected.length) paramsObj.teams = teamsSelected.join(",")
+        if(tracksSelected.length) paramsObj.tracks = tracksSelected.join(",")
+        props.setSearchParams(paramsObj)
     }
 
     return (
