@@ -8,6 +8,7 @@ interface Big8Prop {
     year?: number;
 }
 
+declare var SERVICE_URL: string;
 
 export default function Big8(props:Big8Prop) {
 
@@ -18,7 +19,7 @@ export default function Big8(props:Big8Prop) {
     const [errorLoading, setErrorLoading] = useState(false); 
 
     const fetchBig8 = () => {
-        fetch(`http://localhost:4400/runs/getBig8?year=${big8Year}`)
+        fetch(`${SERVICE_URL}/runs/getBig8?year=${big8Year}`)
         .then(response => response.json())
         .then(data => {
             setBig8(data); 

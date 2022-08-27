@@ -1,5 +1,6 @@
 const path = require("path");
 const webpack = require("webpack");
+require('dotenv').config(); 
 
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
@@ -30,6 +31,7 @@ module.exports = {
   },
   plugins: [
     new ReactRefreshWebpackPlugin(),
+    new webpack.DefinePlugin({SERVICE_URL: JSON.stringify(process.env.SERVICE_URL)})
   ],
   resolve: {
       extensions: ['.tsx', '.ts', '.js']

@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter} from '@fortawesome/free-solid-svg-icons'
 import { Team, Track } from "../types/types";
 
+declare var SERVICE_URL: string;
 
 interface RunsFilterProp {
     setTeams: React.Dispatch<SetStateAction<string[]>>
@@ -164,7 +165,7 @@ export default function RunsFilter(props:RunsFilterProp) {
 
 
 async function getTracksForFilter(stateSetter:Function){
-    fetch('http://localhost:4400/tracks/getTracks')
+    fetch(`${SERVICE_URL}/tracks/getTracks`)
         .then(response => response.json())
         .then(data => {
             data = data
@@ -180,7 +181,7 @@ async function getTracksForFilter(stateSetter:Function){
 }
 
 async function getTeamsForFilter(stateSetter:Function){
-    fetch('http://localhost:4400/teams/getTeams')
+    fetch(`${SERVICE_URL}/teams/getTeams`)
         .then(response => response.json())
         .then(data => {
             data = data
@@ -197,7 +198,7 @@ async function getTeamsForFilter(stateSetter:Function){
 }
 
 async function getYearsForFilter(stateSetter:Function){
-    fetch('http://localhost:4400/tournaments/getTournsCtByYear')
+    fetch(`${SERVICE_URL}/tournaments/getTournsCtByYear`)
         .then(response => response.json())
         .then(data => {
             data = data

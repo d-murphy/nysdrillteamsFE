@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { Tournament } from "../types/types"; 
 import ScheduleEntry from "../Components/ScheduleEntry"; 
 
+declare var SERVICE_URL: string;
+
 interface ScheduleProp {
     year: number;
 }
@@ -17,7 +19,7 @@ export default function Schedule(props:ScheduleProp) {
     const [errorLoading, setErrorLoading] = useState(false); 
 
     const fetchTournaments = () => {
-        fetch(`http://localhost:4400/tournaments/getFilteredTournaments?years=${props.year}`)
+        fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?years=${props.year}`)
         .then(response => response.json())
         .then(data => {
             data = data.sort((a:Tournament,b:Tournament) => new Date(a.date) < new Date(b.date) ? -1 : 1)

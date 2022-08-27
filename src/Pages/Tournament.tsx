@@ -8,7 +8,7 @@ import TournamentHeader from "../Components/TournamentHeader";
 import Scorecard from "../Components/Scorecard";
 import SortedView from "../Components/SortedView";
 
-
+declare var SERVICE_URL: string;
 
 
 export default function Schedule() {
@@ -24,13 +24,13 @@ export default function Schedule() {
     const tournamentId = params.id
 
     async function getTournAndRuns(){
-        let response = await fetch(`http://localhost:4400/tournaments/getTournament?tournamentId=${tournamentId}`); 
+        let response = await fetch(`${SERVICE_URL}/tournaments/getTournament?tournamentId=${tournamentId}`); 
         let data = await response.json(); 
         data.date = new Date(data.date); 
         setTournament(data); 
         console.log('tourn: ', data)
         setTournLoading(false);
-        let response2 = await fetch(`http://localhost:4400/runs/getRunsFromTournament?tournamentId=${data.id}`)
+        let response2 = await fetch(`${SERVICE_URL}/runs/getRunsFromTournament?tournamentId=${data.id}`)
         let runs = await response2.json(); 
         console.log('runs', runs); 
         setRuns(runs)

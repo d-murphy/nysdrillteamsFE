@@ -4,6 +4,8 @@ import dateUtil from "../utils/dateUtils"
 import { Run } from "../types/types"
 import TopRunsContest from "./TopRunsContest";
 
+declare var SERVICE_URL: string;
+
 interface TopRunsProp {
     teams?: string[]
     years?: number[]
@@ -31,7 +33,7 @@ export default function RunSearch(props:TopRunsProp) {
         return el + ((ind + 1 == tracks.length) ? '' : ',')
     })
 
-    let url = 'http://localhost:4400/runs/getTopRuns?'; 
+    let url = `${SERVICE_URL}/runs/getTopRuns?`; 
     url += teams.length ? `${teamsParam}&` : ''; 
     url += years.length ? `${yearsParam}&` : ''; 
     url += tracks.length ? `${tracksParam}` : '';  

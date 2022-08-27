@@ -11,7 +11,11 @@ import PastSeasons from "./Pages/PastSeasons";
 import PastSeason from "./Pages/PastSeason"; 
 import RunSearch from "./Pages/RunSearch";
 
+declare var SERVICE_URL: string; 
+
 export default function App() {
+
+    console.log(`checking env var: ${SERVICE_URL}` )
 
     return (
         <BrowserRouter>

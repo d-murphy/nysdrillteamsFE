@@ -5,6 +5,8 @@ import dateUtil from "../utils/dateUtils"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faVideo } from '@fortawesome/free-solid-svg-icons'; 
 
+declare var SERVICE_URL: string;
+
 interface ScheduleProp {
     year: number;
 }
@@ -17,7 +19,7 @@ export default function Schedule(props:ScheduleProp) {
     const [errorLoading, setErrorLoading] = useState(false); 
 
     const fetchTournaments = () => {
-        fetch(`http://localhost:4400/tournaments/getFilteredTournaments?years=${props.year}`)
+        fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?years=${props.year}`)
         .then(response => response.json())
         .then(data => {
             data = data.map((el:Tournament) => {

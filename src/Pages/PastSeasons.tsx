@@ -2,6 +2,8 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+declare var SERVICE_URL: string;
+
 export default function PastSeasons() {
 
     const [tournYrCts, setTournYearCts ] = useState<{_id: number, yearCount: number}[]>([]); 
@@ -13,7 +15,7 @@ export default function PastSeasons() {
     const fetchTournamentsCts = () => {
 
 
-        fetch(`http://localhost:4400/tournaments/getTournsCtByYear`)
+        fetch(`${SERVICE_URL}/tournaments/getTournsCtByYear`)
         .then(response => response.json())
         .then(data => {
             data = data.filter((el: {_id: number, yearCount: number}) => {

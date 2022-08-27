@@ -1,5 +1,3 @@
-//http://localhost:4400/tournaments/getTournamentsByName?name=Central Islip Invitational
-
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { Tournament } from "../types/types"; 
 
 import getTournamentWinner from "../utils/getTournamentWinners"; 
+
+declare var SERVICE_URL: string;
 
 interface TournamentWinnersProp {
     tournamentName: string;
@@ -26,7 +26,7 @@ export default function TournamentWinners(props:TournamentWinnersProp) {
 
     const fetchPastTournaments = () => {
         console.log("ft called for id: ", tournamentName);  
-        fetch(`http://localhost:4400/tournaments/getFilteredTournaments?tournaments=${tournamentName}`)
+        fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?tournaments=${tournamentName}`)
         .then(response => response.json())
         .then(data => {
             console.log('gtbn', data)

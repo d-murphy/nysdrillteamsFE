@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMapLocationDot } from "@fortawesome/free-solid-svg-icons";
 import ScheduleEntry from "../Components/ScheduleEntry"; 
 
-
+declare var SERVICE_URL: string;
 
 export default function Track() {
 
@@ -24,7 +24,7 @@ export default function Track() {
     const trackName = params.trackName
 
     const fetchTrack = () => {
-        fetch(`http://localhost:4400/tracks/getTrackByName?trackName=${trackName}`)
+        fetch(`${SERVICE_URL}/tracks/getTrackByName?trackName=${trackName}`)
             .then(response => response.json())
             .then(data => {
                 setTrack(data)
@@ -38,7 +38,7 @@ export default function Track() {
     }
 
     const fetchTournaments = () => {
-        fetch(`http://localhost:4400/tournaments/getTournamentsByTrack?track=${trackName}`)
+        fetch(`${SERVICE_URL}/tournaments/getTournamentsByTrack?track=${trackName}`)
             .then(response => response.json())
             .then(data => {
                 data = data.sort((a:Tournament,b:Tournament) => a.date > b.date ? -1 : 1)
