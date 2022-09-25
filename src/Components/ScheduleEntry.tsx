@@ -9,6 +9,7 @@ import getTournamentWinner from "../utils/getTournamentWinners";
 
 interface ScheduleEntryProp {
     tournament: Tournament;
+    bgColorClass: string; 
 }
 
 
@@ -30,7 +31,7 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
     }
     
     return (
-        <div className="row bg-white shadow-sm rounded my-2">
+        <div className={`row ${props.bgColorClass} shadow-sm rounded my-2`}>
             <div className="schedule-entry-date-section col-lg-2 col-4 d-flex flex-column align-items-center justify-content-center p-3">
                 <div className="schedule-entry-date-day font-medium text-uppercase"><b>{dateUtil.getDay(tournament?.date.getDay())}</b></div>
                 <div className="schedule-entry-date-date font-large "><b>{dateUtil.getMMDDYYYY(tournament.date)}</b></div>

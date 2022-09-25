@@ -24,7 +24,7 @@ export default function App() {
                 <div className="">
                     <Routes>
                         <Route path="/" element={<Home />} />
-                        <Route path="/Schedule" element={<Schedule year={new Date().getFullYear()} />} />
+                        <Route path="/Schedule" element={<Schedule year={new Date().getFullYear()} bgColorClass="bg-white" />} />
                         <Route path="/Tournament/:id" element={<Tournament />} />
                         <Route path="/Track/:trackName" element={<Track />} />
                         <Route path="/PastSeasons" element={<PastSeasons />} />

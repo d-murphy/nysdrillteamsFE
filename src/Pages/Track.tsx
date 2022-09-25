@@ -181,7 +181,7 @@ export default function Track() {
                 </div>
             </div>
             {tournaments.map(el => {
-                return <ScheduleEntry key={el.id} tournament={el}/>
+                return <ScheduleEntry key={el.id} tournament={el} bgColorClass="bg-white"/>
             })}
         </div>
     }

@@ -8,7 +8,7 @@ export default function Nav() {
         <div className="">
             <div className="">
                 <div className="d-flex justify-content-center p-3 banner-bg">
-                    <span><b>This is an experimental site currently under development.  You probably shounldn't be here!</b></span>
+                    <span><b>This is an experimental site currently under development.  You probably shouldn't be here!</b></span>
                 </div>
             </div>
             <div className="nav-bg-color-dk">

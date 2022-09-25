@@ -7,6 +7,7 @@ declare var SERVICE_URL: string;
 
 interface ScheduleProp {
     year: number;
+    bgColorClass: string; 
 }
 
 
@@ -131,7 +132,7 @@ export default function Schedule(props:ScheduleProp) {
                 </div>
                 <div className="pb-5">
                     {filteredRows.map(el => {
-                        return <ScheduleEntry key={el.id} tournament={el}/>
+                        return <ScheduleEntry key={el.id} tournament={el} bgColorClass={props.bgColorClass}/>
                     })}
                 </div>
             </div>        
