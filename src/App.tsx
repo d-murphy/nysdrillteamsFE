@@ -10,6 +10,9 @@ import Track from './Pages/Track';
 import PastSeasons from "./Pages/PastSeasons";
 import PastSeason from "./Pages/PastSeason"; 
 import RunSearch from "./Pages/RunSearch";
+import Login from './Pages/Login'; 
+import AdminHome from "./Pages/AdminHome";
+import About from "./Pages/About"
 
 declare var SERVICE_URL: string; 
 
@@ -30,6 +33,9 @@ export default function App() {
                         <Route path="/PastSeasons" element={<PastSeasons />} />
                         <Route path="/Season/:id" element={<PastSeason />} />
                         <Route path="/TopRunsAndSearch" element={<RunSearch />} />
+                        <Route path="/AdminHome" element={<AdminHome />} />
+                        <Route path="/Login" element={<Login />} />
+                        <Route path="/About" element={<About />} />
                         <Route
                         path="*"
                         element={
