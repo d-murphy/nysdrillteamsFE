@@ -2,11 +2,14 @@ import * as React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchPost } from "../utils/network";
+import { useLoginContext } from "../utils/context";
+
 
 declare var SERVICE_URL: string;
 
 export default function Track() {
     let navigate = useNavigate();
+    const {login} = useLoginContext(); 
 
     const [inputFields , setInputFields] = useState({
         username: '',
@@ -32,6 +35,7 @@ export default function Track() {
         .then(response => response.text())
         .then(jwt => {
             console.log("The jwt?: ", jwt); 
+            login('testUser', [], 'testJwt')
             navigate('/adminHome'); 
         })
         .catch(err => {

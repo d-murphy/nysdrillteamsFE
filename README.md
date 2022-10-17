@@ -9,6 +9,7 @@
 [Fixing 'Cannot Get' Error](https://ui.dev/react-router-cannot-get-url-refresh)
 [Table with Stick Col and Row](https://css-tricks.com/a-table-with-both-a-sticky-header-and-a-sticky-first-column/)
 [Resizing Images](https://github.com/lovell/sharp)
+[useReducer and useContext hooks](https://designcode.io/react-hooks-handbook-usereducer-with-usecontext-1)
 
 #### To Do:
 * detect scroll and apply class to nav with position fixed
