@@ -11,13 +11,13 @@ interface LoginProviderProps {
 export const LoginProvider = ({children}: LoginProviderProps) => {
     const [state, dispatch] = useReducer(loginReducer, loginReducerInitialState); 
 
-    const login = (username:string, rolesArr:string[], jwt:string) => {
+    const login = (username:string, rolesArr:string[], sessionId:string) => {
         dispatch({
             type: "LOGIN", 
             payload: {
                 username: username, 
                 rolesArr: rolesArr, 
-                jwt: jwt
+                sessionId: sessionId
             }
         })
     }
@@ -27,14 +27,14 @@ export const LoginProvider = ({children}: LoginProviderProps) => {
             payload: {
                 username: '', 
                 rolesArr: [], 
-                jwt: ''
+                sessionId: ''
             }
         })
     }
     const value = {
         username: state.username, 
         rolesArr: state.rolesArr, 
-        jwt: state.jwt, 
+        sessionId: state.sessionId, 
         login, 
         logout
     }

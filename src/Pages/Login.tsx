@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { fetchPost } from "../utils/network";
 import { useLoginContext } from "../utils/context";
 
-
 declare var SERVICE_URL: string;
 
 export default function Track() {
@@ -32,13 +31,14 @@ export default function Track() {
             username: inputFields.username, 
             password: inputFields.password
         })
-        .then(response => response.text())
-        .then(jwt => {
-            console.log("The jwt?: ", jwt); 
-            login('testUser', [], 'testJwt')
+        .then(response => response.json())
+        .then(body => {
+            let {username, sessionId, rolesArr} = body; 
+            login(username, rolesArr, sessionId); 
             navigate('/adminHome'); 
         })
         .catch(err => {
+            console.log(err); 
             setErrorMessage("Unsuccessful login."); 
             setLoggingIn(false); 
             setInputFields( {

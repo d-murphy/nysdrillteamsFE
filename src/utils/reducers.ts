@@ -1,7 +1,7 @@
 type loginReducerInitialStateType = {
     username: string, 
     rolesArr: string[], 
-    jwt: string, 
+    sessionId: string, 
     login: Function, 
     logout: Function
 }
@@ -9,12 +9,12 @@ type loginReducerInitialStateType = {
 export const loginReducerInitialState:loginReducerInitialStateType = {
     username: '', 
     rolesArr: [], 
-    jwt: '', 
+    sessionId: '', 
     login: () => { }, 
     logout: () => { }, 
 }
 
-export const loginReducer = (state:loginReducerInitialStateType, action: {type:string, payload: {username:string, rolesArr:string[], jwt:string} }) => {
+export const loginReducer = (state:loginReducerInitialStateType, action: {type:string, payload: {username:string, rolesArr:string[], sessionId:string} }) => {
     const {type, payload} = action; 
 
     switch(type) {
@@ -23,14 +23,14 @@ export const loginReducer = (state:loginReducerInitialStateType, action: {type:s
                 ...state,
                 username: payload.username, 
                 rolesArr: payload.rolesArr, 
-                jwt: payload.jwt 
+                sessionId: payload.sessionId 
             }
         case "LOGOUT": 
             return {
                 ...state,
                 username: '', 
                 rolesArr: [], 
-                jwt: '' 
+                sessionId: '' 
             }
         default: 
             throw new Error(`No case for type: ${type}`)
