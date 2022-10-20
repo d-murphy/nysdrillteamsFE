@@ -79,10 +79,15 @@ export type Team = {
     _id: string, 
     id?: number,
     fullName: string,  
-    circuit: string,
+    region: string,
     imageUrl?: string, 
     active?: boolean, 
+    afterMigrate?: boolean, 
+    display?: boolean
     hometown: string, 
     nickname: string, 
-    class: string
+    circuit: string, 
+    twitter?: string, 
+    instagram?: string, 
+    tiktok?: string
 }

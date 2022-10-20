@@ -1,14 +1,43 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLoginContext } from "../utils/context";
+import AdminTeams  from "../Components/AdminTeams"; 
+import { Team } from "../types/types"
 
+declare var SERVICE_URL: string;
 
 export default function AdminHome() {
     let navigate = useNavigate();
     let [view, setView] = useState("Updates")
+    let [teams, setTeams] = useState<Team[]>([])
     const { username, logout } = useLoginContext(); 
 
+    useEffect(() => {
+        getTeams()
+    }, [])
+
+    function getTeams(){
+        console.log('getTeams called'); 
+        fetch(`${SERVICE_URL}/teams/getTeams`)
+        .then(response => response.json())
+        .then((data:Team[]) => {
+            data = data.sort((a:Team,b:Team) => a.circuit == b.circuit ? 
+                a.fullName < b.fullName ? -1 : 1 : 
+                a.circuit < b.circuit ? -1 : 1
+            )
+            setTeams(data)    
+        })
+    
+    }
+
+
+
+    if(!username) return (
+        <div className="container">
+            This page is only for admin use.
+        </div>
+    )
 
     return (
         <div className="container">
@@ -36,7 +65,7 @@ export default function AdminHome() {
                     Updates
                 </div>
                 <div className="btn btn-light mx-2 my-5 py-2 admin-btn" onClick={() => {setView("Teams")}}>
-                    Edit Teams
+                    Teams
                 </div>
                 <div className="btn btn-light mx-2 my-5 py-2 admin-btn" onClick={() => {setView("Tracks")}}>
                     Edit Tracks
@@ -50,7 +79,7 @@ export default function AdminHome() {
                     view == "Updates" ? <div>'Updates Placeholder'</div> : <></>
                 }
                 {
-                    view == "Teams" ? <div>'Teams Placeholder'</div> : <></>
+                    view == "Teams" ? <AdminTeams teams={teams} updateTeams={getTeams}/> : <></>
                 }
                 {
                     view == "Tracks" ? <div>'Tracks Placeholder'</div> : <></>
@@ -63,3 +92,4 @@ export default function AdminHome() {
 
     );
 }
+

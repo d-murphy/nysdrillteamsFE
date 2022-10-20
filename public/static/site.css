@@ -295,6 +295,10 @@ table {
     border-radius: 4px;
 }
 
+.pointer {
+    cursor: pointer; 
+}
+
 
 /* General */
 
@@ -336,4 +340,8 @@ table {
 
 .year-count-width, .admin-btn {
     min-width: 250px;
+}
+
+.width-100 {
+    width: 100%; 
 }
