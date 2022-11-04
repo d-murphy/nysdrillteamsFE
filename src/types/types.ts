@@ -27,7 +27,8 @@ export type Tournament = {
     contests: {name:string, cfp:boolean, sanction:boolean}[],
     liveStreamPlanned?: boolean
     urls?: string[], 
-    waterTime?: string
+    waterTime?: string, 
+    afterMigrate?: true
 }
 
 export type Run = {
@@ -70,8 +71,12 @@ export type Track = {
     city: string, 
     notes: string,
     imageUrls: string[], 
-    archHeight: string | null,
-    distanceToHydrant: number | null
+    archHeightFt: number, 
+    archHeightInches: number, 
+    distanceToHydrant: 200 | 225 | 999,
+    afterMigrate?: boolean, 
+    active?:boolean, 
+    display?: boolean
 }
 
 

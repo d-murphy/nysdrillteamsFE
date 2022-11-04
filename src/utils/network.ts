@@ -1,3 +1,5 @@
+import { useLoginContext } from "../utils/context";
+
 export class CustomError extends Error {
     status: number; 
     response: any; 
@@ -10,15 +12,19 @@ export class CustomError extends Error {
     }
 }
 
-  export const fetchPost = async function(url:string, body:{}){
+  export const fetchPost = async function(url:string, body:{}, sessionId?:string){
     return fetch(url, {
         method: 'POST', 
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify({
+            sessionId: sessionId, 
+            ...body
+        })
     })
     .then(res => {
+        // have fetch throw an error if non-200
         if (!res.ok) {
             throw new CustomError(res, res.status, "HTTP Status Code: " + res.status); 
         }

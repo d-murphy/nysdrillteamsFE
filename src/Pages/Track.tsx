@@ -126,10 +126,10 @@ export default function Track() {
                                 </a>
                             </div>
                             {
-                            track?.archHeight || track?.distanceToHydrant ? 
+                            (track?.archHeightFt && track?.archHeightInches) || track?.distanceToHydrant ? 
                                 <div className="text-center my-4">
-                                    {track?.archHeight ? `Arch Height: ${track.archHeight}` : ""}
-                                    {track?.distanceToHydrant ? `${track?.archHeight ? " | " : ""}Distance to Hydrant: ${track.distanceToHydrant}` : ""}
+                                    {(track?.archHeightFt && track?.archHeightInches) ? `Arch Height: ${track.archHeightFt}'${track.archHeightInches}''` : ""}
+                                    {track?.distanceToHydrant ? `${(track?.archHeightFt && track?.archHeightInches) ? " | " : ""}Distance to Hydrant: ${track.distanceToHydrant}` : ""}
                                 </div> : <></>
                             }
                         </div>

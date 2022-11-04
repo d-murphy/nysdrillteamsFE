@@ -19,6 +19,7 @@ const dateUtil = {
         return ''; 
     },
     getTime: function(date:Date):string{
+        date = new Date(date); 
         let hrsString:string = date.getHours() == 0 ? "12" : 
             date.getHours() < 12 ? String(date.getHours()) : String(date.getHours() - 12); 
         let amPm:string = date.getHours() < 12 ? "AM" : "PM";

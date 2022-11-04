@@ -44,15 +44,15 @@ html, body, #root {
     background-color: #001d3c;
 }
 
-.nav-bg-color, .schedule-entry-button, .track-name-bg-color, .login-button {
+.nav-bg-color, .schedule-entry-button, .track-name-bg-color, .login-button, .add-entry-button {
     background-color: #013369;
 }
 
-.hover-nav-font-change, .schedule-entry-button, .track-name-color, .login-button, .login-button:hover {
+.hover-nav-font-change, .schedule-entry-button, .track-name-color, .login-button, .login-button:hover, .add-entry-button, .add-entry-button:hover {
     color: var(--bs-white)
 }
 
-.schedule-entry-button:hover, .login-button:hover {
+.schedule-entry-button:hover, .login-button:hover, .add-entry-button:hover {
     opacity: 80%;
     cursor: pointer;
 }
@@ -179,7 +179,7 @@ html, body, #root {
 
 /* Tournament */
 
-.video-links, .map-location-links {
+.video-links, .map-location-links, .crud-links {
     text-decoration: none;
     color: #013369;
 }
@@ -344,4 +344,17 @@ table {
 
 .width-100 {
     width: 100%; 
+}
+
+.width-50 {
+    width: 50%; 
+}
+
+
+.pill {
+    background-color: var(--button-blue); 
+    color: white; 
+    font-weight: 400;
+    border-radius: 5px; 
+    padding: 5px; 
 }
