@@ -350,6 +350,16 @@ table {
     width: 50%; 
 }
 
+.width-15 {
+    width: 40px; 
+}
+
+.width-8 {
+    width: 25px; 
+}
+
+
+
 
 .pill {
     background-color: var(--button-blue); 

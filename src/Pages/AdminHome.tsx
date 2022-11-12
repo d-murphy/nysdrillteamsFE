@@ -99,7 +99,7 @@ export default function AdminHome() {
                     view == "Tracks" ? <AdminTracks tracks={tracks} updateTracks={getTracks}/> : <></>
                 }
                 {
-                    view == "Tournaments" ? <AdminTournaments tracks={tracks}/> : <></>
+                    view == "Tournaments" ? <AdminTournaments tracks={tracks} teams={teams}/> : <></>
                 }
             </div>
         </div>
