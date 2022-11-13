@@ -39,6 +39,7 @@
 * Tracks - display facts and images, list of tournaments.  (schedule view, no circuit or year filter)
 * Tournament View - (is this an opportunity for web socket) (scorecard view)
 * home page - [test if live](https://stackoverflow.com/questions/32454238/how-to-check-if-youtube-channel-is-streaming-live)
+* edit tournament - top 5 points doesn't allow decimals
 
 * connect schedule view scorecard to scorecard
 * connect track info icon to track page

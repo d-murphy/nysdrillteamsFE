@@ -25,10 +25,7 @@ export default function AdminHome() {
         fetch(`${SERVICE_URL}/teams/getTeams`)
         .then(response => response.json())
         .then((data:Team[]) => {
-            data = data.sort((a:Team,b:Team) => a.circuit == b.circuit ? 
-                a.fullName.toLowerCase() < b.fullName.toLowerCase() ? -1 : 1 : 
-                a.circuit < b.circuit ? -1 : 1
-            )
+            data = data.sort((a:Team,b:Team) => !a.fullName ? -1 : !b.fullName ? 1 : a.fullName.toLowerCase() < b.fullName.toLowerCase() ? -1 : 1 )
             setTeams(data)    
         })
     

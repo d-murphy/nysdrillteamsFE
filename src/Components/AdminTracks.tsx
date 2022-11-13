@@ -280,13 +280,13 @@ export default function AdminTracks(props:AdminTracksProps) {
                             <div className="col-6 d-flex flex-column align-items-center justify-content-end text-center">
                                 <div>Active</div>
                                 <div>
-                                    <input type="checkbox" id="active" name="active" checked={trackInReview?.active} onChange={handleCheck}></input>
+                                    <input className="form-check-input" type="checkbox" id="active" name="active" checked={trackInReview?.active} onChange={handleCheck}></input>
                                 </div>
                             </div>
                             <div className="col-6 d-flex flex-column align-items-center justify-content-end text-center">
                                 <div>Display in Lists?</div>
                                 <div>
-                                    <input type="checkbox" id="display" name="display" checked={trackInReview?.display} onChange={handleCheck}></input>
+                                    <input className="form-check-input" type="checkbox" id="display" name="display" checked={trackInReview?.display} onChange={handleCheck}></input>
                                 </div>
                             </div>
                         </div>

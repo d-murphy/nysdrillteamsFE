@@ -159,7 +159,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
                                                 modalCleanup(); 
                                                 loadTeam(team); 
                                             }}>
-                                            {team.circuit} - {team.fullName}
+                                            {team.fullName} - {team.circuit}
                                         </div>
                                     </div>
                                     <div className="col-4">
@@ -284,13 +284,13 @@ export default function AdminTeams(props:AdminTeamsProps) {
                             <div className="col-6 d-flex flex-column align-items-center justify-content-end text-center">
                                 <div>Active</div>
                                 <div>
-                                    <input type="checkbox" id="active" name="active" checked={teamInReview?.active} onChange={handleCheck}></input>
+                                    <input className="form-check-input" type="checkbox" id="active" name="active" checked={teamInReview?.active} onChange={handleCheck}></input>
                                 </div>
                             </div>
                             <div className="col-6 d-flex flex-column align-items-center justify-content-end text-center">
                                 <div>Display in Lists?</div>
                                 <div>
-                                    <input type="checkbox" id="display" name="display" checked={teamInReview?.display} onChange={handleCheck}></input>
+                                    <input className="form-check-input" type="checkbox" id="display" name="display" checked={teamInReview?.display} onChange={handleCheck}></input>
                                 </div>
                             </div>
                         </div>
