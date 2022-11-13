@@ -6,8 +6,11 @@ import { fetchPost } from "../utils/network"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faPenToSquare, faTrash, faPlus, faVideo } from "@fortawesome/free-solid-svg-icons"; 
 import dateUtil from '../utils/dateUtils'; 
-import ContestOptions from "./ContestOptions"; 
-
+import EditTop5 from "./adminTournamentsComps/editTop5"; 
+import EditRunningOrder from "./adminTournamentsComps/EditRunningOrder"; 
+import EditContests from "./adminTournamentsComps/EditContests"; 
+import EditScheduleAndTotalPoints from "./adminTournamentsComps/EditScheduleAndTotalPoints"
+import TournVideos from "./adminTournamentsComps/TournVideos"; 
 
 interface AdminTournamentProps {
     tracks: Track[];
@@ -68,10 +71,6 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     let [reqSubmitted, setReqSubmitted] = useState(false); 
     let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
     const { sessionId, rolesArr  } = useLoginContext(); 
-    let [showUrlInput, setShowUrlInput] = useState(false); 
-    let [newUrl, setNewUrl] = useState(""); 
-    const finishingPositionTeams = Object.values(tournInReview.runningOrder).length ? Object.values(tournInReview.runningOrder) : teams.map(el => el.fullName); 
-
     const isAdmin = rolesArr.includes("admin"); 
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){
@@ -116,128 +115,6 @@ export default function AdminTournaments(props:AdminTournamentProps) {
         setYear(parseInt(e.target.value))
     }
 
-    function handleLinkTextInput(e:React.ChangeEvent<HTMLInputElement>){
-        setNewUrl(e.target.value)
-    }
-
-    function addVideoLink(){
-        let urls = tournInReview.urls && tournInReview.urls.length ? tournInReview.urls : []; 
-        setTournInReview({
-            ...tournInReview, 
-            urls: [...urls, newUrl]
-        })
-        setNewUrl(""); 
-        setShowUrlInput(false);
-    }
-
-    function removeVideoLink(index:number){
-        let urls = tournInReview.urls;  
-        urls = urls.filter((el, ind) => ind != index ); 
-        setTournInReview({
-            ...tournInReview, 
-            urls: [...urls]
-        })
-    }
-
-    function addTeamToRunningOrder(addOrDelete:'add' | 'delete'){
-        let runOrder = {
-            ...tournInReview.runningOrder
-        }; 
-        let max = Object.keys(runOrder).length ? Math.max(...Object.keys(runOrder).map(el => parseInt(el))) : 0; 
-        if(addOrDelete=='add'){
-            max++; 
-            runOrder[max] = '';    
-        } else {
-            delete runOrder[max]; 
-        }
-        setTournInReview({
-            ...tournInReview, 
-            runningOrder: runOrder
-        })
-    }
-
-    function selectTeamInRunningOrder(e:React.ChangeEvent<HTMLSelectElement>, key:number){
-        let runOrder = {
-            ...tournInReview.runningOrder
-        }
-        runOrder[key] = e.target.value; 
-        setTournInReview({
-            ...tournInReview, 
-            runningOrder: runOrder
-        })
-    }
-
-    function addContest(){
-        let contests = [...tournInReview.contests, {name: null, cfp:true, sanction:true }]; 
-        setTournInReview({
-            ...tournInReview, 
-            contests: contests
-        })
-    }
-
-    function removeContest(){
-        let contests = [...tournInReview.contests]
-        contests.pop(); 
-        setTournInReview({
-            ...tournInReview, 
-            contests: contests
-        })
-    }
-
-    function selectContext(e:React.ChangeEvent<HTMLSelectElement>, ind:number){
-        let contests = [...tournInReview.contests]; 
-        contests[ind] = {
-            ...contests[ind], 
-            name: e.target.value
-        }; 
-        setTournInReview({
-            ...tournInReview, 
-            contests: contests
-        })
-    }
-
-    function handleContestCheck(e:React.ChangeEvent<HTMLInputElement>, ind:number, contestObjKey:'cfp' | 'sanction'){
-        let contests = [...tournInReview.contests]; 
-        contests[ind] = {
-            ...contests[ind], 
-        }
-        contests[ind][contestObjKey] = e.target.checked;  
-        setTournInReview({
-            ...tournInReview, 
-            contests: contests
-        })
-    }  
-    
-    function addTeamToTop5(addOrDelete:'add' | 'delete'){
-        let top5 = [...tournInReview.top5]; 
-        if(addOrDelete=='add'){
-            top5.push({teamName:null, finishingPosition:null, points:0})
-        } else {
-            top5.pop(); 
-        }
-        setTournInReview({
-            ...tournInReview, 
-            top5: top5
-        })
-    }
-
-    function selectChangeInTop5(e:React.ChangeEvent<HTMLSelectElement>, index:number, field:'teamName' | 'finishingPosition'){
-        let top5 = [...tournInReview.top5]; 
-        top5[index][field] = e.target.value; 
-        setTournInReview({
-            ...tournInReview, 
-            top5: top5
-        })
-    }
-
-    function selectPointsInTop5(e:React.ChangeEvent<HTMLInputElement>, index:number){
-        let top5 = [...tournInReview.top5]; 
-        top5[index].points = parseInt(e.target.value); 
-        setTournInReview({
-            ...tournInReview, 
-            top5: top5
-        })
-    }
 
     function loadTournament(tournament:Tournament){
         // if(!track?.archHeightFt) track.archHeightFt = 999; 
@@ -479,225 +356,17 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                     <input className="form-check-input" type="checkbox" id="liveStreamPlanned" name="liveStreamPlanned" checked={tournInReview?.liveStreamPlanned} onChange={handleCheck} disabled={!isAdmin}></input>
                                 </div>
                             </div>
-                            <div className="col-6 d-flex flex-column align-items-center">
-                                <div>Tourn Videos <FontAwesomeIcon className="mx-2" icon={faPlus} onClick={() => setShowUrlInput(true)} /> </div>
-                                {tournInReview.urls.map((el, ind) => {
-                                    return (
-                                        <div className="my-1" key={ind}>
-                                            <a href={el}><FontAwesomeIcon icon={faVideo} size='sm' className="mx-2"/></a>
-                                            <FontAwesomeIcon icon={faTrash} size='sm' onClick={() => removeVideoLink(ind)} className="mx-2"/>
-
-                                        </div>)
-                                })}
-                                {showUrlInput ? <div className="d-flex justify-content-around align-items-center mt-2">
-                                        <input className="w-50" id='newUrl' name='newUrl' value={newUrl} onChange={handleLinkTextInput} placeholder="Add video url here"/>
-                                        <FontAwesomeIcon icon={faPlus} size='sm' onClick={addVideoLink} className="mx-2"/>
-                                    </div> : <></>}
-                            </div>
-                        </div>
-                        <div className="row my-3 pt-2 border-top">
-                            <div className="col d-flex flex-column align-items-center justify-content-between">
-                                <div className="text-center">Nassau Points?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="nassauPoints" name="nassauPoints" checked={tournInReview?.nassauPoints} onChange={handleCheck} disabled={!isAdmin}></input>
-                                </div>
-                            </div>
-                            <div className="col d-flex flex-column align-items-center justify-content-between">
-                                <div className="text-center">Northern Points?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="northernPoints" name="northernPoints" checked={tournInReview?.northernPoints} onChange={handleCheck} disabled={!isAdmin}></input>
-                                </div>
-                            </div>
-                            <div className="col d-flex flex-column align-items-center justify-content-between">
-                                <div className="text-center">Suffolk Points?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="suffolkPoints" name="suffolkPoints" checked={tournInReview?.suffolkPoints} onChange={handleCheck} disabled={!isAdmin}></input>
-                                </div>
-                            </div>
-                            <div className="col d-flex flex-column align-items-center justify-content-between">
-                                <div className="text-center">Western Points?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="westernPoints" name="westernPoints" checked={tournInReview?.westernPoints} onChange={handleCheck} disabled={!isAdmin}></input>
-                                </div>
-                            </div>
-                            <div className="col d-flex flex-column align-items-center justify-content-between">
-                                <div className="text-center">Jr Points?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="juniorPoints" name="juniorPoints" checked={tournInReview?.juniorPoints} onChange={handleCheck} disabled={!isAdmin}></input>
-                                </div>
-                            </div>
-                            <div className="col d-flex flex-column align-items-center justify-content-between">
-                                <div className="text-center">Nassau OF Points?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="nassauOfPoints" name="nassauOfPoints" checked={tournInReview?.nassauOfPoints} onChange={handleCheck} disabled={!isAdmin}></input>
-                                </div>
-                            </div>
-                            <div className="col d-flex flex-column align-items-center justify-content-between">
-                                <div className="text-center">Suffolk OF Points?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="suffolkOfPoints" name="suffolkOfPoints" checked={tournInReview?.suffolkOfPoints} onChange={handleCheck} disabled={!isAdmin}></input>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="row my-3 pt-2 border-top">
-                            <div className="col d-flex flex-column align-items-center justify-content-between">
-                                <div className="text-center">Nassau Schedule?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="nassauSchedule" name="nassauSchedule" checked={tournInReview?.nassauSchedule} onChange={handleCheck} disabled={!isAdmin}></input>
-                                </div>
-                            </div>
-                            <div className="col d-flex flex-column align-items-center justify-content-between">
-                                <div className="text-center">Northern Schedule?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="northernSchedule" name="northernSchedule" checked={tournInReview?.northernSchedule} onChange={handleCheck} disabled={!isAdmin}></input>
-                                </div>
-                            </div>
-                            <div className="col d-flex flex-column align-items-center justify-content-between">
-                                <div className="text-center">Suffolk Schedule?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="suffolkSchedule" name="suffolkSchedule" checked={tournInReview?.suffolkSchedule} onChange={handleCheck} disabled={!isAdmin}></input>
-                                </div>
-                            </div>
-                            <div className="col d-flex flex-column align-items-center justify-content-between">
-                                <div className="text-center">Western Schedule?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="westernSchedule" name="westernSchedule" checked={tournInReview?.westernSchedule} onChange={handleCheck} disabled={!isAdmin}></input>
-                                </div>
-                            </div>
-                            <div className="col d-flex flex-column align-items-center justify-content-between">
-                                <div className="text-center">Jr Schedule?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="juniorSchedule" name="juniorSchedule" checked={tournInReview?.juniorSchedule} onChange={handleCheck} disabled={!isAdmin}></input>
-                                </div>
-                            </div>
-                            <div className="col d-flex flex-column align-items-center justify-content-between">
-                                <div className="text-center">OF Schedule?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="liOfSchedule" name="liOfSchedule" checked={tournInReview?.liOfSchedule} onChange={handleCheck} disabled={!isAdmin}></input>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="row my-3 pt-2 border-top">
-                            <div className="row">
-                                {isAdmin ? 
-                                    <div className="col d-flex justify-content-center align-items-center my-2">
-                                        Add Contest<FontAwesomeIcon className="mx-2 pointer" icon={faPlus} onClick={() => addContest()} />
-                                    </div> : <></>
-                                }
-                            </div>
-                            {
-                                tournInReview.contests.map((contest, ind) => {
-                                    return (
-                                        <div className="row mt-1">
-                                            <div className="col-1 text-center">{ind + 1}.</div>
-                                            <div className="col-10 d-flex flex-row justifiy-contest-center align-items-center">
-                                                <select onChange={(e) => selectContext(e, ind)} className="width-50 text-center mx-2" value={contest.name} disabled={!isAdmin}>
-                                                    <ContestOptions/>
-                                                </select>
-                                                <div className="d-flex flex-row justify-content-center align-items-center mx-2">
-                                                    <div className="me-1">Counts for Points?</div>
-                                                    <input className="form-check-input" type="checkbox" checked={contest.cfp} onChange={(e) => handleContestCheck(e, ind,"cfp")} disabled={!isAdmin}/>
-                                                </div>
-                                                <div className="d-flex flex-row justify-content-center align-items-center mx-2">
-                                                    <div className="me-1">Sanctioned?</div>
-                                                    <input className="form-check-input" type="checkbox" checked={contest.sanction} onChange={(e) => handleContestCheck(e, ind,"sanction")} disabled={!isAdmin}/>
-                                                </div>
-                                            </div>
-                                            <div className="col-1 text-center">
-                                                {
-                                                    isAdmin && ind + 1 == tournInReview.contests.length ? 
-                                                        <FontAwesomeIcon className="pointer" icon={faTrash} size='sm' onClick={removeContest} /> : <div />
-                                                }                                                
-                                            </div>
-                                        </div>
-                                    )
-                                })
-                            }
+                            <TournVideos tournInReview={tournInReview} setTournInReview={setTournInReview}/>
                         </div>
 
 
 
-                        <div className="row my-3 pt-2 border-top">
-                            <div className="row">
-                                {isAdmin ? 
-                                    <div className="col d-flex justify-content-center align-items-center my-2">
-                                        Add Team to Running Order<FontAwesomeIcon className="mx-2 pointer" icon={faPlus} onClick={() => addTeamToRunningOrder('add')} />
-                                    </div> : <></>
-                                }
-                            </div>
-                            {
-                                Object.keys(tournInReview.runningOrder).map((key:string, index:number) => {
-                                    return (
-                                        <div className="row mt-1">
-                                            <div className="col-1 text-center">{key}.</div>
-                                            <div className="col-10">
-                                                <select onChange={(e) => selectTeamInRunningOrder(e, parseInt(key))} className="width-100 text-center" value={tournInReview.runningOrder[parseInt(key)]} disabled={!isAdmin}>
-                                                    {teams.map(el => {
-                                                        return (<option value={el.fullName}>{el.fullName}</option>)
-                                                    })}
-                                                </select>
-                                            </div>
-                                            <div className="col-1 text-center">
-                                                {isAdmin && index + 1 == Object.keys(tournInReview.runningOrder).length ? 
-                                                    <FontAwesomeIcon className="pointer" icon={faTrash} size='sm' onClick={() => addTeamToRunningOrder('delete')} /> : <div />
-                                                }
-                                            </div>
-                                        </div>
-                                    )
-                                })
-                            }
-                        </div>
 
+                        <EditScheduleAndTotalPoints isAdmin={isAdmin} tournInReview={tournInReview} handleCheck={handleCheck} />
+                        <EditContests isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams}/>
+                        <EditRunningOrder isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams}/>
+                        <EditTop5 isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams}/>
 
-                        <div className="row my-3 pt-2 border-top">
-                            <div className="row">
-                                {isAdmin ? 
-                                    <div className="col d-flex justify-content-center align-items-center my-2">
-                                        Add Team to Top 5<FontAwesomeIcon className="mx-2 pointer" icon={faPlus} onClick={() => addTeamToTop5('add')} />
-                                    </div> : <></>
-                                }
-                            </div>
-                            {
-                                tournInReview.top5.map((top5member, index:number) => {
-                                    return (
-                                        <div className="row mt-1">
-                                            <div className="col-11 d-flex justify-content-center align-items-center ">
-                                                <div className="col-5 px-2">
-                                                    <select onChange={(e) => selectChangeInTop5(e, index, 'teamName')} className="width-100 text-center " value={top5member.teamName} disabled={!isAdmin}>
-                                                        <option value={null}></option>
-                                                        {
-                                                            finishingPositionTeams.map(el => {
-                                                                return (<option value={el}>{el}</option>)
-                                                            })
-                                                        }
-                                                    </select>
-                                                </div>
-                                                <div className="col-5 px-2">
-                                                    <select onChange={(e) => selectChangeInTop5(e, index, 'finishingPosition')} className="width-100 text-center" value={top5member.finishingPosition} disabled={!isAdmin}>
-                                                        <option value={null}></option>
-                                                        <option value={"1st Place"}>1st Place</option>
-                                                        <option value={"2nd Place"}>2nd Place</option>
-                                                        <option value={"3rd Place"}>3rd Place</option>
-                                                        <option value={"4th Place"}>4th Place</option>
-                                                        <option value={"5th Place"}>5th Place</option>
-                                                    </select>
-                                                </div>
-                                                <div className="col-2 d-flex justify-content-center align-items-center px-2">
-                                                    <div className="me-2">Points:</div> 
-                                                    <input onChange={(e) => selectPointsInTop5(e, index)} value={top5member.points} type="number" step=".1" className="width-60px " disabled={!isAdmin} ></input>
-                                                </div>
-                                            </div>
-                                            <div className="col-1 ">
-                                                {isAdmin && index + 1 == tournInReview.top5.length ? 
-                                                    <FontAwesomeIcon className="pointer" icon={faTrash} size='sm' onClick={() => addTeamToTop5('delete')} /> : <div />
-                                                }
-                                            </div>
-                                        </div>
-                                    )
-                                })
-                            }
-                        </div>
 
 
                     </div>
