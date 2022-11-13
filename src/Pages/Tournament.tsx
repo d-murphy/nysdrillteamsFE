@@ -32,7 +32,6 @@ export default function Schedule() {
         setTournLoading(false);
         let response2 = await fetch(`${SERVICE_URL}/runs/getRunsFromTournament?tournamentId=${data.id}`)
         let runs = await response2.json(); 
-        console.log('runs', runs); 
         setRuns(runs)
         setRunLoading(false); 
     }

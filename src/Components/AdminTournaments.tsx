@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { useLoginContext } from "../utils/context";
-import { Tournament, Track, Team } from "../types/types"
+import { Tournament, Track, Team, Run } from "../types/types"
 import { fetchPost } from "../utils/network"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faPenToSquare, faTrash, faPlus, faVideo } from "@fortawesome/free-solid-svg-icons"; 
@@ -24,7 +24,7 @@ let initialTourn:Tournament = {
     id: null, 
     name: '', 
     year: null, 
-    date: null, 
+    date: new Date(), 
     startTime: null, 
     nassauPoints: false, 
     suffolkPoints: false, 
@@ -67,6 +67,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     let [year, setYear] = useState(currentYear); 
     let [tourns, setTourns] = useState<Tournament[]>([]); 
     let [tournInReview, setTournInReview] = useState<Tournament>(initialTourn); 
+    let [runsForTourn, setRunsForTourn] = useState<Run[]>([]); 
     let [editOrCreate, setEditOrCreate] = useState(""); 
     let [reqSubmitted, setReqSubmitted] = useState(false); 
     let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
@@ -81,8 +82,6 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     }
 
     function handleDateInput(e:React.ChangeEvent<HTMLInputElement>){
-        console.log('date? ', e.target.value)
-        console.log('date as date? ', new Date(`${e.target.value} 12:00:00`))
         setTournInReview({
             ...tournInReview, 
             [e.target.id]: new Date(`${e.target.value} 12:00:00`)
@@ -117,10 +116,11 @@ export default function AdminTournaments(props:AdminTournamentProps) {
 
 
     function loadTournament(tournament:Tournament){
-        // if(!track?.archHeightFt) track.archHeightFt = 999; 
         setTournInReview({
             ...tournament
         })
+        setRunsForTourn([]); 
+        getRunsForTourn(tournament.id); 
     }
 
     function getTournaments(year:number){
@@ -188,6 +188,16 @@ export default function AdminTournaments(props:AdminTournamentProps) {
         }
     }
 
+    function getRunsForTourn(tournId:number){
+        setReqSubmitted(true);
+        fetch(`${SERVICE_URL}/runs/getRunsFromTournament?tournamentId=${tournId}`)
+            .then(response => response.json())
+            .then((data:Run[]) => {
+                setRunsForTourn(data); 
+                setReqSubmitted(false); 
+            })
+    }
+
     function modalCleanup(){
         setReqResult({error:false, message: ""}); 
         setReqSubmitted(false); 
@@ -225,8 +235,9 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                             {`${ dateUtil.getMMDDYYYY(tourn.date)} - ${tourn.name}`}
                                         </div>
                                     </div>
-                                    <div className="col-4">
-                                        <div className="pointer px-3 d-flex align-items-center justify-content-center"
+                                    <div className="col-4 d-flex flew-row align-items-center justify-content-center">
+                                        <div className="col-3"/>
+                                        <div className="pointer col-3 text-center"
                                             data-bs-toggle="modal" 
                                             data-bs-target="#editTournModal"
                                             onClick={()=>{
@@ -237,17 +248,16 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                             ><FontAwesomeIcon className="crud-links font-x-large" icon={faPenToSquare} />
                                         </div>
                                         {tourn.afterMigrate ? 
-                                            <div className="pointer px-3"
+                                            <div className="pointer col-3 text-center"
                                                 data-bs-toggle="modal" 
-                                                data-bs-target="#deleteTeamModal"
+                                                data-bs-target="#deleteTournModal"
                                                 onClick={()=>{
                                                     modalCleanup(); 
                                                     loadTournament(tourn); 
                                                 }}
                                                 ><FontAwesomeIcon className="crud-links font-x-large" icon={faTrash}/>
-                                            </div> : <></>}
-
-
+                                            </div> : <div className="col-3 text-center">&nbsp;</div>}
+                                        <div className="col-3"/>
                                     </div>
                                 </div>
                             )
@@ -257,151 +267,125 @@ export default function AdminTournaments(props:AdminTournamentProps) {
             </div>
 
             <div className="modal fade" id="editTournModal" aria-labelledby="editTournModal" aria-hidden="true">
-                <div className="modal-dialog modal-lg">
-                    <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title" id="tournModalLabel">{editOrCreate == "Edit" ? "Edit Tournament" : "Add Tournament"}</h5>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div className="modal-body">
-                        <div className="d-flex justify-content-center mb-3">
-                            {editOrCreate == "Edit" ? 
-                                <i>
-                                    {tournInReview?.afterMigrate ? "Created after 2022 migration." : "Migrated from previous site."}
-                                </i> : <></>
-                            }
-                        </div>
-                        <div className="row my-1">
-                            <div className="col-4 text-center">Name</div>
-                            <div className="col-8 text-center px-4">
-                                <input 
-                                    onChange={(e) => handleTextInput(e)} 
-                                    id="name" 
-                                    value={tournInReview.name} 
-                                    className="text-center width-100" 
-                                    disabled={!isAdmin}
-                                    autoComplete="off"></input>
-                            </div>
-                        </div>
-                        <div className="row my-1">
-                            <div className="col-4 text-center">Date</div>
-                            <div className="col-8 d-flex justify-content-around px-4" >
-                                <div>{dateUtil.getYYYYMMDD(tournInReview.date)}</div>
-                                <input 
-                                    type='date'
-                                    onChange={(e) => handleDateInput(e)} 
-                                    id="date" 
-                                    value={dateUtil.getYYYYMMDD(tournInReview.date)} 
-                                    placeholder={dateUtil.getYYYYMMDD(tournInReview.date)} 
-                                    className="text-center width-8" 
-                                    disabled={!isAdmin}
-                                    ></input>
-                            </div>
-                        </div>
-                        <div className="row my-1">
-                            <div className="col-4 text-center">Time</div>
-                            <div className="col-8 d-flex justify-content-around px-4" >
-                                <div>{dateUtil.getTime(tournInReview.startTime)}</div>
-                                <input 
-                                    type='time'
-                                    onChange={(e) => handleTimeInput(e)} 
-                                    id="startTime" 
-                                    value={dateUtil.getTimeForInput(tournInReview.startTime)} 
-                                    placeholder={dateUtil.getTimeForInput(tournInReview.startTime)} 
-                                    className="text-center width-15 pe-2" 
-                                    disabled={!isAdmin}
-                                    ></input>
-                            </div>
-                        </div>
-                        <div className="row my-1">
-                            <div className="col-4 text-center">Track</div>
-                            <div className="col-8 text-center px-4">
-                                <select onChange={handleSelect} id="track" name="track" className="width-100 text-center" value={tournInReview.track} disabled={!isAdmin}>
-                                    {tracks.map(el => {
-                                        return (<option value={el.name}>{el.name}</option>)
-                                    })}
-                                </select>
-                            </div>
-                        </div>
-                        <div className="row my-1">
-                            <div className="col-4 text-center">Water Time</div>
-                            <div className="col-8 text-center px-4">
-                                <input 
-                                        onChange={(e) => handleTextInput(e)} 
-                                        id="waterTime" 
-                                        value={tournInReview.waterTime} 
-                                        className="text-center width-100" 
-                                        disabled={!isAdmin}
-                                        autoComplete="off"></input>
-                            </div>
-                        </div>
-                        <div className="row my-4">
-                            <div className="col-6 d-flex flex-column align-items-center">
-                                <div>Sanctioned?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="sanctioned" name="sanctioned" checked={tournInReview?.sanctioned} onChange={handleCheck} disabled={!isAdmin}></input>
-                                </div>
-                            </div>
-                            <div className="col-6 d-flex flex-column align-items-center">
-                                <div>Counts for Points?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="cfp" name="cfp" checked={tournInReview?.cfp} onChange={handleCheck} disabled={!isAdmin}></input>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="row my-3">
-                            <div className="col-6 d-flex flex-column align-items-center">
-                                <div>Live Stream Planned?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="liveStreamPlanned" name="liveStreamPlanned" checked={tournInReview?.liveStreamPlanned} onChange={handleCheck} disabled={!isAdmin}></input>
-                                </div>
-                            </div>
-                            <TournVideos tournInReview={tournInReview} setTournInReview={setTournInReview}/>
-                        </div>
-
-
-
-
-                        <EditScheduleAndTotalPoints isAdmin={isAdmin} tournInReview={tournInReview} handleCheck={handleCheck} />
-                        <EditContests isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams}/>
-                        <EditRunningOrder isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams}/>
-                        <EditTop5 isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams}/>
-
-
-
-                    </div>
-                    <div className="modal-footer d-flex flex-column">
-                        <div className="text-center">
-                            {!isAdmin ? <span>
-                                Only admin can make changes here.
-                            </span> : <></>}
-                        </div>
-                        <div className="text-center my-3">
-                            {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
-                                {reqResult.message}
-                            </span> : <></>}
-                        </div>
-                        <div className="">
-                            <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdmin || reqSubmitted} onClick={insertOrUpdate}>Save changes</button>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-            </div>
-
-
-            {/* <div className="modal fade" id="deleteTrackModal" aria-labelledby="deleteModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-l">
+                <div className="modal-dialog modal-xl">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="deleteTrackModalLabel">Delete Team?</h5>
+                            <h5 className="modal-title" id="tournModalLabel">{editOrCreate == "Edit" ? "Edit Tournament" : "Add Tournament"}</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            <p>Are you sure you want to remove {trackInReview.name}?</p>
-                            <p>This removes the track from future lists, but previously saved tournaments and runs will still show the team.</p>
-                            <p><i>It's probably not a good idea to delete them if they've been added to tournaments.</i></p>
+                            <div className="d-flex justify-content-center mb-3">
+                                {editOrCreate == "Edit" ? 
+                                    <i>
+                                        {tournInReview?.afterMigrate ? "Created after 2022 migration." : "Migrated from previous site."}
+                                    </i> : <></>
+                                }
+                            </div>
+                            {editOrCreate == 'Edit' ? 
+                                <div className="d-flex justify-content-center mb-3">
+                                    There are {runsForTourn.length} runs attached to this event.
+                                </div> : <></>                        
+                            }
+
+                            <div className="row my-1">
+                                <div className="col-4 text-center">Name</div>
+                                <div className="col-8 text-center px-4">
+                                    <input 
+                                        onChange={(e) => handleTextInput(e)} 
+                                        id="name" 
+                                        value={tournInReview.name} 
+                                        className="text-center width-100" 
+                                        disabled={!isAdmin}
+                                        autoComplete="off"></input>
+                                </div>
+                            </div>
+                            <div className="row my-1">
+                                <div className="col-4 text-center">Date</div>
+                                <div className="col-8 d-flex justify-content-around px-4" >
+                                    <div>{dateUtil.getYYYYMMDD(tournInReview.date)}</div>
+                                    <input 
+                                        type='date'
+                                        onChange={(e) => handleDateInput(e)} 
+                                        id="date" 
+                                        value={dateUtil.getYYYYMMDD(tournInReview.date)} 
+                                        placeholder={dateUtil.getYYYYMMDD(tournInReview.date)} 
+                                        className="text-center width-8" 
+                                        disabled={!isAdmin}
+                                        ></input>
+                                </div>
+                            </div>
+                            <div className="row my-1">
+                                <div className="col-4 text-center">Time</div>
+                                <div className="col-8 d-flex justify-content-around px-4" >
+                                    <div>{dateUtil.getTime(tournInReview.startTime)}</div>
+                                    <input 
+                                        type='time'
+                                        onChange={(e) => handleTimeInput(e)} 
+                                        id="startTime" 
+                                        value={dateUtil.getTimeForInput(tournInReview.startTime)} 
+                                        placeholder={dateUtil.getTimeForInput(tournInReview.startTime)} 
+                                        className="text-center width-15 pe-2" 
+                                        disabled={!isAdmin}
+                                        ></input>
+                                </div>
+                            </div>
+                            <div className="row my-1">
+                                <div className="col-4 text-center">Track</div>
+                                <div className="col-8 text-center px-4">
+                                    <select onChange={handleSelect} id="track" name="track" className="width-100 text-center" value={tournInReview.track} disabled={!isAdmin}>
+                                        <option value={null}></option>
+                                        {tracks.map(el => {
+                                            return (<option value={el.name}>{el.name}</option>)
+                                        })}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="row my-1">
+                                <div className="col-4 text-center">Water Time</div>
+                                <div className="col-8 text-center px-4">
+                                    <input 
+                                            onChange={(e) => handleTextInput(e)} 
+                                            id="waterTime" 
+                                            value={tournInReview.waterTime} 
+                                            className="text-center width-100" 
+                                            disabled={!isAdmin}
+                                            autoComplete="off"></input>
+                                </div>
+                            </div>
+                            <div className="row my-4">
+                                <div className="col-6 d-flex flex-column align-items-center">
+                                    <div>Sanctioned?</div>
+                                    <div>
+                                        <input className="form-check-input" type="checkbox" id="sanctioned" name="sanctioned" checked={tournInReview?.sanctioned} onChange={handleCheck} disabled={!isAdmin}></input>
+                                    </div>
+                                </div>
+                                <div className="col-6 d-flex flex-column align-items-center">
+                                    <div>Counts for Points?</div>
+                                    <div>
+                                        <input className="form-check-input" type="checkbox" id="cfp" name="cfp" checked={tournInReview?.cfp} onChange={handleCheck} disabled={!isAdmin}></input>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="row my-3">
+                                <div className="col-6 d-flex flex-column align-items-center">
+                                    <div>Live Stream Planned?</div>
+                                    <div>
+                                        <input className="form-check-input" type="checkbox" id="liveStreamPlanned" name="liveStreamPlanned" checked={tournInReview?.liveStreamPlanned} onChange={handleCheck} disabled={!isAdmin}></input>
+                                    </div>
+                                </div>
+                                <TournVideos tournInReview={tournInReview} setTournInReview={setTournInReview}/>
+                            </div>
+
+
+
+
+                            <EditScheduleAndTotalPoints isAdmin={isAdmin} tournInReview={tournInReview} handleCheck={handleCheck} />
+                            <EditContests isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams}/>
+                            <EditRunningOrder isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams}/>
+                            <EditTop5 isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams}/>
+
+
+
                         </div>
                         <div className="modal-footer d-flex flex-column">
                             <div className="text-center">
@@ -416,13 +400,47 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             </div>
                             <div className="">
                                 <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                                <button type="button" className="btn btn-warning mx-2" disabled={!isAdmin || reqSubmitted} onClick={deleteTrack}>Delete</button>
+                                <button type="button" className="btn btn-primary mx-2" disabled={!isAdmin || reqSubmitted} onClick={insertOrUpdate}>Save changes</button>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div> */}
+            </div>
 
+
+            <div className="modal fade" id="deleteTournModal" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div className="modal-dialog modal-l">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="deleteTournModalLabel">Delete Team?</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+                            {reqSubmitted ? <p>Chill for a second.</p> : 
+                                runsForTourn.length ? 
+                                    <p>You can not delete tournaments which have runs attached.  This one has {runsForTourn.length}.</p> : 
+                                    <p>Are you sure you want to remove {tournInReview.name} on {dateUtil.getMMDDYYYY(tournInReview.date)}?</p>                        
+                            }
+                        </div>
+                        <div className="modal-footer d-flex flex-column">
+                            <div className="text-center">
+                                {!isAdmin ? <span>
+                                    Only admin can make changes here.
+                                </span> : <></>}
+                            </div>
+                            <div className="text-center my-3">
+                                {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
+                                    {reqResult.message}
+                                </span> : <></>}
+                            </div>
+                            <div className="">
+                                <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
+                                <button type="button" className="btn btn-warning mx-2" disabled={!isAdmin || reqSubmitted || runsForTourn.length>0} onClick={deleteTourn}>Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }

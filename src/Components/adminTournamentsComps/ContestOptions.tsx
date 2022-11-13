@@ -12,7 +12,7 @@ export default function ContestOptions() {
             <option value={"Motor Pump"}>Motor Pump</option>
             <option value={"Buckets"}>Buckets</option>
             <option value={"Individual Ladder"}>Individual Ladder</option>
-            <option value={"Motor Hose Replacement"}>Individual Ladder</option>
+            <option value={"Motor Hose Replacement"}>Motor Hose Replacement</option>
         </>
     )
 }
