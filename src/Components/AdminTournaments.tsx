@@ -4,13 +4,14 @@ import { useLoginContext } from "../utils/context";
 import { Tournament, Track, Team, Run } from "../types/types"
 import { fetchPost } from "../utils/network"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faPenToSquare, faTrash, faPlus, faVideo } from "@fortawesome/free-solid-svg-icons"; 
+import { faPenToSquare, faTrash, faPersonRunning } from "@fortawesome/free-solid-svg-icons"; 
 import dateUtil from '../utils/dateUtils'; 
 import EditTop5 from "./adminTournamentsComps/editTop5"; 
 import EditRunningOrder from "./adminTournamentsComps/EditRunningOrder"; 
 import EditContests from "./adminTournamentsComps/EditContests"; 
 import EditScheduleAndTotalPoints from "./adminTournamentsComps/EditScheduleAndTotalPoints"
 import TournVideos from "./adminTournamentsComps/TournVideos"; 
+import RunsEdit from "./adminTournamentsComps/RunsEdit"; 
 
 interface AdminTournamentProps {
     tracks: Track[];
@@ -71,6 +72,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     let [editOrCreate, setEditOrCreate] = useState(""); 
     let [reqSubmitted, setReqSubmitted] = useState(false); 
     let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
+    let [runsEditContest, setRunsEditContest] = useState("Please select a contest."); 
     const { sessionId, rolesArr  } = useLoginContext(); 
     const isAdmin = rolesArr.includes("admin"); 
 
@@ -230,14 +232,14 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                         tourns.map((tourn, ind) => {
                             return(
                                 <div key={ind} className="row w-100 my-1">
-                                    <div className="col-8">
+                                    <div className="col-7">
                                         <div className="pointer d-flex justify-content-center">
                                             {`${ dateUtil.getMMDDYYYY(tourn.date)} - ${tourn.name}`}
                                         </div>
                                     </div>
-                                    <div className="col-4 d-flex flew-row align-items-center justify-content-center">
-                                        <div className="col-3"/>
-                                        <div className="pointer col-3 text-center"
+                                    <div className="col d-flex flew-row align-items-center justify-content-center">
+                                        <div className="col-2"/>
+                                        <div className="pointer col text-center"
                                             data-bs-toggle="modal" 
                                             data-bs-target="#editTournModal"
                                             onClick={()=>{
@@ -247,8 +249,17 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                             }}
                                             ><FontAwesomeIcon className="crud-links font-x-large" icon={faPenToSquare} />
                                         </div>
+                                        <div className="pointer col text-center"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editRunsModal"
+                                            onClick={()=>{
+                                                setRunsEditContest("Please select a contest."); 
+                                                loadTournament(tourn); 
+                                            }}
+                                            ><FontAwesomeIcon className="crud-links font-x-large" icon={faPersonRunning} />
+                                        </div>
                                         {tourn.afterMigrate ? 
-                                            <div className="pointer col-3 text-center"
+                                            <div className="pointer col text-center"
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#deleteTournModal"
                                                 onClick={()=>{
@@ -257,7 +268,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                                 }}
                                                 ><FontAwesomeIcon className="crud-links font-x-large" icon={faTrash}/>
                                             </div> : <div className="col-3 text-center">&nbsp;</div>}
-                                        <div className="col-3"/>
+                                        <div className="col-2"/>
                                     </div>
                                 </div>
                             )
@@ -381,7 +392,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
 
                             <EditScheduleAndTotalPoints isAdmin={isAdmin} tournInReview={tournInReview} handleCheck={handleCheck} />
                             <EditContests isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams}/>
-                            <EditRunningOrder isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams}/>
+                            <EditRunningOrder isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams} runsForTourn={runsForTourn}/>
                             <EditTop5 isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams}/>
 
 
@@ -441,6 +452,39 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                     </div>
                 </div>
             </div>
+
+            <div className="modal fade" id="editRunsModal" aria-labelledby="editRunsModalLabel" aria-hidden="true">
+                <div className="modal-dialog modal-xl">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="editRunsModalLabel">Edit Runs?</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+                            <RunsEdit isAdmin={isAdmin} tournInReview={tournInReview} teams={teams} runsForTourn={runsForTourn} runsEditContest={runsEditContest} setRunsEditContest={setRunsEditContest}/>
+                        </div>
+                        <div className="modal-footer d-flex flex-column">
+                            <div className="text-center">
+                                {!isAdmin ? <span>
+                                    Only admin can make changes here.
+                                </span> : <></>}
+                            </div>
+                            <div className="text-center my-3">
+                                {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
+                                    {reqResult.message}
+                                </span> : <></>}
+                            </div>
+                            <div className="">
+                                <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
+                                <button type="button" className="btn btn-warning mx-2" disabled={!isAdmin || reqSubmitted || runsForTourn.length>0} onClick={deleteTourn}>Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
         </div>
     )
 }

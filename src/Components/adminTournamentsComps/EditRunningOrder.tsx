@@ -1,7 +1,7 @@
 import React from 'react'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faTrash, faPlus } from "@fortawesome/free-solid-svg-icons"; 
-import { Tournament, Team } from "../../types/types"
+import { Tournament, Team, Run } from "../../types/types"
 
 
 
@@ -9,7 +9,8 @@ interface EditRunningOrderProps {
     isAdmin: boolean, 
     tournInReview: Tournament, 
     setTournInReview: React.Dispatch<React.SetStateAction<Tournament>>, 
-    teams: Team[]
+    teams: Team[], 
+    runsForTourn: Run[]
 }
 
 export default function EditRunningOrder(props:EditRunningOrderProps) {
@@ -17,6 +18,9 @@ export default function EditRunningOrder(props:EditRunningOrderProps) {
     const tournInReview = props.tournInReview; 
     const setTournInReview = props.setTournInReview; 
     const teams = props.teams; 
+    const runsForTourn = props.runsForTourn; 
+    const runsTeamArr = runsForTourn.filter(el => !Object.values(tournInReview.runningOrder).includes(el.team)).map(el => el.team); 
+    const teamsWithRunsNotInRO = Array.from(new Set(runsTeamArr)).sort((a,b) => a < b ? -1 : 1); 
 
 
     function addTeamToRunningOrder(addOrDelete:'add' | 'delete'){
@@ -52,8 +56,17 @@ export default function EditRunningOrder(props:EditRunningOrderProps) {
         <div className="row my-3 pt-2 border-top">
         <div className="row">
             {isAdmin ? 
-                <div className="col d-flex justify-content-center align-items-center my-2">
+                <div className="col d-flex flex-column justify-content-center align-items-center my-2">
+                    <div>
                     Add Team to Running Order<FontAwesomeIcon className="mx-2 pointer" icon={faPlus} onClick={() => addTeamToRunningOrder('add')} />
+                    </div>
+                    {teamsWithRunsNotInRO.length ? 
+                        <div className='mx-2 text-center'>
+                            <p><i>{teamsWithRunsNotInRO[0]} and {teamsWithRunsNotInRO.length} other teams have runs added but are not in the running order.</i></p>
+                            <p><i>Recommendation:  Make sure all teams are in running order or no teams.</i></p>
+                        </div>
+                        : <></>                  
+                    }
                 </div> : <></>
             }
         </div>

@@ -73,9 +73,11 @@ export default function EditRunningOrder(props:EditContestsProps) {
                         <div className="row mt-1">
                             <div className="col-1 text-center">{ind + 1}.</div>
                             <div className="col-10 d-flex flex-row justifiy-contest-center align-items-center">
-                                <select onChange={(e) => selectContest(e, ind)} className="width-50 text-center mx-2" value={contest.name} disabled={!isAdmin}>
-                                    <ContestOptions/>
-                                </select>
+                                <div className='flex-grow-1 mx-2'>
+                                    <select onChange={(e) => selectContest(e, ind)} className="width-100 text-center mx-2" value={contest.name} disabled={!isAdmin}>
+                                        <ContestOptions/>
+                                    </select>
+                                </div>
                                 <div className="d-flex flex-row justify-content-center align-items-center mx-2">
                                     <div className="me-1">Counts for Points?</div>
                                     <input className="form-check-input" type="checkbox" checked={contest.cfp} onChange={(e) => handleContestCheck(e, ind,"cfp")} disabled={!isAdmin}/>

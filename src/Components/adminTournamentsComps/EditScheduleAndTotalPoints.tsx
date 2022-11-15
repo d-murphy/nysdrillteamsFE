@@ -57,6 +57,12 @@ export default function EditScheduleAndTotalPoints(props:EditScheduleAndTotalPoi
                     <input className="form-check-input" type="checkbox" id="suffolkOfPoints" name="suffolkOfPoints" checked={tournInReview?.suffolkOfPoints} onChange={handleCheck} disabled={!isAdmin}></input>
                 </div>
             </div>
+            <div className="col d-flex flex-column align-items-center justify-content-between">
+                <div className="text-center">LI OF Points?</div>
+                <div>
+                    <input className="form-check-input" type="checkbox" id="liOfPoints" name="liOfPoints" checked={tournInReview?.liOfPoints} onChange={handleCheck} disabled={!isAdmin}></input>
+                </div>
+            </div>
         </div>
         <div className="row my-3 pt-2 border-top">
             <div className="col d-flex flex-column align-items-center justify-content-between">
