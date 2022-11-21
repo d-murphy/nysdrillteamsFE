@@ -43,7 +43,7 @@ export default function EditTop5(props:EditTop5Props) {
 
     function selectPointsInTop5(e:React.ChangeEvent<HTMLInputElement>, index:number){
         let top5 = [...tournInReview.top5]; 
-        top5[index].points = parseInt(e.target.value); 
+        top5[index].points = parseFloat(e.target.value);
         setTournInReview({
             ...tournInReview, 
             top5: top5
@@ -86,7 +86,7 @@ export default function EditTop5(props:EditTop5Props) {
                                 </div>
                                 <div className="col-2 d-flex justify-content-center align-items-center px-2">
                                     <div className="me-2">Points:</div> 
-                                    <input onChange={(e) => selectPointsInTop5(e, index)} value={top5member.points} type="number" step=".1" className="width-60px " disabled={!isAdmin} ></input>
+                                    <input onChange={(e) => { selectPointsInTop5(e, index)}} value={top5member.points} type="number" step="0.01" className="width-60px " disabled={!isAdmin} ></input>
                                 </div>
                             </div>
                             <div className="col-1 text-center">

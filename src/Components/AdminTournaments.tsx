@@ -72,7 +72,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     let [editOrCreate, setEditOrCreate] = useState(""); 
     let [reqSubmitted, setReqSubmitted] = useState(false); 
     let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
-    let [runsEditContest, setRunsEditContest] = useState("Please select a contest."); 
+    let [runsEditContest, setRunsEditContest] = useState(""); 
     const { sessionId, rolesArr  } = useLoginContext(); 
     const isAdmin = rolesArr.includes("admin"); 
 
@@ -91,7 +91,6 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     }
 
     function handleTimeInput(e:React.ChangeEvent<HTMLInputElement>){
-        console.log('time? ', e.target.value)
         setTournInReview({
             ...tournInReview, 
             [e.target.id]: new Date(`2022-01-01 ${e.target.value}`)
@@ -135,7 +134,6 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     }
 
     function changeYear(year:number){
-        console.log('change year called'); 
         setYear(year); 
         getTournaments(year); 
     }
@@ -253,7 +251,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                             data-bs-toggle="modal" 
                                             data-bs-target="#editRunsModal"
                                             onClick={()=>{
-                                                setRunsEditContest("Please select a contest."); 
+                                                setRunsEditContest(""); 
                                                 loadTournament(tourn); 
                                             }}
                                             ><FontAwesomeIcon className="crud-links font-x-large" icon={faPersonRunning} />
@@ -346,7 +344,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                     <select onChange={handleSelect} id="track" name="track" className="width-100 text-center" value={tournInReview.track} disabled={!isAdmin}>
                                         <option value={null}></option>
                                         {tracks.map(el => {
-                                            return (<option value={el.name}>{el.name}</option>)
+                                            return (<option key={`option${el.name}`} value={el.name}>{el.name}</option>)
                                         })}
                                     </select>
                                 </div>
@@ -457,11 +455,19 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                 <div className="modal-dialog modal-xl">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="editRunsModalLabel">Edit Runs?</h5>
+                            <h5 className="modal-title" id="editRunsModalLabel">Edit Runs</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            <RunsEdit isAdmin={isAdmin} tournInReview={tournInReview} teams={teams} runsForTourn={runsForTourn} runsEditContest={runsEditContest} setRunsEditContest={setRunsEditContest}/>
+                            <RunsEdit 
+                                isAdmin={isAdmin} 
+                                tournInReview={tournInReview} 
+                                teams={teams}
+                                runsForTourn={runsForTourn} 
+                                runsEditContest={runsEditContest} 
+                                setRunsEditContest={setRunsEditContest}
+                                reqSubmitted={reqSubmitted}
+                                />
                         </div>
                         <div className="modal-footer d-flex flex-column">
                             <div className="text-center">
