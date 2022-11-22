@@ -3,6 +3,8 @@ import { Tournament, Team, Run } from "../../types/types"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faPenToSquare, faTrash, faPlus } from "@fortawesome/free-solid-svg-icons"; 
 
+import RunsEditForm from "./RunsEditForm"; 
+
 
 
 
@@ -16,7 +18,7 @@ interface EditRunsProps {
     reqSubmitted: boolean
 }
 
-export default function EditRunningOrder(props:EditRunsProps) {
+export default function RunsEdit(props:EditRunsProps) {
     const isAdmin = props.isAdmin; 
     const tournInReview = props.tournInReview; 
     const teams = props.teams; 
@@ -25,6 +27,36 @@ export default function EditRunningOrder(props:EditRunsProps) {
     const setRunsEditContest = props.setRunsEditContest; 
     const reqSubmitted = props.reqSubmitted; 
 
+    const emptyRun:Run = {
+        team: '', 
+        hometown: '', 
+        nickname: '', 
+        contest: '', 
+        year: null, 
+        tournament: '', 
+        tournamentId: null, 
+        track: '', 
+        time: '', 
+        timeNum: null, 
+        points: '', 
+        rank: '', 
+        runningPosition: null,
+        date: null, 
+        urls: [], 
+        sanctioned: true, 
+        nassauPoints: false, 
+        suffolkPoints: false, 
+        westernPoints: false, 
+        northernPoints: false, 
+        suffolkOfPoints: false, 
+        nassauOfPoints: false, 
+        liOfPoints: false, 
+        juniorPoints: false,
+        notes: '',
+        stateRecord: false,
+        currentStateRecord: false
+    }
+
     const [runInReview, setRunInReview] = useState<Run | null>(null)
 
     let buttonsToDisplay:{team:string, runningPosition?:string, hasRun:Run}[] = []; 
@@ -32,9 +64,6 @@ export default function EditRunningOrder(props:EditRunsProps) {
     runsForTourn.forEach(el => {
         runsForTournLU[`${el.contest}-${el.team}`] = el; 
     })
-    console.log("runsForTournLU", runsForTournLU); 
-
-    console.log('making buttons'); 
     const runsAleadyWithButton:{[index:string]:boolean} = {}; 
     if(tournInReview.runningOrder) {
         Object.keys(tournInReview.runningOrder).forEach(runningPosition => {
@@ -56,10 +85,54 @@ export default function EditRunningOrder(props:EditRunsProps) {
             buttonsToDisplay.push({
                 team: run.team, 
                 runningPosition: null, 
-                hasRun: run
+                hasRun: run 
             })
         }
     })
+
+
+    function loadNewRun(team:string, runningPosition: string){
+        const teamObj = teams.find(el => el.fullName == team); 
+        const cfp = getCfp(tournInReview.contests, runsEditContest); 
+        setRunInReview({
+            ...emptyRun, 
+            team: team, 
+            hometown: teamObj.hometown, 
+            nickname: teamObj.nickname, 
+            tournament: tournInReview.name, 
+            tournamentId: tournInReview.id,
+            contest: runsEditContest, 
+            year: new Date(tournInReview.date).getFullYear(), 
+            date: tournInReview.date,
+            track: tournInReview.track, 
+            runningPosition: parseInt(runningPosition), 
+            sanctioned: getSanction(tournInReview.contests, runsEditContest), 
+            nassauPoints: cfp && tournInReview.nassauPoints && teamObj.circuit == 'Nassau',  
+            suffolkPoints: cfp && tournInReview.suffolkPoints && teamObj.circuit == 'Suffolk',
+            westernPoints: cfp && tournInReview.westernPoints && teamObj.circuit == 'Western', 
+            northernPoints: cfp && tournInReview.northernPoints && teamObj.circuit == 'Northern',
+            suffolkOfPoints: cfp && tournInReview.suffolkOfPoints && teamObj.circuit == 'Old Fashioned',
+            nassauOfPoints: cfp && tournInReview.nassauOfPoints && teamObj.circuit == 'Old Fashioned',
+            liOfPoints: cfp && (tournInReview.nassauOfPoints || tournInReview.suffolkOfPoints) && teamObj.circuit == 'Old Fashioned',
+            juniorPoints: cfp && tournInReview.nassauPoints && teamObj.circuit == 'Juniors',
+        })
+    }
+
+    function getSanction(contestArr: {name:string, cfp:boolean, sanction:boolean}[], contest:string): boolean {
+        let contestObj = contestArr.find(el => {
+            return el.name == contest; 
+        })
+        if(contestObj) return contestObj.sanction; 
+        return false
+    }
+    
+    function getCfp (contestArr: {name:string, cfp:boolean, sanction:boolean}[], contest:string): boolean {
+        let contestObj = contestArr.find(el => {
+            return el.name == contest; 
+        })
+        if(contestObj) return contestObj.cfp; 
+        return false
+    }
 
 
     return (
@@ -90,7 +163,7 @@ export default function EditRunningOrder(props:EditRunsProps) {
                                             <>
                                                 <FontAwesomeIcon className="crud-links font-large px-2 " icon={faPenToSquare} onClick={() => setRunInReview(el.hasRun)} />
                                             </> : 
-                                            <FontAwesomeIcon className="crud-links font-large px-2" icon={faPlus} />}
+                                            <FontAwesomeIcon className="crud-links font-large px-2" icon={faPlus} onClick={() => loadNewRun(el.team, el.runningPosition)} />}
                                     </div>
                                 )
                             })
@@ -105,7 +178,15 @@ export default function EditRunningOrder(props:EditRunsProps) {
                             <div className='d-flex justify-content-center align-items-center'>
                                 {
                                     !runInReview ? <div className='m-3'>Select a run to edit</div> : 
-                                        <div>{runInReview.timeNum}</div>
+                                        <RunsEditForm 
+                                            isAdmin={isAdmin} 
+                                            tournInReview={tournInReview} 
+                                            teams={teams} 
+                                            runsEditContest={runsEditContest} 
+                                            reqSubmitted={reqSubmitted}
+                                            runInReview={runInReview}
+                                            setRunInReview={setRunInReview}
+                                        />
                                 
                                 }
                                 

@@ -32,7 +32,7 @@ export type Tournament = {
 }
 
 export type Run = {
-    _id: string
+    _id?: string
     id?: number, 
     team: string, 
     hometown?: string, 
@@ -55,12 +55,12 @@ export type Run = {
     juniorPoints?: boolean,
     date: Date, 
     urls: string[], 
-    sanctioned: boolean, 
+    sanctioned?: boolean, 
     points?: string, 
     rank?: string, 
     notes?: string,
-    stateRecord?: string,
-    currentStateRecord?: string
+    stateRecord?: boolean,
+    currentStateRecord?: boolean
 }
 
 export type Track = {
