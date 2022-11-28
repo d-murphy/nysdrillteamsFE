@@ -5,9 +5,6 @@ import { faPenToSquare, faTrash, faPlus } from "@fortawesome/free-solid-svg-icon
 
 import RunsEditForm from "./RunsEditForm"; 
 
-
-
-
 interface EditRunsProps {
     isAdmin: boolean, 
     tournInReview: Tournament, 
@@ -15,7 +12,9 @@ interface EditRunsProps {
     runsForTourn: Run[], 
     runsEditContest: string, 
     setRunsEditContest: React.Dispatch<React.SetStateAction<string>>, 
-    reqSubmitted: boolean
+    reqSubmitted: boolean, 
+    setReqSubmitted:  React.Dispatch<React.SetStateAction<boolean>>, 
+    getRunsForTourn: Function
 }
 
 export default function RunsEdit(props:EditRunsProps) {
@@ -26,6 +25,8 @@ export default function RunsEdit(props:EditRunsProps) {
     const runsEditContest = props.runsEditContest; 
     const setRunsEditContest = props.setRunsEditContest; 
     const reqSubmitted = props.reqSubmitted; 
+    const setReqSubmitted = props.setReqSubmitted; 
+    const getRunsForTourn = props.getRunsForTourn; 
 
     const emptyRun:Run = {
         team: '', 
@@ -38,7 +39,7 @@ export default function RunsEdit(props:EditRunsProps) {
         track: '', 
         time: '', 
         timeNum: null, 
-        points: '', 
+        points: null, 
         rank: '', 
         runningPosition: null,
         date: null, 
@@ -58,6 +59,7 @@ export default function RunsEdit(props:EditRunsProps) {
     }
 
     const [runInReview, setRunInReview] = useState<Run | null>(null)
+    let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
 
     let buttonsToDisplay:{team:string, runningPosition?:string, hasRun:Run}[] = []; 
     const runsForTournLU:{[index:string]:Run} = {}; 
@@ -118,6 +120,12 @@ export default function RunsEdit(props:EditRunsProps) {
         })
     }
 
+    function changeContest(contest:string){
+        setRunsEditContest(contest); 
+        setRunInReview(null); 
+    }
+    
+
     function getSanction(contestArr: {name:string, cfp:boolean, sanction:boolean}[], contest:string): boolean {
         let contestObj = contestArr.find(el => {
             return el.name == contest; 
@@ -141,7 +149,7 @@ export default function RunsEdit(props:EditRunsProps) {
             <div className="d-flex justify-content-center flex-wrap">
                 {tournInReview.contests.map(contest => {
                     return (
-                        <div className="btn btn-light mx-1 my-2 py-1" onClick={() => {setRunsEditContest(contest.name)}}>
+                        <div className="btn btn-light mx-1 my-2 py-1" onClick={() => {changeContest(contest.name)}}>
                             {contest.name}
                         </div>    
                     )
@@ -169,8 +177,7 @@ export default function RunsEdit(props:EditRunsProps) {
                             })
                             }
                             <div className='mt-4 d-flex flex-column align-items-center justify-content-center text-center'>
-                                <div>Add a run for a team not listed <FontAwesomeIcon className="crud-links font-large px-2" icon={faPlus} /></div>
-                                <div><i>This isn't recommended.  It's better to add the team in the tournament's running order.</i></div>
+                                <div><i>If a team is not listed, first add them to the running order on the tournament page.</i></div>
                             </div>                                           
 
                         </div>
@@ -186,6 +193,10 @@ export default function RunsEdit(props:EditRunsProps) {
                                             reqSubmitted={reqSubmitted}
                                             runInReview={runInReview}
                                             setRunInReview={setRunInReview}
+                                            setReqSubmitted={setReqSubmitted}
+                                            getRunsForTourn={getRunsForTourn}
+                                            reqResult={reqResult}
+                                            setReqResult={setReqResult}
                                         />
                                 
                                 }

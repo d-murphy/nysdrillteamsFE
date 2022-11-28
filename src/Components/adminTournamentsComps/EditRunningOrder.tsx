@@ -63,7 +63,6 @@ export default function EditRunningOrder(props:EditRunningOrderProps) {
                     {teamsWithRunsNotInRO.length ? 
                         <div className='mx-2 text-center'>
                             <p><i>{teamsWithRunsNotInRO[0]} and {teamsWithRunsNotInRO.length} other teams have runs added but are not in the running order.</i></p>
-                            <p><i>Recommendation:  Make sure all teams are in running order or no teams.</i></p>
                         </div>
                         : <></>                  
                     }

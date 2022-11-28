@@ -193,6 +193,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
         fetch(`${SERVICE_URL}/runs/getRunsFromTournament?tournamentId=${tournId}`)
             .then(response => response.json())
             .then((data:Run[]) => {
+                console.log('runs for tourn: ', data); 
                 setRunsForTourn(data); 
                 setReqSubmitted(false); 
             })
@@ -467,22 +468,13 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                 runsEditContest={runsEditContest} 
                                 setRunsEditContest={setRunsEditContest}
                                 reqSubmitted={reqSubmitted}
+                                setReqSubmitted={setReqSubmitted}
+                                getRunsForTourn={getRunsForTourn}
                                 />
                         </div>
                         <div className="modal-footer d-flex flex-column">
-                            <div className="text-center">
-                                {!isAdmin ? <span>
-                                    Only admin can make changes here.
-                                </span> : <></>}
-                            </div>
-                            <div className="text-center my-3">
-                                {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
-                                    {reqResult.message}
-                                </span> : <></>}
-                            </div>
                             <div className="">
                                 <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                                <button type="button" className="btn btn-warning mx-2" disabled={!isAdmin || reqSubmitted || runsForTourn.length>0} onClick={deleteTourn}>Delete</button>
                             </div>
                         </div>
                     </div>

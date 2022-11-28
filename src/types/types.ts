@@ -56,11 +56,12 @@ export type Run = {
     date: Date, 
     urls: string[], 
     sanctioned?: boolean, 
-    points?: string, 
+    points?: number, 
     rank?: string, 
     notes?: string,
     stateRecord?: boolean,
-    currentStateRecord?: boolean
+    currentStateRecord?: boolean, 
+    afterMigrate?: true
 }
 
 export type Track = {

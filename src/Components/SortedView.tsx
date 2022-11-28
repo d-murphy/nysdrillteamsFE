@@ -79,7 +79,7 @@ function calculateTotalPoints(tournament:Tournament, runs: Run[]):calculatingTot
     }
     runs.forEach(run => {
         if(totalPtsLu[run.team] ) {
-            totalPtsLu[run.team].points += run?.points && parseInt(run?.points) ? parseInt(run.points) : 0; 
+            totalPtsLu[run.team].points += run?.points ? run.points : 0; 
         }
     })
     let totalPtsArr = Object.values(totalPtsLu).sort((a:calculatingTotalPoints,b:calculatingTotalPoints) => {
@@ -129,7 +129,7 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
                                     return (
                                         <div className="col">
                                             <div className="row text-secondary font-x-small">{contest.name}</div>
-                                            <div className="row font-small">{ runsLU[key]?.time && runsLU[key]?.time != 'NULL' ? runsLU[key].time : "" } / { runsLU[key]?.points && runsLU[key]?.points != 'NULL' ? runsLU[key].points : "" } </div>
+                                            <div className="row font-small">{ runsLU[key]?.time && runsLU[key]?.time != 'NULL' ? runsLU[key].time : "" } / { runsLU[key]?.points ? runsLU[key].points : "" } </div>
                                         </div>
                                     )
                                 })
@@ -215,7 +215,7 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
                                         </span>
                                     </div>
                             </div>
-                            <div className="col-3 text-center font-large">{run?.points && ( run.points == '0' || run.points == 'NULL' ) ? "" : run.points}</div>
+                            <div className="col-3 text-center font-large">{run?.points ? run.points : "" }</div>
                         </div>
                     )
                 })}

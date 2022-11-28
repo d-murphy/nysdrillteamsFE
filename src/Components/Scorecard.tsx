@@ -30,10 +30,10 @@ export default function Scorecard(props:ScorecardProp) {
         teamArr.forEach(team => {
             let key = team + " - " + contest.name; 
             if(contestIndex == 0) {
-                totalPointsLU[key] = parseInt(runsLU[key]?.points) ? parseInt(runsLU[key]?.points) : 0;  
+                totalPointsLU[key] = runsLU[key]?.points ? runsLU[key]?.points : 0;  
             } else {
                 let lastContestKey = team + " - " + tournament.contests[contestIndex-1].name; 
-                totalPointsLU[key] = parseInt(runsLU[key]?.points) ? parseInt(runsLU[key]?.points) : 0;
+                totalPointsLU[key] = runsLU[key]?.points ? runsLU[key]?.points : 0;
                 totalPointsLU[key] += totalPointsLU[lastContestKey]; 
             }            
         })
@@ -122,11 +122,11 @@ function generateAlphaRows(teamArr:string[], tournament:Tournament, runsLU:{ [ke
             if(ind==0){
                 rowBuffer.push(<th scope="col" className="scorecard-cell-md scorecard-lineup-cell fixed-col p-2">{team}</th>) 
                 rowBuffer.push(<td scope="col" className="scorecard-cell-lg scorecard-contest-cell text-center p-2">{runsLU[key] ? runsLU[key].time != 'NULL' ? runsLU[key].time : "--" : "--" }</td>) 
-                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-points-cell text-center p-2">{runsLU[key]?.points ? runsLU[key].points != 'NULL' ? runsLU[key].points : "--" : "--"}</td>) 
+                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-points-cell text-center p-2">{runsLU[key]?.points ? runsLU[key].points : "--"}</td>) 
             } else {
                 rowBuffer.push(<td scope="col" className="scorecard-cell-lg scorecard-contest-cell text-center p-2">{runsLU[key] ? runsLU[key].time != 'NULL' ? runsLU[key].time : "--" : "--" }</td>) 
-                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-points-cell text-center p-2">{runsLU[key]?.points ? runsLU[key].points != 'NULL' ? runsLU[key].points : "--" : "--"}</td>) 
-                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-totalpoints-cell text-center p-2">{totalPointsLU[key]}</td>) 
+                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-points-cell text-center p-2">{runsLU[key]?.points ? runsLU[key].points : "--"}</td>) 
+                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-totalpoints-cell text-center p-2">{totalPointsLU[key]== 0 ? "--" : totalPointsLU[key]}</td>) 
             }    
         })
         buffer.push(<tr>{...rowBuffer}</tr>)

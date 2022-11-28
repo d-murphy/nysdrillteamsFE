@@ -28,7 +28,6 @@ export default function Schedule() {
         let data = await response.json(); 
         data.date = new Date(data.date); 
         setTournament(data); 
-        console.log('tourn: ', data)
         setTournLoading(false);
         let response2 = await fetch(`${SERVICE_URL}/runs/getRunsFromTournament?tournamentId=${data.id}`)
         let runs = await response2.json(); 
