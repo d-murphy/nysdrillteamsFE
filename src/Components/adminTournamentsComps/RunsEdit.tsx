@@ -35,7 +35,7 @@ export default function RunsEdit(props:EditRunsProps) {
         contest: '', 
         year: null, 
         tournament: '', 
-        tournamentId: null, 
+        tournamentId: '', 
         track: '', 
         time: '', 
         timeNum: null, 
@@ -59,7 +59,9 @@ export default function RunsEdit(props:EditRunsProps) {
     }
 
     const [runInReview, setRunInReview] = useState<Run | null>(null)
-    let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
+    const [editOrInsertRun, setEditOrInsertRun] = useState<'edit' | 'insert'>("insert"); 
+    let [reqResult, setReqResult] = useState<{error: boolean, message:string} | null>(null); 
+    const [showingDeleteWarning, setShowingDeleteWarning] = useState(false)
 
     let buttonsToDisplay:{team:string, runningPosition?:string, hasRun:Run}[] = []; 
     const runsForTournLU:{[index:string]:Run} = {}; 
@@ -92,8 +94,20 @@ export default function RunsEdit(props:EditRunsProps) {
         }
     })
 
+    function loadExistingRun(run:Run){
+        setEditOrInsertRun('edit'); 
+        setReqResult(null); 
+        setShowingDeleteWarning(false); 
+        setRunInReview({
+            ...emptyRun,
+            ...run
+        }); 
+    }
 
     function loadNewRun(team:string, runningPosition: string){
+        setEditOrInsertRun('insert'); 
+        setReqResult(null); 
+        setShowingDeleteWarning(false); 
         const teamObj = teams.find(el => el.fullName == team); 
         const cfp = getCfp(tournInReview.contests, runsEditContest); 
         setRunInReview({
@@ -102,7 +116,7 @@ export default function RunsEdit(props:EditRunsProps) {
             hometown: teamObj.hometown, 
             nickname: teamObj.nickname, 
             tournament: tournInReview.name, 
-            tournamentId: tournInReview.id,
+            tournamentId: String(tournInReview.id),
             contest: runsEditContest, 
             year: new Date(tournInReview.date).getFullYear(), 
             date: tournInReview.date,
@@ -123,6 +137,8 @@ export default function RunsEdit(props:EditRunsProps) {
     function changeContest(contest:string){
         setRunsEditContest(contest); 
         setRunInReview(null); 
+        setReqResult(null); 
+        setShowingDeleteWarning(false); 
     }
     
 
@@ -144,7 +160,7 @@ export default function RunsEdit(props:EditRunsProps) {
 
 
     return (
-        reqSubmitted ? <div>Loading... </div> : 
+        reqSubmitted ? <div className='d-flex justify-content-center align-items-center some-height mt-5'>Loading... </div> : 
         <div className='d-flex flex-column justify-content-center align-items-center'>
             <div className="d-flex justify-content-center flex-wrap">
                 {tournInReview.contests.map(contest => {
@@ -169,7 +185,7 @@ export default function RunsEdit(props:EditRunsProps) {
                                         ({el.runningPosition? el.runningPosition : "Not in Running Order."}) {el.team}
                                         {el.hasRun ? 
                                             <>
-                                                <FontAwesomeIcon className="crud-links font-large px-2 " icon={faPenToSquare} onClick={() => setRunInReview(el.hasRun)} />
+                                                <FontAwesomeIcon className="crud-links font-large px-2 " icon={faPenToSquare} onClick={() => loadExistingRun(el.hasRun)} />
                                             </> : 
                                             <FontAwesomeIcon className="crud-links font-large px-2" icon={faPlus} onClick={() => loadNewRun(el.team, el.runningPosition)} />}
                                     </div>
@@ -184,19 +200,20 @@ export default function RunsEdit(props:EditRunsProps) {
                         <div className='col-8 p-2 bg-light rounded'>
                             <div className='d-flex justify-content-center align-items-center'>
                                 {
-                                    !runInReview ? <div className='m-3'>Select a run to edit</div> : 
                                         <RunsEditForm 
                                             isAdmin={isAdmin} 
                                             tournInReview={tournInReview} 
                                             teams={teams} 
                                             runsEditContest={runsEditContest} 
-                                            reqSubmitted={reqSubmitted}
                                             runInReview={runInReview}
                                             setRunInReview={setRunInReview}
-                                            setReqSubmitted={setReqSubmitted}
                                             getRunsForTourn={getRunsForTourn}
+                                            editOrInsertRun={editOrInsertRun}
                                             reqResult={reqResult}
                                             setReqResult={setReqResult}
+                                            setReqSubmitted={setReqSubmitted}
+                                            showingDeleteWarning={showingDeleteWarning}
+                                            setShowingDeleteWarning={setShowingDeleteWarning}
                                         />
                                 
                                 }

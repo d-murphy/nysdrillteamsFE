@@ -40,7 +40,7 @@ export type Run = {
     contest: string,
     year: number, 
     tournament: string,
-    tournamentId: number,
+    tournamentId: string,
     track: string, 
     time: string, 
     timeNum: number,

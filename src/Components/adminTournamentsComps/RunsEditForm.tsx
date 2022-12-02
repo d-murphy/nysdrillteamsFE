@@ -10,28 +10,31 @@ interface EditRunsFormProps {
     tournInReview: Tournament, 
     teams: Team[], 
     runsEditContest: string, 
-    reqSubmitted: boolean, 
-    setReqSubmitted: React.Dispatch<React.SetStateAction<boolean>>
     runInReview: Run, 
     setRunInReview: React.Dispatch<React.SetStateAction<Run>>, 
     getRunsForTourn: Function
-    reqResult: {error: boolean, message:string}, 
-    setReqResult: React.Dispatch<React.SetStateAction<{error: boolean, message:string}>>
+    editOrInsertRun: 'edit' | 'insert', 
+    reqResult: {error: boolean, message:string} | null, 
+    setReqResult: React.Dispatch<React.SetStateAction<{error: boolean, message:string} | null>>, 
+    setReqSubmitted:  React.Dispatch<React.SetStateAction<boolean>>, 
+    showingDeleteWarning: boolean, 
+    setShowingDeleteWarning: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 declare var SERVICE_URL: string;
 
 export default function RunsEditForm(props:EditRunsFormProps) {
     const isAdmin = props.isAdmin; 
-    const reqSubmitted = props.reqSubmitted; 
-    const setReqSubmitted = props.setReqSubmitted; 
     const runInReview = props.runInReview; 
     const setRunInReview = props.setRunInReview; 
     const getRunsForTourn = props.getRunsForTourn; 
     const tournInReview = props.tournInReview; 
+    const editOrInsertRun = props.editOrInsertRun; 
     const reqResult = props.reqResult; 
     const setReqResult = props.setReqResult; 
-    const [showingDeleteWarning, setShowingDeleteWarning] = useState(false)
+    const setReqSubmitted = props.setReqSubmitted; 
+    const showingDeleteWarning = props.showingDeleteWarning; 
+    const setShowingDeleteWarning = props.setShowingDeleteWarning; 
     const { sessionId } = useLoginContext(); 
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>){
@@ -71,17 +74,20 @@ export default function RunsEditForm(props:EditRunsFormProps) {
     }
 
     async function tryDelete(){
-        if(!setShowingDeleteWarning) return setShowingDeleteWarning(true); // first display confirm message to user
+        if(!showingDeleteWarning) {
+            setShowingDeleteWarning(true); // first display confirm message to user
+            return; 
+        } 
         try {
             setReqSubmitted(true); 
             await fetchPost(`${SERVICE_URL}/runs/deleteRun`, {runId: runInReview._id}, sessionId)
             setReqResult({error: false, message: "Record deleted successfully."}); 
             setRunInReview(null); 
             setReqSubmitted(false); 
-            getRunsForTourn(tournInReview._id) 
+            getRunsForTourn(tournInReview.id) 
         } catch {
             setReqSubmitted(false); 
-            setReqResult({error: true, message: "Error deleting record."}); 
+            setReqResult({error: true, message: "An error occurred.  Can you try again?."}); 
         }
         setShowingDeleteWarning(false);
     }
@@ -89,20 +95,28 @@ export default function RunsEditForm(props:EditRunsFormProps) {
     async function trySave(){
         try {
             setReqSubmitted(true); 
-            await fetchPost(`${SERVICE_URL}/runs/insertRun`, {runsData: runInReview}, sessionId)
+            if(editOrInsertRun==='insert'){
+                await fetchPost(`${SERVICE_URL}/runs/insertRun`, {runsData: runInReview}, sessionId)
+            } else {
+                let runId = runInReview._id; 
+                let {_id: _, ...runData} = runInReview;
+                await fetchPost(`${SERVICE_URL}/runs/updateRun`, {runId: runId,  fieldsToUpdate: runData}, sessionId)
+            }
             setReqResult({error: false, message: "Record saved successfully."}); 
             setReqSubmitted(false); 
-            getRunsForTourn(tournInReview._id) 
+            getRunsForTourn(tournInReview.id)
+            setRunInReview(null); 
         } catch {
             setReqSubmitted(false); 
-            setReqResult({error: true, message: "Error deleting record."}); 
+            setReqResult({error: true, message: "An error occurred.  Can you try again?."}); 
         }
     }
 
     return (
-        reqSubmitted ? <div>Loading... </div> : 
-        // runDeleted ? <div>Run Deleted</div> : 
-        !runInReview ? <div>Select a Run</div> : 
+        reqResult ? <div className={`my-5 ${reqResult.error ? "text-danger" : "text-success"}`}>
+                {reqResult.message ? <div>{reqResult.message}</div> : <></>}
+            </div> : 
+        !runInReview ? <div className='my-5'>Select a Run</div> : 
         <div className=''>
             <div className="row my-3 width-100">
                 <div className="col-2 text-center">Team</div>
@@ -134,7 +148,7 @@ export default function RunsEditForm(props:EditRunsFormProps) {
                 <div className="col-2 text-center">Place</div>
                 <div className="col-4 text-center px-4">
                     <select id="rank" onChange={(e) => handleSelect(e)} className="width-100 text-center p-1 " value={runInReview.rank} disabled={!isAdmin}>
-                        <option value={""}>Did not place</option>
+                        <option value={""}>Did not place / In Progress</option>
                         <option value={"1"}>1st Place</option>
                         <option value={"2"}>2nd Place</option>
                         <option value={"3"}>3rd Place</option>
@@ -146,7 +160,7 @@ export default function RunsEditForm(props:EditRunsFormProps) {
                 <div className="col-4 text-center px-4">
                     <input 
                         id="points" 
-                        value={runInReview.points} 
+                        value={runInReview.points ? runInReview.points : ''} 
                         className="text-center width-100 p-1" 
                         disabled={!isAdmin}
                         autoComplete="off" type="number" step=".01"
@@ -174,9 +188,21 @@ export default function RunsEditForm(props:EditRunsFormProps) {
                 </div>
                 <RunVideos runInReview={runInReview} setRunInReview={setRunInReview}/>
             </div>
+            <div className='row d-flex justify-content-center align-items-center mt-5'>
+                {showingDeleteWarning ? <>Are you sure you want to delete?</> : <></>}
+            </div>
+            <div className="row mt-5 mb-2 width-100">
+                <div className='d-flex justify-content-center align-items-center'>
+                    <button type="button" className="btn btn-success mx-2"  onClick={trySave}>Save</button>
+                    <button type="button" className="btn btn-danger mx-2"  disabled={!isAdmin} onClick={tryDelete} >{!showingDeleteWarning ? 'Delete Run' : 'Yes, please delete.'}</button>
+                </div>
+            </div>
+
             <div className='row pt-1 mt-3 mx-1 border-top'>
-                <div className='mt-2'><b>Advanced Settings</b></div>
-                <div><i>The following fields are pre-populated based on selections made in tournament page.  You should NOT need to make changes in this section, but you can if necessary.</i></div>
+                <div className='mt-2 text-center'><b>Advanced Settings</b></div>
+                <div className='text-center'><i>The following fields are pre-populated based on selections made in tournament page.  You should NOT need to make changes in this section, but you can if necessary.</i></div>
+                <br/><br/><br/>
+                <div className='text-center'><i>This is showing total points for the RUN, not the TOURNAMENT.</i></div>
             </div>
             <div className="row my-1 width-100">
                 <div className="col d-flex flex-column align-items-center justify-content-between mt-3">
@@ -232,20 +258,6 @@ export default function RunsEditForm(props:EditRunsFormProps) {
                     <div>
                         <input className="form-check-input" type="checkbox" id="sanctioned" name="sanctioned" checked={runInReview.sanctioned} onChange={handleCheck} disabled={!isAdmin}></input>
                     </div>
-                </div>
-            </div>
-            <div className='row'>
-                <div className='d-flex justify-content-center align-items-center'>
-                    {showingDeleteWarning ? <>Are you sure you want to delete?</> : <></>}
-                </div>
-                <div className={reqResult.error ? "text-danger" : "text-success"}>
-                    {reqResult.message ? <div>{reqResult.message}</div> : <></>}
-                </div>
-            </div>
-            <div className="row mb-3 mt-5 width-100">
-                <div className='d-flex justify-content-center align-items-center'>
-                    <button type="button" className="btn btn-success mx-2" data-bs-dismiss="modal" onClick={trySave}>Save</button>
-                    <button type="button" className="btn btn-danger mx-2" data-bs-dismiss="modal" disabled={!isAdmin} onClick={tryDelete} >Delete Run</button>
                 </div>
             </div>
         </div>
