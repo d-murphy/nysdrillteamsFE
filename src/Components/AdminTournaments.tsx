@@ -2,7 +2,7 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import { useLoginContext } from "../utils/context";
 import { Tournament, Track, Team, Run } from "../types/types"
-import { fetchPost } from "../utils/network"
+import { fetchPost, fetchGet } from "../utils/network"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faPenToSquare, faTrash, faPersonRunning } from "@fortawesome/free-solid-svg-icons"; 
 import dateUtil from '../utils/dateUtils'; 
@@ -73,6 +73,8 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     let [reqSubmitted, setReqSubmitted] = useState(false); 
     let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
     let [runsEditContest, setRunsEditContest] = useState(""); 
+    let [tournamentNames, setTournamentNames] = useState([]); 
+    let [showNewTournName, setShowNewTournName] = useState(false); 
     const { sessionId, rolesArr  } = useLoginContext(); 
     const isAdmin = rolesArr.includes("admin"); 
 
@@ -115,6 +117,22 @@ export default function AdminTournaments(props:AdminTournamentProps) {
         setYear(parseInt(e.target.value))
     }
 
+    function handleNameList(e:React.ChangeEvent<HTMLSelectElement>){
+        if(e.target.value == 'Name not listed') {
+            setTournInReview({
+                ...tournInReview, 
+                name: ''
+            })
+            setShowNewTournName(true);
+        }else{
+            setShowNewTournName(false)
+            setTournInReview({
+                ...tournInReview, 
+                name: e.target.value
+            })
+        }
+    }
+
 
     function loadTournament(tournament:Tournament){
         setTournInReview({
@@ -125,11 +143,20 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     }
 
     function getTournaments(year:number){
-        fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?years=${year}`)
+        fetchGet(`${SERVICE_URL}/tournaments/getFilteredTournaments?years=${year}`)
         .then(response => response.json())
         .then((data:Tournament[]) => {
             data = data.sort((a:Tournament,b:Tournament) => a.date < b.date ? -1 : 1)
             setTourns(data)    
+        })
+    }
+
+    function getTournamentNames(){
+        fetchGet(`${SERVICE_URL}/tournaments/getTournamentNames`)
+        .then(response => response.json())
+        .then((data:{_id:string, nameCount:number}[]) => {
+            let keepThese = data.filter(el => el._id)
+            setTournamentNames(keepThese)    
         })
     }
 
@@ -140,6 +167,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
 
     useEffect(() => {
         changeYear(new Date().getFullYear())
+        getTournamentNames()
     }, [])
 
 
@@ -202,6 +230,8 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     function modalCleanup(){
         setReqResult({error:false, message: ""}); 
         setReqSubmitted(false); 
+        setShowNewTournName(false); 
+        getTournamentNames(); 
     }
 
     return (
@@ -298,15 +328,27 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             }
 
                             <div className="row my-1">
-                                <div className="col-4 text-center">Name</div>
+                                <div className="col-4 text-center">
+                                    <div>Name</div>
+                                </div>
                                 <div className="col-8 text-center px-4">
-                                    <input 
-                                        onChange={(e) => handleTextInput(e)} 
-                                        id="name" 
-                                        value={tournInReview.name} 
-                                        className="text-center width-100" 
-                                        disabled={!isAdmin}
-                                        autoComplete="off"></input>
+                                    { !showNewTournName ? <select onChange={handleNameList} id="nameList" name="nameList" className="width-100 text-center" value={tournInReview.name} disabled={!isAdmin}>
+                                        <option value={null}></option>
+                                        {tournamentNames.map(el => {
+                                            return (<option key={`option${el._id}`} value={el._id}>{el._id} ({el.nameCount} with this name)</option>)
+                                        })}
+                                        <option value={"Name not listed"}>Name not listed.  Let me add one.  Yes, I know this shouldn't happen often.</option>
+                                    </select> : <></>
+                                    }
+                                    {
+                                        showNewTournName ? <input 
+                                            onChange={(e) => handleTextInput(e)} 
+                                            id="name" 
+                                            value={tournInReview.name} 
+                                            className="text-center width-100" 
+                                            disabled={!isAdmin}
+                                            autoComplete="off"></input> : <></>
+                                    } 
                                 </div>
                             </div>
                             <div className="row my-1">

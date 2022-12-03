@@ -31,3 +31,19 @@ export class CustomError extends Error {
         return res
     })
 }
+
+export const fetchGet = async function(url:string, sessionId?:string){
+    return fetch(url, {
+        method: 'GET', 
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => {
+        // have fetch throw an error if non-200
+        if (!res.ok) {
+            throw new CustomError(res, res.status, "HTTP Status Code: " + res.status); 
+        }
+        return res
+    })
+}

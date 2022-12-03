@@ -25,6 +25,8 @@
 
 
 #### Pages: 
+* get list of tournament names from tournaments for tournament form
+* add tournament names to search menu? 
 * tournaments with data issues: 2505, 2571, 2446, 2452, 2483
 * reduce to host team photos?
 * react-popper?

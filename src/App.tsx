@@ -26,7 +26,7 @@ export default function App() {
                 <div className="">
                     <Nav />
                     <div className="">
-                        <Routes>
+                        <Routes >
                             <Route path="/" element={<Home />} />
                             <Route path="/Schedule" element={<Schedule year={new Date().getFullYear()} bgColorClass="bg-white" />} />
                             <Route path="/Tournament/:id" element={<Tournament />} />
