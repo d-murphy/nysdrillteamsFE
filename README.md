@@ -25,51 +25,13 @@
 
 
 #### Pages: 
-* get list of tournament names from tournaments for tournament form
+* mobile design review
 * add tournament names to search menu? 
 * tournaments with data issues: 2505, 2571, 2446, 2452, 2483
-* reduce to host team photos?
-* react-popper?
 * interface to edit banner messages (can save this in memory on the BE)
 * home page, next drills and most recent drills (links to videos)
 * live tournament updating, websocket opportunity?
-* RunDB - Three Man, sorted by time.  Controls to filter by Team, Year, Tournament, County
-* TotalPointsDB - Sum of Points.  Controls to filter by Year, Tournament, County
 * Contest Year Pt Totals and Percentages?
-* List of tournaments, sorted by date.  Filters for County, Year, Team?, Tournament  (schedule view - year filter)
 * For each tournament, "view best times at [track]" or [tournament] - launches run DB pre-filtered
 * Tracks - display facts and images, list of tournaments.  (schedule view, no circuit or year filter)
-* Tournament View - (is this an opportunity for web socket) (scorecard view)
-* home page - [test if live](https://stackoverflow.com/questions/32454238/how-to-check-if-youtube-channel-is-streaming-live)
-* edit tournament - top 5 points doesn't allow decimals
-
-* connect schedule view scorecard to scorecard
-* connect track info icon to track page
-* schedule css not nice for mobile
-* env var
-* mobile css on all of the tables
-* add top 5 to tournament header
-* finish sorted view on tournament page
-* add url link to scorecard view
-* mouseover for county drills on scorecard page.
-
-#### Components
-* schedule view
-* points sum view
-* run view
-* scorecard view
-
-#### Stats Ideas
-* is there a home field advantage? Times and Points
-
-#### Remaining
-* home page image service / download images on the homepage.
-
-
-#### Finished: 
-* nav bar - dark blue and white, on hover other items turn to gray?
-* react router
-* picture carousel
-
-#### Things to tell people: 
-* tournaments can be added without being in TP, needs to be edited 
+* add video icons to scorecards

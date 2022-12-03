@@ -77,6 +77,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     let [showNewTournName, setShowNewTournName] = useState(false); 
     const { sessionId, rolesArr  } = useLoginContext(); 
     const isAdmin = rolesArr.includes("admin"); 
+    const hasRuns = Boolean(runsForTourn.length)
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){
         setTournInReview({
@@ -323,7 +324,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             </div>
                             {editOrCreate == 'Edit' ? 
                                 <div className="d-flex justify-content-center mb-3">
-                                    There are {runsForTourn.length} runs attached to this event.
+                                    There are {runsForTourn.length} runs attached to this event.  Some fields can not be changed when runs have been added.
                                 </div> : <></>                        
                             }
 
@@ -332,7 +333,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                     <div>Name</div>
                                 </div>
                                 <div className="col-8 text-center px-4">
-                                    { !showNewTournName ? <select onChange={handleNameList} id="nameList" name="nameList" className="width-100 text-center" value={tournInReview.name} disabled={!isAdmin}>
+                                    { !showNewTournName ? <select onChange={handleNameList} id="nameList" name="nameList" className="width-100 text-center" value={tournInReview.name} disabled={!isAdmin || hasRuns}>
                                         <option value={null}></option>
                                         {tournamentNames.map(el => {
                                             return (<option key={`option${el._id}`} value={el._id}>{el._id} ({el.nameCount} with this name)</option>)
@@ -346,7 +347,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                             id="name" 
                                             value={tournInReview.name} 
                                             className="text-center width-100" 
-                                            disabled={!isAdmin}
+                                            disabled={!isAdmin || hasRuns}
                                             autoComplete="off"></input> : <></>
                                     } 
                                 </div>
@@ -362,7 +363,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                         value={dateUtil.getYYYYMMDD(tournInReview.date)} 
                                         placeholder={dateUtil.getYYYYMMDD(tournInReview.date)} 
                                         className="text-center width-8" 
-                                        disabled={!isAdmin}
+                                        disabled={!isAdmin || hasRuns}
                                         ></input>
                                 </div>
                             </div>
@@ -384,7 +385,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             <div className="row my-1">
                                 <div className="col-4 text-center">Track</div>
                                 <div className="col-8 text-center px-4">
-                                    <select onChange={handleSelect} id="track" name="track" className="width-100 text-center" value={tournInReview.track} disabled={!isAdmin}>
+                                    <select onChange={handleSelect} id="track" name="track" className="width-100 text-center" value={tournInReview.track} disabled={!isAdmin || hasRuns}>
                                         <option value={null}></option>
                                         {tracks.map(el => {
                                             return (<option key={`option${el.name}`} value={el.name}>{el.name}</option>)
@@ -431,7 +432,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
 
 
 
-                            <EditScheduleAndTotalPoints isAdmin={isAdmin} tournInReview={tournInReview} handleCheck={handleCheck} />
+                            <EditScheduleAndTotalPoints isAdmin={isAdmin} tournInReview={tournInReview} handleCheck={handleCheck} hasRuns={hasRuns} />
                             <EditContests isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams}/>
                             <EditRunningOrder isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams} runsForTourn={runsForTourn}/>
                             <EditTop5 isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams}/>

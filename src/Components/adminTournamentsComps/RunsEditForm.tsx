@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import { Tournament, Team, Run } from "../../types/types"
 import dateUtil from '../../utils/dateUtils';
 import RunVideos from './RunVideos'; 
-import { fetchPost } from "../../utils/network"; 
+import { fetchPost, logUpdate } from "../../utils/network"; 
 import { useLoginContext } from "../../utils/context";
 
 interface EditRunsFormProps {
@@ -35,7 +35,7 @@ export default function RunsEditForm(props:EditRunsFormProps) {
     const setReqSubmitted = props.setReqSubmitted; 
     const showingDeleteWarning = props.showingDeleteWarning; 
     const setShowingDeleteWarning = props.setShowingDeleteWarning; 
-    const { sessionId } = useLoginContext(); 
+    const { sessionId, username } = useLoginContext(); 
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>){
         setRunInReview({
@@ -81,6 +81,8 @@ export default function RunsEditForm(props:EditRunsFormProps) {
         try {
             setReqSubmitted(true); 
             await fetchPost(`${SERVICE_URL}/runs/deleteRun`, {runId: runInReview._id}, sessionId)
+            let updateMsg = `Deleted Run: ${dateUtil.getMMDDYYYY(runInReview.date)} - ${runInReview.tournament} - ${runInReview.contest} - ${runInReview.team} - ${runInReview.time}`
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
             setReqResult({error: false, message: "Record deleted successfully."}); 
             setRunInReview(null); 
             setReqSubmitted(false); 
@@ -97,10 +99,14 @@ export default function RunsEditForm(props:EditRunsFormProps) {
             setReqSubmitted(true); 
             if(editOrInsertRun==='insert'){
                 await fetchPost(`${SERVICE_URL}/runs/insertRun`, {runsData: runInReview}, sessionId)
+                let updateMsg = `Inserted Run: ${dateUtil.getMMDDYYYY(runInReview.date)} - ${runInReview.tournament} - ${runInReview.contest} - ${runInReview.team} - ${runInReview.time}`
+                logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)    
             } else {
                 let runId = runInReview._id; 
                 let {_id: _, ...runData} = runInReview;
                 await fetchPost(`${SERVICE_URL}/runs/updateRun`, {runId: runId,  fieldsToUpdate: runData}, sessionId)
+                let updateMsg = `Updated Run: ${dateUtil.getMMDDYYYY(runInReview.date)} - ${runInReview.tournament} - ${runInReview.contest} - ${runInReview.team} - ${runInReview.time}`
+                logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)    
             }
             setReqResult({error: false, message: "Record saved successfully."}); 
             setReqSubmitted(false); 

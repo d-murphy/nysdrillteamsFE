@@ -59,7 +59,7 @@ export default function EditRunningOrder(props:EditContestsProps) {
     }  
 
     return (
-        <div className="row my-3 pt-2 border-top">
+        <div className="container my-3 pt-2 border-top">
             <div className="row">
                 {isAdmin ? 
                     <div className="col d-flex justify-content-center align-items-center my-2">

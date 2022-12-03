@@ -53,43 +53,43 @@ export default function EditRunningOrder(props:EditRunningOrderProps) {
 
 
     return (
-        <div className="row my-3 pt-2 border-top">
-        <div className="row">
-            {isAdmin ? 
-                <div className="col d-flex flex-column justify-content-center align-items-center my-2">
-                    <div>
-                    Add Team to Running Order<FontAwesomeIcon className="mx-2 pointer" icon={faPlus} onClick={() => addTeamToRunningOrder('add')} />
-                    </div>
-                    {teamsWithRunsNotInRO.length ? 
-                        <div className='mx-2 text-center'>
-                            <p><i>{teamsWithRunsNotInRO[0]} and {teamsWithRunsNotInRO.length} other teams have runs added but are not in the running order.</i></p>
+        <div className="container my-3 pt-2 border-top">
+            <div className="row">
+                {isAdmin ? 
+                    <div className="col d-flex flex-column justify-content-center align-items-center my-2">
+                        <div>
+                        Add Team to Running Order<FontAwesomeIcon className="mx-2 pointer" icon={faPlus} onClick={() => addTeamToRunningOrder('add')} />
                         </div>
-                        : <></>                  
-                    }
-                </div> : <></>
+                        {teamsWithRunsNotInRO.length ? 
+                            <div className='mx-2 text-center'>
+                                <p><i>{teamsWithRunsNotInRO[0]} and {teamsWithRunsNotInRO.length} other teams have runs added but are not in the running order.</i></p>
+                            </div>
+                            : <></>                  
+                        }
+                    </div> : <></>
+                }
+            </div>
+            {
+                Object.keys(tournInReview.runningOrder).map((key:string, index:number) => {
+                    return (
+                        <div className="row mt-1">
+                            <div className="col-1 text-center">{key}.</div>
+                            <div className="col-10">
+                                <select onChange={(e) => selectTeamInRunningOrder(e, parseInt(key))} className="width-100 text-center" value={tournInReview.runningOrder[parseInt(key)]} disabled={!isAdmin}>
+                                    {teams.map(el => {
+                                        return (<option value={el.fullName}>{el.fullName}</option>)
+                                    })}
+                                </select>
+                            </div>
+                            <div className="col-1 text-center">
+                                {isAdmin && index + 1 == Object.keys(tournInReview.runningOrder).length ? 
+                                    <FontAwesomeIcon className="pointer" icon={faTrash} size='sm' onClick={() => addTeamToRunningOrder('delete')} /> : <div />
+                                }
+                            </div>
+                        </div>
+                    )
+                })
             }
-        </div>
-        {
-            Object.keys(tournInReview.runningOrder).map((key:string, index:number) => {
-                return (
-                    <div className="row mt-1">
-                        <div className="col-1 text-center">{key}.</div>
-                        <div className="col-10">
-                            <select onChange={(e) => selectTeamInRunningOrder(e, parseInt(key))} className="width-100 text-center" value={tournInReview.runningOrder[parseInt(key)]} disabled={!isAdmin}>
-                                {teams.map(el => {
-                                    return (<option value={el.fullName}>{el.fullName}</option>)
-                                })}
-                            </select>
-                        </div>
-                        <div className="col-1 text-center">
-                            {isAdmin && index + 1 == Object.keys(tournInReview.runningOrder).length ? 
-                                <FontAwesomeIcon className="pointer" icon={faTrash} size='sm' onClick={() => addTeamToRunningOrder('delete')} /> : <div />
-                            }
-                        </div>
-                    </div>
-                )
-            })
-        }
     </div>
     )
 }

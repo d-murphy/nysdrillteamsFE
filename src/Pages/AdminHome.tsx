@@ -6,6 +6,7 @@ import AdminTeams  from "../Components/AdminTeams";
 import AdminTracks from "../Components/AdminTracks";
 import { Team, Track } from "../types/types"
 import AdminTournaments from "../Components/AdminTournaments";
+import AdminUpdates from "../Components/AdminUpdates"; 
 
 declare var SERVICE_URL: string;
 
@@ -43,51 +44,60 @@ export default function AdminHome() {
 
 
 
-    // if(!username) return (
-    //     <div className="container">
-    //         This page is only for admin use.
-    //     </div>
-    // )
+    if(!username) return (
+        <div className="container d-flex align-items-center justify-content-center p-5">
+            <h4>Sorry, this page is for admins.</h4>
+        </div>
+    )
 
     return (
         <div className="container">
-            <div className="row mt-2">
-                <div className="col-1"></div>
-                <div className="col-6 content-box">
-                    <div className="d-flex flex-column align-items-center justify-content-center">
-                        <h3>Remember to turn username check back on</h3> 
-                        <h4 className="mt-3">Notes</h4>
+            <div className="content-box">
+                <div className="row mt-2">
+                    <div className="col-2 "></div>
+                    <div className="col-8 d-flex flex-column align-items-center justify-content-center">
+                        <h4 className="mt-3">Admin Home</h4>
+                        <h6 className="my-2">Welcome, {username}.  Thanks for helping with this project.</h6>
+                    </div>
+                    <div className="col-2 d-flex flex-column align-items-center justify-content-center">
+                        <button className="btn mx-2 my-2 py-2 login-button" onClick={() => logout()} >Log Out</button>
+                    </div>
+                </div>
+                <div className="m-3">
+                    <p>A few things to keep in mind as you work with the site: </p>
+                    <ul>
+                        <li>This DB is becoming THE history for our game.  Let's take good care of it!  Please be professional as you make and edit entries.</li>
+                        <li>On the Updates tab, you'll see changes you and other users are making.  This offers an opportunity to review changes and should keep everyone honest.</li>
+                        <li>Of course even with these gaurdrails, you could still figure out ways to do dumb things.</li>
                         <ul>
-                            <li>To add / edit runs, visit the tournament page.  An edit icon will appear when you're logged in.</li>
-                            <li>A team will need to be entered into the tournament's running order before a run can be added.</li>
+                            <li>For instance, no one is checking the video links.  If you send people to something inappropriate, it'll just make us all look bad.  Don't do that and be careful.</li>
                         </ul>
+                        <li>If you're not super comfortable with something, feel free to ask.</li>
+                    </ul>
+                    <p>Instructions / FYI:</p>
+                </div>
+
+                <div className="row">
+                    <div className=" d-flex flex-row justify-content-center align-items-center">
+                        <button className="btn btn-light mx-2 my-5 py-2 admin-btn" onClick={() => {setView("Updates")}}>
+                            Updates
+                        </button>
+                        <button className="btn btn-light mx-2 my-5 py-2 admin-btn" onClick={() => {setView("Teams")}}>
+                            Teams
+                        </button>
+                        <button className="btn btn-light mx-2 my-5 py-2 admin-btn" onClick={() => {setView("Tracks")}}>
+                            Tracks
+                        </button>
+                        <button className="btn btn-light mx-2 my-5 py-2 admin-btn" onClick={() => {setView("Tournaments")}}>
+                            Tournaments
+                        </button>
                     </div>
                 </div>
-                <div className="col-4 content-box">
-                    <div className="d-flex flex-column align-items-center justify-content-center">
-                        <div className="mt-5">User: {username}</div>
-                        <div><button className="btn mx-2 my-2 py-2 login-button" onClick={() => logout()} >Log Out</button></div>
-                    </div>
-                </div>
-                <div className="col-1"></div>
+
             </div>
-            <div className="d-flex justify-content-center ">
-                <div className="btn btn-light mx-2 my-5 py-2 admin-btn" onClick={() => {setView("Updates")}}>
-                    Updates
-                </div>
-                <div className="btn btn-light mx-2 my-5 py-2 admin-btn" onClick={() => {setView("Teams")}}>
-                    Teams
-                </div>
-                <div className="btn btn-light mx-2 my-5 py-2 admin-btn" onClick={() => {setView("Tracks")}}>
-                    Tracks
-                </div>
-                <div className="btn btn-light mx-2 my-5 py-2 admin-btn" onClick={() => {setView("Tournaments")}}>
-                    Tournaments
-                </div>
-            </div>
-            <div className="">
+            <div className="content-box my-2 p-3 container">
                 {
-                    view == "Updates" ? <div>'Updates Placeholder'</div> : <></>
+                    view == "Updates" ? <AdminUpdates /> : <></>
                 }
                 {
                     view == "Teams" ? <AdminTeams teams={teams} updateTeams={getTeams}/> : <></>

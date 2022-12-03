@@ -4,13 +4,15 @@ import { Tournament } from "../../types/types"
 interface EditScheduleAndTotalPointsProps {
     isAdmin: boolean, 
     tournInReview: Tournament, 
-    handleCheck: (e: React.ChangeEvent<HTMLInputElement>) => void
+    handleCheck: (e: React.ChangeEvent<HTMLInputElement>) => void, 
+    hasRuns: boolean
 }
 
 export default function EditScheduleAndTotalPoints(props:EditScheduleAndTotalPointsProps) {
     const isAdmin = props.isAdmin; 
     const tournInReview = props.tournInReview; 
     const handleCheck = props.handleCheck
+    const hasRuns = props.hasRuns; 
 
     return (
         <>
@@ -18,49 +20,49 @@ export default function EditScheduleAndTotalPoints(props:EditScheduleAndTotalPoi
             <div className="col d-flex flex-column align-items-center justify-content-between">
                 <div className="text-center">Nassau Points?</div>
                 <div>
-                    <input className="form-check-input" type="checkbox" id="nassauPoints" name="nassauPoints" checked={tournInReview?.nassauPoints} onChange={handleCheck} disabled={!isAdmin}></input>
+                    <input className="form-check-input" type="checkbox" id="nassauPoints" name="nassauPoints" checked={tournInReview?.nassauPoints} onChange={handleCheck} disabled={!isAdmin || hasRuns}></input>
                 </div>
             </div>
             <div className="col d-flex flex-column align-items-center justify-content-between">
                 <div className="text-center">Northern Points?</div>
                 <div>
-                    <input className="form-check-input" type="checkbox" id="northernPoints" name="northernPoints" checked={tournInReview?.northernPoints} onChange={handleCheck} disabled={!isAdmin}></input>
+                    <input className="form-check-input" type="checkbox" id="northernPoints" name="northernPoints" checked={tournInReview?.northernPoints} onChange={handleCheck} disabled={!isAdmin || hasRuns}></input>
                 </div>
             </div>
             <div className="col d-flex flex-column align-items-center justify-content-between">
                 <div className="text-center">Suffolk Points?</div>
                 <div>
-                    <input className="form-check-input" type="checkbox" id="suffolkPoints" name="suffolkPoints" checked={tournInReview?.suffolkPoints} onChange={handleCheck} disabled={!isAdmin}></input>
+                    <input className="form-check-input" type="checkbox" id="suffolkPoints" name="suffolkPoints" checked={tournInReview?.suffolkPoints} onChange={handleCheck} disabled={!isAdmin || hasRuns}></input>
                 </div>
             </div>
             <div className="col d-flex flex-column align-items-center justify-content-between">
                 <div className="text-center">Western Points?</div>
                 <div>
-                    <input className="form-check-input" type="checkbox" id="westernPoints" name="westernPoints" checked={tournInReview?.westernPoints} onChange={handleCheck} disabled={!isAdmin}></input>
+                    <input className="form-check-input" type="checkbox" id="westernPoints" name="westernPoints" checked={tournInReview?.westernPoints} onChange={handleCheck} disabled={!isAdmin || hasRuns}></input>
                 </div>
             </div>
             <div className="col d-flex flex-column align-items-center justify-content-between">
                 <div className="text-center">Jr Points?</div>
                 <div>
-                    <input className="form-check-input" type="checkbox" id="juniorPoints" name="juniorPoints" checked={tournInReview?.juniorPoints} onChange={handleCheck} disabled={!isAdmin}></input>
+                    <input className="form-check-input" type="checkbox" id="juniorPoints" name="juniorPoints" checked={tournInReview?.juniorPoints} onChange={handleCheck} disabled={!isAdmin || hasRuns}></input>
                 </div>
             </div>
             <div className="col d-flex flex-column align-items-center justify-content-between">
                 <div className="text-center">Nassau OF Points?</div>
                 <div>
-                    <input className="form-check-input" type="checkbox" id="nassauOfPoints" name="nassauOfPoints" checked={tournInReview?.nassauOfPoints} onChange={handleCheck} disabled={!isAdmin}></input>
+                    <input className="form-check-input" type="checkbox" id="nassauOfPoints" name="nassauOfPoints" checked={tournInReview?.nassauOfPoints} onChange={handleCheck} disabled={!isAdmin || hasRuns}></input>
                 </div>
             </div>
             <div className="col d-flex flex-column align-items-center justify-content-between">
                 <div className="text-center">Suffolk OF Points?</div>
                 <div>
-                    <input className="form-check-input" type="checkbox" id="suffolkOfPoints" name="suffolkOfPoints" checked={tournInReview?.suffolkOfPoints} onChange={handleCheck} disabled={!isAdmin}></input>
+                    <input className="form-check-input" type="checkbox" id="suffolkOfPoints" name="suffolkOfPoints" checked={tournInReview?.suffolkOfPoints} onChange={handleCheck} disabled={!isAdmin || hasRuns}></input>
                 </div>
             </div>
             <div className="col d-flex flex-column align-items-center justify-content-between">
                 <div className="text-center">LI OF Points?</div>
                 <div>
-                    <input className="form-check-input" type="checkbox" id="liOfPoints" name="liOfPoints" checked={tournInReview?.liOfPoints} onChange={handleCheck} disabled={!isAdmin}></input>
+                    <input className="form-check-input" type="checkbox" id="liOfPoints" name="liOfPoints" checked={tournInReview?.liOfPoints} onChange={handleCheck} disabled={!isAdmin || hasRuns}></input>
                 </div>
             </div>
         </div>

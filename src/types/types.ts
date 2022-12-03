@@ -97,3 +97,10 @@ export type Team = {
     instagram?: string, 
     tiktok?: string
 }
+
+export type Update = {
+    _id?: string,
+    date: Date, 
+    user: string, 
+    update: string
+}
