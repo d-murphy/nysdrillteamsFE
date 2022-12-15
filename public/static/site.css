@@ -72,6 +72,10 @@ html, body, #root {
     cursor: pointer;
 }
 
+.banner a, .banner a:hover .banner a:visited {
+    color: var(--bs-gray-500)
+}
+
 /* Footer */
 
 .content {

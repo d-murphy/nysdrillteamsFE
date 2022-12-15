@@ -1,15 +1,28 @@
 import * as React from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { fetchGet } from '../utils/network'; 
+
+declare var SERVICE_URL: string;
 
 export default function Nav() {
     let navigate = useNavigate();
+    const [announcements, setAnnoucements] = useState([]); 
 
+    useEffect(() => {
+        console.log('getting announcements'); 
+        fetchGet(`${SERVICE_URL}/announcements/getAnnouncements`)
+            .then(data => data.json())
+            .then(data => setAnnoucements(data))
+    }, [])
     return (
         <div className="">
-            <div className="">
-                <div className="d-flex justify-content-center p-3 banner-bg">
-                    <span><b>This is an experimental site currently under development.  You probably shouldn't be here!</b></span>
-                </div>
+            <div className="banner">
+                {
+                announcements.length ? <div className="d-flex justify-content-center p-3 banner-bg">
+                    <span><b dangerouslySetInnerHTML={{__html: announcements[0]}}></b></span>
+                </div> : <></>
+                }
             </div>
             <div className="nav-bg-color-dk">
                 <div className="container d-flex justify-content-start p-4 "

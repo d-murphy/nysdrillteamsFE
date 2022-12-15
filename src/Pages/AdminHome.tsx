@@ -7,6 +7,7 @@ import AdminTracks from "../Components/AdminTracks";
 import { Team, Track } from "../types/types"
 import AdminTournaments from "../Components/AdminTournaments";
 import AdminUpdates from "../Components/AdminUpdates"; 
+import AdminAnnouncements from "../Components/AdminAnnouncements"; 
 
 declare var SERVICE_URL: string;
 
@@ -78,18 +79,21 @@ export default function AdminHome() {
                 </div>
 
                 <div className="row">
-                    <div className=" d-flex flex-row justify-content-center align-items-center">
-                        <button className="btn btn-light mx-2 my-5 py-2 admin-btn" onClick={() => {setView("Updates")}}>
+                    <div className=" d-flex flex-row justify-content-center align-items-center flex-wrap my-5">
+                        <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Updates")}}>
                             Updates
                         </button>
-                        <button className="btn btn-light mx-2 my-5 py-2 admin-btn" onClick={() => {setView("Teams")}}>
+                        <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Teams")}}>
                             Teams
                         </button>
-                        <button className="btn btn-light mx-2 my-5 py-2 admin-btn" onClick={() => {setView("Tracks")}}>
+                        <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Tracks")}}>
                             Tracks
                         </button>
-                        <button className="btn btn-light mx-2 my-5 py-2 admin-btn" onClick={() => {setView("Tournaments")}}>
+                        <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Tournaments")}}>
                             Tournaments
+                        </button>
+                        <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Announcements")}}>
+                            Announcements
                         </button>
                     </div>
                 </div>
@@ -107,6 +111,9 @@ export default function AdminHome() {
                 }
                 {
                     view == "Tournaments" ? <AdminTournaments tracks={tracks} teams={teams}/> : <></>
+                }
+                {
+                    view == "Announcements" ? <AdminAnnouncements /> : <></>
                 }
             </div>
         </div>
