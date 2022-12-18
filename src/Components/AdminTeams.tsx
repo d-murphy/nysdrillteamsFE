@@ -33,9 +33,9 @@ export default function AdminTeams(props:AdminTeamsProps) {
     let [editOrCreate, setEditOrCreate] = useState(""); 
     let [reqSubmitted, setReqSubmitted] = useState(false); 
     let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
-    const { sessionId, rolesArr  } = useLoginContext(); 
+    const { sessionId, role  } = useLoginContext(); 
 
-    const isAdmin = rolesArr.includes("admin"); 
+    const isAdmin = role === "admin"; 
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){
         setTeamInReview({

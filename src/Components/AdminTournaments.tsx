@@ -75,8 +75,8 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     let [runsEditContest, setRunsEditContest] = useState(""); 
     let [tournamentNames, setTournamentNames] = useState([]); 
     let [showNewTournName, setShowNewTournName] = useState(false); 
-    const { sessionId, rolesArr  } = useLoginContext(); 
-    const isAdmin = rolesArr.includes("admin"); 
+    const { sessionId, role  } = useLoginContext(); 
+    const isAdmin = role === "admin"; 
     const hasRuns = Boolean(runsForTourn.length)
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){

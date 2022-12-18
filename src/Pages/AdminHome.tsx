@@ -8,6 +8,7 @@ import { Team, Track } from "../types/types"
 import AdminTournaments from "../Components/AdminTournaments";
 import AdminUpdates from "../Components/AdminUpdates"; 
 import AdminAnnouncements from "../Components/AdminAnnouncements"; 
+import AdminUsers from '../Components/AdminUsers'; 
 
 declare var SERVICE_URL: string;
 
@@ -95,6 +96,9 @@ export default function AdminHome() {
                         <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Announcements")}}>
                             Announcements
                         </button>
+                        <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Users")}}>
+                            Users
+                        </button>
                     </div>
                 </div>
 
@@ -114,6 +118,9 @@ export default function AdminHome() {
                 }
                 {
                     view == "Announcements" ? <AdminAnnouncements /> : <></>
+                }
+                {
+                    view == "Users" ? <AdminUsers /> : <></>
                 }
             </div>
         </div>

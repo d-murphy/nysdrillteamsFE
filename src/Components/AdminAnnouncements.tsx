@@ -13,9 +13,9 @@ export default function AdminAnnouncements(props:AdminAnnouncementsProps) {
     let [announcements, setAnnoucements] = useState<string[]>([])
     let [reqSubmitted, setReqSubmitted] = useState(false); 
     let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
-    const { sessionId, rolesArr  } = useLoginContext(); 
+    const { sessionId, role  } = useLoginContext(); 
 
-    const isAdmin = rolesArr.includes("admin"); 
+    const isAdmin = role === "admin"; 
 
     function handleTextInput(e:React.ChangeEvent<HTMLTextAreaElement>){
         const inputId = e.target.id; 

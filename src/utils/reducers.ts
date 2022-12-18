@@ -1,6 +1,6 @@
 type loginReducerInitialStateType = {
     username: string, 
-    rolesArr: string[], 
+    role: string, 
     sessionId: string, 
     login: Function, 
     logout: Function
@@ -8,13 +8,13 @@ type loginReducerInitialStateType = {
 
 export const loginReducerInitialState:loginReducerInitialStateType = {
     username: '', 
-    rolesArr: [], 
+    role: '', 
     sessionId: '', 
     login: () => { }, 
     logout: () => { }, 
 }
 
-export const loginReducer = (state:loginReducerInitialStateType, action: {type:string, payload: {username:string, rolesArr:string[], sessionId:string} }) => {
+export const loginReducer = (state:loginReducerInitialStateType, action: {type:string, payload: {username:string, role:string, sessionId:string} }) => {
     const {type, payload} = action; 
 
     switch(type) {
@@ -22,14 +22,14 @@ export const loginReducer = (state:loginReducerInitialStateType, action: {type:s
             return {
                 ...state,
                 username: payload.username, 
-                rolesArr: payload.rolesArr, 
+                role: payload.role, 
                 sessionId: payload.sessionId 
             }
         case "LOGOUT": 
             return {
                 ...state,
                 username: '', 
-                rolesArr: [], 
+                role: '', 
                 sessionId: '' 
             }
         default: 

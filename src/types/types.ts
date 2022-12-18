@@ -104,3 +104,8 @@ export type Update = {
     user: string, 
     update: string
 }
+
+export type User = {
+    username: string, 
+    role: string
+}
