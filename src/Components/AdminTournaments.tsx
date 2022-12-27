@@ -2,7 +2,7 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import { useLoginContext } from "../utils/context";
 import { Tournament, Track, Team, Run } from "../types/types"
-import { fetchPost, fetchGet } from "../utils/network"
+import { fetchPost, fetchGet, logUpdate } from "../utils/network"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faPenToSquare, faTrash, faPersonRunning } from "@fortawesome/free-solid-svg-icons"; 
 import dateUtil from '../utils/dateUtils'; 
@@ -75,8 +75,8 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     let [runsEditContest, setRunsEditContest] = useState(""); 
     let [tournamentNames, setTournamentNames] = useState([]); 
     let [showNewTournName, setShowNewTournName] = useState(false); 
-    const { sessionId, role  } = useLoginContext(); 
-    const isAdmin = role === "admin"; 
+    const { sessionId, role, username  } = useLoginContext(); 
+    const isAdmin = role === "admin" || role === 'scorekeeper'; 
     const hasRuns = Boolean(runsForTourn.length)
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){
@@ -193,6 +193,8 @@ export default function AdminTournaments(props:AdminTournamentProps) {
         }
         try {
             await fetchPost(url, body, sessionId)
+            let updateMsg = `${editOrCreate} Tournament: ${tournInReview.name} - ${dateUtil.getMMDDYYYY(tournInReview.date)}`
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
             setReqResult({error: false, message: "Update successful."}); 
             getTournaments(year); 
         } catch (e){
@@ -208,6 +210,8 @@ export default function AdminTournaments(props:AdminTournamentProps) {
         let url = `${SERVICE_URL}/tournaments/deleteTournament`
         try {
             await fetchPost(url, body, sessionId)
+            let updateMsg = `Delete Tournament: ${tournInReview.name} - ${dateUtil.getMMDDYYYY(tournInReview.date)}`
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
             setReqResult({error: false, message: "Update successful."}); 
             getTournaments(year); 
         } catch (e){
@@ -443,7 +447,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                         <div className="modal-footer d-flex flex-column">
                             <div className="text-center">
                                 {!isAdmin ? <span>
-                                    Only admin can make changes here.
+                                    Only admin or scorekeepers can make changes here.
                                 </span> : <></>}
                             </div>
                             <div className="text-center my-3">

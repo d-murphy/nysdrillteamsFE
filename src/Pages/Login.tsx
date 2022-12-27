@@ -33,8 +33,8 @@ export default function Track() {
         })
         .then(response => response.json())
         .then(body => {
-            let {username, sessionId, rolesArr} = body; 
-            login(username, rolesArr, sessionId); 
+            let {username, sessionId, role} = body; 
+            login(username, role, sessionId); 
             navigate('/adminHome'); 
         })
         .catch(err => {

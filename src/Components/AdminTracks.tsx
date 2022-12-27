@@ -2,7 +2,7 @@ import * as React from "react";
 import { useState } from "react";
 import { useLoginContext } from "../utils/context";
 import { Track } from "../types/types"
-import { fetchPost } from "../utils/network"
+import { fetchPost, logUpdate } from "../utils/network"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons"; 
 
@@ -33,9 +33,10 @@ export default function AdminTracks(props:AdminTracksProps) {
     let [editOrCreate, setEditOrCreate] = useState(""); 
     let [reqSubmitted, setReqSubmitted] = useState(false); 
     let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
-    const { sessionId, role  } = useLoginContext(); 
+    const { sessionId, role, username  } = useLoginContext(); 
 
     const isAdmin = role === "admin"; 
+    const isAdminOrScorekeeper = role === 'admin' || role === 'scorekeeper'
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){
         setTrackInReview({
@@ -90,6 +91,8 @@ export default function AdminTracks(props:AdminTracksProps) {
         }
         try {
             await fetchPost(url, body, sessionId)
+            let updateMsg = `${editOrCreate} Track: ${trackInReview.name}`
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
             setReqResult({error: false, message: "Update successful."}); 
             props.updateTracks(); 
         } catch (e){
@@ -105,6 +108,8 @@ export default function AdminTracks(props:AdminTracksProps) {
         let url = `${SERVICE_URL}/tracks/deleteTrack`
         try {
             await fetchPost(url, body, sessionId)
+            let updateMsg = `Delete Track: ${trackInReview.name}`
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
             setReqResult({error: false, message: "Update successful."}); 
             props.updateTracks(); 
         } catch (e){
@@ -208,7 +213,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                                     id="name" 
                                     value={trackInReview.name} 
                                     className="text-center width-100" 
-                                    disabled={!isAdmin}
+                                    disabled={editOrCreate === 'Edit' && !isAdmin}
                                     autoComplete="off"></input>
                             </div>
                         </div>
@@ -220,7 +225,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                                     id="address" 
                                     value={trackInReview.address} 
                                     className="text-center width-100" 
-                                    disabled={!isAdmin}
+                                    disabled={!isAdminOrScorekeeper}
                                     autoComplete="off"></input>
                             </div>
                         </div>
@@ -231,7 +236,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                                     onChange={(e) => handleTextInput(e)} 
                                     id="city" 
                                     value={trackInReview.city} 
-                                    disabled={!isAdmin} 
+                                    disabled={!isAdminOrScorekeeper} 
                                     className="text-center width-100"
                                     autoComplete="off"></input>
                             </div>
@@ -243,7 +248,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                                     onChange={(e) => handleTextInput(e)} 
                                     id="notes" 
                                     value={trackInReview.notes} 
-                                    disabled={!isAdmin} 
+                                    disabled={!isAdminOrScorekeeper} 
                                     className="text-center width-100"
                                     autoComplete="off"></input>
                             </div>
@@ -251,13 +256,13 @@ export default function AdminTracks(props:AdminTracksProps) {
                         <div className="row my-1">
                             <div className="col-4 text-center">Arch Height</div>
                             <div className="col-8 text-center px-4">
-                                <select onChange={handleSelect} id="archHeightFt" name="archHeightFt" className="width-50 text-center" value={trackInReview.archHeightFt} disabled={!isAdmin}>
+                                <select onChange={handleSelect} id="archHeightFt" name="archHeightFt" className="width-50 text-center" value={trackInReview.archHeightFt} disabled={!isAdminOrScorekeeper}>
                                     <option value={null}></option>
                                     <option value={19}>19</option>
                                     <option value={20}>20</option>
                                     <option value={21}>21</option>
                                 </select>
-                                <select onChange={handleSelect} id="archHeightInches" name="archHeightInches" className="width-50 text-center" value={trackInReview.archHeightInches} disabled={!isAdmin}>
+                                <select onChange={handleSelect} id="archHeightInches" name="archHeightInches" className="width-50 text-center" value={trackInReview.archHeightInches} disabled={!isAdminOrScorekeeper}>
                                     <option value={null}></option>
                                     {Array(12).fill(undefined).map((x,i) => i).map(el => {
                                         return (<option value={el}>{el}</option>)
@@ -268,7 +273,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                         <div className="row my-1">
                             <div className="col-4 text-center">Distance to Hydrant</div>
                             <div className="col-8 text-center px-4">
-                                <select onChange={handleSelect} id="distanceToHydrant" name="distanceToHydrant" className="width-100 text-center" value={trackInReview.distanceToHydrant} disabled={!isAdmin}>
+                                <select onChange={handleSelect} id="distanceToHydrant" name="distanceToHydrant" className="width-100 text-center" value={trackInReview.distanceToHydrant} disabled={!isAdminOrScorekeeper}>
                                     <option value={null}></option>
                                     <option value={200}>200</option>
                                     <option value={225}>225</option>
@@ -280,21 +285,21 @@ export default function AdminTracks(props:AdminTracksProps) {
                             <div className="col-6 d-flex flex-column align-items-center justify-content-end text-center">
                                 <div>Active</div>
                                 <div>
-                                    <input className="form-check-input" type="checkbox" id="active" name="active" checked={trackInReview?.active} onChange={handleCheck}></input>
+                                    <input className="form-check-input" type="checkbox" id="active" name="active" checked={trackInReview?.active} onChange={handleCheck} disabled={!isAdminOrScorekeeper}></input>
                                 </div>
                             </div>
                             <div className="col-6 d-flex flex-column align-items-center justify-content-end text-center">
                                 <div>Display in Lists?</div>
                                 <div>
-                                    <input className="form-check-input" type="checkbox" id="display" name="display" checked={trackInReview?.display} onChange={handleCheck}></input>
+                                    <input className="form-check-input" type="checkbox" id="display" name="display" checked={trackInReview?.display} onChange={handleCheck} disabled={!isAdminOrScorekeeper}></input>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div className="modal-footer d-flex flex-column">
                         <div className="text-center">
-                            {!isAdmin ? <span>
-                                Only admin can make changes here.
+                            {!isAdminOrScorekeeper ? <span>
+                                Only admin or scorekeepers can make changes here.
                             </span> : <></>}
                         </div>
                         <div className="text-center my-3">
@@ -304,7 +309,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                         </div>
                         <div className="">
                             <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdmin || reqSubmitted} onClick={insertOrUpdate}>Save changes</button>
+                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted} onClick={insertOrUpdate}>Save changes</button>
                         </div>
                     </div>
                     </div>

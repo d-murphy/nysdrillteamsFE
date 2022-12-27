@@ -48,7 +48,7 @@ export default function AdminHome() {
 
     if(!username) return (
         <div className="container d-flex align-items-center justify-content-center p-5">
-            <h4>Sorry, this page is for admins.</h4>
+            <h4>Sorry, you must login.</h4>
         </div>
     )
 

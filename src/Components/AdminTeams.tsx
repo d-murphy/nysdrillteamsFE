@@ -1,8 +1,8 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLoginContext } from "../utils/context";
 import { Team } from "../types/types"
-import { fetchPost } from "../utils/network"
+import { fetchPost, logUpdate } from "../utils/network"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons"; 
 
@@ -33,9 +33,10 @@ export default function AdminTeams(props:AdminTeamsProps) {
     let [editOrCreate, setEditOrCreate] = useState(""); 
     let [reqSubmitted, setReqSubmitted] = useState(false); 
     let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
-    const { sessionId, role  } = useLoginContext(); 
+    const { sessionId, role, username  } = useLoginContext(); 
 
     const isAdmin = role === "admin"; 
+    const isAdminOrScorekeeper = role === 'admin' || role === 'scorekeeper'; 
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){
         setTeamInReview({
@@ -102,6 +103,8 @@ export default function AdminTeams(props:AdminTeamsProps) {
         try {
             await fetchPost(url, body, sessionId)
             setReqResult({error: false, message: "Update successful."}); 
+            let updateMsg = `${editOrCreate} Team: ${teamInReview.fullName}`
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
             props.updateTeams(); 
         } catch (e){
             console.log(e.message)
@@ -116,6 +119,8 @@ export default function AdminTeams(props:AdminTeamsProps) {
         let url = `${SERVICE_URL}/teams/deleteTeam`
         try {
             await fetchPost(url, body, sessionId)
+            let updateMsg = `Delete Team: ${teamInReview.fullName}`
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
             setReqResult({error: false, message: "Update successful."}); 
             props.updateTeams(); 
         } catch (e){
@@ -297,8 +302,8 @@ export default function AdminTeams(props:AdminTeamsProps) {
                     </div>
                     <div className="modal-footer d-flex flex-column">
                         <div className="text-center">
-                            {!isAdmin ? <span>
-                                Only admin can make changes here.
+                            {!isAdminOrScorekeeper ? <span>
+                                Only admin or scorekeepers can make changes here.
                             </span> : <></>}
                         </div>
                         <div className="text-center my-3">
@@ -308,7 +313,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
                         </div>
                         <div className="">
                             <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdmin || reqSubmitted} onClick={insertOrUpdate}>Save changes</button>
+                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted} onClick={insertOrUpdate}>Save changes</button>
                         </div>
                     </div>
                     </div>
@@ -331,7 +336,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
                         <div className="modal-footer d-flex flex-column">
                             <div className="text-center">
                                 {!isAdmin ? <span>
-                                    Only admin can make changes here.
+                                    Only admin and scorekeepers can make changes here.
                                 </span> : <></>}
                             </div>
                             <div className="text-center my-3">

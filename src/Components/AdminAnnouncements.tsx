@@ -15,7 +15,7 @@ export default function AdminAnnouncements(props:AdminAnnouncementsProps) {
     let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
     const { sessionId, role  } = useLoginContext(); 
 
-    const isAdmin = role === "admin"; 
+    const isAdmin = role === "admin" || role === 'scorekeeper'; 
 
     function handleTextInput(e:React.ChangeEvent<HTMLTextAreaElement>){
         const inputId = e.target.id; 
@@ -102,8 +102,8 @@ export default function AdminAnnouncements(props:AdminAnnouncementsProps) {
                     </span> : <></>}
                 </div>
                 <div>
-                    <button className="btn login-button mx-2" onClick = {() => addElement()}>Add New Announcement</button>
-                    <button className="btn login-button mx-2" onClick = {() => submitAnnouncements()}>Submit Announcements</button>
+                    <button className="btn login-button mx-2" disabled={!isAdmin} onClick = {() => addElement()}>Add New Announcement</button>
+                    <button className="btn login-button mx-2" disabled={!isAdmin} onClick = {() => submitAnnouncements()}>Submit Announcements</button>
                 </div>
             </div>
             }

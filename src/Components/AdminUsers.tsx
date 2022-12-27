@@ -3,7 +3,7 @@ import { useState, useEffect} from "react";
 import { useLoginContext } from "../utils/context";
 import { fetchGet, fetchPost } from "../utils/network"; 
 import { User } from '../types/types'
-import dateUtil from "../utils/dateUtils";
+import { capFirst } from "../utils/strings";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faTrash } from "@fortawesome/free-solid-svg-icons"; 
 
@@ -22,23 +22,21 @@ export default function AdminUpdates(props:AdminUsersProps) {
     let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
 
     const { sessionId, role  } = useLoginContext(); 
-    // const isAdmin = role === "admin"; 
-    const isAdmin = true; 
+
+    const isAdmin = role === "admin"; 
 
     async function getUsers(){
         if(!sessionId) return 
         const url = `${SERVICE_URL}/users/getUsers`
-        setLoading(true); 
         try {
             fetchGet(url, sessionId)
                 .then(data => data.json())
                 .then(data => {
                     setUsers(data)
-                    setLoading(false)
+                    console.log('users: ', data); 
                 })
         } catch (e){
             console.log(e)
-            setLoading(false); 
             setIsError(true)
         }
     }
@@ -48,6 +46,8 @@ export default function AdminUpdates(props:AdminUsersProps) {
     }, [sessionId])
 
     function cleanNewUserModal(){
+        setFormValid(false); 
+        setReqSubmitted(false)
         setUserInReview({...{username:'', role: '', password: generatePassword()}})
         setReqResult({error: false, message: ""}); 
     }
@@ -58,11 +58,6 @@ export default function AdminUpdates(props:AdminUsersProps) {
     }
 
     function handleUsernameChange(e:React.ChangeEvent<HTMLInputElement>){
-        if(e.target.value){
-            setFormValid(true)
-        } else {
-            setFormValid(false)
-        }
         let usersWUsername = users.filter(el => {
             return el.username == e.target.value; 
         })
@@ -87,6 +82,10 @@ export default function AdminUpdates(props:AdminUsersProps) {
     }
 
     async function addUser(){
+        if(!userInReview.username.length || !userInReview.role.length){
+            setReqResult({error: true, message: "Username and role required."}); 
+            return; 
+        }
         setReqSubmitted(true); 
         let url = `${SERVICE_URL}/users/insertUser`
         let body = {
@@ -178,20 +177,22 @@ export default function AdminUpdates(props:AdminUsersProps) {
                                             </div>
                                             <div className="col-5">
                                                 <div className="test-center d-flex justify-content-center align-items-center ">
-                                                        <div className="font-large">{user.role}
+                                                        <div className="font-large">{capFirst(user.role)}
                                                         </div>
                                                 </div>
                                             </div>
                                             <div className="col-2">
-                                                <div className="pointer px-3"
-                                                            data-bs-toggle="modal" 
-                                                            data-bs-target="#deleteUserModal"
-                                                            onClick={()=>{
-                                                                cleanDeleteModal(); 
-                                                                setUserInReview({...user}); 
-                                                            }}
-                                                            ><FontAwesomeIcon className="crud-links font-x-large" icon={faTrash}/>
-                                                </div>
+                                                {user.role != 'admin' ? 
+                                                    <div className="pointer px-3"
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteUserModal"
+                                                    onClick={()=>{
+                                                        cleanDeleteModal(); 
+                                                        setUserInReview({...user}); 
+                                                    }}
+                                                    ><FontAwesomeIcon className="crud-links font-x-large" icon={faTrash}/>
+                                                    </div> : <></>
+                                                }
                                             </div>
                                         </div>
                                     )
@@ -236,9 +237,8 @@ export default function AdminUpdates(props:AdminUsersProps) {
                                     <div className="col-8 text-center px-4">
                                         <select onChange={handleSelect} id="role" name="role" className="width-100 text-center py-1" value={userInReview.role} disabled={!isAdmin}>
                                             <option value={null}></option>
-                                            <option value={"admin"}>Admin</option>
                                             <option value={"scorekeeper"}>Scorekeeper</option>
-                                            <option value={"videoOnly"}>Video Only</option>
+                                            <option value={"video"}>Video Only</option>
                                         </select>
                                     </div>
                                 </div>
@@ -248,6 +248,7 @@ export default function AdminUpdates(props:AdminUsersProps) {
                                     {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
                                         {reqResult.message}
                                     </span> : <></>}
+                                    {!isAdmin ? <span>Only Admin can make changes.</span> : <></>}
                                 </div>
                                 <div className="">
                                     <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
@@ -274,6 +275,7 @@ export default function AdminUpdates(props:AdminUsersProps) {
                                     {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
                                         {reqResult.message}
                                     </span> : <></>}
+                                    {!isAdmin ? <span>Only Admin can make changes.</span> : <></>}
                                 </div>
                                 <div className="">
                                     <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
