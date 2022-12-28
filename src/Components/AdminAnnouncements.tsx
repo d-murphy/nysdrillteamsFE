@@ -47,6 +47,9 @@ export default function AdminAnnouncements(props:AdminAnnouncementsProps) {
             setAnnoucements(data)
             setReqSubmitted(false); 
         })
+        .catch(e => {
+            console.log("Error retrieving announcements: ", e); 
+        })
     }
 
     useEffect(() => {

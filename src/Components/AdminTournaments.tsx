@@ -70,6 +70,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     let [tournInReview, setTournInReview] = useState<Tournament>(initialTourn); 
     let [runsForTourn, setRunsForTourn] = useState<Run[]>([]); 
     let [editOrCreate, setEditOrCreate] = useState(""); 
+    let [isError, setIsError] = useState(false); 
     let [reqSubmitted, setReqSubmitted] = useState(false); 
     let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
     let [runsEditContest, setRunsEditContest] = useState(""); 
@@ -150,6 +151,10 @@ export default function AdminTournaments(props:AdminTournamentProps) {
             data = data.sort((a:Tournament,b:Tournament) => a.date < b.date ? -1 : 1)
             setTourns(data)    
         })
+        .catch(e => {
+            console.log("Error getting tournaments: ", e); 
+            setIsError(true)
+        })
     }
 
     function getTournamentNames(){
@@ -158,6 +163,10 @@ export default function AdminTournaments(props:AdminTournamentProps) {
         .then((data:{_id:string, nameCount:number}[]) => {
             let keepThese = data.filter(el => el._id)
             setTournamentNames(keepThese)    
+        })
+        .catch(e => {
+            console.log("Error getting tournament names: ", e); 
+            setIsError(true)
         })
     }
 
@@ -241,75 +250,79 @@ export default function AdminTournaments(props:AdminTournamentProps) {
 
     return (
         <div className="container">
-            <div className="d-flex flex-column align-items-center justify-content-center">
+            {
+                isError ? <div>An error occurred.  Please try another time.</div> : 
+                <div className="d-flex flex-column align-items-center justify-content-center">
 
-                <div className="d-flex justify-content-center">
-                    <div className="d-flex flex-row align-items-center me-5">
-                        <button className="btn add-entry-button me-2" onClick={() => changeYear(year)}>Update Year</button>
-                        <input className="p-1"
-                            value={year} onChange={handleYearChange} type="number" id="yearToDisplay" name="yearToDisplay" min="1900" max={new Date().getFullYear() + 1}/>
-                    </div> 
-                    <div 
-                        className="btn add-entry-button my-5 ms-5" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#editTournModal"
-                        onClick={()=>{
-                            modalCleanup(); 
-                            setEditOrCreate("Create"); 
-                            loadTournament(initialTourn); 
-                        }}>Add New Tournament
+                    <div className="d-flex justify-content-center">
+                        <div className="d-flex flex-row align-items-center me-5">
+                            <button className="btn add-entry-button me-2" onClick={() => changeYear(year)}>Update Year</button>
+                            <input className="p-1"
+                                value={year} onChange={handleYearChange} type="number" id="yearToDisplay" name="yearToDisplay" min="1900" max={new Date().getFullYear() + 1}/>
+                        </div> 
+                        <div 
+                            className="btn add-entry-button my-5 ms-5" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#editTournModal"
+                            onClick={()=>{
+                                modalCleanup(); 
+                                setEditOrCreate("Create"); 
+                                loadTournament(initialTourn); 
+                            }}>Add New Tournament
+                        </div>
+
                     </div>
-
-                </div>
-                <div className="bg-light w-100 mx-5 rounded py-4 mb-2">
-                    {
-                        tourns.map((tourn, ind) => {
-                            return(
-                                <div key={ind} className="row w-100 my-1">
-                                    <div className="col-7">
-                                        <div className="pointer d-flex justify-content-center">
-                                            {`${ dateUtil.getMMDDYYYY(tourn.date)} - ${tourn.name}`}
+                    <div className="bg-light w-100 mx-5 rounded py-4 mb-2">
+                        {
+                            tourns.map((tourn, ind) => {
+                                return(
+                                    <div key={ind} className="row w-100 my-1">
+                                        <div className="col-7">
+                                            <div className="pointer d-flex justify-content-center">
+                                                {`${ dateUtil.getMMDDYYYY(tourn.date)} - ${tourn.name}`}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="col d-flex flew-row align-items-center justify-content-center">
-                                        <div className="col-2"/>
-                                        <div className="pointer col text-center"
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#editTournModal"
-                                            onClick={()=>{
-                                                setEditOrCreate("Edit"); 
-                                                modalCleanup(); 
-                                                loadTournament(tourn); 
-                                            }}
-                                            ><FontAwesomeIcon className="crud-links font-x-large" icon={faPenToSquare} />
-                                        </div>
-                                        <div className="pointer col text-center"
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#editRunsModal"
-                                            onClick={()=>{
-                                                setRunsEditContest(""); 
-                                                loadTournament(tourn); 
-                                            }}
-                                            ><FontAwesomeIcon className="crud-links font-x-large" icon={faPersonRunning} />
-                                        </div>
-                                        {tourn.afterMigrate ? 
+                                        <div className="col d-flex flew-row align-items-center justify-content-center">
+                                            <div className="col-2"/>
                                             <div className="pointer col text-center"
                                                 data-bs-toggle="modal" 
-                                                data-bs-target="#deleteTournModal"
+                                                data-bs-target="#editTournModal"
                                                 onClick={()=>{
+                                                    setEditOrCreate("Edit"); 
                                                     modalCleanup(); 
                                                     loadTournament(tourn); 
                                                 }}
-                                                ><FontAwesomeIcon className="crud-links font-x-large" icon={faTrash}/>
-                                            </div> : <div className="col-3 text-center">&nbsp;</div>}
-                                        <div className="col-2"/>
+                                                ><FontAwesomeIcon className="crud-links font-x-large" icon={faPenToSquare} />
+                                            </div>
+                                            <div className="pointer col text-center"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editRunsModal"
+                                                onClick={()=>{
+                                                    setRunsEditContest(""); 
+                                                    loadTournament(tourn); 
+                                                }}
+                                                ><FontAwesomeIcon className="crud-links font-x-large" icon={faPersonRunning} />
+                                            </div>
+                                            {tourn.afterMigrate ? 
+                                                <div className="pointer col text-center"
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteTournModal"
+                                                    onClick={()=>{
+                                                        modalCleanup(); 
+                                                        loadTournament(tourn); 
+                                                    }}
+                                                    ><FontAwesomeIcon className="crud-links font-x-large" icon={faTrash}/>
+                                                </div> : <div className="col-3 text-center">&nbsp;</div>}
+                                            <div className="col-2"/>
+                                        </div>
                                     </div>
-                                </div>
-                            )
-                        })
-                    }
+                                )
+                            })
+                        }
+                    </div>
                 </div>
-            </div>
+            }
+
 
             <div className="modal fade" id="editTournModal" aria-labelledby="editTournModal" aria-hidden="true">
                 <div className="modal-dialog modal-xl">

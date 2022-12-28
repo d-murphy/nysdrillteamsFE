@@ -31,6 +31,10 @@ export default function AdminHome() {
             data = data.sort((a:Team,b:Team) => !a.fullName ? -1 : !b.fullName ? 1 : a.fullName.toLowerCase() < b.fullName.toLowerCase() ? -1 : 1 )
             setTeams(data)    
         })
+        .catch(e => {
+            console.log("Error getting teams: ", e); 
+            setView("ErrorMsg"); 
+        })
     
     }
 
@@ -41,6 +45,10 @@ export default function AdminHome() {
             data = data.sort((a:Track,b:Track) => a.name < b.name ? -1 : 1)
             setTracks(data)    
             console.log(data); 
+        })
+        .catch(e => {
+            console.log("Error getting tracks: ", e); 
+            setView("ErrorMsg"); 
         })
     }
 
@@ -80,26 +88,29 @@ export default function AdminHome() {
                 </div>
 
                 <div className="row">
-                    <div className=" d-flex flex-row justify-content-center align-items-center flex-wrap my-5">
-                        <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Updates")}}>
-                            Updates
-                        </button>
-                        <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Teams")}}>
-                            Teams
-                        </button>
-                        <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Tracks")}}>
-                            Tracks
-                        </button>
-                        <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Tournaments")}}>
-                            Tournaments
-                        </button>
-                        <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Announcements")}}>
-                            Announcements
-                        </button>
-                        <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Users")}}>
-                            Users
-                        </button>
-                    </div>
+                    {
+                        view == "ErrorMsg" ? <></> : 
+                            <div className=" d-flex flex-row justify-content-center align-items-center flex-wrap my-5">
+                                <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Updates")}}>
+                                    Updates
+                                </button>
+                                <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Teams")}}>
+                                    Teams
+                                </button>
+                                <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Tracks")}}>
+                                    Tracks
+                                </button>
+                                <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Tournaments")}}>
+                                    Tournaments
+                                </button>
+                                <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Announcements")}}>
+                                    Announcements
+                                </button>
+                                <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Users")}}>
+                                    Users
+                                </button>
+                            </div>
+                    }
                 </div>
 
             </div>
@@ -121,6 +132,9 @@ export default function AdminHome() {
                 }
                 {
                     view == "Users" ? <AdminUsers /> : <></>
+                }
+                {
+                    view == "ErrorMsg" ? <div>Sorry, an error occurred.  Please try again later.</div> : <></>
                 }
             </div>
         </div>
