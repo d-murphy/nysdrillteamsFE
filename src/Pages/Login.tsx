@@ -6,9 +6,10 @@ import { useLoginContext } from "../utils/context";
 
 declare var SERVICE_URL: string;
 
-export default function Track() {
+export default function Login() {
     let navigate = useNavigate();
-    const {login} = useLoginContext(); 
+    const {login, username} = useLoginContext(); 
+    if(username) navigate('/adminHome'); 
 
     const [inputFields , setInputFields] = useState({
         username: '',
