@@ -19,18 +19,17 @@ export default function AdminUpdates(props:AdminUpdatesProps) {
         if(!sessionId) return 
         const url = `${SERVICE_URL}/updates/getUpdates`
         setLoading(true); 
-        try {
-            fetchGet(url, sessionId)
-                .then(data => data.json())
-                .then(data => {
-                    setUpdates(data)
-                    setLoading(false)
-                })
-        } catch (e){
+        fetchGet(url, sessionId)
+        .then(data => data.json())
+        .then(data => {
+            setUpdates(data)
+            setLoading(false)
+        })
+        .catch(e => {
             console.log(e)
             setLoading(false); 
             setIsError(true)
-        }
+        })
     }
 
     useEffect(() => {

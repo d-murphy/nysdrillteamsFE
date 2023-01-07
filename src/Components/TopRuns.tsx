@@ -44,22 +44,19 @@ export default function RunSearch(props:TopRunsProp) {
     const contestNames = ["Three Man Ladder", "B Ladder", "C Ladder", "C Hose", "B Hose", "Efficiency", "Motor Pump", "Buckets"];; 
 
     const fetchTopRuns = () => {
-        console.log('the url: ', url)
         fetch(url)
         .then(response => response.json())
         .then(data => {
-            console.log('top runs data: ', data); 
             setTopsRuns(data); 
             props.setLoading(false);
         })
         .catch(err => {
-            console.error(err)
+            console.log(err)
             setErrorLoading(true); 
         })
     }
 
     useEffect(() => {
-        console.log('initial top runs'); 
         fetchTopRuns(); 
     }, []); 
 

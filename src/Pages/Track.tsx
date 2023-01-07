@@ -28,7 +28,6 @@ export default function Track() {
             .then(response => response.json())
             .then(data => {
                 setTrack(data)
-                console.log('track: ', data)
                 setTrackLoading(false);
             })
             .catch(err => {
@@ -49,7 +48,6 @@ export default function Track() {
                     }
                 })    
                 setTournaments(data)
-                console.log('tournaments: ', data)
                 setTimeout(() => {setTournLoading(false)}, 1000); 
             })
             .catch(err => {

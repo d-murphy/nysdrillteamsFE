@@ -10,10 +10,12 @@ export default function Nav() {
     const [announcements, setAnnoucements] = useState([]); 
 
     useEffect(() => {
-        console.log('getting announcements'); 
         fetchGet(`${SERVICE_URL}/announcements/getAnnouncements`)
             .then(data => data.json())
             .then(data => setAnnoucements(data))
+            .catch(err => {
+                console.log("Error pulling announcements: ", err); 
+            })
     }, [])
     return (
         <div className="">

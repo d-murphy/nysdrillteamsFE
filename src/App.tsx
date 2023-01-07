@@ -1,8 +1,13 @@
 import * as React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { LoginProvider } from "./utils/context"; 
+import {
+    createBrowserRouter,
+    RouterProvider,
+} from "react-router-dom";
+
+import Root from "./Pages/Root";
 
 import Home from './Pages/Home';
-import Nav from './Components/Nav';  
 import Schedule from './Pages/Schedule'; 
 import Tournament from './Pages/Tournament';
 import Track from './Pages/Track';
@@ -12,43 +17,64 @@ import RunSearch from "./Pages/RunSearch";
 import Login from './Pages/Login'; 
 import AdminHome from "./Pages/AdminHome";
 import About from "./Pages/About"
-import { LoginProvider } from "./utils/context"; 
+  
+  
 
-declare var SERVICE_URL: string; 
-
+const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <Root />,
+        errorElement: <div>Ahh, an error</div>,
+        children: [
+            {
+                path: "",
+                element: <Home />,
+            },
+            {
+                path: "/Schedule", 
+                element: <Schedule year={new Date().getFullYear()} bgColorClass="bg-white" />
+            }, 
+            {
+                path: "/Tournament/:id", 
+                element: <Tournament />
+            }, 
+            {
+                path: "/Track/:trackName", 
+                element: <Track />
+            }, 
+            {
+                path: "/PastSeasons", 
+                element: <PastSeasons />
+            }, 
+            {
+                path: "/Season/:id", 
+                element: <PastSeason />
+            }, 
+            {
+                path: "/TopRunsAndSearch", 
+                element: <RunSearch />
+            }, 
+            {
+                path: "/AdminHome", 
+                element: <AdminHome />
+            }, 
+            {
+                path: "/Login", 
+                element: <Login />
+            }, 
+            {
+                path: "/About", 
+                element: <About />
+            }
+        ],
+    },
+]);
+  
 export default function App() {
-
-    console.log(`checking env var: ${SERVICE_URL}` )
 
     return (
         <LoginProvider>
-            <BrowserRouter>
-                <div className="">
-                    <Nav />
-                    <div className="">
-                        <Routes >
-                            <Route path="/" element={<Home />} />
-                            <Route path="/Schedule" element={<Schedule year={new Date().getFullYear()} bgColorClass="bg-white" />} />
-                            <Route path="/Tournament/:id" element={<Tournament />} />
-                            <Route path="/Track/:trackName" element={<Track />} />
-                            <Route path="/PastSeasons" element={<PastSeasons />} />
-                            <Route path="/Season/:id" element={<PastSeason />} />
-                            <Route path="/TopRunsAndSearch" element={<RunSearch />} />
-                            <Route path="/AdminHome" element={<AdminHome />} />
-                            <Route path="/Login" element={<Login />} />
-                            <Route path="/About" element={<About />} />
-                            <Route
-                            path="*"
-                            element={
-                                    <div className="d-flex justify-content-center align-items-center my-5">
-                                        <div>Sorry, there's nothing at this URL.</div>
-                                    </div>
-                                }
-                            />
-                        </Routes>
-                    </div>
-                </div>
-            </BrowserRouter>
+            <RouterProvider router={router} />
         </LoginProvider>
     );
 }

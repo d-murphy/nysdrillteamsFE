@@ -171,11 +171,10 @@ async function getTracksForFilter(stateSetter:Function){
             data = data
                 .map((el:Track) => el.name)
                 .sort((a:string, b:string) => a < b ? -1 : 1)
-            console.log(data); 
             stateSetter(data); 
         })
         .catch(err => {
-            console.error(err)
+            console.log(err)
             stateSetter([])
         })
 }
@@ -188,11 +187,10 @@ async function getTeamsForFilter(stateSetter:Function){
                 .filter((el:Team) => typeof(el?.fullName)=='string' && !el.fullName.includes("Jr."))
                 .map((el:Team) => el.fullName)
                 .sort((a:string, b:string) => a < b ? -1 : 1)
-            console.log(data); 
             stateSetter(data); 
         })
         .catch(err => {
-            console.error(err)
+            console.log(err)
             stateSetter([])
         })
 }
@@ -205,11 +203,10 @@ async function getYearsForFilter(stateSetter:Function){
                 .map((el:{_id: number, yearCount: number}) => el._id)
                 .filter((el:number) => el && el <= new Date().getFullYear())
                 .sort((a:number, b:number) => a < b ? -1 : 1)
-            console.log(data); 
             stateSetter(data); 
         })
         .catch(err => {
-            console.error(err)
+            console.log(err)
             stateSetter([])
         })
 }

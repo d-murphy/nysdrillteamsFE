@@ -35,7 +35,7 @@ export default function Schedule(props:ScheduleProp) {
             setLoading(false);
         })
         .catch(err => {
-            console.error(err)
+            console.log(err)
             setErrorLoading(true); 
         })
     }

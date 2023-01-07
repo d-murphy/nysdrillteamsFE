@@ -13,7 +13,6 @@ declare var SERVICE_URL: string;
 export default function Big8(props:Big8Prop) {
 
     let big8Year = props.year ? props.year : new Date() < new Date(`6/15/${new Date().getFullYear()}`) ? new Date().getFullYear() -1  : new Date().getFullYear();  
-    console.log('year for big 8: ', big8Year); 
 
     const [big8, setBig8] = useState<{_id:string, matched_doc:Run}[]>([]); 
     const [errorLoading, setErrorLoading] = useState(false); 
@@ -25,7 +24,7 @@ export default function Big8(props:Big8Prop) {
             setBig8(data); 
         })
         .catch(err => {
-            console.error(err)
+            console.log(err)
             setErrorLoading(true); 
         })
     }

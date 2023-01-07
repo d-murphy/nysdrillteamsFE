@@ -226,7 +226,6 @@ export default function AdminTournaments(props:AdminTournamentProps) {
         fetch(`${SERVICE_URL}/runs/getRunsFromTournament?tournamentId=${tournId}`)
             .then(response => response.json())
             .then((data:Run[]) => {
-                console.log('runs for tourn: ', data); 
                 setRunsForTourn(data); 
                 setReqSubmitted(false); 
             })

@@ -28,17 +28,15 @@ export default function AdminUpdates(props:AdminUsersProps) {
     async function getUsers(){
         if(!sessionId) return 
         const url = `${SERVICE_URL}/users/getUsers`
-        try {
-            fetchGet(url, sessionId)
-                .then(data => data.json())
-                .then(data => {
-                    setUsers(data)
-                    console.log('users: ', data); 
-                })
-        } catch (e){
+        fetchGet(url, sessionId)
+        .then(data => data.json())
+        .then(data => {
+            setUsers(data)
+        })
+        .catch(e => {
             console.log(e)
             setIsError(true)
-        }
+        })
     }
 
     useEffect(() => {

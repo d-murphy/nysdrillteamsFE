@@ -25,7 +25,6 @@ export default function TournamentWinners(props:TournamentWinnersProp) {
     const navigate = useNavigate();   
 
     const fetchPastTournaments = () => {
-        console.log("ft called for id: ", tournamentName);  
         fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?tournaments=${tournamentName}`)
         .then(response => response.json())
         .then(data => {
@@ -48,7 +47,6 @@ export default function TournamentWinners(props:TournamentWinnersProp) {
                 }
             })
             setTournaments(data)
-            console.log(data)
             setLoading(false);
         })
         .catch(err => {

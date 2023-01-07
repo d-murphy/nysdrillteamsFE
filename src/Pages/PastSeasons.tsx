@@ -25,7 +25,7 @@ export default function PastSeasons() {
             setLoading(false);
         })
         .catch(err => {
-            console.error(err)
+            console.log(err)
             setErrorLoading(true); 
         })
     }

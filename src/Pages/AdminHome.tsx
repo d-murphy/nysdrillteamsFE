@@ -40,7 +40,6 @@ export default function AdminHome() {
         .then((data:Track[]) => {
             data = data.sort((a:Track,b:Track) => a.name < b.name ? -1 : 1)
             setTracks(data)    
-            console.log(data); 
         })
     }
 

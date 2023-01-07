@@ -28,7 +28,6 @@ export default function TotalPoints(props:TotalPointsProp) {
         fetch(urlWithRegion)
         .then(response => response.json())
         .then(data => {
-            console.log('Total Point Data: ', data); 
             regionData[region] = data; 
             setTeamsArr(data);
             setTopPoints(data.length ? data[0].points : 0);   
@@ -36,7 +35,7 @@ export default function TotalPoints(props:TotalPointsProp) {
             setIsLoading(false); 
         })
         .catch(err => {
-            console.error(err)
+            console.log(err)
             setErrorLoading(true); 
             setIsLoading(false);
         })
