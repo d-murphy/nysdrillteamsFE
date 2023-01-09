@@ -62,5 +62,5 @@ const imgLU: {[index:string]: string}  = {
 }
 
 export default function getImgLocation(teamName:string):string | null{
-    return imgLU[teamName] ? `/static/img/logos/${imgLU[teamName]}` : null; 
+    return imgLU[teamName] ? `/static/img/logos/${imgLU[teamName]}` : `/static/img/logos/NYSFDDT patch medium.png`; 
 }
