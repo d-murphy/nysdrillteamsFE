@@ -394,6 +394,14 @@ table {
     height: 400px; 
 }
 
+.height-70 {
+    height: 70px; 
+}
+
+.minheight-10 {
+    min-height: 10px;
+}
+
 
 
 

@@ -45,15 +45,15 @@ export default function Big8(props:Big8Prop) {
         content = (
             <div className="col d-flex flex-column align-items-start p-3 m-2 ">
                 <p><span className="h4 me-3">The Big 8</span>{`Top times from ${big8Year}'s motorized teams.`}</p>
-                <div className="row w-100">
-                    <Big8Contest run={getRun("Three Man Ladder", big8)} lastRow='date' optionalRow="hometown" />
-                    <Big8Contest run={getRun("B Ladder", big8)} lastRow='date' optionalRow="hometown"/>
-                    <Big8Contest run={getRun("C Ladder", big8)} lastRow='date' optionalRow="hometown"/>
-                    <Big8Contest run={getRun("C Hose", big8)} lastRow='date' optionalRow="hometown"/>
-                    <Big8Contest run={getRun("B Hose", big8)} lastRow='date' optionalRow="hometown"/>
-                    <Big8Contest run={getRun("Efficiency", big8)} lastRow='date' optionalRow="hometown"/>
-                    <Big8Contest run={getRun("Motor Pump", big8)} lastRow='date' optionalRow="hometown"/>
-                    <Big8Contest run={getRun("Buckets", big8)} lastRow='date' optionalRow="hometown"/>
+                <div className="row w-100 g-1">
+                    <Big8Contest run={getRun("Three Man Ladder", big8)} />
+                    <Big8Contest run={getRun("B Ladder", big8)} />
+                    <Big8Contest run={getRun("C Ladder", big8)} />
+                    <Big8Contest run={getRun("C Hose", big8)} />
+                    <Big8Contest run={getRun("B Hose", big8)} />
+                    <Big8Contest run={getRun("Efficiency", big8)} />
+                    <Big8Contest run={getRun("Motor Pump", big8)} />
+                    <Big8Contest run={getRun("Buckets", big8)} />
                 </div>
             </div>
         )
