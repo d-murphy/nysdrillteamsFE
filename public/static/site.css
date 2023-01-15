@@ -362,6 +362,30 @@ table {
     width: 40px; 
 }
 
+.image-wrap-sm {
+    width: 50px; 
+    height: 50px; 
+}
+
+.image-wrap-md {
+    min-width: 50px; 
+    min-height: 50px; 
+    max-width: 100px; 
+    max-height: 100px; 
+}
+
+.image-wrap-lg {
+    min-width: 50px; 
+    min-height: 50px; 
+    max-width: 150px; 
+    max-height: 150px; 
+}
+
+.fluid-width {
+    max-height: 100%; 
+    width: auto
+}
+
 .width-8 {
     width: 25px; 
 }
