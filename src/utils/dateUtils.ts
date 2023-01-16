@@ -25,14 +25,13 @@ const dateUtil = {
         if(date) return `${date.getFullYear()}-${monthString}-${dayString}`;
         return ''; 
     },
-    getTime: function(date:Date):string{
-        date = new Date(date); 
-        if(isNaN(date.getTime())) return "Time Not Added"; 
-        let hrsString:string = date.getHours() == 0 ? "12" : 
-            date.getHours() < 12 ? String(date.getHours()) : String(date.getHours() - 12); 
-        let amPm:string = date.getHours() < 12 ? "AM" : "PM";
-        let minsString:string = String(date.getMinutes()).length<2 ? "0" + String(date.getMinutes()) : String(date.getMinutes()) 
-        return `${hrsString}:${minsString} ${amPm}`;
+    getTime: function(date:Date | string):string{
+        if(!date) return ''; 
+        if(date === "NULL") return ''; 
+        //@ts-ignore
+        if(! Date.parse(date) && date) return String(date); 
+        //@ts-ignore
+        return new Date(date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); 
     },
     getTimeForInput: function(date:Date):string{
         date = new Date(date); 

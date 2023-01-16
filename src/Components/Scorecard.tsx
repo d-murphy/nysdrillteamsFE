@@ -1,6 +1,9 @@
 import * as React from "react";
 
 import { Tournament, Run } from "../types/types"; 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
+import { faVideo } from '@fortawesome/free-solid-svg-icons'
+
 
 interface ScorecardProp {
     tournament: Tournament;
@@ -97,10 +100,23 @@ function generateRows(tournament:Tournament, runsLU:{ [key:string]: Run }, total
             let key = tournament.runningOrder[i] + " - " + el.name; 
             if(ind==0){
                 rowBuffer.push(<th scope="col" className="scorecard-cell-md scorecard-lineup-cell fixed-col p-2">{tournament.runningOrder[i] ? `${less100 ? i-100 : i}. ${tournament.runningOrder[i]}` : `${i}.`}</th>) 
-                rowBuffer.push(<td scope="col" className="scorecard-cell-lg scorecard-contest-cell text-center p-2">{runsLU[key] ? runsLU[key].time : "" }</td>) 
+                rowBuffer.push(
+                    <td scope="col" className="scorecard-cell-lg scorecard-contest-cell text-center p-2">{runsLU[key] ? 
+                        <>
+                            <span>{cleanTime(runsLU[key].time)}</span> 
+                            { runsLU[key].urls.length ? 
+                                <span className="ms-3"><a href={runsLU[key].urls[0]} target="_blank"><FontAwesomeIcon className="video-links" icon={faVideo} size="sm"/></a></span> : "" }
+                        </> : "" }
+                    </td>) 
                 rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-points-cell text-center p-2">{runsLU[key]?.points ? runsLU[key].points : ""}</td>) 
             } else {
-                rowBuffer.push(<td scope="col" className="scorecard-cell-lg scorecard-contest-cell text-center p-2">{runsLU[key] ? runsLU[key].time : "" }</td>) 
+                rowBuffer.push(<td scope="col" className="scorecard-cell-lg scorecard-contest-cell text-center p-2">{runsLU[key] ? 
+                    <>
+                        <span>{cleanTime(runsLU[key].time)}</span> 
+                        { runsLU[key].urls.length ? 
+                            <span className="ms-3"><a href={runsLU[key].urls[0]} target="_blank"><FontAwesomeIcon className="video-links" icon={faVideo} size="sm"/></a></span> : "" }
+                    </> : "" }
+                    </td>)
                 rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-points-cell text-center p-2">{runsLU[key]?.points ? runsLU[key].points : ""}</td>) 
                 rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-totalpoints-cell text-center p-2">{totalPointsLU[key]}</td>) 
             }    
@@ -132,4 +148,9 @@ function generateAlphaRows(teamArr:string[], tournament:Tournament, runsLU:{ [ke
         buffer.push(<tr>{...rowBuffer}</tr>)
     })
     return buffer
+}
+
+function cleanTime(time:string){
+    if(time.toUpperCase() == "NULL") return "--"; 
+    return time; 
 }

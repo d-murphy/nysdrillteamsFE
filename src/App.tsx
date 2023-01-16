@@ -32,7 +32,7 @@ const router = createBrowserRouter([
             },
             {
                 path: "/Schedule", 
-                element: <Schedule year={new Date().getFullYear()} bgColorClass="bg-white" />
+                element: <Schedule year={new Date().getFullYear()} bgColorClass="bg-light" />
             }, 
             {
                 path: "/Tournament/:id", 

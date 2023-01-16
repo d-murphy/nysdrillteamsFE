@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Run } from "../types/types"; 
 import dateUtil from "../utils/dateUtils";
 
-import Image from "react-bootstrap/Image"; 
+import { SizedImage } from "./SizedImage";
 import Placeholder from "react-bootstrap/Placeholder"; 
 import getImgLocation from "../utils/imgLU";
 
@@ -22,13 +22,11 @@ export default function Big8Contest(props:Big8ContestProp) {
             <div className="big8-bg rounded d-flex flex-column align-items-center justify-content-start text-center big8-contest py-1 px-2 h-100" onClick={() => {
                 if(run.tournamentId) navigate(`/Tournament/${run.tournamentId}`); 
             }}> 
-                <h5 className="text-center">{run?.contest ? run.contest == 'Three Man Ladder' ? '3 Man Ladder' : run.contest : ''}</h5>
+                <div className="text-center text-nowrap text-truncate h5 w-100">{run?.contest ? run.contest == 'Three Man Ladder' ? '3 Man Ladder' : run.contest : ''}</div>
                 <div className="d-flex flex-column align-items-center justify-content-center">
-                    <div className="row">
-                        <div className="col-5 col-sm-2 col-md-3 col-lg-4 col-xxl-3"></div>
-                        <div className="col-2 col-sm-8 col-md-6 col-lg-4 col-xxl-6 height-70 d-flex align-items-center justify-content-center">{run?.team ? <Image src={getImgLocation(run.team)} fluid={true} /> : <></>}</div>
-                        <div className="col-5 col-sm-2 col-md-3 col-lg-4 col-xxl-3"></div>
-                    </div>
+                    {run?.team ? <SizedImage imageSrc={getImgLocation(run.team)} size="md"/> : 
+                        <Placeholder animation="glow" className="w-100" />
+                    }
                     <div className="font-small">
                         {run?.team ? `${run.team}` : <Placeholder animation="glow" className="w-100" />}
                     </div>

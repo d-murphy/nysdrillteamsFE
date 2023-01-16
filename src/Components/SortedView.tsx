@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { RuntimeGlobals } from "webpack";
+import { SizedImage } from "./SizedImage";
+import getImgLocation from "../utils/imgLU";
 
 import { Tournament, Run } from "../types/types"; 
 
@@ -114,12 +115,21 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
         if((!showBeyondTop5 && el.finish) || showBeyondTop5){
             totalPointsBuffer.push(
                 <div className="row py-4 border bg-light rounded my-1 mx-4">
-                    <div className="team col-1 font-large d-flex justify-content-center align-items-center p-3 ">{el.finish ? el.finish : ''}</div>
-                    <div className="col-10 px-4">
-                        <div className="row">
-                            <div className="font-large border-bottom ">
-                                {`${el.team}`}
-                                {el.runningPos ? <span className="ms-2 font-small text-secondary ">{`# ${less100 ? el.runningPos-100 : el.runningPos}`}</span> : <></>}
+                    <div className="col-12 col-sm-2">
+                        <div className="font-large d-flex justify-content-center align-items-center p-3 h-100">
+                            {el.finish ? el.finish : ''}
+                        </div>
+                    </div>
+                    <div className="col-12 col-sm-8 px-4">
+                        <div className="">
+                            <div className=" border-bottom d-flex align-items-center justify-content-center flex-wrap pb-1">
+                                <div className="">
+                                    <SizedImage imageSrc={getImgLocation(el.team)} size="sm"/>
+                                </div>
+                                <div className="font-large ms-2 text-nowrap text-truncate">{`${el.team}`}</div>
+                                <div className="ms-2 font-small text-secondary">
+                                    {el.runningPos ? <span className="">{`#${less100 ? el.runningPos-100 : el.runningPos}`}</span> : <></>}
+                                </div>
                             </div>
                         </div>
                         <div className="row">
@@ -127,16 +137,18 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
                                 tournament.contests.map(contest => {
                                     let key:string = el.team + " - " + contest.name
                                     return (
-                                        <div className="col">
-                                            <div className="row text-secondary font-x-small">{contest.name}</div>
-                                            <div className="row font-small">{ runsLU[key]?.time && runsLU[key]?.time != 'NULL' ? runsLU[key].time : "" } / { runsLU[key]?.points ? runsLU[key].points : "" } </div>
+                                        <div className="col-6 col-sm-3">
+                                            <div className="d-flex flex-column justify-content-center align-items-center">
+                                                <div className="text-secondary font-x-small text-nowrap text-truncate text-center">{contest.name}</div>
+                                                <div className="font-small text-center">{ runsLU[key]?.time && runsLU[key]?.time != 'NULL' ? runsLU[key].time : "" } / { runsLU[key]?.points ? runsLU[key].points : "" } </div>
+                                            </div>
                                         </div>
                                     )
                                 })
                             }
                         </div>
                     </div>
-                    <div className="col-1 font-large p-2  d-flex flex-column justify-content-center align-items-center">
+                    <div className="col-12 col-sm-2 font-large p-2  d-flex flex-column justify-content-center align-items-center">
                         <span >{el?.points ? el.points : ''}</span>
                         <span className=" font-small ">{ el?.points ? el?.points > 1 ? "Points" : "Point" : ''}</span>
                     </div>
@@ -198,7 +210,7 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
                 {runsToShow.map(run => {
                     return (
                         <div className="row pb-1">
-                            <div className="col-6 text-center font-large">
+                            <div className="col-6 text-center font-large text-nowrap text-truncate">
                                 {`${run.team}`}
                                 {run.runningPosition ? <span className="ms-2 font-medium text-secondary">{`#${less100 ? run.runningPosition - 100 : run.runningPosition}`}</span>  : <></>} 
                             </div>
