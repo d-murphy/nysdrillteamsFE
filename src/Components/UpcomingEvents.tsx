@@ -75,7 +75,7 @@ export default function Schedule(props:ScheduleProp) {
                     return (
                     <div className="my-2 d-flex flex-row align-items-center"> 
                         {Math.random() <.7 ? <div className="video-icon-nolink font-x-large"><FontAwesomeIcon icon={faVideo} /></div> : <div></div>}              
-                        <div><>{el.name} @ {el.track} - {dateUtil.getMMDDYYYY(el.date)}, {el.startTime}</></div>  
+                        <div><>{el.name} @ {el.track} - {dateUtil.getMMDDYYYY(el.date)}, {dateUtil.getTime(el.startTime)}</></div>  
                     </div>
                     )
                 }) : 
