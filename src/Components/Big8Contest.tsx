@@ -2,6 +2,8 @@ import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { Run } from "../types/types"; 
 import dateUtil from "../utils/dateUtils";
+import { niceTime } from "../utils/timeUtils";
+
 
 import { SizedImage } from "./SizedImage";
 import Placeholder from "react-bootstrap/Placeholder"; 
@@ -51,7 +53,7 @@ export default function Big8Contest(props:Big8ContestProp) {
                                 }
                             </div>
                         </div>
-                        <h4 className="ms-2">{run?.time ? run.time : ''}</h4>
+                        <h4 className="ms-2">{run?.time ? niceTime(run.time) : ''}</h4>
                     </div>
                 </div>
             </div>
