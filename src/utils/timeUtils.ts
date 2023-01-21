@@ -2,6 +2,8 @@
 export const niceTime = function(time:number | string, blank = "--"):string {    
     if(String(time).toUpperCase() == "NULL") return blank; 
     if(String(time).toUpperCase() == "NA") return blank; 
+    if(String(time).toUpperCase().trim() == "--") return blank; 
+    if(String(time).toUpperCase().trim() == "-") return blank; 
     if(String(time).toUpperCase() == "OT") return "OT"; 
     if(String(time).toUpperCase() == "NT") return "NT"; 
     if(String(time).toUpperCase() == "DQ") return "DQ"; 
