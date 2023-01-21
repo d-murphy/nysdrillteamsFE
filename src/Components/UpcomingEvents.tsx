@@ -4,6 +4,9 @@ import { Tournament } from "../types/types";
 import dateUtil from "../utils/dateUtils"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faVideo } from '@fortawesome/free-solid-svg-icons'; 
+import Tooltip from "react-bootstrap/Tooltip"; 
+import OverlayTrigger from "react-bootstrap/OverlayTrigger"; 
+
 
 declare var SERVICE_URL: string;
 
@@ -74,8 +77,8 @@ export default function Schedule(props:ScheduleProp) {
                 tournaments.map((el:Tournament) => {  
                     return (
                     <div className="my-2 d-flex flex-row align-items-center"> 
-                        {Math.random() <.7 ? <div className="video-icon-nolink font-x-large"><FontAwesomeIcon icon={faVideo} /></div> : <div></div>}              
                         <div><>{el.name} @ {el.track} - {dateUtil.getMMDDYYYY(el.date)}, {dateUtil.getTime(el.startTime)}</></div>  
+                        {el?.liveStreamPlanned ? <LiveStream /> : <></>}
                     </div>
                     )
                 }) : 
@@ -87,4 +90,24 @@ export default function Schedule(props:ScheduleProp) {
 
     
     return ( content )
+}
+
+
+function LiveStream(){
+    //@ts-ignore
+    const renderTooltip = (props) => (
+        <Tooltip id="button-tooltip" {...props} >Live Stream Planned!</Tooltip>
+      );
+    
+      return (
+        <OverlayTrigger
+          placement="top"
+          delay={{ show: 250, hide: 400 }}
+          overlay={renderTooltip}
+        >
+            <div className="ms-2">
+                <FontAwesomeIcon icon={faVideo} className="video-links" />
+            </div>
+        </OverlayTrigger>
+      );
 }

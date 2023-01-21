@@ -7,6 +7,7 @@ import { Tournament, Run } from "../types/types";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faVideo } from '@fortawesome/free-solid-svg-icons'
+import { niceTime } from "../utils/timeUtils";
 
 interface SortedViewProp {
     tournament: Tournament;
@@ -140,7 +141,16 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
                                         <div className="col-6 col-sm-3">
                                             <div className="d-flex flex-column justify-content-center align-items-center">
                                                 <div className="text-secondary font-x-small text-nowrap text-truncate text-center">{contest.name}</div>
-                                                <div className="font-small text-center">{ runsLU[key]?.time && runsLU[key]?.time != 'NULL' ? runsLU[key].time : "" } / { runsLU[key]?.points ? runsLU[key].points : "" } </div>
+                                                <div className="font-small text-center">
+                                                    {
+                                                        runsLU[key]?.urls.length ? 
+                                                            <span className="me-2">
+                                                                <a className="video-links" href={`${ runsLU[key]?.urls.length ? runsLU[key]?.urls[0] : "" }`} target="_blank"> <FontAwesomeIcon icon={faVideo} size="sm"/></a>
+                                                            </span> : <></>
+                                                    }
+                                                    { runsLU[key]?.time ? niceTime(runsLU[key].time) : "--" } / 
+                                                    { runsLU[key]?.points ? runsLU[key].points : "" } 
+                                                </div>
                                             </div>
                                         </div>
                                     )
@@ -215,11 +225,11 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
                                 {run.runningPosition ? <span className="ms-2 font-medium text-secondary">{`#${less100 ? run.runningPosition - 100 : run.runningPosition}`}</span>  : <></>} 
                             </div>
                             <div className="col-3 font-large d-flex justify-content-center">
-                                    <div className="scorecard-video-link-parent">
-                                        {run.time && run.time != 'NULL' ? run.time : '--'}
-                                        <span className="scorecard-video-link">
+                                    <div className="">
+                                        {run.time ? niceTime(run.time) : '--'}
+                                        <span className="ms-2">
                                             {
-                                                run.urls.length ? 
+                                                run?.urls.length ? 
                                                     <span>
                                                         <a className="video-links" href={`${ run.urls.length ? run.urls[0] : "" }`} target="_blank"> <FontAwesomeIcon icon={faVideo} /></a>
                                                     </span> : <></>

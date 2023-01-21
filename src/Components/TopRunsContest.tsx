@@ -1,7 +1,7 @@
 import * as React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faVideo } from '@fortawesome/free-solid-svg-icons'
-import timeUtil from "../utils/timeUtils";
+import { niceTime } from "../utils/timeUtils";
 import { useNavigate } from "react-router-dom";
 
 
@@ -29,7 +29,7 @@ export default function TopRunsContest(props:TopRunsContestProp) {
                     return (
                         <div className="row border-top py-2">
                             <div className="col-3 d-flex align-items-center justify-content-center">
-                                <h4><b>{timeUtil.niceTime(el.timeNum)}</b></h4>
+                                <h4><b>{niceTime(el.timeNum)}</b></h4>
                             </div>
                             <div className="col-2">
                                 <div className="h-100 d-flex justify-content-center align-items-center">
@@ -38,7 +38,7 @@ export default function TopRunsContest(props:TopRunsContestProp) {
                                         el.urls.map(url => {
                                             return (
                                                 <div className="video-icon">
-                                                    <a href={`${url}`} target="_blank"><FontAwesomeIcon icon={faVideo} size='lg'/></a>
+                                                    <a href={`${url}`} target="_blank"><FontAwesomeIcon className="video-links" icon={faVideo} size='lg'/></a>
                                                 </div>  
                                             )
                                         }) : <></>

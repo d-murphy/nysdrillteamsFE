@@ -4,6 +4,8 @@ import { Tournament, Run } from "../types/types";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faVideo } from '@fortawesome/free-solid-svg-icons'
 
+import { niceTime } from '../utils/timeUtils'; 
+
 
 interface ScorecardProp {
     tournament: Tournament;
@@ -138,10 +140,6 @@ function generateAlphaRows(teamArr:string[], tournament:Tournament, runsLU:{ [ke
     return buffer
 }
 
-function cleanTime(time:string){
-    if(time.toUpperCase() == "NULL") return BLANK_STR; 
-    return time; 
-}
 
 interface TableCellProps {
     size: 'md' | 'sm' | 'lg'
@@ -167,7 +165,7 @@ function TimeCellContents (props:TimeCellContentsProps){
         <>
             { run.urls.length ? 
                 <span className="me-3"><a href={run.urls[0]} target="_blank"><FontAwesomeIcon className="video-links" icon={faVideo} size="sm"/></a></span> : <></> }
-            <span>{cleanTime(run.time)}</span> 
+            <span>{niceTime(run.time)}</span> 
         </>     
     )
 }

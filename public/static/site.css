@@ -180,7 +180,7 @@ html, body, #root {
     color: #013369;
 }
 
-.scorecard-type, .big8-contest, .past-tourn-entry {
+.scorecard-type, .past-tourn-entry {
     cursor: pointer;
 }
 
@@ -245,16 +245,6 @@ table {
     background: white;
     z-index: 1;
   }
-
-  .scorecard-video-link-parent {
-    position: relative; 
-  }
-
-  .scorecard-video-link {
-    position: absolute;
-    left: 40px;
-  }
-
 
 /* Track */ 
 .track-img-height {

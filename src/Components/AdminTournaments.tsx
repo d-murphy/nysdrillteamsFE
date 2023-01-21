@@ -485,7 +485,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            {reqSubmitted ? <p>Chill for a second.</p> : 
+                            {reqSubmitted ? <p>Hang on - a request is processing.</p> : 
                                 runsForTourn.length ? 
                                     <p>You can not delete tournaments which have runs attached.  This one has {runsForTourn.length}.</p> : 
                                     <p>Are you sure you want to remove {tournInReview.name} on {dateUtil.getMMDDYYYY(tournInReview.date)}?</p>                        
