@@ -10,6 +10,7 @@ interface ScorecardProp {
     runs: Run[]; 
 }
 
+const BLANK_STR = "--"
 
 export default function Scorecard(props:ScorecardProp) {
     const tournament = props.tournament;
@@ -73,13 +74,13 @@ function generateHeaders(tournament:Tournament){
 
     tournament.contests.forEach((el, ind) => {
         if(ind==0){
-            buffer.push(<th scope="col" className="scorecard-cell-md scorecard-lineup-header fixed-col p-2">Team Lineup</th>) 
-            buffer.push(<th scope="col" className="scorecard-cell-lg scorecard-contest-header text-center p-2">{el.name}</th>) 
-            buffer.push(<th scope="col" className="scorecard-cell-sm scorecard-points-header text-center p-2">Points</th>) 
+            buffer.push(<th scope="col" className="scorecard-cell-md fixed-col p-2">Team Lineup</th>) 
+            buffer.push(<th scope="col" className="scorecard-cell-lg text-center p-2">{el.name}</th>) 
+            buffer.push(<th scope="col" className="scorecard-cell-sm text-center p-2">Points</th>) 
         } else {
-            buffer.push(<th scope="col" className="scorecard-cell-lg scorecard-contest-header text-center p-2">{el.name}</th>) 
-            buffer.push(<th scope="col" className="scorecard-cell-sm scorecard-points-header text-center p-2">Points</th>) 
-            buffer.push(<th scope="col" className="scorecard-cell-sm scorecard-totalpoints-header text-center p-2">Total</th>) 
+            buffer.push(<th scope="col" className="scorecard-cell-lg text-center p-2">{el.name}</th>) 
+            buffer.push(<th scope="col" className="scorecard-cell-sm text-center p-2">Points</th>) 
+            buffer.push(<th scope="col" className="scorecard-cell-sm text-center p-2">Total</th>) 
         }
     })
     return buffer; 
@@ -99,26 +100,13 @@ function generateRows(tournament:Tournament, runsLU:{ [key:string]: Run }, total
         tournament.contests.forEach((el, ind) => {
             let key = tournament.runningOrder[i] + " - " + el.name; 
             if(ind==0){
-                rowBuffer.push(<th scope="col" className="scorecard-cell-md scorecard-lineup-cell fixed-col p-2">{tournament.runningOrder[i] ? `${less100 ? i-100 : i}. ${tournament.runningOrder[i]}` : `${i}.`}</th>) 
-                rowBuffer.push(
-                    <td scope="col" className="scorecard-cell-lg scorecard-contest-cell text-center p-2">{runsLU[key] ? 
-                        <>
-                            <span>{cleanTime(runsLU[key].time)}</span> 
-                            { runsLU[key].urls.length ? 
-                                <span className="ms-3"><a href={runsLU[key].urls[0]} target="_blank"><FontAwesomeIcon className="video-links" icon={faVideo} size="sm"/></a></span> : "" }
-                        </> : "" }
-                    </td>) 
-                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-points-cell text-center p-2">{runsLU[key]?.points ? runsLU[key].points : ""}</td>) 
+                rowBuffer.push(<th scope="col" className="scorecard-cell-md fixed-col p-2">{tournament.runningOrder[i] ? `${less100 ? i-100 : i}. ${tournament.runningOrder[i]}` : `${i}.`}</th>)
+                rowBuffer.push(<TableCell size="lg" value={runsLU[key] ? <TimeCellContents run={runsLU[key]} /> : BLANK_STR} />)
+                rowBuffer.push(<TableCell size="sm" value={runsLU[key]?.points ? runsLU[key].points : BLANK_STR} />) 
             } else {
-                rowBuffer.push(<td scope="col" className="scorecard-cell-lg scorecard-contest-cell text-center p-2">{runsLU[key] ? 
-                    <>
-                        <span>{cleanTime(runsLU[key].time)}</span> 
-                        { runsLU[key].urls.length ? 
-                            <span className="ms-3"><a href={runsLU[key].urls[0]} target="_blank"><FontAwesomeIcon className="video-links" icon={faVideo} size="sm"/></a></span> : "" }
-                    </> : "" }
-                    </td>)
-                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-points-cell text-center p-2">{runsLU[key]?.points ? runsLU[key].points : ""}</td>) 
-                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-totalpoints-cell text-center p-2">{totalPointsLU[key]}</td>) 
+                rowBuffer.push(<TableCell size="lg" value={runsLU[key] ? <TimeCellContents run={runsLU[key]} /> : BLANK_STR} />)
+                rowBuffer.push(<TableCell size="sm" value={runsLU[key]?.points ? runsLU[key].points : BLANK_STR} />)
+                rowBuffer.push(<TableCell size="sm" value={totalPointsLU[key]== 0 ? BLANK_STR : totalPointsLU[key]} />)
             }    
         })
         buffer.push(<tr>{...rowBuffer}</tr>)
@@ -136,13 +124,13 @@ function generateAlphaRows(teamArr:string[], tournament:Tournament, runsLU:{ [ke
         tournament.contests.forEach((el, ind) => {
             let key = team + " - " + el.name; 
             if(ind==0){
-                rowBuffer.push(<th scope="col" className="scorecard-cell-md scorecard-lineup-cell fixed-col p-2">{team}</th>) 
-                rowBuffer.push(<td scope="col" className="scorecard-cell-lg scorecard-contest-cell text-center p-2">{runsLU[key] ? runsLU[key].time != 'NULL' ? runsLU[key].time : "--" : "--" }</td>) 
-                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-points-cell text-center p-2">{runsLU[key]?.points ? runsLU[key].points : "--"}</td>) 
+                rowBuffer.push(<th scope="col" className="scorecard-cell-md fixed-col p-2">{team}</th>)
+                rowBuffer.push(<TableCell size="lg" value={runsLU[key] ? <TimeCellContents run={runsLU[key]} /> : BLANK_STR} />)
+                rowBuffer.push(<TableCell size="sm" value={runsLU[key]?.points ? runsLU[key].points : BLANK_STR} />)
             } else {
-                rowBuffer.push(<td scope="col" className="scorecard-cell-lg scorecard-contest-cell text-center p-2">{runsLU[key] ? runsLU[key].time != 'NULL' ? runsLU[key].time : "--" : "--" }</td>) 
-                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-points-cell text-center p-2">{runsLU[key]?.points ? runsLU[key].points : "--"}</td>) 
-                rowBuffer.push(<td scope="col" className="scorecard-cell-sm scorecard-totalpoints-cell text-center p-2">{totalPointsLU[key]== 0 ? "--" : totalPointsLU[key]}</td>) 
+                rowBuffer.push(<TableCell size="lg" value={runsLU[key] ? <TimeCellContents run={runsLU[key]} /> : BLANK_STR} />)
+                rowBuffer.push(<TableCell size="sm" value={runsLU[key]?.points ? runsLU[key].points : BLANK_STR} />)
+                rowBuffer.push(<TableCell size="sm" value={totalPointsLU[key]== 0 ? BLANK_STR : totalPointsLU[key]} />)
             }    
         })
         buffer.push(<tr>{...rowBuffer}</tr>)
@@ -151,6 +139,35 @@ function generateAlphaRows(teamArr:string[], tournament:Tournament, runsLU:{ [ke
 }
 
 function cleanTime(time:string){
-    if(time.toUpperCase() == "NULL") return "--"; 
+    if(time.toUpperCase() == "NULL") return BLANK_STR; 
     return time; 
+}
+
+interface TableCellProps {
+    size: 'md' | 'sm' | 'lg'
+    value: string | number | React.ReactNode
+}
+
+function TableCell(props: TableCellProps){
+    const scCss = `scorecard-cell-${props.size}`; 
+    const value = props.value; 
+    return (
+        <td scope="col" className={`${scCss} text-center p-2`}>{value}</td>
+    )
+}
+
+interface TimeCellContentsProps {
+    run: Run | null | undefined
+}
+
+function TimeCellContents (props:TimeCellContentsProps){
+    const run = props.run; 
+    if(!run) return <></>; 
+    return (
+        <>
+            { run.urls.length ? 
+                <span className="me-3"><a href={run.urls[0]} target="_blank"><FontAwesomeIcon className="video-links" icon={faVideo} size="sm"/></a></span> : <></> }
+            <span>{cleanTime(run.time)}</span> 
+        </>     
+    )
 }
