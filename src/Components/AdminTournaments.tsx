@@ -58,7 +58,9 @@ let initialTourn:Tournament = {
     ],
     liveStreamPlanned: false, 
     urls: [], 
-    waterTime: ''
+    waterTime: '', 
+    notes: '', 
+    urlToEntryForm: ''
 }
 
 export default function AdminTournaments(props:AdminTournamentProps) {
@@ -80,7 +82,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     const isAdmin = role === "admin" || role === 'scorekeeper'; 
     const hasRuns = Boolean(runsForTourn.length)
 
-    function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){
+    function handleTextInput(e:React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>){
         setTournInReview({
             ...tournInReview, 
             [e.target.id]: e.target.value
@@ -222,6 +224,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
             let updateMsg = `Delete Tournament: ${tournInReview.name} - ${dateUtil.getMMDDYYYY(tournInReview.date)}`
             logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
             setReqResult({error: false, message: "Update successful."}); 
+            setReqSubmitted(false); 
             getTournaments(year); 
         } catch (e){
             console.log(e.message)
@@ -421,6 +424,30 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                             autoComplete="off"></input>
                                 </div>
                             </div>
+                            <div className="row my-1">
+                                <div className="col-4 text-center">URL to Drill Entry Form</div>
+                                <div className="col-8 text-center px-4">
+                                    <input 
+                                            onChange={(e) => handleTextInput(e)} 
+                                            id="urlToEntryForm" 
+                                            value={tournInReview.urlToEntryForm} 
+                                            className="text-center width-100" 
+                                            disabled={!isAdmin}
+                                            autoComplete="off"></input>
+                                </div>
+                            </div>
+                            <div className="row my-1">
+                                <div className="col-4 text-center">Notes About Drill</div>
+                                <div className="col-8 text-center px-4">
+                                    <textarea 
+                                            onChange={(e) => handleTextInput(e)} 
+                                            id="notes" 
+                                            value={tournInReview.notes} 
+                                            className="text-center width-100" 
+                                            disabled={!isAdmin}
+                                            autoComplete="off"></textarea>
+                                </div>
+                            </div>
                             <div className="row my-4">
                                 <div className="col-6 d-flex flex-column align-items-center">
                                     <div>Sanctioned?</div>
@@ -481,11 +508,12 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                 <div className="modal-dialog modal-l">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="deleteTournModalLabel">Delete Team?</h5>
+                            <h5 className="modal-title" id="deleteTournModalLabel">Delete Tournament?</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            {reqSubmitted ? <p>Hang on - a request is processing.</p> : 
+                            {reqResult.message ? "" : 
+                             reqSubmitted ? <p>Hang on - a request is processing.</p> : 
                                 runsForTourn.length ? 
                                     <p>You can not delete tournaments which have runs attached.  This one has {runsForTourn.length}.</p> : 
                                     <p>Are you sure you want to remove {tournInReview.name} on {dateUtil.getMMDDYYYY(tournInReview.date)}?</p>                        
@@ -504,7 +532,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             </div>
                             <div className="">
                                 <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                                <button type="button" className="btn btn-warning mx-2" disabled={!isAdmin || reqSubmitted || runsForTourn.length>0} onClick={deleteTourn}>Delete</button>
+                                <button type="button" className="btn btn-warning mx-2" disabled={!isAdmin || reqSubmitted || reqResult.message.length>0 || runsForTourn.length>0} onClick={deleteTourn}>Delete</button>
                             </div>
                         </div>
                     </div>

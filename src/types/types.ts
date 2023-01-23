@@ -28,7 +28,9 @@ export type Tournament = {
     liveStreamPlanned?: boolean
     urls?: string[], 
     waterTime?: string, 
-    afterMigrate?: true
+    afterMigrate?: true, 
+    urlToEntryForm?: string,
+    notes?: string
 }
 
 export type Run = {
