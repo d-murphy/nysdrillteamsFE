@@ -60,7 +60,8 @@ let initialTourn:Tournament = {
     urls: [], 
     waterTime: '', 
     notes: '', 
-    urlToEntryForm: ''
+    urlToEntryForm: '', 
+    host: ''
 }
 
 export default function AdminTournaments(props:AdminTournamentProps) {
@@ -78,6 +79,8 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     let [runsEditContest, setRunsEditContest] = useState(""); 
     let [tournamentNames, setTournamentNames] = useState([]); 
     let [showNewTournName, setShowNewTournName] = useState(false); 
+    let [hostNames, setHostNames] = useState([]); 
+    let [showNewHostName, setShowNewHostName] = useState(false); 
     const { sessionId, role, username  } = useLoginContext(); 
     const isAdmin = role === "admin" || role === 'scorekeeper'; 
     const hasRuns = Boolean(runsForTourn.length)
@@ -137,9 +140,27 @@ export default function AdminTournaments(props:AdminTournamentProps) {
         }
     }
 
+    function handleHostList(e:React.ChangeEvent<HTMLSelectElement>){
+        if(e.target.value == 'Name not listed') {
+            setTournInReview({
+                ...tournInReview, 
+                host: ''
+            })
+            setShowNewHostName(true);
+        }else{
+            setShowNewHostName(false)
+            setTournInReview({
+                ...tournInReview, 
+                host: e.target.value
+            })
+        }
+    }
+
+
 
     function loadTournament(tournament:Tournament){
         setTournInReview({
+            ...initialTourn, 
             ...tournament
         })
         setRunsForTourn([]); 
@@ -172,6 +193,20 @@ export default function AdminTournaments(props:AdminTournamentProps) {
         })
     }
 
+
+    function getHostNames(){
+        fetchGet(`${SERVICE_URL}/tournaments/getHostNames`)
+        .then(response => response.json())
+        .then((data:{_id:string, nameCount:number}[]) => {
+            let keepThese = data.filter(el => el._id)
+            setHostNames(keepThese)    
+        })
+        .catch(e => {
+            console.log("Error getting host names: ", e); 
+            setIsError(true)
+        })
+    }
+
     function changeYear(year:number){
         setYear(year); 
         getTournaments(year); 
@@ -180,6 +215,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     useEffect(() => {
         changeYear(new Date().getFullYear())
         getTournamentNames()
+        getHostNames()
     }, [])
 
 
@@ -247,6 +283,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
         setReqResult({error:false, message: ""}); 
         setReqSubmitted(false); 
         setShowNewTournName(false); 
+        setShowNewHostName(false); 
         getTournamentNames(); 
     }
 
@@ -371,6 +408,33 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                     } 
                                 </div>
                             </div>
+
+                            <div className="row my-1">
+                                <div className="col-4 text-center">
+                                    <div>Host</div>
+                                </div>
+                                <div className="col-8 text-center px-4">
+                                    { !showNewHostName ? <select onChange={handleHostList} id="hostList" name="hostList" className="width-100 text-center" value={tournInReview.host} disabled={!isAdmin}>
+                                        <option value={null}></option>
+                                        {hostNames.map(el => {
+                                            return (<option key={`option${el._id}`} value={el._id}>{el._id} ({el.nameCount} with this name)</option>)
+                                        })}
+                                        <option value={"Name not listed"}>Host not listed.  Let me add one.  Yes, I know this shouldn't happen often.</option>
+                                    </select> : <></>
+                                    }
+                                    {
+                                        showNewHostName ? <input 
+                                            onChange={(e) => handleTextInput(e)} 
+                                            id="host" 
+                                            value={tournInReview.host} 
+                                            className="text-center width-100" 
+                                            disabled={!isAdmin}
+                                            autoComplete="off"></input> : <></>
+                                    } 
+                                </div>
+                            </div>
+
+
                             <div className="row my-1">
                                 <div className="col-4 text-center">Date</div>
                                 <div className="col-8 d-flex justify-content-around px-4" >

@@ -30,7 +30,8 @@ export type Tournament = {
     waterTime?: string, 
     afterMigrate?: true, 
     urlToEntryForm?: string,
-    notes?: string
+    notes?: string, 
+    host?: string
 }
 
 export type Run = {
