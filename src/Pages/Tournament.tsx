@@ -7,6 +7,7 @@ import { Tournament, Run } from "../types/types";
 import TournamentHeader from "../Components/TournamentHeader";
 import Scorecard from "../Components/Scorecard";
 import SortedView from "../Components/SortedView";
+import useWindowDimensions from "../utils/windowDimensions";
 
 declare var SERVICE_URL: string;
 
@@ -19,6 +20,7 @@ export default function Schedule() {
     const [tournament, setTournament] = useState<Tournament>(); 
     const [runs, setRuns] = useState<Run[]>([]); 
     const [view, setView] =useState("scorecard")  
+    const { width } = useWindowDimensions();
 
     let params = useParams();
     const tournamentId = params.id
@@ -41,6 +43,10 @@ export default function Schedule() {
             setErrorLoading(true); 
         })
     }, [tournamentId])
+
+    useEffect(() => {
+        if(width < 750) setView('sortedview'); 
+    }, [])
 
     let content; 
     if(tournLoading || runLoading){
@@ -74,11 +80,11 @@ export default function Schedule() {
                     <div className="row bg-white my-1 shadow-sm rounded p-5 d-flex justify-content-center">The lineup for the drill is not yet available.</div> : 
                     <div className="row bg-white my-1 shadow-sm rounded p-2 ">
                         <div className="row">
+                            <div className="col-1"></div>
+                            <div className={`scorecard-type col-4 text-center p-2 ${view == 'scorecard' ? "border-bottom" : ""} `} onClick={()=>{setView('scorecard')}}>Scorecard View</div>
                             <div className="col-2"></div>
-                            <div className={`scorecard-type col-3 text-center p-2 ${view == 'scorecard' ? "border-bottom" : ""} `} onClick={()=>{setView('scorecard')}}>Scorecard View</div>
-                            <div className="col-2"></div>
-                            <div className={`scorecard-type col-3 text-center p-2 ${view != 'scorecard' ? "border-bottom" : ""}`} onClick={()=>{setView('sorted')}}>Sorted View</div>
-                            <div className="col-2"></div>
+                            <div className={`scorecard-type col-4 text-center p-2 ${view != 'scorecard' ? "border-bottom" : ""}`} onClick={()=>{setView('sorted')}}>Sorted View</div>
+                            <div className="col-1"></div>
                         </div>
                         <div className="d-flex justify-content-center">
                             {view == "scorecard" ? 

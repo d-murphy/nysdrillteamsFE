@@ -4,8 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faVideo, faCircleInfo } from '@fortawesome/free-solid-svg-icons'
 import OverlayTrigger from "react-bootstrap/OverlayTrigger"; 
 import Tooltip from "react-bootstrap/Tooltip"; 
-import { SizedImage } from "./SizedImage";
-import getImgLocation from "../utils/imgLU";
+import { WinnerIcon } from "./SizedImage"; 
 
 
 import { Tournament } from "../types/types"; 
@@ -38,7 +37,6 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
         navigate(path);
     }
     
-    console.log('time: ', tournament.startTime, 'name: ', tournament.name)
     return (
         <div className={`${props.bgColorClass} shadow-sm rounded my-2 w-100`}>
             <div className="row">
@@ -141,33 +139,6 @@ function CountyIcon(mainprops:CountyIconProps){
             <div 
                 className={`mx-1 font-small badge bg-secondary cursor-default ${mainprops.active ? "" : "circuit-inactive"} `}
             >{mainprops.label}</div>
-        </OverlayTrigger>
-      );
-}
-
-interface WinnerIconProps {
-    team:string
-}
-
-function WinnerIcon(mainprops:WinnerIconProps){
-
-    //@ts-ignore
-    const renderTooltip = (props) => (
-        <Tooltip id="button-tooltip" {...props} >
-          {mainprops.team}
-        </Tooltip>
-      );
-    
-      return (
-        <OverlayTrigger
-          placement="bottom"
-          delay={{ show: 250, hide: 400 }}
-          overlay={renderTooltip}
-        >
-            <div>
-                <SizedImage imageSrc={getImgLocation(mainprops.team)} size="sm"/>
-
-            </div>
         </OverlayTrigger>
       );
 }

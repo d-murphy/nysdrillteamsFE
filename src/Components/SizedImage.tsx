@@ -1,5 +1,10 @@
 import * as React from "react";
 import { Image } from "react-bootstrap";
+import getImgLocation from "../utils/imgLU";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger"; 
+import Tooltip from "react-bootstrap/Tooltip"; 
+
+
 
 interface Props {
     imageSrc: string,
@@ -17,4 +22,31 @@ export function SizedImage(props: Props) {
             <div className="flex-grow-1"/>
         </div>
     )
+}
+
+interface WinnerIconProps {
+    team:string
+}
+
+export function WinnerIcon(mainprops:WinnerIconProps){
+
+    //@ts-ignore
+    const renderTooltip = (props) => (
+        <Tooltip id="button-tooltip" {...props} >
+          {mainprops.team}
+        </Tooltip>
+      );
+    
+      return (
+        <OverlayTrigger
+          placement="bottom"
+          delay={{ show: 250, hide: 400 }}
+          overlay={renderTooltip}
+        >
+            <div>
+                <SizedImage imageSrc={getImgLocation(mainprops.team)} size="sm"/>
+
+            </div>
+        </OverlayTrigger>
+      );
 }

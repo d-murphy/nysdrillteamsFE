@@ -63,10 +63,7 @@ export default function TournamentWinners(props:TournamentWinnersProp) {
     let content; 
     if(loading){
         content = (
-            <div className="">
-                <div className="spinner-border text-secondary" role="status"></div>
-                <span className="sr-only">Loading...</span>   
-            </div>
+            <div className="">{` `}</div>
         )
     }
     if(errorLoading){
@@ -77,13 +74,13 @@ export default function TournamentWinners(props:TournamentWinnersProp) {
 
 
     if(!loading && !errorLoading){
-        let list = tournaments.map(el => {
-            return <div className="past-tourn-entry" onClick={() => navigate(`/Tournament/${el.id}`)}>{el.winnerStr}</div>
+        let list = tournaments.map((el, index) => {
+            return <div className="past-tourn-entry mx-2 text-center" onClick={() => navigate(`/Tournament/${el.id}`)}>{el.winnerStr}</div>
         })
         if(tournaments.length){
             content = (
-                <div className="font-small ">
-                    {list.length ? <div><b>Past Winners:</b> </div> : <div/> }
+                <div className="font-small d-flex flex-row">
+                    {list.length ? <div className="mx-2 text-center"><b>Past Winners:</b> </div> : <div/> }
                     {list}
                 </div>        
             )    
