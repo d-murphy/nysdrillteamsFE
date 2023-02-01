@@ -65,7 +65,7 @@ export default function TournamentHeader(props:TournamentProp) {
                         <div className="col-4 px-2">
                             <div className=" d-flex justify-content-center align-items-center">
                                 {
-                                    !tournament?.host ? '' : <div>Host: {tournament.host}</div>
+                                    !tournament?.host ? '' : <div className="text-center">Host: {tournament.host}</div>
                                 }
                                 {
                                     !tournament?.urlToEntryForm ? <></> : 
