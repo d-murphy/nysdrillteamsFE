@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import dateUtil from "../utils/dateUtils"
 import { Run } from "../types/types"
 import Big8Contest from "../Components/Big8Contest"
+import Big8ContestLoading from "./Big8ContestLoading";
 
 interface Big8Prop {
     year?: number;
@@ -16,16 +17,19 @@ export default function Big8(props:Big8Prop) {
 
     const [big8, setBig8] = useState<{_id:string, matched_doc:Run}[]>([]); 
     const [errorLoading, setErrorLoading] = useState(false); 
+    const [isLoading, setIsLoading] = useState(true); 
 
     const fetchBig8 = () => {
         fetch(`${SERVICE_URL}/runs/getBig8?year=${big8Year}`)
         .then(response => response.json())
         .then(data => {
-            setBig8(data); 
+           setBig8(data); 
+           setIsLoading(false); 
         })
         .catch(err => {
             console.log(err)
             setErrorLoading(true); 
+            setIsLoading(false); 
         })
     }
 
@@ -34,14 +38,9 @@ export default function Big8(props:Big8Prop) {
     }, []); 
 
     let content; 
-    if(errorLoading){
-        content = (
-            <div></div>
-        )
-    }
+    if(errorLoading) return <div></div>
 
-
-    if(!errorLoading){
+    if(!isLoading){
         content = (
             <div className="col d-flex flex-column align-items-start p-3 m-2 ">
                 <p><span className="h4 me-3">The Big 8</span>{`Top times from ${big8Year}'s motorized teams.`}</p>
@@ -57,6 +56,23 @@ export default function Big8(props:Big8Prop) {
                 </div>
             </div>
         )
+    } else {
+        content = (
+            <div className="col d-flex flex-column align-items-start p-3 m-2 ">
+                <p><span className="h4 me-3">The Big 8</span>{`Top times from ${big8Year}'s motorized teams.`}</p>
+                <div className="row w-100 g-1">
+                    <Big8ContestLoading />
+                    <Big8ContestLoading />
+                    <Big8ContestLoading />
+                    <Big8ContestLoading />
+                    <Big8ContestLoading />
+                    <Big8ContestLoading />
+                    <Big8ContestLoading />
+                    <Big8ContestLoading />
+                </div>
+            </div>
+        )
+
     }
 
     

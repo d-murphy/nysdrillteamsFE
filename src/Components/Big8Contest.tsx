@@ -6,7 +6,6 @@ import { niceTime } from "../utils/timeUtils";
 
 
 import { SizedImage } from "./SizedImage";
-import Placeholder from "react-bootstrap/Placeholder"; 
 import getImgLocation from "../utils/imgLU";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faVideo } from '@fortawesome/free-solid-svg-icons'; 
@@ -27,11 +26,9 @@ export default function Big8Contest(props:Big8ContestProp) {
             <div className="big8-bg rounded d-flex flex-column align-items-center justify-content-start text-center py-1 px-2 h-100" > 
                 <div className="text-center text-nowrap text-truncate h5 w-100">{run?.contest ? run.contest == 'Three Man Ladder' ? '3 Man Ladder' : run.contest : ''}</div>
                 <div className="d-flex flex-column align-items-center justify-content-center">
-                    {run?.team ? <SizedImage imageSrc={getImgLocation(run.team)} size="md"/> : 
-                        <Placeholder animation="glow" className="w-100" />
-                    }
+                        <SizedImage imageSrc={getImgLocation(run.team)} size="md"/> 
                     <div className="font-small">
-                        {run?.team ? `${run.team}` : <Placeholder animation="glow" className="w-100" />}
+                        {run?.team ? `${run.team}` : ""}
                     </div>
                 </div>
                 <div className="flex-grow-1 minheight-10"></div>
@@ -41,10 +38,10 @@ export default function Big8Contest(props:Big8ContestProp) {
                             <div className="font-xx-small text-start pointer" onClick={() => {
                                     if(run.tournamentId) navigate(`/Tournament/${run.tournamentId}`); 
                                 }}>
-                                {run?.tournament ? `${run.tournament}` : <Placeholder animation="glow" className="w-100" />}
+                                {run?.tournament ? `${run.tournament}` : ""}
                             </div>
                             <div className="font-xx-small text-start">
-                                {dateStr ? `${dateStr}` : <Placeholder animation="glow" className="w-100" />}
+                                {dateStr ? `${dateStr}` : ""}
                                 {
                                     run?.urls && run.urls.length ? 
                                         <span className="ms-2">

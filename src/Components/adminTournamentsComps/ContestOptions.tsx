@@ -11,6 +11,7 @@ export default function ContestOptions() {
             <option value={"Efficiency"}>Efficiency</option>
             <option value={"Motor Pump"}>Motor Pump</option>
             <option value={"Buckets"}>Buckets</option>
+            <option value={"Booster Contest"}>Booster Contest</option>
             <option value={"Combination Hose & Pump"}>Combination Hose & Pump</option>
             <option value={"Eight Man Hose"}>Eight Man Hose</option>
             <option value={"Efficiency Replacement"}>Efficiency Replacement</option>
@@ -18,6 +19,7 @@ export default function ContestOptions() {
             <option value={"Ground Buckets"}>Ground Buckets</option> 
             <option value={"Individual Ladder"}>Individual Ladder</option>
             <option value={"Motor H&L Dummy"}>Motor H&L Dummy</option> 
+            <option value={"Motor Hose No. 2 Target and Barrel"}>Motor Hose No. 2 Target and Barrel</option>
             <option value={"Motor Hose Replacement"}>Motor Hose Replacement</option>
             <option value={"Running Hose"}>Running Hose</option>
             <option value={"Running Hose Replacement"}>Running Hose Replacement</option>
