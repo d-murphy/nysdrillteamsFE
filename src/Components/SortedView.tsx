@@ -15,6 +15,7 @@ interface SortedViewProp {
 }
 
 
+
 export default function SortedView(props:SortedViewProp) {
     const tournament = props.tournament;
     const runs = props.runs; 
