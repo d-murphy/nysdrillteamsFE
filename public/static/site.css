@@ -83,20 +83,15 @@ html, body, #root {
 }
 
 .footer {
+    background-color: var(--bs-gray-500); 
     position: fixed;
     left: 0;
     bottom: 0;
     width: 100%;
-    background-color: red;
     color: white;
     text-align: center;
     height: 80px; 
 }
-
-.footer-bg {
-    background-color: whitesmoke; 
-}
-
 
 
 /* Home */

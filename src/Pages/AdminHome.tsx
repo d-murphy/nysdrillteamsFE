@@ -83,7 +83,6 @@ export default function AdminHome() {
                         </ul>
                         <li>If you're not super comfortable with something, feel free to ask.</li>
                     </ul>
-                    <p>Instructions / FYI:</p>
                 </div>
 
                 <div className="row">

@@ -38,7 +38,7 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
     }
     
     return (
-        <div className={`${props.bgColorClass} shadow-sm rounded my-2 w-100`}>
+        <div className={`${props.bgColorClass} shadow-sm rounded my-1 w-100`}>
             <div className="row">
 
                 {/* Left column - using d-none to hide one of these two clusters  */}
@@ -108,7 +108,10 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
                 </div>
 
                 <div className="col-lg-3 col-12 d-flex justify-content-center align-items-center px-2 py-3">
-                    <div className="schedule-entry-button font-medium px-3 py-2 rounded text-center" onClick={() => navigate(`/Tournament/${tournament.id}`)}>View Scorecard</div>
+                    {
+                        tournament.isParade ? <></> : 
+                            <div className="schedule-entry-button font-medium px-3 py-2 rounded text-center" onClick={() => navigate(`/Tournament/${tournament.id}`)}>View Scorecard</div>
+                    }
                 </div>
             </div>
 

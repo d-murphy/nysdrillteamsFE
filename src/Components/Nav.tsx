@@ -37,19 +37,33 @@ export default function Nav() {
                 </div>
             </div>
             <div className="nav-bg-color">
-                <div className="container d-flex align-items-center justify-content-center  flex-wrap p-1 hover-nav-font-change ">
-                    <div 
-                        className="d-flex justify-content-center text-center underline-hover mx-4 my-3 px-3 py-2"
-                        onClick={() => navigate("/Schedule")}>Schedule / Results</div>
-                    <div 
-                        className="d-flex justify-content-center text-center underline-hover mx-4 my-3 px-3 py-2"
-                        onClick={() => navigate("/PastSeasons")}>Past Seasons</div>
-                    <div 
-                        className="d-flex justify-content-center text-center underline-hover mx-4 my-3 px-3 py-2"
-                        onClick={() => navigate("/TopRunsAndSearch")}>Top Runs and Search</div>
-                    <div 
-                        className="d-flex justify-content-center text-center underline-hover mx-4 my-3 px-3 py-2"
-                        onClick={() => navigate("/About")}>About</div>
+                <div className="container hover-nav-font-change ">
+                    <div className="row">
+
+                        <div className="col-xl-2"></div>
+                        <div className="col-12 col-md-3 col-xl-2 d-flex justify-content-center text-center">
+                            <div 
+                                className=" underline-hover my-3 px-1 py-2"
+                                onClick={() => navigate("/Schedule")}>Schedule / Results</div>                            
+                        </div>
+                        <div className="col-12 col-md-3 col-xl-2 d-flex justify-content-center text-center ">
+                            <div 
+                                className="underline-hover my-3 px-1 py-2"
+                                onClick={() => navigate("/PastSeasons")}>Past Seasons</div>
+                        </div>
+                        <div className="col-12 col-md-3 col-xl-2 d-flex justify-content-center text-center">
+                            <div 
+                                className="underline-hover my-3 px-1 py-2"
+                                onClick={() => navigate("/TopRunsAndSearch")}>Top Runs and Search</div>
+                        </div>
+                        <div className="col-12 col-md-3 col-xl-2 d-flex justify-content-center">
+                            <div 
+                                className="text-center underline-hover my-3 px-1 py-2"
+                                onClick={() => navigate("/About")}>About</div>
+                        </div>
+                        <div className="col-xl-2"></div>
+
+                    </div>
                 </div>
             </div>
         </div>

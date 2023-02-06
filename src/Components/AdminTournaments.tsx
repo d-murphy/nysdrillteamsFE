@@ -61,7 +61,8 @@ let initialTourn:Tournament = {
     waterTime: '', 
     notes: '', 
     urlToEntryForm: '', 
-    host: ''
+    host: '', 
+    isParade: false
 }
 
 export default function AdminTournaments(props:AdminTournamentProps) {
@@ -333,15 +334,18 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                                 }}
                                                 ><FontAwesomeIcon className="crud-links font-x-large" icon={faPenToSquare} />
                                             </div>
-                                            <div className="pointer col text-center"
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#editRunsModal"
-                                                onClick={()=>{
-                                                    setRunsEditContest(""); 
-                                                    loadTournament(tourn); 
-                                                }}
-                                                ><FontAwesomeIcon className="crud-links font-x-large" icon={faPersonRunning} />
-                                            </div>
+                                            {
+                                                tourn?.isParade ? <div className="col"></div> : 
+                                                <div className="pointer col text-center"
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editRunsModal"
+                                                    onClick={()=>{
+                                                        setRunsEditContest(""); 
+                                                        loadTournament(tourn); 
+                                                    }}
+                                                    ><FontAwesomeIcon className="crud-links font-x-large" icon={faPersonRunning} />
+                                                </div>
+                                            }
                                             {tourn.afterMigrate ? 
                                                 <div className="pointer col text-center"
                                                     data-bs-toggle="modal" 
@@ -534,6 +538,20 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                     </div>
                                 </div>
                                 <TournVideos tournInReview={tournInReview} setTournInReview={setTournInReview}/>
+                            </div>
+                            <div className="row my-4">
+                                <div className="col-6 d-flex flex-column align-items-center">
+                                    <div>Is this a Parade?</div>
+                                    <div>
+                                        <input className="form-check-input" type="checkbox" id="isParade" name="sanctioned" checked={tournInReview?.isParade} onChange={handleCheck} disabled={!isAdmin}></input>
+                                    </div>
+                                </div>
+                                <div className="col-6 d-flex flex-column align-items-center">
+                                    {
+                                        !tournInReview.isParade ? <></> :
+                                         <div className="text-center"><i>Don't select any Total Points regions for parades, but you're welcome to use the Schedule regions.</i></div>
+                                    }
+                                </div>
                             </div>
 
 

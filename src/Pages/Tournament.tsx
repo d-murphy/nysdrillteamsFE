@@ -77,8 +77,8 @@ export default function Schedule() {
                 </div>
                 {
                 !Object.keys(tournament.runningOrder).length  && !runs.length? 
-                    <div className="row bg-white my-1 shadow-sm rounded p-5 d-flex justify-content-center">The lineup for the drill is not yet available.</div> : 
-                    <div className="row bg-white my-1 shadow-sm rounded p-2 ">
+                    <div className="row bg-white my-1 shadow-sm rounded p-5 d-flex justify-content-center shadow-sm">The lineup for the drill is not yet available.</div> : 
+                    <div className="row bg-white my-1 shadow-sm rounded p-2 shadow-sm">
                         <div className="row">
                             <div className="col-1"></div>
                             <div className={`scorecard-type col-4 text-center p-2 ${view == 'scorecard' ? "border-bottom" : ""} `} onClick={()=>{setView('scorecard')}}>Scorecard View</div>

@@ -52,9 +52,9 @@ export default function RunsFilter(props:RunsFilterProp) {
     return (
         <div>
             <div className="row">
-                <div className="col-2"></div>
-                <div className="col-8 text-center my-4"><h3>Top Runs in Each Contest</h3></div>
-                <div className="col-2 d-flex justify-content-center align-items-center">
+                <div className="col-0 col-md-2"></div>
+                <div className="col-12 col-md-8 text-center my-4"><h3>Top Runs in Each Contest</h3></div>
+                <div className="col-12 col-md-2 d-flex justify-content-center align-items-center">
                     <div className="my-3">
                         <button data-type="button" data-bs-toggle="collapse" data-bs-target="#toggleFilter" className="btn filter-icon-bg d-flex flex-column justify-content-center align-items-center">
                             <FontAwesomeIcon icon={faFilter} size="2x" className="mx-4 my-2"/> 
@@ -66,7 +66,7 @@ export default function RunsFilter(props:RunsFilterProp) {
 
             <div className="collapse" id="toggleFilter">
                 {/* <div className="card card-body mx-1 filter-bg border-0"> */}
-                <div className="card card-body mx-1 mb-3">
+                <div className="card card-body mx-1 mb-3 shadow-sm">
                     {
                         !filterValsLoaded ? 
                             <div className="row mt-1 mb-5">

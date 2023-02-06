@@ -31,7 +31,8 @@ export type Tournament = {
     afterMigrate?: true, 
     urlToEntryForm?: string,
     notes?: string, 
-    host?: string
+    host?: string, 
+    isParade?: boolean
 }
 
 export type Run = {

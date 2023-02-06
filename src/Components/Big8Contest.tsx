@@ -23,7 +23,7 @@ export default function Big8Contest(props:Big8ContestProp) {
 
      return (
         <div className="col-xs-12 col-sm-3 col-xxl">
-            <div className="big8-bg rounded d-flex flex-column align-items-center justify-content-start text-center py-1 px-2 h-100" > 
+            <div className="big8-bg rounded shadow-sm d-flex flex-column align-items-center justify-content-start text-center py-1 px-2 h-100" > 
                 <div className="text-center text-nowrap text-truncate h5 w-100">{run?.contest ? run.contest == 'Three Man Ladder' ? '3 Man Ladder' : run.contest : ''}</div>
                 <div className="d-flex flex-column align-items-center justify-content-center">
                         <SizedImage imageSrc={getImgLocation(run.team)} size="md"/> 

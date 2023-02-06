@@ -203,7 +203,7 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
         <div className="d-flex justify-content-center flex-wrap align-content-center mt-4 mb-3 px-5">
             {
                 tournament.contests.map(contest => {
-                    return <div className={`${contestSelected == contest.name ? "contest-selected" : "contest-not-selected" } m-1 px-3 py-2 rounded`} onClick={() => setContestSelected(contest)}>{contest.name}</div>
+                    return <div className={`${contestSelected == contest.name ? "contest-selected" : "contest-not-selected" } m-1 px-3 py-2 rounded text-center`} onClick={() => setContestSelected(contest)}>{contest.name}</div>
                 })
             }
         </div>
@@ -212,20 +212,22 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
         runsToShow.length ? 
             <div className="border bg-light rounded pt-2 pb-3">
                 <div className="row py-3">
-                    <div className="col-6 font-x-large text-center">Team</div>
-                    <div className="col-3 font-x-large text-center">Time</div>
-                    <div className="col-3 font-x-large text-center">Points</div>
+                    <div className="col-6 font-x-large text-center text-nowrap text-truncate">Team</div>
+                    <div className="col-3 font-x-large text-center text-nowrap text-truncate">Time</div>
+                    <div className="col-3 font-x-large text-center text-nowrap text-truncate">Pts</div>
                 </div>
 
                 {runsToShow.map(run => {
                     return (
                         <div className="row pb-1">
-                            <div className="col-6 text-center font-large text-nowrap text-truncate">
+                            <div className="col-6">
+                                <div className="text-left mx-1 font-large text-nowrap text-truncate">
                                 {`${run.team}`}
                                 {run.runningPosition ? <span className="ms-2 font-medium text-secondary">{`#${less100 ? run.runningPosition - 100 : run.runningPosition}`}</span>  : <></>} 
+                                </div>
                             </div>
                             <div className="col-3 font-large d-flex justify-content-center">
-                                    <div className="">
+                                    <div className="text-center mx-1">
                                         {run.time ? niceTime(run.time) : '--'}
                                         <span className="ms-2">
                                             {
@@ -237,7 +239,9 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
                                         </span>
                                     </div>
                             </div>
-                            <div className="col-3 text-center font-large">{run?.points ? run.points : "" }</div>
+                            <div className="col-3">
+                                <div className="text-center font-large">{run?.points ? run.points : "" }</div>
+                            </div>
                         </div>
                     )
                 })}

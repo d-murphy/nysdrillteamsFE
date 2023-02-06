@@ -42,7 +42,7 @@ export default function Big8(props:Big8Prop) {
 
     if(!isLoading){
         content = (
-            <div className="col d-flex flex-column align-items-start p-3 m-2 ">
+            <div className="col d-flex flex-column align-items-start py-3 m-2 ">
                 <p><span className="h4 me-3">The Big 8</span>{`Top times from ${big8Year}'s motorized teams.`}</p>
                 <div className="row w-100 g-1">
                     <Big8Contest run={getRun("Three Man Ladder", big8)} />

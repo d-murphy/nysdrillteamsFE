@@ -14,12 +14,13 @@ export default function PastSeasons() {
 
     const fetchTournamentsCts = () => {
 
+        const yearFilter = new Date().getMonth() >= 6 ? new Date().getFullYear() : new Date().getFullYear() - 1; 
 
         fetch(`${SERVICE_URL}/tournaments/getTournsCtByYear`)
         .then(response => response.json())
         .then(data => {
             data = data.filter((el: {_id: number, yearCount: number}) => {
-                return el._id && el._id <= new Date().getFullYear(); 
+                return el._id && el._id <= yearFilter;  
             })
             setTournYearCts(data); 
             setLoading(false);
@@ -66,7 +67,7 @@ export default function PastSeasons() {
                 <div className="d-flex flex-wrap justify-content-center align-items-center mt-4 mb-3 px-5">
                     {tournYrCts.map(el => {
                         return (
-                            <div className="btn btn-light m-2 py-2 year-count-width" onClick={() => {navigate(`/Season/${el._id}`)}}>
+                            <div className="btn btn-light m-2 py-2 year-count-width shadow-sm" onClick={() => {navigate(`/Season/${el._id}`)}}>
                                 <h5>{el._id}</h5>
                                 <div>{el.yearCount} Events</div>
                             </div>
