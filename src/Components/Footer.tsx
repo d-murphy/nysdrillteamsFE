@@ -7,7 +7,7 @@ export default function Nav() {
     return (
         <div className="footer">
             <div className="d-flex justify-content-end p-3 ">
-                <span className="underline-hover"  onClick={() => navigate("/login")}>Admins</span>
+                <span className="underline-hover-ft"  onClick={() => navigate("/login")}>Admins</span>
             </div>
         </div>
     );

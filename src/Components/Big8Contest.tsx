@@ -9,6 +9,7 @@ import { SizedImage } from "./SizedImage";
 import getImgLocation from "../utils/imgLU";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faVideo } from '@fortawesome/free-solid-svg-icons'; 
+import StateRecordIcon from "./StateRecordIcon";
 
 
 
@@ -47,6 +48,10 @@ export default function Big8Contest(props:Big8ContestProp) {
                                         <span className="ms-2">
                                             <a href={run.urls[0]} target="_blank"><FontAwesomeIcon className="video-links" icon={faVideo} size="sm" /></a>
                                         </span> : <></>
+                                }
+                                {
+                                    run?.stateRecord || run?.currentStateRecord ? 
+                                        <span className="ms-1"><StateRecordIcon run={run} size="sm" /></span> : <></>
                                 }
                             </div>
                         </div>

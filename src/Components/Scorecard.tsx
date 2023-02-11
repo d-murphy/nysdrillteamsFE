@@ -3,6 +3,7 @@ import * as React from "react";
 import { Tournament, Run } from "../types/types"; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faVideo } from '@fortawesome/free-solid-svg-icons'
+import StateRecordIcon from "./StateRecordIcon"
 
 import { niceTime } from '../utils/timeUtils'; 
 
@@ -166,6 +167,10 @@ function TimeCellContents (props:TimeCellContentsProps){
             { run.urls.length ? 
                 <span className="me-3"><a href={run.urls[0]} target="_blank"><FontAwesomeIcon className="video-links" icon={faVideo} size="sm"/></a></span> : <></> }
             <span>{niceTime(run.time)}</span> 
+            {
+                run?.stateRecord || run?.currentStateRecord ? 
+                    <span  className="ms-3"><StateRecordIcon run={run} size="sm" /></span> : <></>
+            }
         </>     
     )
 }

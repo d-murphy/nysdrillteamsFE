@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 import { Run } from "../types/types"; 
 import dateUtil from "../utils/dateUtils"; 
+import StateRecordIcon from "./StateRecordIcon";
 
 interface TopRunsContestProp {
     runs: Run[]
@@ -29,7 +30,8 @@ export default function TopRunsContest(props:TopRunsContestProp) {
                     return (
                         <div className="row border-top py-2">
                             <div className="col-3 d-flex align-items-center justify-content-center">
-                                <h4><b>{niceTime(el.timeNum)}</b></h4>
+                                <div className="font-x-large mx-1"><b>{niceTime(el.timeNum)}</b></div>
+                                <span className="mx-1"><StateRecordIcon run={el} size="lg" /></span>
                             </div>
                             <div className="col-2">
                                 <div className="h-100 d-flex justify-content-center align-items-center">

@@ -44,7 +44,7 @@ export default function Big8(props:Big8Prop) {
         content = (
             <div className="col d-flex flex-column align-items-start py-3 m-2 ">
                 <p><span className="h4 me-3">The Big 8</span>{`Top times from ${big8Year}'s motorized teams.`}</p>
-                <div className="row w-100 g-1">
+                <div className="row w-100 g-2">
                     <Big8Contest run={getRun("Three Man Ladder", big8)} />
                     <Big8Contest run={getRun("B Ladder", big8)} />
                     <Big8Contest run={getRun("C Ladder", big8)} />
@@ -60,7 +60,7 @@ export default function Big8(props:Big8Prop) {
         content = (
             <div className="col d-flex flex-column align-items-start p-3 m-2 ">
                 <p><span className="h4 me-3">The Big 8</span>{`Top times from ${big8Year}'s motorized teams.`}</p>
-                <div className="row w-100 g-1">
+                <div className="row w-100 g-2">
                     <Big8ContestLoading />
                     <Big8ContestLoading />
                     <Big8ContestLoading />

@@ -8,6 +8,7 @@ import { Tournament, Run } from "../types/types";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faVideo } from '@fortawesome/free-solid-svg-icons'
 import { niceTime } from "../utils/timeUtils";
+import StateRecordIcon from "./StateRecordIcon";
 
 interface SortedViewProp {
     tournament: Tournament;
@@ -151,6 +152,10 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
                                                     }
                                                     { runsLU[key]?.time ? niceTime(runsLU[key].time) : "--" } / 
                                                     { runsLU[key]?.points ? runsLU[key].points : "" } 
+                                                    {
+                                                        runsLU[key]?.stateRecord || runsLU[key]?.currentStateRecord ? 
+                                                            <span  className="ms-2"><StateRecordIcon run={runsLU[key]} size="sm" /></span> : <></>
+                                                    }
                                                 </div>
                                             </div>
                                         </div>
@@ -229,8 +234,7 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
                             </div>
                             <div className="col-3 font-large d-flex justify-content-center">
                                     <div className="text-center mx-1">
-                                        {run.time ? niceTime(run.time) : '--'}
-                                        <span className="ms-2">
+                                        <span className="me-2">
                                             {
                                                 run?.urls.length ? 
                                                     <span>
@@ -238,6 +242,8 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
                                                     </span> : <></>
                                             }
                                         </span>
+                                        {run.time ? niceTime(run.time) : '--'}
+                                        <span  className="ms-2"><StateRecordIcon run={run} size="sm" /></span>
                                     </div>
                             </div>
                             <div className="col-3">
