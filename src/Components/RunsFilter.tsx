@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faX } from '@fortawesome/free-solid-svg-icons'; 
 import { Team, Track } from "../types/types";
 import ContestOptions from "./adminTournamentsComps/ContestOptions";
+import { Form } from "react-bootstrap";
 
 declare var SERVICE_URL: string;
 
@@ -17,6 +18,7 @@ interface RunsFilterProp {
     setContests: React.Dispatch<SetStateAction<string[]>>
     setPositions: React.Dispatch<SetStateAction<number[]>>
     setLoading: React.Dispatch<SetStateAction<boolean>>
+    setBooleanSearchElms: React.Dispatch<SetStateAction<{}>>
     setSearchParams: (nextInit: URLSearchParamsInit, navigateOptions?: {
         replace?: boolean;
         state?: any;
@@ -37,12 +39,32 @@ export default function RunsFilter(props:RunsFilterProp) {
     const [tracksSelected, setTrackSelected] = useState<string[]>([]); 
     const [contestsSelected, setContestsSelected] = useState<string[]>([]); 
     const [positionsSelected, setPositionsSelected] = useState<number[]>([]); 
+    const [booleanSearchElms, setBooleanSearchElms] = useState<{
+        suffolkPoints?: boolean, 
+        nassauPoints?: boolean, 
+        westernPoints?: boolean, 
+        northernPoints?: boolean, 
+        nassauOfPoints?: boolean, 
+        suffolkOfPoints?: boolean, 
+        liOfPoints?: boolean, 
+        juniorPoints?: boolean, 
+        sanctioned?: boolean
+    }>({}); 
 
     useEffect(() => {
         getAllItemsForFilter().then(()=> {
             setFilterValsLoaded(true); 
         })
     }, []); 
+
+    function handleCheck(e:React.ChangeEvent<HTMLInputElement>){
+        setBooleanSearchElms({
+            ...booleanSearchElms, 
+            [e.target.id]: e.target.checked
+        })
+
+        console.log(booleanSearchElms)
+    }
 
     const handleSubmit = () => {
         props.setLoading(true); 
@@ -52,13 +74,34 @@ export default function RunsFilter(props:RunsFilterProp) {
         props.setTracks(tracksSelected); 
         props.setContests(contestsSelected); 
         props.setPositions(positionsSelected); 
-        let paramsObj: {years?:string, teams?: string, tracks?:string, contests?:string, tournaments?: string, positions?: string} = {}; 
+        props.setBooleanSearchElms(booleanSearchElms); 
+        let paramsObj: {
+            years?:string, teams?: string, tracks?:string, contests?:string, tournaments?: string, positions?: string, 
+            suffolkPoints?: string, 
+            nassauPoints?: string, 
+            westernPoints?: string, 
+            northernPoints?: string, 
+            nassauOfPoints?: string, 
+            suffolkOfPoints?: string, 
+            liOfPoints?: string, 
+            juniorPoints?: string, 
+            sanctioned?: string
+        } = {}; 
         if(yearsSelected.length) paramsObj.years = yearsSelected.join(",") 
         if(teamsSelected.length) paramsObj.teams = teamsSelected.join(",")
         if(tracksSelected.length) paramsObj.tracks = tracksSelected.join(",")
         if(contestsSelected.length) paramsObj.contests = contestsSelected.join(","); 
         if(tournamentsSelected.length) paramsObj.tournaments = tournamentsSelected.join(","); 
         if(positionsSelected.length) paramsObj.positions = positionsSelected.join(","); 
+        if(booleanSearchElms?.suffolkPoints) paramsObj.suffolkPoints = "true";  
+        if(booleanSearchElms?.nassauPoints) paramsObj.nassauPoints = "true"; 
+        if(booleanSearchElms?.westernPoints) paramsObj.westernPoints = "true"; 
+        if(booleanSearchElms?.northernPoints) paramsObj.northernPoints = "true"; 
+        if(booleanSearchElms?.suffolkOfPoints) paramsObj.suffolkOfPoints = "true"; 
+        if(booleanSearchElms?.nassauOfPoints) paramsObj.nassauOfPoints = "true"; 
+        if(booleanSearchElms?.liOfPoints) paramsObj.liOfPoints = "true"; 
+        if(booleanSearchElms?.juniorPoints) paramsObj.juniorPoints = "true";  
+        if(booleanSearchElms?.sanctioned) paramsObj.sanctioned = "true"; 
         props.setSearchParams(paramsObj)
     }
 
@@ -167,11 +210,37 @@ export default function RunsFilter(props:RunsFilterProp) {
                             </select>
                         </div>
                     </div>
-                    <div className="d-flex justify-content-center align-items-center mt-5 mb-3">  
-                        <button className="btn filter-submit" onClick={handleSubmit}>
-                            Submit
-                        </button>
+                    <div className="row">
+                        <div className="col-12 col-lg-4">
+                            <div className="d-flex flex-column align-items-center justify-content-center ps-3">
+                                <div className="text-center mb-2">Limit results to a qualifying total points drill? </div>
+                                <div className="d-flex flex-column align-items-start mb-3">
 
+                                    <Form.Switch label='Nassau' id="nassauPoints" defaultChecked={booleanSearchElms?.nassauPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Northern' id="northernPoints" defaultChecked={booleanSearchElms?.northernPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Suffolk' id="suffolkPoints" defaultChecked={booleanSearchElms?.suffolkPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Western' id="westernPoints" defaultChecked={booleanSearchElms?.westernPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Nassau OF' id="nassauOfPoints" defaultChecked={booleanSearchElms?.nassauOfPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Suffolk OF' id="suffolkOfPoints" defaultChecked={booleanSearchElms?.suffolkOfPoints} onChange={handleCheck} />
+                                    <Form.Switch label='LI OF' id="liOfPoints" defaultChecked={booleanSearchElms?.liOfPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Junior' id="juniorPoints" defaultChecked={booleanSearchElms?.juniorPoints} onChange={handleCheck} />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-12 col-lg-4">
+                            <div className="d-flex flex-column align-items-center justify-content-center">
+                                <div className="mb-3">Sanctioned events only?</div>
+                                <Form.Switch label='' id="sanctioned" defaultChecked={booleanSearchElms?.sanctioned} onChange={handleCheck} />
+                            </div>
+                        </div>
+                        <div className="col-12 col-lg-4">
+                            <div className="d-flex justify-content-center align-items-center ">  
+                                <div className="schedule-entry-button font-medium px-3 py-2 rounded text-center" onClick={handleSubmit}>
+                                    Submit Run Search
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
 
 

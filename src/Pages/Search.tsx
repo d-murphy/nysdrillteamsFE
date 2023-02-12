@@ -15,12 +15,14 @@ export default function Search() {
     const [years, setYears] = useState([]); 
     const [contests, setContests] = useState([]); 
     const [positions, setPositions] = useState([]); 
+    const [booleanSearchElms, setBooleanSearchElms] = useState({})
     
     return (
         <div className="container">
             <RunsFilter setLoading={setLoading} setTeams={setTeams} setTracks={setTracks} 
                 setYears={setYears} setSearchParams={setSearchParams} setContests={setContests}
-                setTournaments={setTournaments} setPositions={setPositions} />
+                setTournaments={setTournaments} setPositions={setPositions} setBooleanSearchElms={setBooleanSearchElms}/>
+            <div className="my-5" />
         </div>
     )
 }
