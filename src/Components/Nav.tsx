@@ -54,7 +54,7 @@ export default function Nav() {
                         <div className="col-12 col-md-3 col-xl-2 d-flex justify-content-center text-center">
                             <div 
                                 className="underline-hover my-3 px-1 py-2"
-                                onClick={() => navigate("/TopRunsAndSearch")}>Top Runs and Search</div>
+                                onClick={() => navigate("/TopRuns")}>Top Runs</div>
                         </div>
                         <div className="col-12 col-md-3 col-xl-2 d-flex justify-content-center">
                             <div 

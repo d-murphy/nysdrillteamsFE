@@ -19,8 +19,6 @@ export default function StateRecordIcon(props:StateRecordProps) {
     let msg = run?.currentStateRecord ? "Current State Record" : 
         run?.stateRecord ? "Former State Record" : ""; 
 
-    console.log('here the msg: ', msg); 
-
     //@ts-ignore
     const renderTooltip = (props) => (
         <Tooltip id="button-tooltip" {...props} >{`${msg}!`}</Tooltip>

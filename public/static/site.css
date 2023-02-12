@@ -277,6 +277,15 @@ table {
     min-height: 600px;
 }
 
+.search-select:not(:focus) option:checked {
+    background: var(--bs-gray-200);
+}
+
+.search-select-blank:not(:focus) option:checked {
+    background: white;
+}
+
+
 /* Login */
 
 .login-input {

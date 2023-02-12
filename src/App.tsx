@@ -13,10 +13,11 @@ import Tournament from './Pages/Tournament';
 import Track from './Pages/Track';
 import PastSeasons from "./Pages/PastSeasons";
 import PastSeason from "./Pages/PastSeason"; 
-import RunSearch from "./Pages/RunSearch";
+import TopRuns from "./Pages/TopRuns";
 import Login from './Pages/Login'; 
 import AdminHome from "./Pages/AdminHome";
 import About from "./Pages/About"
+import Search from "./Pages/Search";
   
   
 
@@ -38,10 +39,10 @@ const router = createBrowserRouter([
                 path: "/Tournament/:id", 
                 element: <Tournament />
             }, 
-            {
-                path: "/Track/:trackName", 
-                element: <Track />
-            }, 
+            // {
+            //     path: "/Track/:trackName", 
+            //     element: <Track />
+            // }, 
             {
                 path: "/PastSeasons", 
                 element: <PastSeasons />
@@ -51,9 +52,13 @@ const router = createBrowserRouter([
                 element: <PastSeason />
             }, 
             {
-                path: "/TopRunsAndSearch", 
-                element: <RunSearch />
+                path: "/TopRuns", 
+                element: <TopRuns />
             }, 
+            {
+                path: "/RunSearch", 
+                element: <Search />
+            },
             {
                 path: "/AdminHome", 
                 element: <AdminHome />
