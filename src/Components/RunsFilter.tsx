@@ -62,8 +62,12 @@ export default function RunsFilter(props:RunsFilterProp) {
             ...booleanSearchElms, 
             [e.target.id]: e.target.checked
         })
+    }
 
-        console.log(booleanSearchElms)
+    function disableSubmit(){
+        if(yearsSelected.length || teamsSelected.length || tournamentsSelected.length || 
+            tracksSelected.length || contestsSelected.length || positionsSelected.length) return false; 
+        return true; 
     }
 
     const handleSubmit = () => {
@@ -229,17 +233,18 @@ export default function RunsFilter(props:RunsFilterProp) {
                         </div>
                         <div className="col-12 col-lg-4">
                             <div className="d-flex flex-column align-items-center justify-content-center">
-                                <div className="mb-3">Sanctioned events only?</div>
+                                <div className="mb-2">Sanctioned events only?</div>
                                 <Form.Switch label='' id="sanctioned" defaultChecked={booleanSearchElms?.sanctioned} onChange={handleCheck} />
                             </div>
                         </div>
                         <div className="col-12 col-lg-4">
-                            <div className="d-flex justify-content-center align-items-center ">  
-                                <div className="schedule-entry-button font-medium px-3 py-2 rounded text-center" onClick={handleSubmit}>
-                                    Submit Run Search
-                                </div>
+                            <div className="d-flex flex-column justify-content-center align-items-center">
+                                <button type="button" onClick={handleSubmit} disabled={disableSubmit()} className="btn schedule-entry-button font-medium" >Submit Run Search</button>
+                                {
+                                    disableSubmit() ? 
+                                        <div className="font-small mt-3"><i>Please make a selection.</i></div> : <></>
+                                }
                             </div>
-
                         </div>
                     </div>
 
