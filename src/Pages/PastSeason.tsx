@@ -22,13 +22,13 @@ export default function PastSeasons() {
                     <div className="text-left track-name-bg-color track-name-color p-4 mt-3 rounded"><h3>Year in Review: {year}</h3></div>
                 </div>
             </div>
-            <div className="bg-white">
+            <div className="bg-lightgray rounded shadow-sm">
                 <Big8 year={yearNum}/>
             </div>
-            <div className="bg-white">
+            <div className="bg-lightgray rounded shadow-sm">
                 <TotalPoints year={yearNum}/>
             </div>
-            <div className="mt-2 bg-white p-4">
+            <div className="mt-2 bg-lightgray p-4 rounded shadow-sm">
                 <div className="row">
                     <p><span className="h4 me-3">Schedule</span><i></i></p>
                 </div>

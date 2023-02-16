@@ -110,8 +110,8 @@ export default function RunsFilter(props:RunsFilterProp) {
     }
 
     return (
-        <div className="container">
-            <div className="text-center w-100 font-x-large m-2"><b>Run Search</b></div>
+        <div className="mx-2">
+            <div className="text-center w-100 font-x-large mt-2"><b>Run Search</b></div>
             {
             !filterValsLoaded ? 
                 <div className="row mt-1 mb-5">
@@ -120,7 +120,7 @@ export default function RunsFilter(props:RunsFilterProp) {
                     </div>
                 </div>
                 :
-                <div className="mt-3 bg-white rounded shadow-sm">
+                <div className="mt-3 bg-white rounded shadow-sm pb-2">
 
                     <div className="row">
                         <div className="col-12">
@@ -232,13 +232,13 @@ export default function RunsFilter(props:RunsFilterProp) {
                             </div>
                         </div>
                         <div className="col-12 col-lg-4">
-                            <div className="d-flex flex-column align-items-center justify-content-center">
+                            <div className="d-flex flex-column align-items-center justify-content-center mb-3">
                                 <div className="mb-2">Sanctioned events only?</div>
                                 <Form.Switch label='' id="sanctioned" defaultChecked={booleanSearchElms?.sanctioned} onChange={handleCheck} />
                             </div>
                         </div>
                         <div className="col-12 col-lg-4">
-                            <div className="d-flex flex-column justify-content-center align-items-center">
+                            <div className="d-flex flex-column justify-content-center align-items-center mb-3">
                                 <button type="button" onClick={handleSubmit} disabled={disableSubmit()} className="btn schedule-entry-button font-medium" >Submit Run Search</button>
                                 {
                                     disableSubmit() ? 

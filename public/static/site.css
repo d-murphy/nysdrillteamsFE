@@ -46,7 +46,7 @@ html, body, #root {
     background-color: var(--nav-bg-dk)
 }
 
-.nav-bg-color, .schedule-entry-button, .track-name-bg-color, .login-button, .add-entry-button {
+.nav-bg-color, .schedule-entry-button, .track-name-bg-color, .login-button, .add-entry-button, .bg-searchpill-dark {
     background-color: var(--nav-bg);
 }
 
@@ -162,12 +162,12 @@ html, body, #root {
 
 .filter-icon-bg, .filter-icon-bg:hover {
     background-color: white;
-    color: var(--nav-bg)
+    color: var(--nav-bg); 
     border-radius: 25px;
 }
 
 .filter-submit {
-    background-color: var(--nav-bg)
+    background-color: var(--nav-bg); 
     color: white; 
 }
 
@@ -183,9 +183,21 @@ html, body, #root {
 
 /* Tournament */
 
-.video-links, .map-location-links, .crud-links {
+.video-links, .map-location-links, .crud-links, .filter-next {
     text-decoration: none;
     color: var(--nav-bg)
+}
+
+.filter-next {
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.filter-next:hover {
+    color: var(--nav-bg-dk); 
+    background-color: var(--bs-gray-100); 
+    border-radius: 5px;
+    padding: 5px;
 }
 
 .current-record {
@@ -266,6 +278,11 @@ table {
 .track-img-height {
     min-height: 500px; 
     height: 100%; 
+}
+
+/* Past Season */
+.bg-lightgray {
+    background-color: var(--bs-gray-300);
 }
 
 /* Run Search */

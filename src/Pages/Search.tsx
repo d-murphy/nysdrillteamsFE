@@ -11,10 +11,11 @@ const PAGE_LEN = 20;
 export default function Search() {
 
     const [searchParams, setSearchParams] = useSearchParams();
-    const [loading, setLoading] = useState(false); 
+    const [loading, setLoading] = useState(true); 
     const [error, setError] = useState(false); 
     const [results, setResults] = useState<Run[]>([]); 
     const [page, setPage] = useState<number>(1);
+    const [totalCt, setTotalCt] = useState<number>(0); 
     const [maxPage, setMaxPage] = useState<number>(1); 
 
     const [teams, setTeams] = useState([]); 
@@ -41,6 +42,7 @@ export default function Search() {
             }
         })
         if(!url.split("?")[1].length) return 
+        url += "&page=" + page; 
         console.log('checking url: ', url); 
         fetch(url)
             .then(response => response.json())
@@ -49,6 +51,7 @@ export default function Search() {
                 setResults(data); 
                 console.log('here metadata: ', metadata); 
                 setPage(metadata[0].page); 
+                setTotalCt(metadata[0].total)
                 const maxPage = Math.ceil(metadata[0].total / PAGE_LEN); 
                 setMaxPage(maxPage); 
                 setLoading(false); 
@@ -59,7 +62,7 @@ export default function Search() {
                 setLoading(false); 
             })
 
-    }, [teams, tournaments, tracks, years, contests, positions, booleanSearchElms])
+    }, [teams, tournaments, tracks, years, contests, positions, booleanSearchElms, page])
 
     if(error) return (
         <div className="container">
@@ -72,7 +75,7 @@ export default function Search() {
                 <RunsFilter setLoading={setLoading} setTeams={setTeams} setTracks={setTracks} 
                     setYears={setYears} setSearchParams={setSearchParams} setContests={setContests}
                     setTournaments={setTournaments} setPositions={setPositions} setBooleanSearchElms={setBooleanSearchElms}/>
-                <RunFilterResults runs={results} page={page} maxPage={maxPage} />
+                <RunFilterResults runs={results} page={page} maxPage={maxPage} totalCt={totalCt} setPage={setPage} loading={loading}/>
             </div>
     )
 }
