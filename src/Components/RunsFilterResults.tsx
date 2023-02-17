@@ -15,6 +15,7 @@ interface RunFilterResultsProps {
     totalCt: number;
     setPage: React.Dispatch<React.SetStateAction<number>>; 
     loading: boolean; 
+    noResults: boolean; 
 }
 
 export default function RunFilterResults(props:RunFilterResultsProps) {
@@ -24,10 +25,12 @@ export default function RunFilterResults(props:RunFilterResultsProps) {
     const totalCt = props.totalCt; 
     const setPage = props.setPage; 
     const loading = props.loading; 
+    const noResults = props.noResults; 
 
     const navigate = useNavigate(); 
     
     if(loading) return <div className="my-3 min-loading-height"></div>
+    if(noResults) return <div className="bg-white rounded m-2 p-3 text-center">No results from this search.</div>
 
     return (
         <div className="bg-white rounded m-2 p-3">
@@ -48,16 +51,13 @@ export default function RunFilterResults(props:RunFilterResultsProps) {
 
             <div className="row border-bottom mx-2 my-1">
 
-                <div className="d-xl-block d-none col-2">
-                    <b>Date</b>
+                <div className="d-xl-block d-none col-4">
+                    <b>Date - Tournament</b>
                 </div>
                 <div className="d-xl-block d-none col-3">
                     <b>Team</b>
                 </div>
-                <div className="d-xl-block d-none col-3">
-                    <b>Tournament</b>
-                </div>
-                <div className="d-xl-block d-none col-1">
+                <div className="d-xl-block d-none col-2">
                     <div className="d-flex justify-content-start align-items-start h-100">
                         <b>Time</b>
                     </div>
@@ -79,35 +79,30 @@ export default function RunFilterResults(props:RunFilterResultsProps) {
                         return (
                             <div className="row border-bottom mx-2 my-1">
 
+                                <div className="d-xl-block d-none col-4">
+                                    <span className="pointer" onClick={() => { 
+                                            navigate(`/Tournament/${run.tournamentId}`)
+                                        }}>
+                                            {dateUtil.getMMDDYYYY(run.date)} - {run.tournament} @ {run.track}
+                                    </span>
+                                </div>
+                                <div className="d-block d-xl-none col-12 text-center">
+                                    {dateUtil.getMMDDYYYY(run.date)}
+                                </div>
+                                <div className="d-block d-xl-none col-12 text-center">
+                                    <span className="pointer" onClick={() => { 
+                                            navigate(`/Tournament/${run.tournamentId}`)
+                                        }}>{run.tournament} @ {run.track}</span>
+                                </div>
+
+                                <div className="d-xl-block d-none col-3">
+                                    {run.team}
+                                </div>
+                                <div className="d-block d-xl-none col-12 text-center">
+                                    {run.team}
+                                </div>
+
                                 <div className="d-xl-block d-none col-2">
-                                    {dateUtil.getMMDDYYYY(run.date)}
-                                </div>
-                                <div className="d-block d-xl-none col-12 text-center">
-                                    {dateUtil.getMMDDYYYY(run.date)}
-                                </div>
-
-
-                                <div className="d-xl-block d-none col-3">
-                                    {run.team}
-                                </div>
-                                <div className="d-block d-xl-none col-12 text-center">
-                                    {run.team}
-                                </div>
-
-
-                                <div className="d-xl-block d-none col-3">
-                                    <span className="pointer" onClick={() => { 
-                                            navigate(`/Tournament/${run.tournamentId}`)
-                                        }}>{run.tournament} @ {run.track}</span>
-                                </div>
-                                <div className="d-block d-xl-none col-12 text-center">
-                                    <span className="pointer" onClick={() => { 
-                                            navigate(`/Tournament/${run.tournamentId}`)
-                                        }}>{run.tournament} @ {run.track}</span>
-                                </div>
-
-
-                                <div className="d-xl-block d-none col-1">
                                     <div className="d-flex justify-content-start align-items-start h-100">
                                         <span className="">{niceTime(run.time)} </span>
                                         {   

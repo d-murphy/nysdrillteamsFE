@@ -46,15 +46,15 @@ html, body, #root {
     background-color: var(--nav-bg-dk)
 }
 
-.nav-bg-color, .schedule-entry-button, .track-name-bg-color, .login-button, .add-entry-button, .bg-searchpill-dark {
+.nav-bg-color, .schedule-entry-button, .track-name-bg-color, .login-button, .add-entry-button, .bg-searchpill-dark, .submit-search-button {
     background-color: var(--nav-bg);
 }
 
-.hover-nav-font-change, .schedule-entry-button, .track-name-color, .login-button, .login-button:hover, .add-entry-button, .add-entry-button:hover {
+.hover-nav-font-change, .schedule-entry-button, .track-name-color, .login-button, .login-button:hover, .add-entry-button, .add-entry-button:hover, .submit-search-button {
     color: var(--bs-white)
 }
 
-.schedule-entry-button:hover, .login-button:hover, .add-entry-button:hover {
+.schedule-entry-button:hover, .login-button:hover, .add-entry-button:hover, .submit-search-button:hover {
     opacity: 80%;
     cursor: pointer;
 }
@@ -114,7 +114,7 @@ html, body, #root {
   }
 
 .live-stream-planned {
-    background-color: var(--nav-bg)
+    background-color: var(--nav-bg); 
     padding: 5px;
     border-radius: 5px;
     color: white; 
@@ -300,6 +300,16 @@ table {
 
 .search-select-blank:not(:focus) option:checked {
     background: white;
+}
+
+.clear-search-button {
+    background-color: var(--button-blue); 
+    color: white; 
+}
+
+.clear-search-button:hover {
+    opacity: 80%;
+    cursor: pointer;
 }
 
 

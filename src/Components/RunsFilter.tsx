@@ -23,6 +23,7 @@ interface RunsFilterProp {
         replace?: boolean;
         state?: any;
     }) => void
+    searchParams: any
 }
 
 export default function RunsFilter(props:RunsFilterProp) {
@@ -39,7 +40,7 @@ export default function RunsFilter(props:RunsFilterProp) {
     const [tracksSelected, setTrackSelected] = useState<string[]>([]); 
     const [contestsSelected, setContestsSelected] = useState<string[]>([]); 
     const [positionsSelected, setPositionsSelected] = useState<number[]>([]); 
-    const [booleanSearchElms, setBooleanSearchElms] = useState<{
+    const [booleansSelected, setBooleansSelected] = useState<{
         suffolkPoints?: boolean, 
         nassauPoints?: boolean, 
         westernPoints?: boolean, 
@@ -50,16 +51,45 @@ export default function RunsFilter(props:RunsFilterProp) {
         juniorPoints?: boolean, 
         sanctioned?: boolean
     }>({}); 
+    const searchParams = props.searchParams; 
 
+    // update filters with url params
     useEffect(() => {
         getAllItemsForFilter().then(()=> {
             setFilterValsLoaded(true); 
+            setYearsSelected(searchParams.getAll('years'))
+            setTeamsSelected(searchParams.getAll('teams'))
+            setTrackSelected(searchParams.getAll('tracks'))
+            setTournamentsSelected(searchParams.getAll('tournaments'))
+            setContestsSelected(searchParams.getAll('contests'))
+            setPositionsSelected(searchParams.getAll('positions'));   
+
+            // const bseFromParams = {
+            //     suffolkPoints: extractBool(searchParams, 'suffolkPoints'),
+            //     nassauPoints: extractBool(searchParams, 'nassauPoints'),
+            //     westernPoints: extractBool(searchParams, 'westernPoints'),
+            //     northernPoints: extractBool(searchParams, 'northernPoints'),
+            //     suffolkOfPoints: extractBool(searchParams, 'suffolkOfPoints'),
+            //     nassauOfPoints: extractBool(searchParams, 'nassauOfPoints'),
+            //     liOfPoints: extractBool(searchParams, 'liOfPoints'),
+            //     juniorPoints: extractBool(searchParams, 'juniorPoints'),
+            //     sanctioned: extractBool(searchParams, 'sanctioned'),   
+            // }
+            // setBooleansSelected(bseFromParams);     
         })
+
     }, []); 
 
+    function extractBool(searchParams: URLSearchParams, name:string){
+        const valsArr = searchParams.getAll(name)
+        const val = valsArr.length ? valsArr[0] : ''; 
+        return val === 'true'; 
+    }
+
     function handleCheck(e:React.ChangeEvent<HTMLInputElement>){
-        setBooleanSearchElms({
-            ...booleanSearchElms, 
+        setBooleansSelected({
+            ...booleansSelected, 
+            //@ts-ignore
             [e.target.id]: e.target.checked
         })
     }
@@ -70,6 +100,16 @@ export default function RunsFilter(props:RunsFilterProp) {
         return true; 
     }
 
+    function clearFilters(){
+        setYearsSelected([]); 
+        setTeamsSelected([]); 
+        setTournamentsSelected([]); 
+        setTrackSelected([])
+        setContestsSelected([])
+        setPositionsSelected([])
+        setBooleansSelected({})
+    }
+
     const handleSubmit = () => {
         props.setLoading(true); 
         props.setYears(yearsSelected); 
@@ -78,7 +118,7 @@ export default function RunsFilter(props:RunsFilterProp) {
         props.setTracks(tracksSelected); 
         props.setContests(contestsSelected); 
         props.setPositions(positionsSelected); 
-        props.setBooleanSearchElms(booleanSearchElms); 
+        props.setBooleanSearchElms(booleansSelected); 
         let paramsObj: {
             years?:string, teams?: string, tracks?:string, contests?:string, tournaments?: string, positions?: string, 
             suffolkPoints?: string, 
@@ -97,16 +137,7 @@ export default function RunsFilter(props:RunsFilterProp) {
         if(contestsSelected.length) paramsObj.contests = contestsSelected.join(","); 
         if(tournamentsSelected.length) paramsObj.tournaments = tournamentsSelected.join(","); 
         if(positionsSelected.length) paramsObj.positions = positionsSelected.join(","); 
-        if(booleanSearchElms?.suffolkPoints) paramsObj.suffolkPoints = "true";  
-        if(booleanSearchElms?.nassauPoints) paramsObj.nassauPoints = "true"; 
-        if(booleanSearchElms?.westernPoints) paramsObj.westernPoints = "true"; 
-        if(booleanSearchElms?.northernPoints) paramsObj.northernPoints = "true"; 
-        if(booleanSearchElms?.suffolkOfPoints) paramsObj.suffolkOfPoints = "true"; 
-        if(booleanSearchElms?.nassauOfPoints) paramsObj.nassauOfPoints = "true"; 
-        if(booleanSearchElms?.liOfPoints) paramsObj.liOfPoints = "true"; 
-        if(booleanSearchElms?.juniorPoints) paramsObj.juniorPoints = "true";  
-        if(booleanSearchElms?.sanctioned) paramsObj.sanctioned = "true"; 
-        props.setSearchParams(paramsObj)
+        props.setSearchParams({...paramsObj}); 
     }
 
     return (
@@ -136,8 +167,16 @@ export default function RunsFilter(props:RunsFilterProp) {
                                 <label htmlFor="contestsFilter" className="form-label mt-2">Contests</label>
                                 <span className="ms-3" ><ClearSelect arr={contestsSelected} stateSetter={setContestsSelected}/></span>
                             </div>
-                            <select className={`form-control ${contestsSelected.length? 'search-select' : 'search-select-blank'}`} id="contestsFilter" multiple
-                                onChange={(e) => {handleMultiSelect<string>(e, setContestsSelected)}}>
+                            <select className={`form-control ${contestsSelected.length? 'search-select' : 'search-select-blank'}`} id="contestsFilter"
+                                multiple={true}
+                                value={contestsSelected}
+                                onChange={(e) => {
+                                    //@ts-ignore
+                                    const options = [...e.target.selectedOptions];
+                                    const values = options.map(option => option.value);
+                                    setContestsSelected(values);
+                                }                                
+                            }>
                                 <ContestOptions />
                             </select>
                         </div>
@@ -147,8 +186,16 @@ export default function RunsFilter(props:RunsFilterProp) {
                                 <label htmlFor="positionsFilter" className="form-label mt-2">Position</label>
                                 <span className="ms-3" ><ClearSelect arr={positionsSelected} stateSetter={setPositionsSelected}/></span>
                             </div>
-                            <select className={`form-control ${positionsSelected.length? 'search-select' : 'search-select-blank'}`} id="positionsFilter" multiple
-                                onChange={(e) => {handleMultiSelect<number>(e, setPositionsSelected)}}>
+                            <select className={`form-control ${positionsSelected.length? 'search-select' : 'search-select-blank'}`} id="positionsFilter" 
+                                    multiple={true}
+                                    value={positionsSelected.map(e => String(e))}
+                                    onChange={(e) => {
+                                        //@ts-ignore
+                                        const options = [...e.target.selectedOptions];
+                                        const values = options.map(option => option.value);
+                                        setPositionsSelected(values);
+                                    }
+                                }>
                                     <option value={1}>1st Place</option>
                                     <option value={2}>2nd Place</option>
                                     <option value={3}>3rd Place</option>
@@ -162,8 +209,16 @@ export default function RunsFilter(props:RunsFilterProp) {
                                 <label htmlFor="teamsFilter" className="form-label mt-2">Teams</label>
                                 <span className="ms-3" ><ClearSelect arr={teamsSelected} stateSetter={setTeamsSelected}/></span>
                             </div>
-                            <select className={`form-control ${teamsSelected.length? 'search-select' : 'search-select-blank'}`} id="teamsFilter" multiple
-                                onChange={(e) => {handleMultiSelect<string>(e, setTeamsSelected)}}>
+                            <select className={`form-control ${teamsSelected.length? 'search-select' : 'search-select-blank'}`} id="teamsFilter"
+                                multiple={true}
+                                value={teamsSelected}
+                                onChange={(e) => {
+                                    //@ts-ignore
+                                    const options = [...e.target.selectedOptions];
+                                    const values = options.map(option => option.value);
+                                    setTeamsSelected(values);
+                                }
+                            }>
                                 {
                                     teamsForFilter.map(el => {
                                         return <option value={el}>{el}</option>
@@ -176,8 +231,16 @@ export default function RunsFilter(props:RunsFilterProp) {
                                 <label htmlFor="tournamentsFilter" className="form-label mt-2">Tournaments</label>
                                 <span className="ms-3" ><ClearSelect arr={tournamentsSelected} stateSetter={setTournamentsSelected}/></span>
                             </div>
-                            <select className={`form-control ${tournamentsSelected.length? 'search-select' : 'search-select-blank'}`} id="tournamentsFilter" multiple
-                                onChange={(e) => {handleMultiSelect<string>(e, setTournamentsSelected)}}>
+                            <select className={`form-control ${tournamentsSelected.length? 'search-select' : 'search-select-blank'}`} id="tournamentsFilter" 
+                                multiple={true}
+                                value={tournamentsSelected}
+                                onChange={(e) => {
+                                    //@ts-ignore
+                                    const options = [...e.target.selectedOptions];
+                                    const values = options.map(option => option.value);
+                                    setTournamentsSelected(values);
+                                }
+                            }>
                                 {
                                     tournamentsForFilter.map(el => {
                                         return <option value={el}>{el}</option>
@@ -190,8 +253,16 @@ export default function RunsFilter(props:RunsFilterProp) {
                                 <label htmlFor="tracksFilter" className="form-label mt-2">Tracks</label>
                                 <span className="ms-3" ><ClearSelect arr={tracksSelected} stateSetter={setTrackSelected}/></span>
                             </div>
-                            <select className={`form-control ${tracksSelected.length? 'search-select' : 'search-select-blank'}`} id="tracksFilter" multiple value={tracksSelected}
-                                onChange={(e) => {handleMultiSelect<string>(e, setTrackSelected)}}>
+                            <select className={`form-control ${tracksSelected.length? 'search-select' : 'search-select-blank'}`} id="tracksFilter"
+                                multiple={true}
+                                value={tracksSelected}
+                                onChange={(e) => {
+                                    //@ts-ignore
+                                    const options = [...e.target.selectedOptions];
+                                    const values = options.map(option => option.value);
+                                    setTrackSelected(values);
+                                }
+                            }>
                                 {
                                     tracksForFilter.map(el => {
                                         return <option value={el}>{el}</option>
@@ -204,8 +275,16 @@ export default function RunsFilter(props:RunsFilterProp) {
                                 <label htmlFor="yearsFilter" className="form-label mt-2">Years</label>
                                 <span className="ms-3" ><ClearSelect arr={yearsSelected} stateSetter={setYearsSelected}/></span>
                             </div>
-                            <select className={`form-control ${yearsSelected.length? 'search-select' : 'search-select-blank'}`} id="yearsFilter" multiple
-                                onChange={(e) => {handleMultiSelect<number>(e, setYearsSelected)}}>
+                            <select className={`form-control ${yearsSelected.length? 'search-select' : 'search-select-blank'}`} id="yearsFilter"
+                                multiple={true}
+                                value={yearsSelected.map(e => String(e))}
+                                onChange={(e) => {
+                                    //@ts-ignore
+                                    const options = [...e.target.selectedOptions];
+                                    const values = options.map(option => option.value);
+                                    setYearsSelected(values);
+                                }
+                            }>
                                 {
                                     yearsForFilter.map(el => {
                                         return <option value={el}>{el}</option>
@@ -220,30 +299,32 @@ export default function RunsFilter(props:RunsFilterProp) {
                                 <div className="text-center mb-2">Limit results to a qualifying total points drill? </div>
                                 <div className="d-flex flex-column align-items-start mb-3">
 
-                                    <Form.Switch label='Nassau' id="nassauPoints" defaultChecked={booleanSearchElms?.nassauPoints} onChange={handleCheck} />
-                                    <Form.Switch label='Northern' id="northernPoints" defaultChecked={booleanSearchElms?.northernPoints} onChange={handleCheck} />
-                                    <Form.Switch label='Suffolk' id="suffolkPoints" defaultChecked={booleanSearchElms?.suffolkPoints} onChange={handleCheck} />
-                                    <Form.Switch label='Western' id="westernPoints" defaultChecked={booleanSearchElms?.westernPoints} onChange={handleCheck} />
-                                    <Form.Switch label='Nassau OF' id="nassauOfPoints" defaultChecked={booleanSearchElms?.nassauOfPoints} onChange={handleCheck} />
-                                    <Form.Switch label='Suffolk OF' id="suffolkOfPoints" defaultChecked={booleanSearchElms?.suffolkOfPoints} onChange={handleCheck} />
-                                    <Form.Switch label='LI OF' id="liOfPoints" defaultChecked={booleanSearchElms?.liOfPoints} onChange={handleCheck} />
-                                    <Form.Switch label='Junior' id="juniorPoints" defaultChecked={booleanSearchElms?.juniorPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Nassau' id="nassauPoints" defaultChecked={booleansSelected?.nassauPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Northern' id="northernPoints" defaultChecked={booleansSelected?.northernPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Suffolk' id="suffolkPoints" defaultChecked={booleansSelected?.suffolkPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Western' id="westernPoints" defaultChecked={booleansSelected?.westernPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Nassau OF' id="nassauOfPoints" defaultChecked={booleansSelected?.nassauOfPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Suffolk OF' id="suffolkOfPoints" defaultChecked={booleansSelected?.suffolkOfPoints} onChange={handleCheck} />
+                                    <Form.Switch label='LI OF' id="liOfPoints" defaultChecked={booleansSelected?.liOfPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Junior' id="juniorPoints" defaultChecked={booleansSelected?.juniorPoints} onChange={handleCheck} />
                                 </div>
                             </div>
                         </div>
                         <div className="col-12 col-lg-4">
                             <div className="d-flex flex-column align-items-center justify-content-center mb-3">
                                 <div className="mb-2">Sanctioned events only?</div>
-                                <Form.Switch label='' id="sanctioned" defaultChecked={booleanSearchElms?.sanctioned} onChange={handleCheck} />
+                                <Form.Switch label='' id="sanctioned" defaultChecked={booleansSelected?.sanctioned} onChange={handleCheck} />
                             </div>
                         </div>
                         <div className="col-12 col-lg-4">
                             <div className="d-flex flex-column justify-content-center align-items-center mb-3">
-                                <button type="button" onClick={handleSubmit} disabled={disableSubmit()} className="btn schedule-entry-button font-medium" >Submit Run Search</button>
+                                <button type="button" onClick={handleSubmit} disabled={disableSubmit()} className="btn submit-search-button font-medium" >Submit Run Search</button>
                                 {
                                     disableSubmit() ? 
-                                        <div className="font-small mt-3"><i>Please make a selection.</i></div> : <></>
-                                }
+                                        <div className="font-small mt-3"><i>Please make a selection.</i></div> : 
+                                        <button type="button" onClick={clearFilters} className="btn clear-search-button font-small mt-4" >Clear Filters</button>
+                                    }
+                                
                             </div>
                         </div>
                     </div>
@@ -328,18 +409,6 @@ async function getTournamentsForFilter(stateSetter:Function){
             console.log(err)
             stateSetter([])
         })
-}
-
-
-function handleMultiSelect<T>(e:any, setState:React.Dispatch<T[]>){
-    var options = e.target.options; 
-    var value: T[] = [];
-    for (var i = 0, l = options.length; i < l; i++) {
-        if (options[i].selected) {
-          value.push(options[i].value);
-        }
-      }
-      setState(value); 
 }
 
 interface ClearSelectProps<T> {
