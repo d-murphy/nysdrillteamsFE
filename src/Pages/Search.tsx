@@ -25,12 +25,22 @@ export default function Search() {
     const [years, setYears] = useState([]); 
     const [contests, setContests] = useState([]); 
     const [positions, setPositions] = useState([]); 
-    const [booleanSearchElms, setBooleanSearchElms] = useState<{[index: string]: boolean}>({})
+    const [nassauPoints, setNassauPoints] = useState(false); 
+    const [northernPoints, setNorthernPoints] = useState(false)
+    const [suffolkPoints, setSuffolkPoints] = useState(false); 
+    const [westernPoints, setWesternPoints] = useState(false); 
+    const [nassauOfPoints, setNassauOfPoints] = useState(false); 
+    const [suffolkOfPoints, setSuffolkOfPoints] = useState(false); 
+    const [liOfPoints, setLiOfPoints] = useState(false); 
+    const [juniorPoints, setJuniorPoints] = useState(false); 
+    const [sanctioned, setSanctioned] = useState(false); 
 
     // run request on each parameter change (params should be changed at one time)
     useEffect(() => {
         runRequest()
-    }, [teams, tournaments, tracks, years, contests, positions, booleanSearchElms, page])
+    }, [teams, tournaments, tracks, years, contests, positions, 
+        nassauPoints, northernPoints, suffolkPoints, westernPoints, nassauOfPoints, suffolkOfPoints, liOfPoints, juniorPoints, sanctioned, 
+        page])
 
     // set vals from parameters
     useEffect(() => {
@@ -40,28 +50,16 @@ export default function Search() {
         setTournaments(searchParams.getAll('tournaments'))
         setContests(searchParams.getAll('contests'))
         setPositions(searchParams.getAll('positions')); 
-
-        // const bseFromParams = {
-        //     suffolkPoints: extractBool(searchParams, 'suffolkPoints'),
-        //     nassauPoints: extractBool(searchParams, 'nassauPoints'),
-        //     westernPoints: extractBool(searchParams, 'westernPoints'),
-        //     northernPoints: extractBool(searchParams, 'northernPoints'),
-        //     suffolkOfPoints: extractBool(searchParams, 'suffolkOfPoints'),
-        //     nassauOfPoints: extractBool(searchParams, 'nassauOfPoints'),
-        //     liOfPoints: extractBool(searchParams, 'liOfPoints'),
-        //     juniorPoints: extractBool(searchParams, 'juniorPoints'),
-        //     sanctioned: extractBool(searchParams, 'sanctioned'),   
-        // }
-        // setBooleanSearchElms(bseFromParams); 
-
+        setNassauPoints(searchParams.getAll('nassauPoints')[0] === 'true'); 
+        setNorthernPoints(searchParams.getAll('northernPoints')[0] === 'true'); 
+        setSuffolkPoints(searchParams.getAll('suffolkPoints')[0] === 'true'); 
+        setWesternPoints(searchParams.getAll('westernPoints')[0] === 'true'); 
+        setNassauOfPoints(searchParams.getAll('nassauOfPoints')[0] === 'true'); 
+        setSuffolkOfPoints(searchParams.getAll('suffolkOfPoints')[0] === 'true'); 
+        setLiOfPoints(searchParams.getAll('liOfPoints')[0] === 'true'); 
+        setJuniorPoints(searchParams.getAll('juniorPoints')[0] === 'true'); 
+        setSanctioned(searchParams.getAll('sanctioned')[0] === 'true')
     }, [])
-
-    function extractBool(searchParams: URLSearchParams, name:string){
-        const valsArr = searchParams.getAll(name)
-        const val = valsArr.length ? valsArr[0] : ''; 
-        console.log(name, val, val === 'true'); 
-        return val === 'true'; 
-    }
 
     function runRequest(){
         setLoading(true); 
@@ -71,14 +69,20 @@ export default function Search() {
         url += tracks.length ? "&tracks=" + tracks.join(",").replace("&", "%26") : "" 
         url += years.length ? "&years=" + years.join(",") : "" 
         url += contests.length ? "&contests=" + contests.join(",").replace("&", "%26") : "" 
-        url += positions.length ? "&ranks=" + positions.join(",") : "" 
-        console.log("booleanSearchElms", booleanSearchElms)
-        Object.keys(booleanSearchElms).forEach(el => {
-            if(booleanSearchElms[el]){
-                url += `&${el}=true`
-            }
-        })
+        url += positions.length ? "&ranks=" + positions.join(",") : ""
+
         if(!url.split("?")[1].length) return 
+
+        url += nassauPoints ? "&nassauPoints=true" : ""; 
+        url += northernPoints ? "&northernPoints=true" : ""; 
+        url += suffolkPoints ? "&suffolkPoints=true" : ""; 
+        url += westernPoints ? "&westernPoints=true" : ""; 
+        url += nassauOfPoints ? "&nassauOfPoints=true" : ""; 
+        url += suffolkOfPoints ? "&suffolkOfPoints=true" : "";
+        url += liOfPoints ? "&liOfPoints=true" : ""; 
+        url += juniorPoints ? "&juniorPoints=true" : ""; 
+        url += sanctioned ? "&sanctioned=true" : "";  
+
         url += "&page=" + page; 
         console.log('checking url: ', url); 
         fetch(url)
@@ -97,7 +101,7 @@ export default function Search() {
                 setMaxPage(maxPage); 
                 setLoading(false);
             })
-            .catch(err => {
+            .catch((err:Error) => {
                 console.log(err)
                 setError(true); 
                 setLoading(false); 
@@ -114,7 +118,10 @@ export default function Search() {
             <div className="container">
                 <RunsFilter setLoading={setLoading} setTeams={setTeams} setTracks={setTracks} 
                     setYears={setYears} setSearchParams={setSearchParams} setContests={setContests}
-                    setTournaments={setTournaments} setPositions={setPositions} setBooleanSearchElms={setBooleanSearchElms}
+                    setTournaments={setTournaments} setPositions={setPositions} 
+                    setNassauPoints={setNassauPoints} setNorthernPoints={setNorthernPoints} setSuffolkPoints={setSuffolkPoints} setWesternPoints={setWesternPoints}
+                    setNassauOfPoints={setNassauOfPoints} setSuffolkOfPoints={setSuffolkOfPoints} setLiOfPoints={setLiOfPoints} setJuniorPoints={setJuniorPoints}
+                    setSanctioned={setSanctioned}                
                     searchParams={searchParams} />
                 <RunFilterResults runs={results} page={page} maxPage={maxPage} totalCt={totalCt} 
                     setPage={setPage} loading={loading} noResults={noResults}/>

@@ -17,8 +17,16 @@ interface RunsFilterProp {
     setYears: React.Dispatch<SetStateAction<number[]>>
     setContests: React.Dispatch<SetStateAction<string[]>>
     setPositions: React.Dispatch<SetStateAction<number[]>>
+    setNassauPoints: React.Dispatch<SetStateAction<boolean>>
+    setNorthernPoints: React.Dispatch<SetStateAction<boolean>>
+    setSuffolkPoints: React.Dispatch<SetStateAction<boolean>>
+    setWesternPoints: React.Dispatch<SetStateAction<boolean>>
+    setNassauOfPoints: React.Dispatch<SetStateAction<boolean>>
+    setSuffolkOfPoints: React.Dispatch<SetStateAction<boolean>>
+    setLiOfPoints: React.Dispatch<SetStateAction<boolean>>
+    setJuniorPoints: React.Dispatch<SetStateAction<boolean>>
+    setSanctioned: React.Dispatch<SetStateAction<boolean>>
     setLoading: React.Dispatch<SetStateAction<boolean>>
-    setBooleanSearchElms: React.Dispatch<SetStateAction<{}>>
     setSearchParams: (nextInit: URLSearchParamsInit, navigateOptions?: {
         replace?: boolean;
         state?: any;
@@ -64,25 +72,25 @@ export default function RunsFilter(props:RunsFilterProp) {
             setContestsSelected(searchParams.getAll('contests'))
             setPositionsSelected(searchParams.getAll('positions'));   
 
-            // const bseFromParams = {
-            //     suffolkPoints: extractBool(searchParams, 'suffolkPoints'),
-            //     nassauPoints: extractBool(searchParams, 'nassauPoints'),
-            //     westernPoints: extractBool(searchParams, 'westernPoints'),
-            //     northernPoints: extractBool(searchParams, 'northernPoints'),
-            //     suffolkOfPoints: extractBool(searchParams, 'suffolkOfPoints'),
-            //     nassauOfPoints: extractBool(searchParams, 'nassauOfPoints'),
-            //     liOfPoints: extractBool(searchParams, 'liOfPoints'),
-            //     juniorPoints: extractBool(searchParams, 'juniorPoints'),
-            //     sanctioned: extractBool(searchParams, 'sanctioned'),   
-            // }
-            // setBooleansSelected(bseFromParams);     
+            const bseFromParams = {
+                nassauPoints: extractBool(searchParams, 'nassauPoints'),
+                northernPoints: extractBool(searchParams, 'northernPoints'),
+                suffolkPoints: extractBool(searchParams, 'suffolkPoints'),
+                westernPoints: extractBool(searchParams, 'westernPoints'),
+                suffolkOfPoints: extractBool(searchParams, 'suffolkOfPoints'),
+                nassauOfPoints: extractBool(searchParams, 'nassauOfPoints'),
+                liOfPoints: extractBool(searchParams, 'liOfPoints'),
+                juniorPoints: extractBool(searchParams, 'juniorPoints'),
+                sanctioned: extractBool(searchParams, 'sanctioned'),   
+            }
+            setBooleansSelected(bseFromParams);     
         })
 
     }, []); 
 
     function extractBool(searchParams: URLSearchParams, name:string){
         const valsArr = searchParams.getAll(name)
-        const val = valsArr.length ? valsArr[0] : ''; 
+        const val = valsArr && valsArr.length ? valsArr[0] : ''; 
         return val === 'true'; 
     }
 
@@ -107,10 +115,22 @@ export default function RunsFilter(props:RunsFilterProp) {
         setTrackSelected([])
         setContestsSelected([])
         setPositionsSelected([])
-        setBooleansSelected({})
+        setBooleansSelected({
+            nassauPoints: false, 
+            northernPoints: false, 
+            suffolkPoints: false, 
+            westernPoints: false, 
+            nassauOfPoints: false, 
+            suffolkOfPoints: false, 
+            liOfPoints: false, 
+            juniorPoints: false, 
+            sanctioned: false
+        })
+        props.setSearchParams({})
     }
 
     const handleSubmit = () => {
+        console.log('test: ', booleansSelected); 
         props.setLoading(true); 
         props.setYears(yearsSelected); 
         props.setTeams(teamsSelected); 
@@ -118,7 +138,15 @@ export default function RunsFilter(props:RunsFilterProp) {
         props.setTracks(tracksSelected); 
         props.setContests(contestsSelected); 
         props.setPositions(positionsSelected); 
-        props.setBooleanSearchElms(booleansSelected); 
+        props.setNassauPoints(booleansSelected['nassauPoints'])
+        props.setNorthernPoints(booleansSelected['northernPoints'])
+        props.setSuffolkPoints(booleansSelected['suffolkPoints'])
+        props.setWesternPoints(booleansSelected['westernPoints'])
+        props.setNassauOfPoints(booleansSelected['nassauOfPoints'])
+        props.setSuffolkOfPoints(booleansSelected['suffolkOfPoints'])
+        props.setLiOfPoints(booleansSelected['liOfPoints'])
+        props.setJuniorPoints(booleansSelected['juniorPoints'])
+        props.setSanctioned(booleansSelected['sanctioned'])
         let paramsObj: {
             years?:string, teams?: string, tracks?:string, contests?:string, tournaments?: string, positions?: string, 
             suffolkPoints?: string, 
@@ -137,6 +165,15 @@ export default function RunsFilter(props:RunsFilterProp) {
         if(contestsSelected.length) paramsObj.contests = contestsSelected.join(","); 
         if(tournamentsSelected.length) paramsObj.tournaments = tournamentsSelected.join(","); 
         if(positionsSelected.length) paramsObj.positions = positionsSelected.join(","); 
+        if(booleansSelected?.nassauPoints) paramsObj.nassauPoints = 'true'; 
+        if(booleansSelected?.northernPoints) paramsObj.northernPoints = 'true'; 
+        if(booleansSelected?.suffolkPoints) paramsObj.suffolkPoints = 'true'; 
+        if(booleansSelected?.westernPoints) paramsObj.westernPoints = 'true'; 
+        if(booleansSelected?.nassauOfPoints) paramsObj.nassauOfPoints = 'true'; 
+        if(booleansSelected?.suffolkOfPoints) paramsObj.suffolkOfPoints = 'true'; 
+        if(booleansSelected?.liOfPoints) paramsObj.liOfPoints = 'true'; 
+        if(booleansSelected?.juniorPoints) paramsObj.juniorPoints = 'true'; 
+        if(booleansSelected?.sanctioned) paramsObj.sanctioned = 'true'; 
         props.setSearchParams({...paramsObj}); 
     }
 
@@ -299,14 +336,14 @@ export default function RunsFilter(props:RunsFilterProp) {
                                 <div className="text-center mb-2">Limit results to a qualifying total points drill? </div>
                                 <div className="d-flex flex-column align-items-start mb-3">
 
-                                    <Form.Switch label='Nassau' id="nassauPoints" defaultChecked={booleansSelected?.nassauPoints} onChange={handleCheck} />
-                                    <Form.Switch label='Northern' id="northernPoints" defaultChecked={booleansSelected?.northernPoints} onChange={handleCheck} />
-                                    <Form.Switch label='Suffolk' id="suffolkPoints" defaultChecked={booleansSelected?.suffolkPoints} onChange={handleCheck} />
-                                    <Form.Switch label='Western' id="westernPoints" defaultChecked={booleansSelected?.westernPoints} onChange={handleCheck} />
-                                    <Form.Switch label='Nassau OF' id="nassauOfPoints" defaultChecked={booleansSelected?.nassauOfPoints} onChange={handleCheck} />
-                                    <Form.Switch label='Suffolk OF' id="suffolkOfPoints" defaultChecked={booleansSelected?.suffolkOfPoints} onChange={handleCheck} />
-                                    <Form.Switch label='LI OF' id="liOfPoints" defaultChecked={booleansSelected?.liOfPoints} onChange={handleCheck} />
-                                    <Form.Switch label='Junior' id="juniorPoints" defaultChecked={booleansSelected?.juniorPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Nassau' id="nassauPoints" checked={booleansSelected?.nassauPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Northern' id="northernPoints" checked={booleansSelected?.northernPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Suffolk' id="suffolkPoints" checked={booleansSelected?.suffolkPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Western' id="westernPoints" checked={booleansSelected?.westernPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Nassau OF' id="nassauOfPoints" checked={booleansSelected?.nassauOfPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Suffolk OF' id="suffolkOfPoints" checked={booleansSelected?.suffolkOfPoints} onChange={handleCheck} />
+                                    <Form.Switch label='LI OF' id="liOfPoints" checked={booleansSelected?.liOfPoints} onChange={handleCheck} />
+                                    <Form.Switch label='Junior' id="juniorPoints" checked={booleansSelected?.juniorPoints} onChange={handleCheck} />
                                 </div>
                             </div>
                         </div>
