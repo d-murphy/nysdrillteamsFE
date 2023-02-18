@@ -34,12 +34,14 @@ export default function Search() {
     const [liOfPoints, setLiOfPoints] = useState(false); 
     const [juniorPoints, setJuniorPoints] = useState(false); 
     const [sanctioned, setSanctioned] = useState(false); 
+    const [stateRecord, setStateRecord] = useState(false); 
+    const [currentStateRecord, setCurrentStateRecord] = useState(false); 
 
     // run request on each parameter change (params should be changed at one time)
     useEffect(() => {
         runRequest()
     }, [teams, tournaments, tracks, years, contests, positions, 
-        nassauPoints, northernPoints, suffolkPoints, westernPoints, nassauOfPoints, suffolkOfPoints, liOfPoints, juniorPoints, sanctioned, 
+        nassauPoints, northernPoints, suffolkPoints, westernPoints, nassauOfPoints, suffolkOfPoints, liOfPoints, juniorPoints, sanctioned, stateRecord, currentStateRecord,
         page])
 
     // set vals from parameters
@@ -59,6 +61,8 @@ export default function Search() {
         setLiOfPoints(searchParams.getAll('liOfPoints')[0] === 'true'); 
         setJuniorPoints(searchParams.getAll('juniorPoints')[0] === 'true'); 
         setSanctioned(searchParams.getAll('sanctioned')[0] === 'true')
+        setStateRecord(searchParams.getAll('stateRecord')[0] === 'true')
+        setCurrentStateRecord(searchParams.getAll('currentStateRecord')[0] === 'true')
     }, [])
 
     function runRequest(){
@@ -70,7 +74,8 @@ export default function Search() {
         url += years.length ? "&years=" + years.join(",") : "" 
         url += contests.length ? "&contests=" + contests.join(",").replace("&", "%26") : "" 
         url += positions.length ? "&ranks=" + positions.join(",") : ""
-
+        url += stateRecord ? "&stateRecord=true" : "";  
+        url += currentStateRecord ? "&currentStateRecord=true" : "";  
         if(!url.split("?")[1].length) return 
 
         url += nassauPoints ? "&nassauPoints=true" : ""; 
@@ -84,7 +89,6 @@ export default function Search() {
         url += sanctioned ? "&sanctioned=true" : "";  
 
         url += "&page=" + page; 
-        console.log('checking url: ', url); 
         fetch(url)
             .then(response => response.json())
             .then((respData: { data: Run[], metadata: {total: number, page:number}[]}[]) => {
@@ -121,7 +125,7 @@ export default function Search() {
                     setTournaments={setTournaments} setPositions={setPositions} 
                     setNassauPoints={setNassauPoints} setNorthernPoints={setNorthernPoints} setSuffolkPoints={setSuffolkPoints} setWesternPoints={setWesternPoints}
                     setNassauOfPoints={setNassauOfPoints} setSuffolkOfPoints={setSuffolkOfPoints} setLiOfPoints={setLiOfPoints} setJuniorPoints={setJuniorPoints}
-                    setSanctioned={setSanctioned}                
+                    setSanctioned={setSanctioned} setStateRecord={setStateRecord} setCurrentStateRecord={setCurrentStateRecord}            
                     searchParams={searchParams} />
                 <RunFilterResults runs={results} page={page} maxPage={maxPage} totalCt={totalCt} 
                     setPage={setPage} loading={loading} noResults={noResults}/>

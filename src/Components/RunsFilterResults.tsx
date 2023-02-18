@@ -54,10 +54,13 @@ export default function RunFilterResults(props:RunFilterResultsProps) {
                 <div className="d-xl-block d-none col-4">
                     <b>Date - Tournament</b>
                 </div>
-                <div className="d-xl-block d-none col-3">
+                <div className="d-xl-block d-none col-2">
                     <b>Team</b>
                 </div>
                 <div className="d-xl-block d-none col-2">
+                    <b>Contest</b>
+                </div>
+                <div className="d-xl-block d-none col-1">
                     <div className="d-flex justify-content-start align-items-start h-100">
                         <b>Time</b>
                     </div>
@@ -95,7 +98,7 @@ export default function RunFilterResults(props:RunFilterResultsProps) {
                                         }}>{run.tournament} @ {run.track}</span>
                                 </div>
 
-                                <div className="d-xl-block d-none col-3">
+                                <div className="d-xl-block d-none col-2">
                                     {run.team}
                                 </div>
                                 <div className="d-block d-xl-none col-12 text-center">
@@ -103,6 +106,14 @@ export default function RunFilterResults(props:RunFilterResultsProps) {
                                 </div>
 
                                 <div className="d-xl-block d-none col-2">
+                                    {run.contest}
+                                </div>
+                                <div className="d-block d-xl-none col-12 text-center">
+                                    {run.contest}
+                                </div>
+
+
+                                <div className="d-xl-block d-none col-1">
                                     <div className="d-flex justify-content-start align-items-start h-100">
                                         <span className="">{niceTime(run.time)} </span>
                                         {   
@@ -122,13 +133,13 @@ export default function RunFilterResults(props:RunFilterResultsProps) {
                                         <span className="font-large"><b>{niceTime(run.time)}</b></span>
                                         {   
                                             run.urls.length ? 
-                                                <div className="pointer ms-2 me-1">
+                                                <div className="pointer mx-2">
                                                     <a href={`${run.urls[0]}`} target="_blank"><FontAwesomeIcon className="video-links" icon={faVideo} size='sm'/></a>
                                                 </div> : <></>
                                         }
                                         {
                                             run?.stateRecord || run?.currentStateRecord ? 
-                                                <span className="mx-1"><StateRecordIcon run={run} size="sm" /></span> : <></>
+                                                <span className="mx-2"><StateRecordIcon run={run} size="sm" /></span> : <></>
                                         }
                                     </div>
                                 </div>

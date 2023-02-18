@@ -26,6 +26,8 @@ interface RunsFilterProp {
     setLiOfPoints: React.Dispatch<SetStateAction<boolean>>
     setJuniorPoints: React.Dispatch<SetStateAction<boolean>>
     setSanctioned: React.Dispatch<SetStateAction<boolean>>
+    setStateRecord: React.Dispatch<SetStateAction<boolean>>
+    setCurrentStateRecord: React.Dispatch<SetStateAction<boolean>>
     setLoading: React.Dispatch<SetStateAction<boolean>>
     setSearchParams: (nextInit: URLSearchParamsInit, navigateOptions?: {
         replace?: boolean;
@@ -57,6 +59,8 @@ export default function RunsFilter(props:RunsFilterProp) {
         suffolkOfPoints?: boolean, 
         liOfPoints?: boolean, 
         juniorPoints?: boolean, 
+        stateRecord?: boolean, 
+        currentStateRecord?: boolean,
         sanctioned?: boolean
     }>({}); 
     const searchParams = props.searchParams; 
@@ -82,6 +86,8 @@ export default function RunsFilter(props:RunsFilterProp) {
                 liOfPoints: extractBool(searchParams, 'liOfPoints'),
                 juniorPoints: extractBool(searchParams, 'juniorPoints'),
                 sanctioned: extractBool(searchParams, 'sanctioned'),   
+                stateRecord: extractBool(searchParams, 'stateRecord'),
+                currentStateRecord: extractBool(searchParams, 'currentStateRecord')
             }
             setBooleansSelected(bseFromParams);     
         })
@@ -104,7 +110,8 @@ export default function RunsFilter(props:RunsFilterProp) {
 
     function disableSubmit(){
         if(yearsSelected.length || teamsSelected.length || tournamentsSelected.length || 
-            tracksSelected.length || contestsSelected.length || positionsSelected.length) return false; 
+            tracksSelected.length || contestsSelected.length || positionsSelected.length ||
+            booleansSelected?.stateRecord || booleansSelected?.currentStateRecord) return false; 
         return true; 
     }
 
@@ -124,13 +131,14 @@ export default function RunsFilter(props:RunsFilterProp) {
             suffolkOfPoints: false, 
             liOfPoints: false, 
             juniorPoints: false, 
-            sanctioned: false
+            sanctioned: false, 
+            stateRecord: false, 
+            currentStateRecord: false
         })
         props.setSearchParams({})
     }
 
     const handleSubmit = () => {
-        console.log('test: ', booleansSelected); 
         props.setLoading(true); 
         props.setYears(yearsSelected); 
         props.setTeams(teamsSelected); 
@@ -147,6 +155,8 @@ export default function RunsFilter(props:RunsFilterProp) {
         props.setLiOfPoints(booleansSelected['liOfPoints'])
         props.setJuniorPoints(booleansSelected['juniorPoints'])
         props.setSanctioned(booleansSelected['sanctioned'])
+        props.setStateRecord(booleansSelected['stateRecord'])
+        props.setCurrentStateRecord(booleansSelected['currentStateRecord'])
         let paramsObj: {
             years?:string, teams?: string, tracks?:string, contests?:string, tournaments?: string, positions?: string, 
             suffolkPoints?: string, 
@@ -157,7 +167,9 @@ export default function RunsFilter(props:RunsFilterProp) {
             suffolkOfPoints?: string, 
             liOfPoints?: string, 
             juniorPoints?: string, 
-            sanctioned?: string
+            sanctioned?: string, 
+            stateRecord?: string,
+            currentStateRecord?: string
         } = {}; 
         if(yearsSelected.length) paramsObj.years = yearsSelected.join(",") 
         if(teamsSelected.length) paramsObj.teams = teamsSelected.join(",")
@@ -174,6 +186,8 @@ export default function RunsFilter(props:RunsFilterProp) {
         if(booleansSelected?.liOfPoints) paramsObj.liOfPoints = 'true'; 
         if(booleansSelected?.juniorPoints) paramsObj.juniorPoints = 'true'; 
         if(booleansSelected?.sanctioned) paramsObj.sanctioned = 'true'; 
+        if(booleansSelected?.stateRecord) paramsObj.stateRecord = 'true'; 
+        if(booleansSelected?.currentStateRecord) paramsObj.currentStateRecord = 'true'; 
         props.setSearchParams({...paramsObj}); 
     }
 
@@ -348,9 +362,10 @@ export default function RunsFilter(props:RunsFilterProp) {
                             </div>
                         </div>
                         <div className="col-12 col-lg-4">
-                            <div className="d-flex flex-column align-items-center justify-content-center mb-3">
-                                <div className="mb-2">Sanctioned events only?</div>
-                                <Form.Switch label='' id="sanctioned" defaultChecked={booleansSelected?.sanctioned} onChange={handleCheck} />
+                            <div className="d-flex flex-column align-items-center justify-content-center mb-4">
+                                <Form.Switch label='Sanctioned Only?' id="sanctioned" checked={booleansSelected?.sanctioned} onChange={handleCheck} />
+                                <Form.Switch className="mt-4" label='Current State Record' id="currentStateRecord" checked={booleansSelected?.currentStateRecord} onChange={handleCheck} />
+                                <Form.Switch label='State Record' id="stateRecord" checked={booleansSelected?.stateRecord} onChange={handleCheck} />
                             </div>
                         </div>
                         <div className="col-12 col-lg-4">

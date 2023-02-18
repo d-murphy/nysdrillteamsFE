@@ -28,7 +28,6 @@ export default function TournamentWinners(props:TournamentWinnersProp) {
         fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?tournaments=${tournamentName}`)
         .then(response => response.json())
         .then(data => {
-            console.log('gtbn', data)
             data = data.map((el:Tournament) => {
                 return {
                     ...el,
