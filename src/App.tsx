@@ -18,6 +18,7 @@ import Login from './Pages/Login';
 import AdminHome from "./Pages/AdminHome";
 import About from "./Pages/About"
 import Search from "./Pages/Search";
+import TournamentHistory  from "./Pages/TournamentHistory";
   
   
 
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
             //     path: "/Track/:trackName", 
             //     element: <Track />
             // }, 
+            {
+                path: "/TournamentHistory/:name", 
+                element: <TournamentHistory />
+            },
             {
                 path: "/PastSeasons", 
                 element: <PastSeasons />

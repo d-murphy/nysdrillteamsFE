@@ -102,6 +102,11 @@ export default function TournamentHeader(props:TournamentProp) {
                         <TournamentWinners tournamentName={tournament.name} numberShown={3} yearOfDrill={tournament.date.getFullYear()} />
                     </div>
                 </div>
+                <div className="col-12">
+                    <div className="d-flex justify-content-center align-items-center my-2 font-small video-links">
+                        <div className="pointer" onClick={() => navigate(`/TournamentHistory/${tournament.name}`)}>View more tournament history</div>
+                    </div>
+                </div>
                 {
                     !tournament?.notes ? <></> : 
                     <div className="col-12">
