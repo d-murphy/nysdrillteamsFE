@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react"
 import { Tournament } from "../types/types";
 import Placeholder from "react-bootstrap/Placeholder"; 
 import getTournamentWinner from "../utils/getTournamentWinners";
-import { WinnerIcon } from "./SizedImage";
+import { WinnerIconNoHov } from "./SizedImage";
+import { useNavigate } from "react-router-dom";
 
 interface StateWinnersProps {
     year: string
@@ -75,13 +76,15 @@ function StateWinnerSq(props: StateWinnerSqProps) {
     const seperator = " | "; 
     let winnerStr = getTournamentWinner(tourn, seperator); 
     let winnerArr = winnerStr.split(seperator); 
+    const navigate = useNavigate(); 
 
     return (
-        <div className="mx-1 h-100 my-1">
-            <div className="champs-bg rounded shadow-sm d-flex flex-column align-items-center justify-content-center p-4 text-center" > 
-                <div className="text-nowrap text-truncate" >{tourn.name}</div>
+        <div className="mx-1 h-100 my-1 flex-grow-1">
+            <div className="champs-bg rounded shadow-sm d-flex flex-column align-items-center justify-content-center p-4 text-center pointer" 
+                onClick={() => navigate(`/Tournament/${tourn.id}`)}> 
+                <div className="text-nowrap text-truncate h5" >{tourn.name}</div>
                 <div className="d-flex flex-row justify-content-center align-items-center">
-                    {winnerArr.map(el => <WinnerIcon team={el} size="lg"/>)}
+                    {winnerArr.map(el => <WinnerIconNoHov team={el} size="lg"/>)}
                 </div>
                 <div className="flex-grow-1" />
                 <div>{winnerStr}</div>

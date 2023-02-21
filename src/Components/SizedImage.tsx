@@ -51,3 +51,7 @@ export function WinnerIcon(mainprops:WinnerIconProps){
         </OverlayTrigger>
       );
 }
+
+export function WinnerIconNoHov(mainprops:WinnerIconProps) {
+    return <SizedImage imageSrc={getImgLocation(mainprops.team)} size={mainprops.size}/>
+}
