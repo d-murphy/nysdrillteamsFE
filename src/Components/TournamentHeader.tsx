@@ -85,7 +85,7 @@ export default function TournamentHeader(props:TournamentProp) {
                             <div className="schedule-entry-winner text-center py-2 px-5 font-large border-top border-bottom">
                                 <div>1st Place</div>
                                 <div className="d-flex flex-row flex-wrap justify-content-center align-items-center">
-                                    {winnerArr.map(el => <WinnerIcon team={el}/>)}
+                                    {winnerArr.map(el => <WinnerIcon team={el} size="sm"/>)}
                                 </div>
                             </div> : 
                             !tournament.liveStreamPlanned ? <></> : 

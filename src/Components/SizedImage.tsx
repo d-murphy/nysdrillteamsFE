@@ -25,7 +25,8 @@ export function SizedImage(props: Props) {
 }
 
 interface WinnerIconProps {
-    team:string
+    team:string,
+    size: 'sm' | 'md' | 'lg'
 }
 
 export function WinnerIcon(mainprops:WinnerIconProps){
@@ -44,7 +45,7 @@ export function WinnerIcon(mainprops:WinnerIconProps){
           overlay={renderTooltip}
         >
             <div>
-                <SizedImage imageSrc={getImgLocation(mainprops.team)} size="sm"/>
+                <SizedImage imageSrc={getImgLocation(mainprops.team)} size={mainprops.size}/>
 
             </div>
         </OverlayTrigger>

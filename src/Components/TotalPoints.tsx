@@ -60,17 +60,17 @@ export default function TotalPoints(props:TotalPointsProp) {
     }, [])
 
     let content = (
-        <div className="p-3 m-2 ">
+        <div className="my-2 py-3 px-2">
             <div className="row">
             <p><span className="h4 me-3">Total Points</span><i></i></p>
             </div>
             <div className="row">
                 <div className="col-12 col-md-3">
-                    <div className="d-flex flex-column ms-1 me-3">
-                        <div className={`${region == "Nassau" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded`} onClick={() => selectRegion("Nassau")}>Nassau</div>
-                        <div className={`${region == "Northern" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded`} onClick={() => selectRegion("Northern")}>Northern</div>
-                        <div className={`${region == "Suffolk" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded`} onClick={() => selectRegion("Suffolk")}>Suffolk</div>
-                        <div className={`${region == "Western" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded`} onClick={() => selectRegion("Western")}>Western</div>
+                    <div className="d-flex flex-column me-5">
+                        <div className={`${region == "Nassau" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center`} onClick={() => selectRegion("Nassau")}>Nassau</div>
+                        <div className={`${region == "Northern" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center`} onClick={() => selectRegion("Northern")}>Northern</div>
+                        <div className={`${region == "Suffolk" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center`} onClick={() => selectRegion("Suffolk")}>Suffolk</div>
+                        <div className={`${region == "Western" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center`} onClick={() => selectRegion("Western")}>Western</div>
                     </div>                
                 </div>
                 <div className="col-12 col-md-9">
@@ -89,25 +89,23 @@ export default function TotalPoints(props:TotalPointsProp) {
                         </div> : <></>                    
                     }
                     { !isLoading && !errorLoading ?
-                        <div className="row">
-                            <div className="col-12 big8-bg shadow-sm rounded px-4 py-4 d-flex flex-column align-items-center">
-                                {
-                                    selectedRegionTeamsArr.length ? 
-                                        <>
-                                            {year!=new Date().getFullYear() ? <h5 className="mb-2">Total Point Champs:</h5> : <></>}
-                                            {selectedRegionTeamsArr.map((el) => {
-                                                if(topPoints == el.points) return <div className="font-x-large"><b>{el._id} ({el.points})</b></div>
-                                            })}
-                                            <h5 className="mt-3">All Others:</h5>
-                                            {selectedRegionTeamsArr.map((el) => {
-                                                if(topPoints != el.points) return <div className="">{el._id} ({el.points})</div>
-                                            })}    
-                                        </>
-                                        :
-                                        <div className="py-5 my-5"><i>No point recorded for {region} in {year}.</i></div>
-                                }
-                                <div className="mt-4 font-x-small"><i>Total points reflect runs saved in DB and may not match official results.</i></div>
-                            </div>
+                        <div className="w-100 big8-bg shadow-sm rounded px-4 py-4 d-flex flex-column align-items-center">
+                            {
+                                selectedRegionTeamsArr.length ? 
+                                    <>
+                                        {year!=new Date().getFullYear() ? <h5 className="mb-2">Total Point Champs:</h5> : <></>}
+                                        {selectedRegionTeamsArr.map((el) => {
+                                            if(topPoints == el.points) return <div className="font-x-large text-center"><b>{el._id} ({el.points})</b></div>
+                                        })}
+                                        <h5 className="mt-3">All Others:</h5>
+                                        {selectedRegionTeamsArr.map((el) => {
+                                            if(topPoints != el.points) return <div className="">{el._id} ({el.points})</div>
+                                        })}    
+                                    </>
+                                    :
+                                    <div className="py-5 my-5"><i>No point recorded for {region} in {year}.</i></div>
+                            }
+                            <div className="mt-4 font-x-small text-center"><i>Total points reflect runs saved in DB and may not match official results.</i></div>
                         </div> : 
                         <></>                    
                     }

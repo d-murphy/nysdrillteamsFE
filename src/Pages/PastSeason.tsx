@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useParams } from "react-router-dom";
 import Big8 from "../Components/Big8";
+import StateWinners from "../Components/StateWinners";
 import TotalPoints from "../Components/TotalPoints"; 
 import Schedule from "./Schedule";
 
@@ -23,15 +24,16 @@ export default function PastSeasons() {
                 </div>
             </div>
             <div className="bg-lightgray rounded shadow-sm">
+                <StateWinners year={year} />
+            </div>
+            <div className="bg-lightgray rounded shadow-sm">
                 <Big8 year={yearNum}/>
             </div>
             <div className="bg-lightgray rounded shadow-sm">
                 <TotalPoints year={yearNum}/>
             </div>
-            <div className="mt-2 bg-lightgray p-4 rounded shadow-sm">
-                <div className="row">
-                    <p><span className="h4 me-3">Schedule</span><i></i></p>
-                </div>
+            <div className="mt-2 bg-lightgray px-2 pt-3 rounded shadow-sm">
+                <div className="h4">Schedule</div>
                 <Schedule year={yearNum} bgColorClass='big8-bg'/>
             </div>
             

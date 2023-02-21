@@ -31,11 +31,13 @@ html, body, #root {
 }
 
 
-.big8-bg {
+.big8-bg, .champs-bg {
     background-color: var(--bs-gray-100); 
 }
 
-
+.champs-bg {
+    height: 300px;
+}
 
 .header-logo {
     max-width: 450px; 
@@ -85,12 +87,12 @@ html, body, #root {
 }
 
 .footer {
-    background-color: var(--bs-gray-400); 
+    background-color: var(--bs-gray-100); 
     position: fixed;
     left: 0;
     bottom: 0;
     width: 100%;
-    color: white;
+    color: black;
     text-align: center;
     height: 80px; 
 }
@@ -100,8 +102,8 @@ html, body, #root {
 }
 
 .underline-hover-ft:hover {
-    border-bottom: 2px solid white;
-    color: var(--bs-white);
+    border-bottom: 2px solid var(--nav-bg-dk);
+    color: var(--nav-bg-dk);
     cursor: pointer;
 }
 

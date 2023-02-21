@@ -98,7 +98,7 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
                             <div className="schedule-entry-winner text-center border-top border-bottom py-2 font-large">
                                 <div>1st Place</div>
                                 <div className="d-flex flex-row flex-wrap justify-content-center align-items-center">
-                                    {winnerArr.map(el => <WinnerIcon team={el}/>)}
+                                    {winnerArr.map(el => <WinnerIcon team={el} size="sm"/>)}
                                 </div>
                             </div> : 
                             tournament.liveStreamPlanned ? 
