@@ -129,7 +129,7 @@ function CountyIcon(mainprops:CountyIconProps){
     //@ts-ignore
     const renderTooltip = (props) => (
         <Tooltip id="button-tooltip" {...props} >
-          {mainprops.active ? `${mainprops.popoverText} teams active` : `${mainprops.popoverText} teams not expected`}
+          {mainprops.active ? `${mainprops.popoverText} points drill` : `Not a points drill for ${mainprops.popoverText}`}
         </Tooltip>
       );
     
