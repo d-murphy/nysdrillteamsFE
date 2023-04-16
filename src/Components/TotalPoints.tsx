@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 
@@ -112,7 +113,7 @@ export default function TotalPoints(props:TotalPointsProp) {
                         <div className="w-100 big8-bg shadow-sm rounded px-4 py-4 d-flex flex-column align-items-center">
                             {selectedRegionTpArr.length ? 
                                 <div style={{ width: '100%', height: 500 }}>
-                                    <Chart data={selectedRegionTpArr} />
+                                    <Chart data={selectedRegionTpArr} year={year} region={region} />
                                 </div>
                                 : <div>No total points were recorded.</div>                        
                             }
@@ -129,10 +130,12 @@ export default function TotalPoints(props:TotalPointsProp) {
 }
 
 interface ChartProps {
-    data: {}[]
+    data: {}[], 
+    year: number, 
+    region: string
 }
 
-function Chart({data}:ChartProps){
+function Chart({data, year, region}:ChartProps){
     const [barsNotDisplayed, setBarsNotDisplayed] = useState([])
     const toggleLegend = (event:{value:string}) => {
         if(barsNotDisplayed.includes(event.value.trim())){
@@ -141,6 +144,20 @@ function Chart({data}:ChartProps){
         } else {
             setBarsNotDisplayed([...barsNotDisplayed, event.value.trim()])
         }
+    }
+    const regionPtrStr:{[index:string]:string} = {
+        "Nassau": "nassauPoints=true", 
+        "Northern": "northernPoints=true", 
+        "Suffolk": "suffolkPoints=true", 
+        "Western": "westernPoints=true"
+    }
+
+    const handleBarClick = (data:{team:string, tooltipPayload: {name:string}[]}) => {
+        if(!regionPtrStr[region]) return
+        const team = data.team; 
+        const contest = data.tooltipPayload[0].name; 
+        const paramString = `?years=${year}&teams=${team}&contests=${contest}&${regionPtrStr[region]}`
+        window.open(`/RunSearch${paramString}`, '_blank');        
     }
 
     return (
@@ -170,14 +187,14 @@ function Chart({data}:ChartProps){
                 }}
                 />
             {/* Extra space trick to keep text display, but hide bar.  Extra space is trimmed in handler */}
-            <Bar dataKey={barsNotDisplayed.includes("Three Man Ladder") ? "Three Man Ladder " : "Three Man Ladder"}  stackId="a" fill="#91c5fd" radius={1}  />
-            <Bar dataKey={barsNotDisplayed.includes("B Ladder") ? "B Ladder " : "B Ladder"} stackId="a" fill="#61acfd" radius={1} />
-            <Bar dataKey={barsNotDisplayed.includes("C Ladder") ? "C Ladder " : "C Ladder"} stackId="a" fill="#3093fd" radius={1} />
-            <Bar dataKey={barsNotDisplayed.includes("C Hose") ? "C Hose " : "C Hose"} stackId="a" fill="#0279fa" radius={1} />
-            <Bar dataKey={barsNotDisplayed.includes("B Hose") ? "B Hose " : "B Hose"} stackId="a" fill="#0162ca" radius={1} />
-            <Bar dataKey={barsNotDisplayed.includes("Efficiency") ? "Efficiency " : "Efficiency"} stackId="a" fill="#014a99" radius={1} />
-            <Bar dataKey={barsNotDisplayed.includes("Motor Pump") ? "Motor Pump " : "Motor Pump"} stackId="a" fill="#013369" radius={1} />
-            <Bar dataKey={barsNotDisplayed.includes("Buckets") ? "Buckets " : "Buckets"} stackId="a" fill="#001b38" radius={1} />
+            <Bar dataKey={barsNotDisplayed.includes("Three Man Ladder") ? "Three Man Ladder " : "Three Man Ladder"}  stackId="a" fill="#91c5fd" radius={1}  onClick={handleBarClick} style={{cursor:'pointer'}}/>
+            <Bar dataKey={barsNotDisplayed.includes("B Ladder") ? "B Ladder " : "B Ladder"} stackId="a" fill="#61acfd" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+            <Bar dataKey={barsNotDisplayed.includes("C Ladder") ? "C Ladder " : "C Ladder"} stackId="a" fill="#3093fd" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+            <Bar dataKey={barsNotDisplayed.includes("C Hose") ? "C Hose " : "C Hose"} stackId="a" fill="#0279fa" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+            <Bar dataKey={barsNotDisplayed.includes("B Hose") ? "B Hose " : "B Hose"} stackId="a" fill="#0162ca" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+            <Bar dataKey={barsNotDisplayed.includes("Efficiency") ? "Efficiency " : "Efficiency"} stackId="a" fill="#014a99" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+            <Bar dataKey={barsNotDisplayed.includes("Motor Pump") ? "Motor Pump " : "Motor Pump"} stackId="a" fill="#013369" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+            <Bar dataKey={barsNotDisplayed.includes("Buckets") ? "Buckets " : "Buckets"} stackId="a" fill="#001b38" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
           </BarChart>
         </ResponsiveContainer>
       );
