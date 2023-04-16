@@ -110,9 +110,12 @@ export default function TotalPoints(props:TotalPointsProp) {
                     }
                     { !isLoading && !errorLoading ?
                         <div className="w-100 big8-bg shadow-sm rounded px-4 py-4 d-flex flex-column align-items-center">
-                            <div style={{ width: '100%', height: 500 }}>
-                                <Chart data={selectedRegionTpArr} />
-                            </div>
+                            {selectedRegionTpArr.length ? 
+                                <div style={{ width: '100%', height: 500 }}>
+                                    <Chart data={selectedRegionTpArr} />
+                                </div>
+                                : <div>No total points were recorded.</div>                        
+                            }
                             <div className="mt-4 font-x-small text-center"><i>Total points reflect runs saved in DB and may not match official results.</i></div>
                         </div> : 
                         <></>                    
@@ -139,7 +142,6 @@ function Chart({data}:ChartProps){
             setBarsNotDisplayed([...barsNotDisplayed, event.value.trim()])
         }
     }
-    console.log(barsNotDisplayed)
 
     return (
         <ResponsiveContainer>
