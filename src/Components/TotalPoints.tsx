@@ -1,5 +1,7 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
+import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
 
 declare var SERVICE_URL: string;
 
@@ -12,12 +14,11 @@ type Regions = "Nassau" | "Northern" | "Suffolk" | "Western";
 export default function TotalPoints(props:TotalPointsProp) {
     let year = props.year; 
 
-    let url = `${SERVICE_URL}/runs/getTotalPoints?year=${year}&totalPointsFieldName=`; 
+    let url = `${SERVICE_URL}/runs/getTotalPoints?year=${year}&byContest=true&totalPointsFieldName=`; 
 
-    const regionData: {[index: string]: {_id:string, points: number}[]} = {}; 
+    const regionData: {[index: string]: {}[]} = {}; 
     const [region, setRegion] = useState<"" | Regions>(""); 
-    const [selectedRegionTeamsArr, setTeamsArr] = useState<{_id:string, points: number}[]>([]); 
-    const [topPoints, setTopPoints] = useState<number>(0); 
+    const [selectedRegionTpArr, setTpArr] = useState<{}[]>([]); 
 
     const [isLoading, setIsLoading] = useState(false); 
     const [errorLoading, setErrorLoading] = useState(false); 
@@ -28,9 +29,29 @@ export default function TotalPoints(props:TotalPointsProp) {
         fetch(urlWithRegion)
         .then(response => response.json())
         .then(data => {
-            regionData[region] = data; 
-            setTeamsArr(data);
-            setTopPoints(data.length ? data[0].points : 0);   
+            const teamData: {[index:string]: {[index:string]: number | string}} = {}; 
+            data.forEach((el: {_id: {contest: string, team: string}, points: number}) => {
+                if(!teamData[el._id.team]){
+                    teamData[el._id.team] = {team: el._id.team}; 
+                }
+                teamData[el._id.team][el._id.contest] = el.points; 
+            })
+            let teamDataArr = Object.values(teamData); 
+            teamDataArr = teamDataArr.map(el => {
+                let totalPoints = 0; 
+                for (const [key, value] of Object.entries(el)) {
+                    if(!["team"].includes(key)) totalPoints += value as number
+                }
+                return {
+                    points: totalPoints, 
+                    ...el
+                }
+            })
+            teamDataArr = teamDataArr.sort((a,b) => {
+                return a.points < b.points ? 1 : -1;
+            })
+            regionData[region] = teamDataArr; 
+            setTpArr(teamDataArr);
             setNoMoreClicks(false); 
             setIsLoading(false); 
         })
@@ -45,8 +66,7 @@ export default function TotalPoints(props:TotalPointsProp) {
         if(!noMoreClicks){
             setRegion(region); 
             if(regionData[region]){
-                setTeamsArr(regionData[region]);
-                setTopPoints(regionData[region].length ? regionData[region][0].points : 0);  
+                setTpArr(regionData[region]);
             } else {
                 setNoMoreClicks(true)
                 setIsLoading(true); 
@@ -66,11 +86,11 @@ export default function TotalPoints(props:TotalPointsProp) {
             </div>
             <div className="row">
                 <div className="col-12 col-md-3">
-                    <div className="d-flex flex-column me-5">
-                        <div className={`${region == "Nassau" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center`} onClick={() => selectRegion("Nassau")}>Nassau</div>
-                        <div className={`${region == "Northern" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center`} onClick={() => selectRegion("Northern")}>Northern</div>
-                        <div className={`${region == "Suffolk" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center`} onClick={() => selectRegion("Suffolk")}>Suffolk</div>
-                        <div className={`${region == "Western" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center`} onClick={() => selectRegion("Western")}>Western</div>
+                    <div className="d-flex flex-column align-items-center mb-1">
+                        <div className={`${region == "Nassau" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center w-100`} onClick={() => selectRegion("Nassau")}>Nassau</div>
+                        <div className={`${region == "Northern" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center w-100`} onClick={() => selectRegion("Northern")}>Northern</div>
+                        <div className={`${region == "Suffolk" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center w-100`} onClick={() => selectRegion("Suffolk")}>Suffolk</div>
+                        <div className={`${region == "Western" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center w-100`} onClick={() => selectRegion("Western")}>Western</div>
                     </div>                
                 </div>
                 <div className="col-12 col-md-9">
@@ -90,21 +110,9 @@ export default function TotalPoints(props:TotalPointsProp) {
                     }
                     { !isLoading && !errorLoading ?
                         <div className="w-100 big8-bg shadow-sm rounded px-4 py-4 d-flex flex-column align-items-center">
-                            {
-                                selectedRegionTeamsArr.length ? 
-                                    <>
-                                        {year!=new Date().getFullYear() ? <h5 className="mb-2">Total Point Champs:</h5> : <></>}
-                                        {selectedRegionTeamsArr.map((el) => {
-                                            if(topPoints == el.points) return <div className="font-x-large text-center"><b>{el._id} ({el.points})</b></div>
-                                        })}
-                                        <h5 className="mt-3">All Others:</h5>
-                                        {selectedRegionTeamsArr.map((el) => {
-                                            if(topPoints != el.points) return <div className="">{el._id} ({el.points})</div>
-                                        })}    
-                                    </>
-                                    :
-                                    <div className="py-5 my-5"><i>No point recorded for {region} in {year}.</i></div>
-                            }
+                            <div style={{ width: '100%', height: 500 }}>
+                                <Chart data={selectedRegionTpArr} />
+                            </div>
                             <div className="mt-4 font-x-small text-center"><i>Total points reflect runs saved in DB and may not match official results.</i></div>
                         </div> : 
                         <></>                    
@@ -115,4 +123,60 @@ export default function TotalPoints(props:TotalPointsProp) {
         </div>
     )
     return content; 
+}
+
+interface ChartProps {
+    data: {}[]
+}
+
+function Chart({data}:ChartProps){
+    const [barsNotDisplayed, setBarsNotDisplayed] = useState([])
+    const toggleLegend = (event:{value:string}) => {
+        if(barsNotDisplayed.includes(event.value.trim())){
+            const newArr = barsNotDisplayed.filter(el => el != event.value.trim())
+            setBarsNotDisplayed(newArr)
+        } else {
+            setBarsNotDisplayed([...barsNotDisplayed, event.value.trim()])
+        }
+    }
+    console.log(barsNotDisplayed)
+
+    return (
+        <ResponsiveContainer>
+          <BarChart
+            layout="vertical"
+            width={500}
+            height={500}
+            data={data}
+            margin={{
+              top: 20,
+              right: 20,
+              left: 100,
+              bottom: 5,
+            }}
+          >
+            <XAxis type="number"/>
+            <YAxis dataKey="team" type="category" tick={{ width: 200, fontSize:'9px' }}/>
+            <Tooltip wrapperStyle={{fontSize: "10px"}} labelStyle={{fontSize: "12px"}}  />
+            <Legend 
+                wrapperStyle={{fontSize: "10px"}} 
+                onClick={toggleLegend} 
+                formatter={(value) => {
+                    return barsNotDisplayed.includes(value.trim()) ? 
+                    <span style={{opacity: "40%", cursor: 'pointer'}}>{value.trim()}</span> : 
+                    <span style={{cursor:'pointer'}}>{value}</span>
+                }}
+                />
+            {/* Extra space trick to keep text display, but hide bar.  Extra space is trimmed in handler */}
+            <Bar dataKey={barsNotDisplayed.includes("Three Man Ladder") ? "Three Man Ladder " : "Three Man Ladder"}  stackId="a" fill="#91c5fd" radius={1}  />
+            <Bar dataKey={barsNotDisplayed.includes("B Ladder") ? "B Ladder " : "B Ladder"} stackId="a" fill="#61acfd" radius={1} />
+            <Bar dataKey={barsNotDisplayed.includes("C Ladder") ? "C Ladder " : "C Ladder"} stackId="a" fill="#3093fd" radius={1} />
+            <Bar dataKey={barsNotDisplayed.includes("C Hose") ? "C Hose " : "C Hose"} stackId="a" fill="#0279fa" radius={1} />
+            <Bar dataKey={barsNotDisplayed.includes("B Hose") ? "B Hose " : "B Hose"} stackId="a" fill="#0162ca" radius={1} />
+            <Bar dataKey={barsNotDisplayed.includes("Efficiency") ? "Efficiency " : "Efficiency"} stackId="a" fill="#014a99" radius={1} />
+            <Bar dataKey={barsNotDisplayed.includes("Motor Pump") ? "Motor Pump " : "Motor Pump"} stackId="a" fill="#013369" radius={1} />
+            <Bar dataKey={barsNotDisplayed.includes("Buckets") ? "Buckets " : "Buckets"} stackId="a" fill="#001b38" radius={1} />
+          </BarChart>
+        </ResponsiveContainer>
+      );
 }
