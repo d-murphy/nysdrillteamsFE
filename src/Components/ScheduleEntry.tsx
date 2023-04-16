@@ -24,12 +24,12 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
     let winnerStr = getTournamentWinner(tournament, seperator); 
     let winnerArr = winnerStr.split(seperator); 
 
-    let nassauIcon = tournament.nassauSchedule; 
-    let northernIcon = tournament.northernSchedule; 
-    let suffolkIcon = tournament.suffolkSchedule; 
-    let westernIcon = tournament.westernSchedule; 
-    let oldfashionedIcon = tournament.liOfSchedule; 
-    let juniorIcon = tournament.juniorSchedule; 
+    let nassauIcon = tournament.nassauPoints; 
+    let northernIcon = tournament.northernPoints; 
+    let suffolkIcon = tournament.suffolkPoints; 
+    let westernIcon = tournament.westernPoints; 
+    let oldfashionedIcon = tournament.liOfPoints || tournament.suffolkOfPoints || tournament.nassauOfPoints; 
+    let juniorIcon = tournament.juniorPoints; 
 
     const navigate = useNavigate(); 
     const routeChange = () =>{ 
