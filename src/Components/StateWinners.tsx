@@ -22,7 +22,6 @@ export default function StateWinners(props: StateWinnersProps) {
         fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?years=${props.year}&tournaments=New York State Championship,New York State OF Championship,New York State Jr. Championship`)
         .then(response => response.json())
         .then(data => {
-            console.log('the data: ', data); 
             data.sort((a:Tournament, b:Tournament) => a.name < b.name ? -1 : 1)
             setTourns(data); 
             setLoading(false);
