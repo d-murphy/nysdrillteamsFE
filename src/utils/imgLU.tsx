@@ -47,6 +47,7 @@ const imgLU: {[index:string]: string}  = {
     "Port Washington Jr. Road Runners": "Port Washington.png", 
     "Riverhead Ironmen": "riverhead.png", 
     "Riverhead Jr. Ironmen": "riverhead.png", 
+    "Roslyn Highlanders": "Roslyn.png", 
     "Sea Breeze Indians": "Sea Breeze.png", 
     "Selden Slowpokes": "Selden.png", 
     "Selden Jr. Slow Pokes": "Selden.png", 

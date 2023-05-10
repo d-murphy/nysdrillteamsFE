@@ -21,6 +21,10 @@ export default function TournVideos(props:TournVideosProps) {
     }
 
     function addVideoLink(){
+        if(!newUrl.toLowerCase().includes('youtube')){
+            setNewUrl(''); 
+            return; 
+        }
         let urls = tournInReview.urls && tournInReview.urls.length ? tournInReview.urls : []; 
         setTournInReview({
             ...tournInReview, 

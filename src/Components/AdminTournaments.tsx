@@ -566,11 +566,6 @@ export default function AdminTournaments(props:AdminTournamentProps) {
 
                         </div>
                         <div className="modal-footer d-flex flex-column">
-                            <div className="text-center">
-                                {!isAdmin ? <span>
-                                    Only admin or scorekeepers can make changes here.
-                                </span> : <></>}
-                            </div>
                             <div className="text-center my-3">
                                 {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
                                     {reqResult.message}
@@ -578,7 +573,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             </div>
                             <div className="">
                                 <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                                <button type="button" className="btn btn-primary mx-2" disabled={!isAdmin || reqSubmitted} onClick={insertOrUpdate}>Save changes</button>
+                                <button type="button" className="btn btn-primary mx-2" disabled={reqSubmitted} onClick={insertOrUpdate}>Save changes</button>
                             </div>
                         </div>
                     </div>

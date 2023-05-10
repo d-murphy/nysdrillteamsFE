@@ -7,14 +7,15 @@ import Nav from '../Components/Nav';
 
 export default function Root() {
     const location = useLocation(); 
-
+    const pagePath = location.pathname + location.search
     useEffect(() => {
         //@ts-ignore
         window.gtag('event', 'page_view', {
-            page_path: location.pathname + location.search,
-            page_location: window.location.href
+            page_path: pagePath,
+            page_location: window.location.href, 
+            page_title: location.pathname
         })
-    }, [location]);
+    }, [pagePath]);
 
     return (
 
