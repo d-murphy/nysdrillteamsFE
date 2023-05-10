@@ -146,8 +146,8 @@ export default function RunFilterResults(props:RunFilterResultsProps) {
 
 
                                 <div className="col-12 col-xl-2 text-center">
-                                    { run?.rank || run?.points ? 
-                                        `${getRankStr(parseInt(run.rank))} - ${run.points} pts` : ""
+                                    {
+                                        `${parseInt(run.rank) ? getRankStr(parseInt(run.rank)) : ""}${parseInt(run.rank) && run.points ? " - " : ""}${run.points ? run.points + " pts" : ""}`
                                     }
                                 </div>
 

@@ -129,6 +129,29 @@ export default function TotalPoints(props:TotalPointsProp) {
     return content; 
 }
 
+//@ts-ignore
+const CustomTooltip = ({ active, payload, label }:props) => {    
+    if (active && payload && payload.length) {
+        let totalPts = 0; 
+        payload.forEach((el:any) => {
+            totalPts += el.value; 
+        })
+      return (
+        <div className="custom-tooltip">
+            <div><b>Total: {totalPts}</b></div>
+            <br />
+            {
+                payload.map((el:any) => <div>{el.dataKey} - {el.value}</div>)
+            }
+            <br />
+            <div><i>Click a bar section to view runs.</i></div>
+        </div>
+      );
+    }
+  
+    return null;
+  };
+
 interface ChartProps {
     data: {}[], 
     year: number, 
@@ -176,7 +199,7 @@ function Chart({data, year, region}:ChartProps){
           >
             <XAxis type="number"/>
             <YAxis dataKey="team" type="category" tick={{ width: 200, fontSize:'9px' }}/>
-            <Tooltip wrapperStyle={{fontSize: "10px"}} labelStyle={{fontSize: "12px"}}  />
+            <Tooltip content={<CustomTooltip />} />
             <Legend 
                 wrapperStyle={{fontSize: "10px"}} 
                 onClick={toggleLegend} 

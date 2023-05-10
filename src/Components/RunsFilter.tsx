@@ -34,6 +34,7 @@ interface RunsFilterProp {
         state?: any;
     }) => void
     searchParams: any
+    setPage: React.Dispatch<SetStateAction<number>>
 }
 
 export default function RunsFilter(props:RunsFilterProp) {
@@ -140,6 +141,7 @@ export default function RunsFilter(props:RunsFilterProp) {
 
     const handleSubmit = () => {
         props.setLoading(true); 
+        props.setPage(1); 
         props.setYears(yearsSelected); 
         props.setTeams(teamsSelected); 
         props.setTournaments(tournamentsSelected); 

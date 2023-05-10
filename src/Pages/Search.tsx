@@ -126,7 +126,7 @@ export default function Search() {
                     setNassauPoints={setNassauPoints} setNorthernPoints={setNorthernPoints} setSuffolkPoints={setSuffolkPoints} setWesternPoints={setWesternPoints}
                     setNassauOfPoints={setNassauOfPoints} setSuffolkOfPoints={setSuffolkOfPoints} setLiOfPoints={setLiOfPoints} setJuniorPoints={setJuniorPoints}
                     setSanctioned={setSanctioned} setStateRecord={setStateRecord} setCurrentStateRecord={setCurrentStateRecord}            
-                    searchParams={searchParams} />
+                    searchParams={searchParams} setPage={setPage} />
                 <RunFilterResults runs={results} page={page} maxPage={maxPage} totalCt={totalCt} 
                     setPage={setPage} loading={loading} noResults={noResults}/>
             </div>
