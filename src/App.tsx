@@ -2,7 +2,9 @@ import * as React from "react";
 import { LoginProvider } from "./utils/context"; 
 import {
     createBrowserRouter,
+    Link,
     RouterProvider,
+    useNavigate
 } from "react-router-dom";
 
 import Root from "./Pages/Root";
@@ -19,14 +21,42 @@ import AdminHome from "./Pages/AdminHome";
 import About from "./Pages/About"
 import Search from "./Pages/Search";
 import TournamentHistory  from "./Pages/TournamentHistory";
+import Image from "react-bootstrap/Image";
+
   
-  
+const ErrorPage = () => {
+    const navigate = useNavigate(); 
+    return (
+        <div>
+
+            <div className="nav-bg-color-dk">
+                <div className="container d-flex justify-content-start p-4 "
+                    onClick={() => navigate("/")}>
+                    <div className="header-logo">
+                        <Image fluid src="/static/img/logo_onetone.png" />                    
+                    </div>
+                </div>
+            </div>
+            <div className="content">
+                <div className="container">
+                    <div className="d-flex align-items-center justify-content-center mt-5">
+                        <div>Sorry, something isn't right. <Link className="video-links" to="/">Let's head home.</Link> </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    )
+
+}
+
 
 const router = createBrowserRouter([
     {
         path: "/",
         element: <Root />,
-        errorElement: <div>Sorry, there's an error.</div>,
+        errorElement: <ErrorPage />,
         children: [
             {
                 path: "",
