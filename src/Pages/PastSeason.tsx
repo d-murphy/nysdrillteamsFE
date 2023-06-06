@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import Big8 from "../Components/Big8";
 import StateWinners from "../Components/StateWinners";
 import TotalPoints from "../Components/TotalPoints"; 
@@ -30,7 +30,7 @@ export default function PastSeasons() {
                 <Big8 year={yearNum}/>
             </div>
             <div className="bg-lightgray rounded shadow-sm">
-                <TotalPoints year={yearNum}/>
+                <TotalPoints year={yearNum} headingAligned={true}/>
             </div>
             <div className="mt-2 bg-lightgray px-2 pt-3 rounded shadow-sm">
                 <div className="h4">Schedule</div>

@@ -14,7 +14,7 @@ export default function PastSeasons() {
 
     const fetchTournamentsCts = () => {
 
-        const yearFilter = new Date().getMonth() >= 6 ? new Date().getFullYear() : new Date().getFullYear() - 1; 
+        const yearFilter = new Date().getMonth() >= 8 ? new Date().getFullYear() : new Date().getFullYear() - 1; 
 
         fetch(`${SERVICE_URL}/tournaments/getTournsCtByYear`)
         .then(response => response.json())

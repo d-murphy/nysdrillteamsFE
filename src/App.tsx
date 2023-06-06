@@ -21,6 +21,7 @@ import AdminHome from "./Pages/AdminHome";
 import About from "./Pages/About"
 import Search from "./Pages/Search";
 import TournamentHistory  from "./Pages/TournamentHistory";
+import CurrentYearTotalPoints from "./Pages/CurrentYearTotalPoints";
 import Image from "react-bootstrap/Image";
 
   
@@ -105,6 +106,10 @@ const router = createBrowserRouter([
             {
                 path: "/About", 
                 element: <About />
+            },
+            {
+                path: "/TotalPoints", 
+                element: <CurrentYearTotalPoints />
             }
         ],
     },

@@ -1,11 +1,12 @@
 import * as React from "react";
 import Big8 from "../Components/Big8";
 import UpcomingEvents from "../Components/UpcomingEvents"; 
+import { Link } from "react-router-dom";
 
 export default function Home() {
 
 
-
+    const year = new Date() < new Date(`5/30/${new Date().getFullYear()}`) ? new Date().getFullYear() -1  : new Date().getFullYear(); 
 
     return (
         <div className="container">
@@ -18,6 +19,9 @@ export default function Home() {
                         <h4>Upcoming Events</h4>
                         <UpcomingEvents year={new Date().getFullYear()} />
                     </div>
+                </div>
+                <div className="col-4 py-3 my-2 text-end">
+                    <Link className="video-links h5" to="/TotalPoints">{year} Total Points</Link>
                 </div>
             </div>
         </div>
