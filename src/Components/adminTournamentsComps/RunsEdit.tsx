@@ -130,7 +130,7 @@ export default function RunsEdit(props:EditRunsProps) {
             suffolkOfPoints: cfp && tournInReview.suffolkOfPoints && teamObj.circuit == 'Old Fashioned',
             nassauOfPoints: cfp && tournInReview.nassauOfPoints && (teamObj.circuit == 'Old Fashioned' || teamObj.circuit == 'Nassau'),
             liOfPoints: cfp && (tournInReview.nassauOfPoints || tournInReview.suffolkOfPoints) && teamObj.circuit == 'Old Fashioned',
-            juniorPoints: cfp && tournInReview.nassauPoints && teamObj.circuit == 'Juniors',
+            juniorPoints: cfp && tournInReview.juniorPoints && teamObj.circuit == 'Juniors',
         })
     }
 
