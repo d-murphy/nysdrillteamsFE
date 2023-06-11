@@ -14,14 +14,11 @@ export default function Home() {
                 <Big8 />
             </div>
             <div className="row mt-3">
-                <div className="col-8">
+                <div className="col-12">
                     <div className="d-flex flex-column align-items center py-3 m-2">
                         <h4>Upcoming Events</h4>
                         <UpcomingEvents year={new Date().getFullYear()} />
                     </div>
-                </div>
-                <div className="col-4 py-3 my-2 text-end">
-                    <Link className="video-links h5" to="/TotalPoints">{year} Total Points</Link>
                 </div>
             </div>
         </div>

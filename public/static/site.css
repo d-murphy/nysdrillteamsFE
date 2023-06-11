@@ -31,7 +31,7 @@ html, body, #root {
 }
 
 
-.big8-bg, .champs-bg {
+.big8-bg, .champs-bg, .nav-dropdown {
     background-color: var(--bs-gray-100); 
 }
 
@@ -78,6 +78,10 @@ html, body, #root {
 
 .banner a, .banner a:hover .banner a:visited {
     color: var(--bs-gray-500)
+}
+
+.dropdown-pos-top {
+    top: 62px; 
 }
 
 /* Footer */
@@ -185,7 +189,7 @@ html, body, #root {
 
 /* Tournament */
 
-.video-links, .map-location-links, .crud-links, .filter-next {
+.video-links, .map-location-links, .crud-links, .filter-next, .nav-dropdown-link {
     text-decoration: none;
     color: var(--nav-bg)
 }
