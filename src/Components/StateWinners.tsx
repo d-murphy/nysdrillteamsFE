@@ -78,10 +78,10 @@ function StateWinnerSq(props: StateWinnerSqProps) {
     const navigate = useNavigate(); 
 
     return (
-        <div className="mx-1 h-100 my-1 flex-grow-1">
+        <div className="mx-1 h-100 w-100 my-1 flex-grow-1">
             <div className="champs-bg rounded shadow-sm d-flex flex-column align-items-center justify-content-center p-4 text-center pointer" 
                 onClick={() => navigate(`/Tournament/${tourn.id}`)}> 
-                <div className="text-nowrap text-truncate h5" >{tourn.name}</div>
+                <div className="text-truncate h5" >{tourn.name.replace("New York State", "NYS")}</div>
                 <div className="d-flex flex-row justify-content-center align-items-center">
                     {winnerArr.map(el => <WinnerIconNoHov team={el} size="lg"/>)}
                 </div>
