@@ -55,7 +55,8 @@ export default function RunsEdit(props:EditRunsProps) {
         juniorPoints: false,
         notes: '',
         stateRecord: false,
-        currentStateRecord: false
+        currentStateRecord: false, 
+        totalPointsOverride: undefined
     }
 
     const [runInReview, setRunInReview] = useState<Run | null>(null)

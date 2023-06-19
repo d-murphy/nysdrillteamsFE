@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faArrowLeft, faArrowRight, faVideo } from '@fortawesome/free-solid-svg-icons'; 
 import StateRecordIcon from "./StateRecordIcon";
+import { TotalPointsOverrideMsg } from "./Scorecard";
 
 interface RunFilterResultsProps {
     runs: Run[];
@@ -149,6 +150,8 @@ export default function RunFilterResults(props:RunFilterResultsProps) {
                                     {
                                         `${parseInt(run.rank) ? getRankStr(parseInt(run.rank)) : ""}${parseInt(run.rank) && run.points ? " - " : ""}${run.points ? run.points + " pts" : ""}`
                                     }
+                                    <span>{run?.totalPointsOverride ? <TotalPointsOverrideMsg value={run.totalPointsOverride} /> : <></>}</span>                    
+
                                 </div>
 
                                 <div className="col-12 col-xl-1 pb-1">

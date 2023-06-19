@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faVideo } from '@fortawesome/free-solid-svg-icons'
 import { niceTime } from "../utils/timeUtils";
 import StateRecordIcon from "./StateRecordIcon";
+import { TotalPointsOverrideMsg } from "./Scorecard";
 
 interface SortedViewProp {
     tournament: Tournament;
@@ -151,7 +152,12 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
                                                             </span> : <></>
                                                     }
                                                     { runsLU[key]?.time ? niceTime(runsLU[key].time) : "--" } / 
-                                                    { runsLU[key]?.points ? runsLU[key].points : "" } 
+                                                    <span className="mx-1">
+                                                        { runsLU[key]?.points ? runsLU[key].points : "" } 
+                                                        { runsLU[key]?.totalPointsOverride ? 
+                                                            <TotalPointsOverrideMsg value={runsLU[key].totalPointsOverride} /> : <></>    
+                                                        }
+                                                    </span>
                                                     {
                                                         runsLU[key]?.stateRecord || runsLU[key]?.currentStateRecord ? 
                                                             <span  className="ms-2"><StateRecordIcon run={runsLU[key]} size="sm" /></span> : <></>
@@ -247,7 +253,12 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
                                     </div>
                             </div>
                             <div className="col-3">
-                                <div className="text-center font-large">{run?.points ? run.points : "" }</div>
+                                <div className="text-center font-large">
+                                    {run?.points ? run.points : "" }
+                                    { run?.totalPointsOverride ? 
+                                        <TotalPointsOverrideMsg value={run.totalPointsOverride} /> : <></>    
+                                    }
+                                </div>
                             </div>
                         </div>
                     )

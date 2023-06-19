@@ -65,7 +65,8 @@ export type Run = {
     notes?: string,
     stateRecord?: boolean,
     currentStateRecord?: boolean, 
-    afterMigrate?: true
+    afterMigrate?: true,
+    totalPointsOverride?: number
 }
 
 export type Track = {

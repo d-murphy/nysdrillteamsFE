@@ -52,10 +52,10 @@ export default function RunsEditForm(props:EditRunsFormProps) {
         })
     }
 
-    function handlePointsChange(e:React.ChangeEvent<HTMLInputElement>){
+    function handlePointsChange(e:React.ChangeEvent<HTMLInputElement>, pointsOrTotalPointsOveride: 'points' | 'totalPointsOverride'){
         setRunInReview({
             ...runInReview, 
-            points: parseFloat(e.target.value)
+            [pointsOrTotalPointsOveride]: parseFloat(e.target.value)
         })
     }
 
@@ -170,9 +170,28 @@ export default function RunsEditForm(props:EditRunsFormProps) {
                         className="text-center width-100 p-1" 
                         disabled={!isAdmin}
                         autoComplete="off" type="number" step=".01"
-                        onChange={(e) => handlePointsChange(e)}></input>
+                        onChange={(e) => handlePointsChange(e, 'points')}></input>
                 </div>
             </div>
+
+            <div className="row mb-1 mt-5 width-100">
+                <div className="col-6 text-center font-small">
+                    <i>Use a different point value in the area total points calculation.  Generally for Northern / Western only to award total points excluding visiting teams.  Blank in most cases.</i>
+                </div>
+                <div className="col-2 text-center">Area Total Points Override</div>
+                <div className="col-4 text-center px-4">
+                    <input 
+                        id="totalPointsOverride" 
+                        value={runInReview.totalPointsOverride || runInReview.totalPointsOverride === 0 ? runInReview.totalPointsOverride : ''} 
+                        className="text-center width-100 p-1" 
+                        disabled={!isAdmin}
+                        autoComplete="off" type="number" step=".01"
+                        onChange={(e) => handlePointsChange(e, 'totalPointsOverride')}></input>
+                </div>
+            </div>
+
+
+
             <div className="row my-3 width-100 border-top pt-2 mx-1">
                 <div className="col-6 ">
                     <div className='mx-3 text-center'>State Record</div>

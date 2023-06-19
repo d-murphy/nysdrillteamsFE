@@ -2,10 +2,11 @@ import * as React from "react";
 
 import { Tournament, Run } from "../types/types"; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faVideo } from '@fortawesome/free-solid-svg-icons'
+import { faStarOfLife, faVideo } from '@fortawesome/free-solid-svg-icons'
 import StateRecordIcon from "./StateRecordIcon"
 
 import { niceTime } from '../utils/timeUtils'; 
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 
 interface ScorecardProp {
@@ -105,10 +106,23 @@ function generateRows(tournament:Tournament, runsLU:{ [key:string]: Run }, total
             if(ind==0){
                 rowBuffer.push(<th scope="col" className="scorecard-cell-md fixed-col p-2">{tournament.runningOrder[i] ? `${less100 ? i-100 : i}. ${tournament.runningOrder[i]}` : `${i}.`}</th>)
                 rowBuffer.push(<TableCell size="lg" value={runsLU[key] ? <TimeCellContents run={runsLU[key]} /> : BLANK_STR} />)
-                rowBuffer.push(<TableCell size="sm" value={runsLU[key]?.points ? runsLU[key].points : BLANK_STR} />) 
+                rowBuffer.push(<TableCell size="sm" value={
+                    <>
+                        <span>{runsLU[key]?.points ? runsLU[key].points : BLANK_STR}</span>
+                        <span>{runsLU[key]?.totalPointsOverride ? <TotalPointsOverrideMsg value={runsLU[key].totalPointsOverride} /> : <></>}</span>                    
+                    </>
+
+                } />)
+                
             } else {
                 rowBuffer.push(<TableCell size="lg" value={runsLU[key] ? <TimeCellContents run={runsLU[key]} /> : BLANK_STR} />)
-                rowBuffer.push(<TableCell size="sm" value={runsLU[key]?.points ? runsLU[key].points : BLANK_STR} />)
+                rowBuffer.push(<TableCell size="sm" value={
+                    <>
+                        <span>{runsLU[key]?.points ? runsLU[key].points : BLANK_STR}</span>
+                        <span>{runsLU[key]?.totalPointsOverride ? <TotalPointsOverrideMsg value={runsLU[key].totalPointsOverride} /> : <></>}</span>                    
+                    </>
+
+                } />)
                 rowBuffer.push(<TableCell size="sm" value={totalPointsLU[key]== 0 ? BLANK_STR : totalPointsLU[key]} />)
             }    
         })
@@ -129,10 +143,22 @@ function generateAlphaRows(teamArr:string[], tournament:Tournament, runsLU:{ [ke
             if(ind==0){
                 rowBuffer.push(<th scope="col" className="scorecard-cell-md fixed-col p-2">{team}</th>)
                 rowBuffer.push(<TableCell size="lg" value={runsLU[key] ? <TimeCellContents run={runsLU[key]} /> : BLANK_STR} />)
-                rowBuffer.push(<TableCell size="sm" value={runsLU[key]?.points ? runsLU[key].points : BLANK_STR} />)
+                rowBuffer.push(<TableCell size="sm" value={
+                    <>
+                        <span>{runsLU[key]?.points ? runsLU[key].points : BLANK_STR}</span>
+                        <span>{runsLU[key]?.totalPointsOverride ? <TotalPointsOverrideMsg value={runsLU[key].totalPointsOverride} /> : <></>}</span>                    
+                    </>
+
+                } />)
             } else {
                 rowBuffer.push(<TableCell size="lg" value={runsLU[key] ? <TimeCellContents run={runsLU[key]} /> : BLANK_STR} />)
-                rowBuffer.push(<TableCell size="sm" value={runsLU[key]?.points ? runsLU[key].points : BLANK_STR} />)
+                rowBuffer.push(<TableCell size="sm" value={
+                    <>
+                        <span>{runsLU[key]?.points ? runsLU[key].points : BLANK_STR}</span>
+                        <span>{runsLU[key]?.totalPointsOverride ? <TotalPointsOverrideMsg value={runsLU[key].totalPointsOverride} /> : <></>}</span>                    
+                    </>
+
+                } />)
                 rowBuffer.push(<TableCell size="sm" value={totalPointsLU[key]== 0 ? BLANK_STR : totalPointsLU[key]} />)
             }    
         })
@@ -172,5 +198,22 @@ function TimeCellContents (props:TimeCellContentsProps){
                     <span  className="ms-3"><StateRecordIcon run={run} size="sm" /></span> : <></>
             }
         </>     
+    )
+}
+
+export function TotalPointsOverrideMsg({value}: {value:number}) {
+    //@ts-ignore
+    const renderTooltip = (props) => (
+        <Tooltip id="button-tooltip" {...props} >{`Awarded ${value} area total point${value>1 ? "s" : ""}`}</Tooltip>
+    );
+            
+    return (     
+        <OverlayTrigger
+            placement="top"
+            delay={{ show: 250, hide: 400 }}
+            overlay={renderTooltip}
+        >
+            <span><FontAwesomeIcon className="fa-2xs pb-1 px-1" icon={faStarOfLife}  /></span>
+        </OverlayTrigger>
     )
 }
