@@ -423,9 +423,9 @@ async function getTeamsForFilter(stateSetter:Function){
         .then(response => response.json())
         .then(data => {
             data = data
-                .filter((el:Team) => typeof(el?.fullName)=='string' && !el.fullName.includes("Jr."))
                 .map((el:Team) => el.fullName)
-                .sort((a:string, b:string) => a < b ? -1 : 1)
+                .filter((el:string) => el)
+                .sort((a:string, b:string) => a.toLowerCase() < b.toLowerCase() ? -1 : 1)
             stateSetter(data); 
         })
         .catch(err => {
