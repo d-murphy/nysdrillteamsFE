@@ -5,6 +5,7 @@
     --button-blue-hover: hwb(210 19% 44%);
     --nav-bg-dk: #001d3c; 
     --nav-bg: #013369; 
+    --total-points-bg: hwb(210 66% 3%); 
 }
 
 
@@ -82,6 +83,7 @@ html, body, #root {
 
 .dropdown-pos-top {
     top: 62px; 
+    z-index: 999;
 }
 
 /* Footer */
@@ -234,7 +236,7 @@ html, body, #root {
     min-width: 40px;
 }
 
-table {
+.table-results {
     white-space: nowrap;
     margin: 0;
     border: none;
@@ -244,12 +246,12 @@ table {
     border: 1px solid black;
   }
 
-  table td,
-  table th {
+  .table-results td,
+  .table-results th {
     border: 1px solid black;
     /* padding: 0.5rem 1rem; */
   }
-  table thead th {
+  .table-results thead th {
     padding: 3px;
     position: sticky;
     top: 0;
@@ -257,23 +259,25 @@ table {
     width: 25vw;
     background: white;
   }
-  table td {
+  .table-results td {
     background: #fff;
     text-align: center;
   }
   
-  table tbody th {
+  .table-results tbody th {
     font-weight: 100;
     font-style: italic;
     text-align: left;
     position: relative;
   }
-  table thead th:first-child {
+  .table-results thead th:first-child, 
+  .other-tables thead th:first-child {
     position: sticky;
     left: 0;
     z-index: 2;
   }
-  table tbody th {
+  .table-results tbody th, 
+  .other-tables tbody th {
     position: sticky;
     left: 0;
     background: white;
@@ -290,6 +294,8 @@ table {
 .bg-lightgray {
     background-color: var(--bs-gray-300);
 }
+
+
 
 /* Run Search */
 .filter-bg {

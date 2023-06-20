@@ -13,7 +13,7 @@ interface TotalPointsProp {
 
 type Regions = "Nassau" | "Northern" | "Suffolk" | "Western" | "Junior"; 
 
-const JR_CONTEST_STR = "Jr Division - Junior Ladder,Jr Division - Intermediate Ladder,Jr Division - Individual Ladder,Jr Division - Cart Ladder," + 
+export const JR_CONTEST_STR = "Jr Division - Junior Ladder,Jr Division - Intermediate Ladder,Jr Division - Individual Ladder,Jr Division - Cart Ladder," + 
     "Jr Division - Junior Cart Hose,Jr Division - Cart Hose,Jr Division - Cart Replacement,Jr Division - Junior Eff. Replacement,Jr Division - Wye," + 
     "Jr Division - Efficiency,Jr Division - Junior Wye"
 

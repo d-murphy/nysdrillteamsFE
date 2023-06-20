@@ -55,7 +55,7 @@ export default function Scorecard(props:ScorecardProp) {
         <>
             {usingAlphaOrder ? <div className="pt-4 ps-4 text-center "><i>Running Order is not available for this drill.  Displaying teams alphabetically.</i></div> : <></>}
             <div className="scorecard-table-wrapper">
-                <table className="my-4">
+                <table className="my-4 table-results">
                     <thead className="">
                         <tr>
                             {headers}

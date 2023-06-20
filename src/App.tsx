@@ -113,7 +113,7 @@ const router = createBrowserRouter([
                 element: <CurrentYearTotalPoints />
             }, 
             {
-                path: "/TeamSummary", 
+                path: "/TeamSummaries", 
                 element: <TeamSummary />
             }
         ],
