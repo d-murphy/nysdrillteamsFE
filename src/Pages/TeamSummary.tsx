@@ -213,13 +213,13 @@ function Filters({teams, teamSelected, setTeamSelected, years, yearSelected, set
                 {/* Large Screen */}
                 <div className='d-none d-lg-block col-lg-6'>
                     <div className='w-100 text-center'><b>Years Active</b></div>
-                    <div style={{ width: '100%', height: 280 }}>
+                    <div style={{ width: '100%', height: 280 }} className='p-2'>
                     {
                         !years.length ? 
                             <div className='p-3 h-100 d-flex align-items-center justify-content-center'>
                                 {
                                     teamSelected ? 
-                                        loading ? <></> : <div>There's no run data for this team.</div> : 
+                                        loading ? <></> : <div className='text-center'>There's no run data for this team.</div> : 
                                         <div className='font-small filter-bg h-100 w-100 rounded d-flex justify-content-center align-items-center'>
                                             Select a team to view active years.
                                         </div>
@@ -241,7 +241,7 @@ function Filters({teams, teamSelected, setTeamSelected, years, yearSelected, set
                                     <div className='p-3 h-100 d-flex align-items-center justify-content-center'>
                                     {
                                         teamSelected ? 
-                                            loading ? <></> : <div><i>There's no run data for this team.</i></div> : 
+                                            loading ? <></> : <div className='text-center'><i>There's no run data for this team.</i></div> : 
                                             <div className='font-small filter-bg h-100 w-100 rounded d-flex justify-content-center align-items-center'>
                                                 Select a team to view active years.
                                             </div>
@@ -308,9 +308,9 @@ function Chart({data}:ChartProps){
             layout="horizontal"
             data={data}
             margin={{
-              top: 40,
-              right: 20,
-              left: 20,
+              top: 5,
+              right: 5,
+              left: 5,
               bottom: 10,
             }}
           >
