@@ -185,7 +185,7 @@ interface TimeCellContentsProps {
     run: Run | null | undefined
 }
 
-function TimeCellContents (props:TimeCellContentsProps){
+export function TimeCellContents (props:TimeCellContentsProps){
     const run = props.run; 
     if(!run) return <></>; 
     return (

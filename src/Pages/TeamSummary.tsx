@@ -6,19 +6,7 @@ declare var SERVICE_URL: string;
 
 import { BarChart, Bar, Label, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { Accordion } from 'react-bootstrap';
-
-
-
-
-
-/* 
-
-To Do: 
-* add state records, videos, area total points override
-
-
-*/ 
-
+import { TimeCellContents, TotalPointsOverrideMsg } from '../Components/Scorecard';
 
 const order = [
     'Three Man Ladder', 'B Ladder', 'C Ladder', 'C Hose', 'B Hose', 'Efficiency', 'Motor Pump', 'Buckets', 
@@ -36,6 +24,7 @@ export default function TeamSummary(){
     const [yearSelected, setYearSelected] = useState<'' | number>(''); 
     const [years, setYears] = useState<{year:number, numRuns: number}[]>([]); 
     const [error, setError] = useState(false); 
+    const [loading, setLoading] = useState(false); 
     const [runs, setRuns] = useState<Run[]>([]); 
 
     useEffect(() => {
@@ -43,7 +32,7 @@ export default function TeamSummary(){
     }, [])
 
     useEffect(() => {
-        getYearsForFilter(setYears, setError, teamSelected); 
+        getYearsForFilter(setYears, setError, setLoading, teamSelected); 
         setYearSelected('')
         setRuns([]); 
     }, [teamSelected])
@@ -52,8 +41,8 @@ export default function TeamSummary(){
         fetch(`${SERVICE_URL}/runs/getTeamSummary?year=${yearSelected}&team=${teamSelected}`)
         .then(response => response.json())
         .then(data => {
-            console.log('runs: ', data, yearSelected, teamSelected)
             setRuns(data); 
+            setLoading(false); 
         })
         .catch(err => {
             console.log(err); 
@@ -74,7 +63,7 @@ export default function TeamSummary(){
                 <Filters teams={teams} teamSelected={teamSelected} 
                     setTeamSelected={setTeamSelected} years={years}  
                     yearSelected={yearSelected} setYearSelected={setYearSelected} 
-                    getResults={getRuns} setRuns={setRuns} />
+                    getResults={getRuns} setRuns={setRuns} loading={loading} />
                 <Results runs={runs} />
             </div>
         </div>
@@ -113,11 +102,26 @@ function Results({runs}:ResultsProps){
                 rowBuffer.push(<td></td>)
             } else {       
                 const run = runsLu[key]; 
+                rowBuffer.push(
+                    <td className='text-center px-3' >
+                        {['NULL', 'NA'].includes(runsLu[key].time) ? 
+                            <i>NA</i> : 
+                            <TimeCellContents run={runsLu[key]} />
+                        }
+                    </td>
+                ); 
+
                 const isPoints = run?.suffolkPoints || run?.nassauPoints || run?.westernPoints || run?.northernPoints || run?.suffolkOfPoints || run?.nassauOfPoints || run?.liOfPoints || run?.juniorPoints; 
-                rowBuffer.push(<td className='text-center px-3' >{['NULL', 'NA'].includes(runsLu[key].time) ? <i>NA</i> : runsLu[key].time}</td>); 
                 isPoints ? 
-                    rowBuffer.push(<td className='table-secondary text-center px-2' >{runsLu[key].points}</td>) :
-                    rowBuffer.push(<td className='text-center px-2'>{runsLu[key].points}</td>)
+                    rowBuffer.push(
+                        <td className='table-secondary text-center px-2' >
+                            {runsLu[key].points}{runsLu[key].totalPointsOverride ? <TotalPointsOverrideMsg value={runsLu[key].totalPointsOverride}/> : <></>}
+                        </td>) :
+                    rowBuffer.push(
+                        <td className='text-center px-2'>
+                            {runsLu[key].points}{runsLu[key].totalPointsOverride ? <TotalPointsOverrideMsg value={runsLu[key].totalPointsOverride} /> : <></>}
+                        </td>
+                    )
             }
         })
         buffer.push(<tr>{...rowBuffer}</tr>)
@@ -137,7 +141,7 @@ function Results({runs}:ResultsProps){
                                 contests.map(contest => {
                                 return (
                                 <>
-                                    <th scope="col" className="text-nowrap px-3">{contest}</th>
+                                    <th scope="col" className="text-nowrap px-5">{contest}</th>
                                     <th scope="col" className="text-nowrap px-3">Pts</th>
                                 </>
                                 )})
@@ -164,15 +168,16 @@ interface filtersProps {
     setYearSelected: React.Dispatch<number>
     setRuns: React.Dispatch<Run[]>
     getResults: Function
+    loading: boolean
 }
 
-function Filters({teams, teamSelected, setTeamSelected, years, yearSelected, setRuns, setYearSelected, getResults}:filtersProps){
+function Filters({teams, teamSelected, setTeamSelected, years, yearSelected, setRuns, setYearSelected, getResults, loading}:filtersProps){
 
     const handleSeasonChange = (newVal:string) => {
         setRuns([]); 
         setYearSelected(parseInt(newVal))
     }
-
+    console.log('loading: ', loading)
     return (
         <div className="mt-3 bg-white rounded shadow-sm p-2">
             <div className='row'>
@@ -215,8 +220,8 @@ function Filters({teams, teamSelected, setTeamSelected, years, yearSelected, set
                             <div className='p-3 h-100 d-flex align-items-center justify-content-center'>
                                 {
                                     teamSelected ? 
-                                        <div>There's no run data for this team.</div> : 
-                                        <div className='font-small'>
+                                        loading ? <></> : <div>There's no run data for this team.</div> : 
+                                        <div className='font-small filter-bg h-100 w-100 rounded d-flex justify-content-center align-items-center'>
                                             Select a team to view active years.
                                         </div>
                                 }
@@ -237,8 +242,8 @@ function Filters({teams, teamSelected, setTeamSelected, years, yearSelected, set
                                     <div className='p-3 h-100 d-flex align-items-center justify-content-center'>
                                     {
                                         teamSelected ? 
-                                            <div><i>There's no run data for this team.</i></div> : 
-                                            <div className='font-small'>
+                                            loading ? <></> : <div><i>There's no run data for this team.</i></div> : 
+                                            <div className='font-small filter-bg h-100 w-100 rounded d-flex justify-content-center align-items-center'>
                                                 Select a team to view active years.
                                             </div>
                                     }
@@ -276,15 +281,16 @@ async function getTeamsForFilter(stateSetter:Function, errorSetter: Function){
         })
 }
 
-async function getYearsForFilter(stateSetter:Function, errorSetter:Function, teamSelected: string){
+async function getYearsForFilter(stateSetter:Function, errorSetter:Function, setLoading:Function,  teamSelected: string){
+    setLoading(true)
     fetch(`${SERVICE_URL}/runs/getYearRunCounts?team=${teamSelected}`)
         .then(response => response.json())
         .then(data => {
-            console.log('data: ', data); 
             data = data
                 .filter((el:{_id: number, yearRunCount: number}) => el._id)
                 .map((el:{_id: number, yearRunCount: number}) => {return {year: el._id, numRuns: el.yearRunCount}})
             stateSetter(data); 
+            setLoading(false); 
         })
         .catch(err => {
             console.log(err); 
