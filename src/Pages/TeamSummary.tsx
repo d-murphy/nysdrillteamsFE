@@ -177,7 +177,6 @@ function Filters({teams, teamSelected, setTeamSelected, years, yearSelected, set
         setRuns([]); 
         setYearSelected(parseInt(newVal))
     }
-    console.log('loading: ', loading)
     return (
         <div className="mt-3 bg-white rounded shadow-sm p-2">
             <div className='row'>
