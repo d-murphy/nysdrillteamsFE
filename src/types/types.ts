@@ -114,3 +114,12 @@ export type User = {
     username: string, 
     role: string
 }
+
+export type SimilarTeam = {
+    _id: string, 
+    team: string, 
+    year: number, 
+    otherTeam: string, 
+    otherYear: number, 
+    distance: number
+}

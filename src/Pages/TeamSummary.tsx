@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react'; 
-import { Team, Run } from '../types/types'; 
+import { Team, Run, SimilarTeam } from '../types/types'; 
 import Form from 'react-bootstrap/Form';
 import { JR_CONTEST_STR } from '../Components/TotalPoints'; 
 declare var SERVICE_URL: string;
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
+import { faCircleInfo } from "@fortawesome/free-solid-svg-icons"; 
 
 import { BarChart, Bar, Label, XAxis, YAxis, ResponsiveContainer } from 'recharts';
-import { Accordion } from 'react-bootstrap';
+import { Accordion, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { TimeCellContents, TotalPointsOverrideMsg } from '../Components/Scorecard';
+import { niceTime } from '../utils/timeUtils';
 
 const order = [
     'Three Man Ladder', 'B Ladder', 'C Ladder', 'C Hose', 'B Hose', 'Efficiency', 'Motor Pump', 'Buckets', 
@@ -26,6 +29,8 @@ export default function TeamSummary(){
     const [error, setError] = useState(false); 
     const [loading, setLoading] = useState(false); 
     const [runs, setRuns] = useState<Run[]>([]); 
+    const [similarTeams, setSimilarTeams] = useState<SimilarTeam[]>([]); 
+    const [similarTeamsLoading, setSimilarTeamsLoading] = useState(false); 
 
     useEffect(() => {
         getTeamsForFilter(setTeams, setError); 
@@ -36,6 +41,13 @@ export default function TeamSummary(){
         setYearSelected('')
         setRuns([]); 
     }, [teamSelected])
+
+    useEffect(() => {
+        if(!teamSelected || !yearSelected) return setSimilarTeams([])
+        setSimilarTeamsLoading(true)
+        getSimilarYears(setSimilarTeams, teamSelected, yearSelected); 
+        setTimeout(() => setSimilarTeamsLoading(false), 4000); 
+    }, [teamSelected, yearSelected])
 
     function getRuns(){
         fetch(`${SERVICE_URL}/runs/getTeamSummary?year=${yearSelected}&team=${teamSelected}`)
@@ -64,9 +76,125 @@ export default function TeamSummary(){
                     setTeamSelected={setTeamSelected} years={years}  
                     yearSelected={yearSelected} setYearSelected={setYearSelected} 
                     getResults={getRuns} setRuns={setRuns} loading={loading} />
+                {runs.length ? <Summary runs={runs} similarTeams={similarTeams} similarTeamsLoading={similarTeamsLoading} /> : <></> }
                 <Results runs={runs} />
             </div>
         </div>
+    )
+}
+
+const SimilarTeamsInfoTooltip = (props:any) => (
+    <Tooltip id="similar-teams-info-tooltip" {...props} >
+        Using percentages of points scored and frequency of good runs to find similar teams.
+    </Tooltip>
+);
+
+interface SummaryProps {
+    runs: Run[]
+    similarTeams: SimilarTeam[]
+    similarTeamsLoading: boolean
+}
+
+function Summary({runs, similarTeams, similarTeamsLoading}: SummaryProps){
+    let pointsSum = 0; 
+    let areaPointsSum = 0; 
+    const points = runs.reduce((accum: {[key:string]: {points: number, areaPoints:number, minTime: null | number, contest: string}}, el:Run) => {
+        const anyAreaPoints = el.nassauPoints || el.northernPoints || el.suffolkPoints || el.westernPoints || 
+            el.suffolkOfPoints || el.nassauOfPoints || el.juniorPoints || el.liOfPoints; 
+        if(!accum[el.contest]){
+            accum[el.contest] = {points: 0, areaPoints: 0, minTime: null, contest: el.contest}; 
+        }
+        accum[el.contest].points += el.points; 
+        pointsSum += el.points; 
+        const areaPtsForRun = !anyAreaPoints ? 0 : el.totalPointsOverride || el.points;
+        accum[el.contest].areaPoints +=  areaPtsForRun; 
+        areaPointsSum += areaPtsForRun; 
+        accum[el.contest].minTime = !accum[el.contest].minTime && el.timeNum ? el.timeNum : 
+            accum[el.contest].minTime && !el.timeNum ? accum[el.contest].minTime : 
+            Math.min(accum[el.contest].minTime, el.timeNum); 
+        return accum; 
+    }, {})
+    const pointsArr = Object.values(points); 
+    pointsArr.sort((a, b) => {
+        return orderLut[a.contest] < orderLut[b.contest] ? -1 : 1; 
+    })
+
+    return (
+        <div className="mt-3 bg-white rounded shadow-sm p-2">
+            <div className='row'>
+                <div className="col-12 col-lg-6">
+                    <div className="p-2 ">
+                        <div><b>Runs</b>: {runs.length}</div>
+                        <div><b>Points</b>: {pointsSum} ({areaPointsSum} area)</div>  
+                        <div className='mt-2'>
+                            {
+                                <div className="table-responsive">
+                                <table className="table table-sm w-100 other-tables ">
+                                    <thead>
+                                        <tr>
+                                            <th scope="row" className='bg-white px-0'>Best / Points in each Contest</th>
+                                            <td scope="row" className='text-end'><b>Time</b></td>
+                                            <td scope="row" className='text-end'><b>Pts (Area)</b></td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {
+                                            pointsArr.map(el => {
+                                                return (
+                                                    el.minTime === 0 ? <></> : 
+                                                    <tr className=''>
+                                                        <td>{el.contest}</td>
+                                                        <td className='text-end'>{niceTime(el.minTime)}</td>
+                                                        <td className='text-end'>{el.points} ({el.areaPoints})</td>
+                                                    </tr>
+                                                )
+                                            })
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div className="col-12 col-lg-6">
+                        <div className='p-5 h-100 d-flex align-items-center justify-content-center text-center'>
+                            {
+                                !similarTeams.length ? <></> : 
+                                pointsSum < 50 || runs.length <50 ? <></> : 
+                                    similarTeamsLoading ? 
+                                        <div className='w-100 h-100 filter-bg p-4 rounded d-flex flex-column align-items-center'>
+                                            <div><i>Searching for Similar Seasons</i></div>
+                                            <div className="spinner-border text-secondary mt-5" role="status">
+                                                <span className="visually-hidden">Loading...</span>
+                                            </div>                                        
+                                        </div> : 
+                                        <div className='filter-bg p-4 rounded w-100 '>
+                                            <div className='pb-2 d-flex flex-row align-items-center justify-content-center w-100'>
+                                                <b>Similar Seasons</b>
+                                                <OverlayTrigger
+                                                    placement="top"
+                                                    delay={{ show: 250, hide: 400 }}
+                                                    overlay={SimilarTeamsInfoTooltip}
+                                                >
+                                                    <div className="font-small ms-3">
+                                                        <FontAwesomeIcon icon={faCircleInfo}/>
+                                                    </div>
+                                                </OverlayTrigger>
+                                            </div>
+                                            {
+                                                similarTeams.map(el => {
+                                                    return <div className='font-small'>{el.otherYear} - {el.otherTeam}</div>
+                                                })
+                                            }
+                                        </div>
+                            }
+                        </div>
+                    </div>
+            </div>
+        </div>
+
     )
 }
 
@@ -296,6 +424,21 @@ async function getYearsForFilter(stateSetter:Function, errorSetter:Function, set
             errorSetter(true)
         })
 }
+
+async function getSimilarYears(stateSetter:Function, teamSelected: string, year: number){
+    fetch(`${SERVICE_URL}/teams/getSimilarTeams?team=${teamSelected}&year=${year}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('similar teams: ', data); 
+            stateSetter(data); 
+        })
+        .catch(err => {
+            console.log('Error pulling similar teams: ', err); 
+            //quiet fail
+            stateSetter([])
+        })
+}
+
 
 interface ChartProps {
     data: {year:number, numRuns: number}[]
