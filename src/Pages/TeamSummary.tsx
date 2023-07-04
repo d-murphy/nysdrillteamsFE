@@ -10,6 +10,7 @@ import { BarChart, Bar, Label, XAxis, YAxis, ResponsiveContainer } from 'rechart
 import { Accordion, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { TimeCellContents, TotalPointsOverrideMsg } from '../Components/Scorecard';
 import { niceTime } from '../utils/timeUtils';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 const order = [
     'Three Man Ladder', 'B Ladder', 'C Ladder', 'C Hose', 'B Hose', 'Efficiency', 'Motor Pump', 'Buckets', 
@@ -22,15 +23,27 @@ order.forEach((el, ind) => orderLut[el] = ind + 1);
 
 export default function TeamSummary(){
 
-    const [teamSelected, setTeamSelected] = useState(""); 
     const [teams, setTeams] = useState<string[]>([]); 
-    const [yearSelected, setYearSelected] = useState<'' | number>(''); 
     const [years, setYears] = useState<{year:number, numRuns: number}[]>([]); 
     const [error, setError] = useState(false); 
     const [loading, setLoading] = useState(false); 
     const [runs, setRuns] = useState<Run[]>([]); 
     const [similarTeams, setSimilarTeams] = useState<SimilarTeam[]>([]); 
     const [similarTeamsLoading, setSimilarTeamsLoading] = useState(false); 
+    const [searchParams, setSearchParams] = useSearchParams();
+    const navigate = useNavigate(); 
+
+    const teamSelected = searchParams.get('team'); 
+    const yearSelected = parseInt(searchParams.get('year')); 
+    const updateParam = (field:string, value?:string) => {
+        if(!value) {
+            searchParams.delete(field)
+            return setSearchParams(searchParams)
+        } else {
+            searchParams.set(field, value)
+            setSearchParams(searchParams)    
+        }
+    }
 
     useEffect(() => {
         getTeamsForFilter(setTeams, setError); 
@@ -38,29 +51,21 @@ export default function TeamSummary(){
 
     useEffect(() => {
         getYearsForFilter(setYears, setError, setLoading, teamSelected); 
-        setYearSelected('')
         setRuns([]); 
     }, [teamSelected])
 
     useEffect(() => {
-        if(!teamSelected || !yearSelected) return setSimilarTeams([])
+        if(!teamSelected || !yearSelected) {
+            setRuns([]); 
+            return setSimilarTeams([])
+        }
         setSimilarTeamsLoading(true)
+        setLoading(true)
         getSimilarYears(setSimilarTeams, teamSelected, yearSelected); 
-        setTimeout(() => setSimilarTeamsLoading(false), 4000); 
+        // for the loading animation - doesn't take that long, but time draws attention
+        setTimeout(() => setSimilarTeamsLoading(false), 2700); 
+        getRuns(teamSelected, yearSelected, setRuns, setLoading, setError); 
     }, [teamSelected, yearSelected])
-
-    function getRuns(){
-        fetch(`${SERVICE_URL}/runs/getTeamSummary?year=${yearSelected}&team=${teamSelected}`)
-        .then(response => response.json())
-        .then(data => {
-            setRuns(data); 
-            setLoading(false); 
-        })
-        .catch(err => {
-            console.log(err); 
-            setError(true)
-        })
-    }
 
     if(error) return (
         <div className="container bg-white p-3 text-center w-100 my-2">
@@ -73,11 +78,11 @@ export default function TeamSummary(){
             <div className="mx-2">
                 <div className="text-center w-100 font-x-large mt-2"><b>Team Season Summaries</b></div>
                 <Filters teams={teams} teamSelected={teamSelected} 
-                    setTeamSelected={setTeamSelected} years={years}  
-                    yearSelected={yearSelected} setYearSelected={setYearSelected} 
+                    updateParam={updateParam} years={years}  
+                    yearSelected={yearSelected}  
                     getResults={getRuns} setRuns={setRuns} loading={loading} />
                 {runs.length ? <Summary runs={runs} similarTeams={similarTeams} similarTeamsLoading={similarTeamsLoading} /> : <></> }
-                <Results runs={runs} />
+                <Results runs={runs} loading={loading}/>
             </div>
         </div>
     )
@@ -98,6 +103,7 @@ interface SummaryProps {
 function Summary({runs, similarTeams, similarTeamsLoading}: SummaryProps){
     let pointsSum = 0; 
     let areaPointsSum = 0; 
+    let statePts = 0; 
     const points = runs.reduce((accum: {[key:string]: {points: number, areaPoints:number, minTime: null | number, contest: string}}, el:Run) => {
         const anyAreaPoints = el.nassauPoints || el.northernPoints || el.suffolkPoints || el.westernPoints || 
             el.suffolkOfPoints || el.nassauOfPoints || el.juniorPoints || el.liOfPoints; 
@@ -109,6 +115,7 @@ function Summary({runs, similarTeams, similarTeamsLoading}: SummaryProps){
         const areaPtsForRun = !anyAreaPoints ? 0 : el.totalPointsOverride || el.points;
         accum[el.contest].areaPoints +=  areaPtsForRun; 
         areaPointsSum += areaPtsForRun; 
+        statePts += el.tournament === 'New York State Championship' ? el.points : 0; 
         accum[el.contest].minTime = !accum[el.contest].minTime && el.timeNum ? el.timeNum : 
             accum[el.contest].minTime && !el.timeNum ? accum[el.contest].minTime : 
             Math.min(accum[el.contest].minTime, el.timeNum); 
@@ -139,10 +146,10 @@ function Summary({runs, similarTeams, similarTeamsLoading}: SummaryProps){
                                     </thead>
                                     <tbody>
                                         {
-                                            pointsArr.map(el => {
+                                            pointsArr.map((el, ind) => {
                                                 return (
                                                     el.minTime === 0 ? <></> : 
-                                                    <tr className=''>
+                                                    <tr className='' key={ind}>
                                                         <td>{el.contest}</td>
                                                         <td className='text-end'>{niceTime(el.minTime)}</td>
                                                         <td className='text-end'>{el.points} ({el.areaPoints})</td>
@@ -162,7 +169,7 @@ function Summary({runs, similarTeams, similarTeamsLoading}: SummaryProps){
                         <div className='p-5 h-100 d-flex align-items-center justify-content-center text-center'>
                             {
                                 !similarTeams.length ? <></> : 
-                                pointsSum < 50 || runs.length <50 ? <></> : 
+                                pointsSum < 50 || runs.length <50 || statePts < 1 ? <></> : 
                                     similarTeamsLoading ? 
                                         <div className='w-100 h-100 filter-bg p-4 rounded d-flex flex-column align-items-center'>
                                             <div><i>Searching for Similar Seasons</i></div>
@@ -184,8 +191,12 @@ function Summary({runs, similarTeams, similarTeamsLoading}: SummaryProps){
                                                 </OverlayTrigger>
                                             </div>
                                             {
-                                                similarTeams.map(el => {
-                                                    return <div className='font-small'>{el.otherYear} - {el.otherTeam}</div>
+                                                similarTeams.map((el, ind) => {
+                                                    return (
+                                                        <div key={ind} className='font-small'>
+                                                            <Link className="video-links " to={`/TeamSummaries?team=${el.otherTeam}&year=${el.otherYear}`}>{el.otherYear} - {el.otherTeam}</Link>                                                                
+                                                        </div>
+                                                    )
                                                 })
                                             }
                                         </div>
@@ -200,14 +211,16 @@ function Summary({runs, similarTeams, similarTeamsLoading}: SummaryProps){
 
 interface ResultsProps {
     runs: Run[]
+    loading: boolean
 }
 
-function Results({runs}:ResultsProps){
-    const tourns: {[index:number]: {date: number, dateDisplay: string, name: string}} = {}; 
+function Results({runs, loading}:ResultsProps){
+    const navigate = useNavigate(); 
+    const tourns: {[index:number]: {date: number, dateDisplay: string, name: string, tournId: string}} = {}; 
     runs.forEach(run => {
         const runAsDate = new Date(run.date).getTime(); 
         if(!tourns[runAsDate]){
-            tourns[runAsDate] = {date: new Date(run.date).getTime(), dateDisplay: new Date(run.date).toLocaleDateString(), name: run.tournament}
+            tourns[runAsDate] = {date: new Date(run.date).getTime(), dateDisplay: new Date(run.date).toLocaleDateString(), name: run.tournament, tournId: run.tournamentId}
         }
     })
     const contests = Array.from(new Set(runs.map(el => el.contest))).sort((a,b) => !orderLut[a] ? 1 : !orderLut[b] ? -1 : orderLut[a] < orderLut[b] ? -1 : 1); 
@@ -221,8 +234,8 @@ function Results({runs}:ResultsProps){
         let rowBuffer: JSX.Element[] = []; 
         // pushing two header cols.  one as normal cell for small screens
         const tournNameCellContent = <span className='font-weight-normal'>{tourns[tournTimeNum].name} - <span className='font-x-small'>{tourns[tournTimeNum].dateDisplay}</span></span>
-        rowBuffer.push(<th scope="row" className="d-none d-md-block bg-white text-nowrap">{tournNameCellContent}</th>)
-        rowBuffer.push(<td scope="row" className="d-block d-md-none text-nowrap ">{tournNameCellContent}</td>)
+        rowBuffer.push(<th scope="row" className="d-none d-md-block bg-white text-nowrap pointer" onClick={() => navigate(`/tournament/${tourns[tournTimeNum].tournId}`)}>{tournNameCellContent}</th>)
+        rowBuffer.push(<td scope="row" className="d-block d-md-none text-nowrap pointer" onClick={() => navigate(`/tournament/${tourns[tournTimeNum].tournId}`)}>{tournNameCellContent}</td>)
         contests.forEach(contest => {
             let key = `${tournTime}-${contest}`; 
             if(!runsLu[key]) {
@@ -254,7 +267,7 @@ function Results({runs}:ResultsProps){
         })
         buffer.push(<tr>{...rowBuffer}</tr>)
     })
-
+    if(loading) return <></>
     if(!runs.length) return <div className='text-center my-3 bg-white rounded shadow-sm p-4'>Select a team and season to view season summary.</div>
     return (
         <div className="my-3 bg-white rounded shadow-sm p-2">
@@ -290,35 +303,37 @@ function Results({runs}:ResultsProps){
 interface filtersProps {
     teams: string []
     teamSelected: string
-    setTeamSelected: React.Dispatch<string>
+    updateParam: (field:string, value?:string) => void
     years: {year: number, numRuns: number} []
     yearSelected: number | ''
-    setYearSelected: React.Dispatch<number>
     setRuns: React.Dispatch<Run[]>
     getResults: Function
     loading: boolean
 }
 
-function Filters({teams, teamSelected, setTeamSelected, years, yearSelected, setRuns, setYearSelected, getResults, loading}:filtersProps){
+function Filters({teams, teamSelected, updateParam, years, yearSelected, setRuns, getResults, loading}:filtersProps){
 
     const handleSeasonChange = (newVal:string) => {
         setRuns([]); 
-        setYearSelected(parseInt(newVal))
+        updateParam('year', newVal)
     }
     return (
         <div className="mt-3 bg-white rounded shadow-sm p-2">
             <div className='row'>
                 {/* <div className='col-0 col-lg-2' /> */}
                 <div className="col-12 col-lg-6">
-                    <div className='d-flex flex-column h-100 justify-content-center'>
-                        <div className='p-1 w-100 text-center mt-4'>
+                    <div className='d-flex flex-column h-100 justify-content-center pb-5'>
+                        <div className='p-1 w-100 text-center'>
                             <b>Select a team</b>
                         </div>
                         <div className='p-1 w-100'>
-                            <Form.Select aria-label="Select Team" value={teamSelected} onChange={((e) => setTeamSelected(e.target.value))}>
+                            <Form.Select aria-label="Select Team" value={teamSelected} onChange={((e) => {
+                                    updateParam('team', e.target.value)
+                                    updateParam('year')
+                                })}>
                                 <option value=""></option>
                                 {teams.map(el => {
-                                    return <option value={el}>{el}</option>
+                                    return <option key={el} value={el}>{el}</option>
                                 })}
                             </Form.Select>
                         </div>
@@ -329,12 +344,9 @@ function Filters({teams, teamSelected, setTeamSelected, years, yearSelected, set
                             <Form.Select aria-label="Select Year" value={yearSelected} onChange={(e) => handleSeasonChange(e.target.value)} disabled={!teamSelected}>
                                 <option value=''></option>
                                 {years.map(el => {
-                                    return <option value={el.year}>{`${el.year} - ${el.numRuns} runs`}</option>
+                                    return <option  value={el.year}>{`${el.year} - ${el.numRuns} runs`}</option>
                                 })}
                             </Form.Select>
-                        </div>
-                        <div className='p-4 d-flex justify-content-center w-100 mb-4'>
-                            <button type="button" onClick={() => getResults()} disabled={!teams.length || !years.length || !teamSelected } className="btn submit-search-button font-medium" >View Season Summary</button>
                         </div>
                     </div>
                 </div>
@@ -392,7 +404,7 @@ function Filters({teams, teamSelected, setTeamSelected, years, yearSelected, set
 
 
 
-async function getTeamsForFilter(stateSetter:Function, errorSetter: Function){
+function getTeamsForFilter(stateSetter:Function, errorSetter: Function){
     fetch(`${SERVICE_URL}/teams/getTeams`)
         .then(response => response.json())
         .then(data => {
@@ -408,7 +420,7 @@ async function getTeamsForFilter(stateSetter:Function, errorSetter: Function){
         })
 }
 
-async function getYearsForFilter(stateSetter:Function, errorSetter:Function, setLoading:Function,  teamSelected: string){
+function getYearsForFilter(stateSetter:Function, errorSetter:Function, setLoading:Function,  teamSelected: string){
     setLoading(true)
     fetch(`${SERVICE_URL}/runs/getYearRunCounts?team=${teamSelected}`)
         .then(response => response.json())
@@ -425,11 +437,24 @@ async function getYearsForFilter(stateSetter:Function, errorSetter:Function, set
         })
 }
 
-async function getSimilarYears(stateSetter:Function, teamSelected: string, year: number){
+function getRuns(teamSelected: string, yearSelected:number, setRuns: Function, setLoading: Function, setError: Function){
+    fetch(`${SERVICE_URL}/runs/getTeamSummary?year=${yearSelected}&team=${teamSelected}`)
+    .then(response => response.json())
+    .then(data => {
+        setRuns(data); 
+        setLoading(false); 
+    })
+    .catch(err => {
+        console.log(err); 
+        setError(true)
+    })
+}
+
+
+function getSimilarYears(stateSetter:Function, teamSelected: string, year: number){
     fetch(`${SERVICE_URL}/teams/getSimilarTeams?team=${teamSelected}&year=${year}`)
         .then(response => response.json())
         .then(data => {
-            console.log('similar teams: ', data); 
             stateSetter(data); 
         })
         .catch(err => {
@@ -464,8 +489,8 @@ function Chart({data}:ChartProps){
             <YAxis dataKey="numRuns" type="number" label={{value: "Run Count", angle:-90, position: 'insideLeft'}}/>
             {
                 data.length === 1 ? 
-                <Bar dataKey={"numRuns"} fill="#546f8a" radius={2} maxBarSize={10} /> : 
-                <Bar dataKey={"numRuns"} fill="#546f8a" radius={2}  /> 
+                <Bar dataKey={"numRuns"} fill="#546f8a" radius={2} maxBarSize={5} /> : 
+                <Bar dataKey={"numRuns"} fill="#546f8a" radius={2} maxBarSize={5} /> 
             }
           </BarChart>
         </ResponsiveContainer>
