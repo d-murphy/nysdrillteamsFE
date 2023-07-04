@@ -90,7 +90,7 @@ export default function TeamSummary(){
 
 const SimilarTeamsInfoTooltip = (props:any) => (
     <Tooltip id="similar-teams-info-tooltip" {...props} >
-        Using percentages of points scored and frequency of good runs to find similar teams.
+        Using percentage of points scored and frequency of good runs to find similar teams.
     </Tooltip>
 );
 
