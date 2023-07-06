@@ -6,7 +6,7 @@ import { fetchPost, fetchGet, logUpdate } from "../utils/network"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faPenToSquare, faTrash, faPersonRunning } from "@fortawesome/free-solid-svg-icons"; 
 import dateUtil from '../utils/dateUtils'; 
-import EditTop5 from "./adminTournamentsComps/editTop5"; 
+import EditTop5 from "./adminTournamentsComps/EditTop5"; 
 import EditRunningOrder from "./adminTournamentsComps/EditRunningOrder"; 
 import EditContests from "./adminTournamentsComps/EditContests"; 
 import EditScheduleAndTotalPoints from "./adminTournamentsComps/EditScheduleAndTotalPoints"
@@ -96,6 +96,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     function handleDateInput(e:React.ChangeEvent<HTMLInputElement>){
         setTournInReview({
             ...tournInReview, 
+            year: new Date(`${e.target.value} 12:00:00`).getFullYear(), 
             [e.target.id]: new Date(`${e.target.value} 12:00:00`)
         })
     }
