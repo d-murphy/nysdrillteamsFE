@@ -37,6 +37,7 @@ export default function AdminTracks(props:AdminTracksProps) {
 
     const isAdmin = role === "admin"; 
     const isAdminOrScorekeeper = role === 'admin' || role === 'scorekeeper'
+    const disableOnDupe = editOrCreate === "Create" && tracks.map(el => el.name.toLowerCase()).includes(trackInReview.name.toLowerCase()); 
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){
         setTrackInReview({
@@ -97,7 +98,7 @@ export default function AdminTracks(props:AdminTracksProps) {
             props.updateTracks(); 
         } catch (e){
             console.log(e.message)
-            setReqResult({error: true, message: "An error occurred. Try again later."}); 
+            setReqResult({error: true, message: "An error occurred.  Make sure all required fields are complete or try again later."}); 
             setReqSubmitted(false); 
         }
     }
@@ -307,9 +308,12 @@ export default function AdminTracks(props:AdminTracksProps) {
                                 {reqResult.message}
                             </span> : <></>}
                         </div>
+                        <div className="text-center my-3">
+                            {disableOnDupe && <span className="text-danger">Name already in use.</span>}
+                        </div>
                         <div className="">
                             <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted} onClick={insertOrUpdate}>Save changes</button>
+                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted || disableOnDupe} onClick={insertOrUpdate}>Save changes</button>
                         </div>
                     </div>
                     </div>

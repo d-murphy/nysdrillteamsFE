@@ -108,7 +108,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
             props.updateTeams(); 
         } catch (e){
             console.log(e.message)
-            setReqResult({error: true, message: "An error occurred. Try again later."}); 
+            setReqResult({error: true, message: "An error occurred.  Make sure all required fields are complete or try again later."}); 
             setReqSubmitted(false); 
         }
     }

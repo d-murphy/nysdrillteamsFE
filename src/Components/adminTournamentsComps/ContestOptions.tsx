@@ -40,6 +40,7 @@ export default function ContestOptions() {
             <option value={"Jr Division - Junior Wye"}>Jr Division - Junior Wye</option> 
             <option value={"Jr Division - Wye"}>Jr Division - Wye</option> 
             <option value={"Dummy"}>Dummy</option> 
+            <option value={"Jr Division - Efficiency Replacement"}>Jr Division - Efficiency Replacement</option>
         </>
     )
 }
