@@ -1,5 +1,48 @@
 import React from "react"
 
+export const contestArr = [
+    "Three Man Ladder",
+    "B Ladder",
+    "C Ladder",
+    "C Hose",
+    "B Hose",
+    "Efficiency",
+    "Motor Pump",
+    "Buckets",
+    "Booster No. 1",
+    "Booster Tank",
+    "Combination Hose & Pump",
+    "Eight Man Hose",
+    "Efficiency Replacement",
+    "Equipment",
+    "Ground Buckets", 
+    "Individual Ladder",
+    "Motor H&L Dummy", 
+    "Motor Hose No. 2 Target and Barrel",
+    "Motor Hose Replacement",
+    "Running Hose",
+    "Running Hose Replacement",
+    "Running Ladder", 
+    "Special Efficiency", 
+    "Tug of War", 
+    "Two into One",
+    "Jr Division - Cart Hose", 
+    "Jr Division - Cart Hose with Barrel", 
+    "Jr Division - Cart Ladder", 
+    "Jr Division - Cart Replacement", 
+    "Jr Division - Efficiency", 
+    "Jr Division - Individual Ladder", 
+    "Jr Division - Intermediate Ladder", 
+    "Jr Division - Junior Cart Hose", 
+    "Jr Division - Junior Eff. Replacement", 
+    "Jr Division - Junior Ladder", 
+    "Jr Division - Junior Wye", 
+    "Jr Division - Wye", 
+    "Dummy", 
+    "Jr Division - Efficiency Replacement",
+]
+
+
 export default function ContestOptions() {
     return (
         <>
@@ -11,7 +54,8 @@ export default function ContestOptions() {
             <option value={"Efficiency"}>Efficiency</option>
             <option value={"Motor Pump"}>Motor Pump</option>
             <option value={"Buckets"}>Buckets</option>
-            <option value={"Booster Contest"}>Booster Contest</option>
+            <option value={"Booster No. 1"}>Booster No. 1</option>
+            <option value={"Booster Tank"}>Booster Tank</option>
             <option value={"Combination Hose & Pump"}>Combination Hose & Pump</option>
             <option value={"Eight Man Hose"}>Eight Man Hose</option>
             <option value={"Efficiency Replacement"}>Efficiency Replacement</option>

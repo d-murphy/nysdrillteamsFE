@@ -67,7 +67,7 @@ interface calculatingTotalPoints {
     finish?:string
 }
 
-function calculateTotalPoints(tournament:Tournament, runs: Run[]):calculatingTotalPoints[]{
+export function calculateTotalPoints(tournament:Tournament, runs: Run[]):calculatingTotalPoints[]{
     let totalPtsLu: { [team:string]:  calculatingTotalPoints} = {}; 
     let positions = Object.keys(tournament.runningOrder).map(el => parseInt(el))
     if(positions.length){

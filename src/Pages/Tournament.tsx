@@ -12,7 +12,7 @@ import useWindowDimensions from "../utils/windowDimensions";
 declare var SERVICE_URL: string;
 
 
-export default function Schedule() {
+export default function Tournament() {
 
     const [tournLoading, setTournLoading] = useState(true); 
     const [runLoading, setRunLoading] = useState(true); 

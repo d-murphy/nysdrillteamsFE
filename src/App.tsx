@@ -12,7 +12,7 @@ import Root from "./Pages/Root";
 import Home from './Pages/Home';
 import Schedule from './Pages/Schedule'; 
 import Tournament from './Pages/Tournament';
-import Track from './Pages/Track';
+import Broadcast, { BroadcastInstructions } from "./Pages/Broadcast";
 import PastSeasons from "./Pages/PastSeasons";
 import PastSeason from "./Pages/PastSeason"; 
 import TopRuns from "./Pages/TopRuns";
@@ -115,9 +115,27 @@ const router = createBrowserRouter([
             {
                 path: "/TeamSummaries", 
                 element: <TeamSummary />
-            }
+            },
         ],
     },
+    {
+        path: "/Broadcast", 
+        element: <BroadcastInstructions />
+    },
+    {
+        path: "/Broadcast/:id", 
+        element: <BroadcastInstructions />
+    },
+    {
+        path: "/Broadcast/:id/:topornext", 
+        element: <BroadcastInstructions />
+    },
+    {
+        path: "/Broadcast/:id/:topornext/:contest", 
+        element: <Broadcast />
+    }
+
+
 ]);
   
 export default function App() {
