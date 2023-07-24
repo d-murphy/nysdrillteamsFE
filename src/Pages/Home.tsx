@@ -22,7 +22,7 @@ export default function Home() {
                     </div>
                 </div>
                 <div className="col-12 col-md-6">
-                    <div className="h-100 d-flex align-items-start mb-4">
+                    <div className="h-100 d-flex align-items-start mb-4 mx-3">
                             <Social />
                     </div>
                 </div>
