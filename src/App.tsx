@@ -127,11 +127,11 @@ const router = createBrowserRouter([
         element: <BroadcastInstructions />
     },
     {
-        path: "/Broadcast/:id/:topornext", 
+        path: "/Broadcast/:id/:topnextorlast", 
         element: <BroadcastInstructions />
     },
     {
-        path: "/Broadcast/:id/:topornext/:contest", 
+        path: "/Broadcast/:id/:topnextorlast/:contest", 
         element: <Broadcast />
     }
 

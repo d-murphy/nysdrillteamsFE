@@ -76,7 +76,7 @@ export default function Schedule(props:ScheduleProp) {
             {tournaments.length ? 
                 tournaments.map((el:Tournament) => {  
                     return (
-                    <div className="my-2 d-flex flex-row align-items-center"> 
+                    <div className="my-2 d-flex flex-row align-items-start"> 
                         <div><>{el.name} @ {el.track} - {dateUtil.getMMDDYYYY(el.date)}, {dateUtil.getTime(el.startTime)}</></div>  
                         {el?.liveStreamPlanned ? <LiveStream /> : <></>}
                     </div>

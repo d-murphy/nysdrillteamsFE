@@ -2,6 +2,7 @@ import * as React from "react";
 import Big8 from "../Components/Big8";
 import UpcomingEvents from "../Components/UpcomingEvents"; 
 import { Link } from "react-router-dom";
+import { Social } from "./About";
 
 export default function Home() {
 
@@ -14,10 +15,15 @@ export default function Home() {
                 <Big8 />
             </div>
             <div className="row mt-3">
-                <div className="col-12">
-                    <div className="d-flex flex-column align-items center py-3 m-2">
+                <div className="col-12 col-md-6">
+                    <div className="d-flex flex-column align-items center px-3 pb-3">
                         <h4>Upcoming Events</h4>
                         <UpcomingEvents year={new Date().getFullYear()} />
+                    </div>
+                </div>
+                <div className="col-12 col-md-6">
+                    <div className="h-100 d-flex align-items-start mb-4">
+                            <Social />
                     </div>
                 </div>
             </div>

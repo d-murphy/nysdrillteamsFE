@@ -5,7 +5,7 @@ export default function Nav() {
     let navigate = useNavigate();
 
     return (
-        <div className="footer">
+        <div className="">
             <div className="d-flex justify-content-end p-3 ">
                 <span className="underline-hover-ft"  onClick={() => navigate("/login")}>Admins</span>
             </div>
