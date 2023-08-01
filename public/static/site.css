@@ -361,10 +361,14 @@ html, body, #root {
 /* Broadcast */
 
 .broadcast {
-    padding: 100px; 
+    padding: 100px;
+    padding-top: 300px; 
+    padding-bottom: 300px;  
     background-color: #00ff00;
     font-family: 'Open Sans', sans-serif;
     font-weight: 700;
+    -webkit-text-stroke: 2px black;
+    color: white; 
 }
 
 

@@ -127,15 +127,9 @@ const router = createBrowserRouter([
         element: <BroadcastInstructions />
     },
     {
-        path: "/Broadcast/:id/:topnextorlast", 
-        element: <BroadcastInstructions />
-    },
-    {
-        path: "/Broadcast/:id/:topnextorlast/:contest", 
+        path: "/Broadcast/:id/:showing", 
         element: <Broadcast />
     }
-
-
 ]);
   
 export default function App() {
