@@ -8,7 +8,7 @@ import Tooltip from "react-bootstrap/Tooltip";
 
 interface Props {
     imageSrc: string,
-    size: 'sm' | 'md' | 'lg'
+    size: 'sm' | 'md' | 'lg' | 'xl'
 }
 
 export function SizedImage(props: Props) {

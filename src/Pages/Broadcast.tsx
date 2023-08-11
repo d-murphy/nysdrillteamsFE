@@ -6,6 +6,8 @@ import { calculateTotalPoints } from "../Components/SortedView";
 
 import { Tournament, Run } from "../types/types"; 
 import { niceTime } from "../utils/timeUtils";
+import { SizedImage } from "../Components/SizedImage";
+import getImgLocation from "../utils/imgLU";
 
 declare var SERVICE_URL: string;
 
@@ -30,7 +32,7 @@ export default function Broadcast() {
     const limitParam = searchParams.get('limit'); 
     const contestParam = searchParams.get('contest'); 
 
-    if(!tournamentId || !showing || !['all', 'last', 'next', 'top'].includes(showing)) return (
+    if(!tournamentId || !showing || !['all', 'last', 'next', 'top', 'next-icon', 'last-icon'].includes(showing)) return (
         <div className="p-5">
             <BroadcastInstructions />
         </div>
@@ -56,7 +58,7 @@ export default function Broadcast() {
     }, [tournamentId])
 
 
-    if(['next', 'top'].includes(showing) && !contestOptions.includes(contestParam?.toLowerCase())) return (
+    if(['next', 'top', 'next-icon'].includes(showing) && !contestOptions.includes(contestParam?.toLowerCase())) return (
         <div className="container">
             <div className="p-2">
                 {`This is not a valid contest: ${contestParam}`}
@@ -108,23 +110,51 @@ export default function Broadcast() {
         })
     } else if (showing === "top") {
         content = runsToShow.map((el,ind) => {
-            return ind < limit || (runsToShow.length > limit && runsToShow[limit - 1].time === el.time) ? <><div className="col-9 text-left">{el.team}</div><div className="col-3 text-left">{niceTime(el.time)}</div></> : <></>
+            return ind < limit || (runsToShow.length > limit && runsToShow[limit - 1].time === el.time) ? <><div className="col-9 text-left">{el.hometown}</div><div className="col-3 text-left">{niceTime(el.time)}</div></> : <></>
         })
-    } else if(showing === 'next'){
+    } else if(['next', 'next-icon'].includes(showing)){
         let numToShow = limit; 
         let numToSkip = skip; 
         content = runningOrder.map((el, ind) => {
             return !el.team ? <></> : 
                 --numToSkip >= 0 ? <></> : 
-                --numToShow >= 0 ? <div className="col-12">{el.position}. {el.team}</div> : <></>
+                --numToShow < 0 ? <></> : 
+                    showing === 'next' ? 
+                        <div className="col-12">{el.position}. {el.team}</div>: 
+                        <>
+                            <div className="col-4">
+                                <div className="d-flex justify-content-center my-1">
+                                    <SizedImage imageSrc={getImgLocation(el.team || "")} size="xl"/> 
+                                </div>
+                            </div>
+                            <div className="col-8"><div className="d-flex align-items-center h-100">{el.position}. {el.team}</div></div>
+                        </>
         })
-    } else if(showing === 'last'){
-        content = maxRunningPositionRun ? <><div className="col-9 text-left">{maxRunningPositionRun?.team}</div><div className="col-3 text-left">{maxRunningPositionRun?.time}</div></> : <></>
+    } else if(['last', 'last-icon'].includes(showing)){
+        content = !maxRunningPositionRun ? <></> : 
+            showing === 'last' ? <><div className="col-9 text-left">{maxRunningPositionRun?.hometown}</div><div className="col-3 text-left">{maxRunningPositionRun?.time}</div></>
+            :
+            <>
+                <div className="col-4">
+                    <div className="d-flex justify-content-center my-1">
+                        <SizedImage imageSrc={getImgLocation(maxRunningPositionRun?.team || "")} size="xl"/> 
+                    </div>
+                </div>
+                <div className="col-5">
+                    <div className="d-flex align-items-center h-100">
+                        {maxRunningPositionRun?.hometown}
+                    </div>
+                </div>
+                <div className="col-3">
+                    <div className="d-flex align-items-center h-100">
+                        {maxRunningPositionRun?.time}
+                    </div>
+                </div>
+            </>
     }
-    
     return (
         <div className="">
-            <div className="broadcast font-xxx-large row">
+            <div className="broadcast row">
                 {content}
             </div>
         </div>
@@ -151,6 +181,7 @@ export function BroadcastInstructions(){
                             <li>This is showing points from the run entries, not the tournament.</li>
                         </ul>
                     <li>Use last for the most recent run.</li>
+                    <li>Use last-icon for the most recent run with an icon.</li>
                     <li>Use next for upcoming teams.</li>
                     <ul>
                         <li>specify contest with ?contest=X (required)</li>
@@ -158,6 +189,7 @@ export function BroadcastInstructions(){
                         <li>add ?limit=1 to limit the number shown (optional)</li>
                         <li>combine options as follows: ?contest=X&skip=1</li>
                     </ul>
+                    <li>Use next-icon for next functionality, but with an icon!</li>
                     <li>Use top for the best runs in a contest</li>
                     <ul>
                         <li>specify contest with ?contest=X (required)</li>

@@ -18,6 +18,9 @@ html, body, #root {
     overflow-x: hidden;
 }
 
+.special-font {
+    font-family: 'Barlow Condensed', 'Open Sans', sans-serif;
+}
 
 
 
@@ -365,12 +368,12 @@ html, body, #root {
     padding-top: 300px; 
     padding-bottom: 300px;  
     background-color: #00ff00;
-    font-family: 'Open Sans', sans-serif;
-    font-weight: 700;
-    -webkit-text-stroke: 2px black;
+    font-family: 'Barlow Condensed', 'Open Sans', sans-serif;
+    font-weight: 900;
     color: white; 
+    font-variant: small-caps;
+    font-size: 100px; 
 }
-
 
 /* General */
 
@@ -443,6 +446,11 @@ html, body, #root {
 .image-wrap-lg {
     width: 150px; 
     height: 150px; 
+}
+
+.image-wrap-xl {
+    width: 250px; 
+    height: 250px; 
 }
 
 .fluid-width {
