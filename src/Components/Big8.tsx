@@ -58,7 +58,7 @@ export default function Big8(props:Big8Prop) {
         )
     } else {
         content = (
-            <div className="col d-flex flex-column align-items-start p-3 m-2 ">
+            <div className="col d-flex flex-column align-items-start py-3 my-2 ">
                 <p><span className="h4 me-3">The Big 8</span>{`Top times from ${big8Year}'s motorized teams.`}</p>
                 <div className="row w-100 g-2">
                     <Big8ContestLoading />
