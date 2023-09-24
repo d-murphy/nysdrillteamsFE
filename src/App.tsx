@@ -24,6 +24,8 @@ import TournamentHistory  from "./Pages/TournamentHistory";
 import CurrentYearTotalPoints from "./Pages/CurrentYearTotalPoints";
 import Image from "react-bootstrap/Image";
 import TeamSummary from "./Pages/TeamSummary";
+import TeamHistoryBase from "./Pages/TeamHistoryBase";
+import TeamHistory from "./Pages/TeamHistory";
 
   
 const ErrorPage = () => {
@@ -116,6 +118,14 @@ const router = createBrowserRouter([
                 path: "/TeamSummaries", 
                 element: <TeamSummary />
             },
+            {
+                path: "/TeamHistory", 
+                element: <TeamHistoryBase />
+            }, 
+            {
+                path: "/TeamHistory/:teamName", 
+                element: <TeamHistory />
+            }
         ],
     },
     {

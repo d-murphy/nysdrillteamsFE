@@ -474,6 +474,14 @@ html, body, #root {
     min-height: 10px;
 }
 
+.minheight-180 {
+    min-height: 180px;
+}
+
+.minwidth-800 {
+    min-width: 800px;
+}
+
 
 .pill {
     background-color: var(--button-blue); 

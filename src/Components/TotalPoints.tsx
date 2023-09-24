@@ -2,6 +2,7 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import useWindowDimensions from "../utils/windowDimensions";
 
 
 declare var SERVICE_URL: string;
@@ -144,6 +145,9 @@ export default function TotalPoints(props:TotalPointsProp) {
 
 //@ts-ignore
 const CustomTooltip = ({ active, payload, label }:props) => {    
+    const { width } = useWindowDimensions();
+    const smallScreen = width < 750; 
+
     if (active && payload && payload.length) {
         let totalPts = 0; 
         payload.forEach((el:any) => {
@@ -157,7 +161,10 @@ const CustomTooltip = ({ active, payload, label }:props) => {
                 payload.map((el:any) => <div>{el.dataKey} - {el.value}</div>)
             }
             <br />
-            <div><i>Click a bar section to view runs.</i></div>
+            {
+                !smallScreen ? 
+                    <div><i>Click a bar section to view runs.</i></div> : <></>
+            }
         </div>
       );
     }
@@ -173,6 +180,9 @@ interface ChartProps {
 
 function Chart({data, year, region}:ChartProps){
     const [barsNotDisplayed, setBarsNotDisplayed] = useState([])
+    const { width } = useWindowDimensions();
+    const smallScreen = width < 750; 
+
     const toggleLegend = (event:{value:string}) => {
         if(barsNotDisplayed.includes(event.value.trim())){
             const newArr = barsNotDisplayed.filter(el => el != event.value.trim())
@@ -190,7 +200,8 @@ function Chart({data, year, region}:ChartProps){
     }
 
     const handleBarClick = (data:{team:string, tooltipPayload: {name:string}[]}) => {
-        if(!regionPtrStr[region]) return
+        if(!regionPtrStr[region]) return; 
+        if(smallScreen)return; 
         const team = data.team; 
         const contest = data.tooltipPayload[0].name; 
         const paramString = `?years=${year}&teams=${team}&contests=${contest}&${regionPtrStr[region]}`

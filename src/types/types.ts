@@ -138,3 +138,16 @@ export type FinishesReturn = {
     }, 
     host: string
 }
+
+export type TeamTournHistory = {
+    name: string, 
+    id: number, 
+    date: Date, 
+    track: string, 
+    runningOrderPos?: number, 
+    finishingPosition?: string, 
+    points?: number
+    stateRecordCount?: number, 
+    runCount?: number
+    videoCount?: number
+}
