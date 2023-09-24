@@ -27,7 +27,7 @@ export function SizedImage(props: Props) {
                         <div className={placeholderClass}></div>
                     </div> : <></>
             }
-            <Image src={props.imageSrc} fluid className="fluid-width" onLoad={() => setShowLoading(false)}/>
+            <Image src={props.imageSrc} fluid className={`fluid-width ${showLoading ? 'd-none' : ''}`} onLoad={() => setShowLoading(false)}/>
             <div className="flex-grow-1"/>
         </div>
     )
