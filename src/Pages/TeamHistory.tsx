@@ -140,7 +140,8 @@ function TeamRecords({teamRecords}: TeamRecordsProps){
 }
 
 function contestSort(contest: string){
-    return contestArr.findIndex(el => el === contest); 
+    const sortNum = contestArr.findIndex(el => el === contest); 
+    return sortNum === -1 ? 99 : sortNum; 
 
 }
 
