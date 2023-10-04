@@ -123,7 +123,7 @@ function generateRows(tournament:Tournament, runsLU:{ [key:string]: Run }, total
                     </>
 
                 } />)
-                rowBuffer.push(<TableCell size="sm" value={totalPointsLU[key]== 0 ? BLANK_STR : Math.round(totalPointsLU[key] * 100)/100 } />)
+                rowBuffer.push(<TableCell size="sm" value={!totalPointsLU[key] || totalPointsLU[key]== 0 ? BLANK_STR : Math.round(totalPointsLU[key] * 100)/100 } />)
             }    
         })
         buffer.push(<tr>{...rowBuffer}</tr>)
