@@ -127,7 +127,7 @@ export default function RunsEditForm(props:EditRunsFormProps) {
             <div className="row my-3 width-100">
                 <div className="col-2 text-center">Team</div>
                 <div className="col-4 text-center px-4">{runInReview.team}</div>
-                <div className="col-2 text-center">Time</div>
+                <div className="col-2 text-center">Time*</div>
                 <div className="col-4 text-center px-4">
                     <input 
                         id="time" 
@@ -218,7 +218,7 @@ export default function RunsEditForm(props:EditRunsFormProps) {
             </div>
             <div className="row mt-5 mb-2 width-100">
                 <div className='d-flex justify-content-center align-items-center'>
-                    <button type="button" className="btn btn-success mx-2"  onClick={trySave}>Save</button>
+                    <button type="button" className="btn btn-success mx-2" disabled={!runInReview.time} onClick={trySave}>Save</button>
                     <button type="button" className="btn btn-danger mx-2"  disabled={!isAdmin} onClick={tryDelete} >{!showingDeleteWarning ? 'Delete Run' : 'Yes, please delete.'}</button>
                 </div>
             </div>

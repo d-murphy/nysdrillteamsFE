@@ -30,7 +30,7 @@ export default function RunFilterResults(props:RunFilterResultsProps) {
 
     const navigate = useNavigate(); 
     
-    if(loading) return <div className="my-3 min-loading-height"></div>
+    if(loading) return <div className="my-3"></div>
     if(noResults) return <div className="bg-white rounded m-2 p-3 text-center">No results from this search.</div>
 
     return (

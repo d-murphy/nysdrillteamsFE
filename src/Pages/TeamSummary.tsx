@@ -416,7 +416,7 @@ function Filters({teams, teamSelected, updateParam, years, yearSelected, setRuns
                             <Form.Select aria-label="Select Year" value={yearSelected} onChange={(e) => handleSeasonChange(e.target.value)} disabled={!teamSelected}>
                                 <option value=''></option>
                                 {years.map(el => {
-                                    return <option  value={el.year}>{`${el.year} - ${el.numRuns} runs`}</option>
+                                    return <option  value={el.year}>{`${el.year} - ${el.numRuns} run${el.numRuns>1 ? "s" : ""}`}</option>
                                 })}
                             </Form.Select>
                         </div>
@@ -481,6 +481,7 @@ function getTeamsForFilter(stateSetter:Function, errorSetter: Function){
         .then(response => response.json())
         .then(data => {
             data = data
+                .filter((el: Team) => el.display)
                 .map((el:Team) => el.fullName)
                 .filter((el:string) => el)
                 .sort((a:string, b:string) => a.toLowerCase() < b.toLowerCase() ? -1 : 1)
@@ -494,7 +495,7 @@ function getTeamsForFilter(stateSetter:Function, errorSetter: Function){
 
 function getYearsForFilter(stateSetter:Function, errorSetter:Function, setLoading:Function,  teamSelected: string){
     setLoading(true)
-    fetch(`${SERVICE_URL}/runs/getYearRunCounts?team=${teamSelected}`)
+    fetch(`${SERVICE_URL}/runs/getYearRunCounts?team=${encodeURIComponent(teamSelected)}`)
         .then(response => response.json())
         .then(data => {
             data = data
@@ -512,7 +513,7 @@ function getYearsForFilter(stateSetter:Function, errorSetter:Function, setLoadin
 
 function getRuns(teamSelected: string, yearSelected:number, setRuns: Function, setLoading: Function, setError: Function){
     if(!yearSelected || !teamSelected) return; 
-    fetch(`${SERVICE_URL}/runs/getTeamSummary?year=${yearSelected}&team=${teamSelected}`)
+    fetch(`${SERVICE_URL}/runs/getTeamSummary?year=${yearSelected}&team=${encodeURIComponent(teamSelected)}`)
     .then(response => response.json())
     .then(data => {
         setRuns(data); 
@@ -527,7 +528,7 @@ function getRuns(teamSelected: string, yearSelected:number, setRuns: Function, s
 
 function getSimilarYears(stateSetter:Function, teamSelected: string, year: number){
     if(!teamSelected || !year) return 
-    fetch(`${SERVICE_URL}/teams/getSimilarTeams?team=${teamSelected}&year=${year}`)
+    fetch(`${SERVICE_URL}/teams/getSimilarTeams?team=${encodeURIComponent(teamSelected)}&year=${year}`)
         .then(response => response.json())
         .then(data => {
             stateSetter(data); 
@@ -541,7 +542,7 @@ function getSimilarYears(stateSetter:Function, teamSelected: string, year: numbe
 
 function getFinishes(stateSetter: Function, teamSelected: string, year: number){
     if(!teamSelected || !year) return; 
-    fetch(`${SERVICE_URL}/tournaments/getFinishes?team=${teamSelected}&years=${year}`)
+    fetch(`${SERVICE_URL}/tournaments/getFinishes?team=${encodeURIComponent(teamSelected)}&years=${year}`)
         .then(response => response.json())
         .then(data => {
             data.sort((a:FinishesReturn,b:FinishesReturn) => new Date(a.date) < new Date(b.date) ? -1 : 1)

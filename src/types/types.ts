@@ -33,6 +33,7 @@ export type Tournament = {
     notes?: string, 
     host?: string, 
     isParade?: boolean
+    cancelled?: boolean
 }
 
 export type Run = {

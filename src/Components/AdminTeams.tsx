@@ -167,8 +167,8 @@ export default function AdminTeams(props:AdminTeamsProps) {
                                             {team.fullName} - {team.circuit}
                                         </div>
                                     </div>
-                                    <div className="col-4">
-                                        <div className="pointer px-3 d-flex align-items-center justify-content-center"
+                                    <div className="col-4 d-flex align-items-center justify-content-between">
+                                        <div className="pointer ps-5 d-flex align-items-center justify-content-center"
                                             data-bs-toggle="modal" 
                                             data-bs-target="#editTeamModal"
                                             onClick={()=>{
@@ -179,7 +179,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
                                             ><FontAwesomeIcon className="crud-links font-x-large" icon={faPenToSquare} />
                                         </div>
                                         {team.afterMigrate ? 
-                                            <div className="pointer px-3"
+                                            <div className="pointer pe-5 d-flex align-items-center justify-content-center"
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#deleteTeamModal"
                                                 onClick={()=>{
@@ -187,7 +187,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
                                                     loadTeam(team); 
                                                 }}
                                                 ><FontAwesomeIcon className="crud-links font-x-large" icon={faTrash}/>
-                                            </div> : <></>}
+                                            </div> : <div></div>}
                                     </div>
                                 </div>
                             )

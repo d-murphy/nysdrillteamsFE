@@ -391,7 +391,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
 
                             <div className="row my-1">
                                 <div className="col-4 text-center">
-                                    <div>Name</div>
+                                    <div>Name*</div>
                                 </div>
                                 <div className="col-8 text-center px-4">
                                     { !showNewTournName ? <select onChange={handleNameList} id="nameList" name="nameList" className="width-100 text-center" value={tournInReview.name} disabled={!isAdmin || hasRuns}>
@@ -441,7 +441,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
 
 
                             <div className="row my-1">
-                                <div className="col-4 text-center">Date</div>
+                                <div className="col-4 text-center">Date*</div>
                                 <div className="col-8 d-flex justify-content-around px-4" >
                                     <div>{dateUtil.getYYYYMMDD(tournInReview.date)}</div>
                                     <input 
@@ -471,7 +471,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                 </div>
                             </div>
                             <div className="row my-1">
-                                <div className="col-4 text-center">Track</div>
+                                <div className="col-4 text-center">Track*</div>
                                 <div className="col-8 text-center px-4">
                                     <select onChange={handleSelect} id="track" name="track" className="width-100 text-center" value={tournInReview.track} disabled={!isAdmin || hasRuns}>
                                         <option value={null}></option>
@@ -544,10 +544,18 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                 <div className="col-6 d-flex flex-column align-items-center">
                                     <div>Is this a Parade?</div>
                                     <div>
-                                        <input className="form-check-input" type="checkbox" id="isParade" name="sanctioned" checked={tournInReview?.isParade} onChange={handleCheck} disabled={!isAdmin}></input>
+                                        <input className="form-check-input" type="checkbox" id="isParade" name="isParade" checked={tournInReview?.isParade} onChange={handleCheck} disabled={!isAdmin}></input>
                                     </div>
                                 </div>
                                 <div className="col-6 d-flex flex-column align-items-center">
+                                    <div>Event Cancelled?</div>
+                                    <div>
+                                        <input className="form-check-input" type="checkbox" id="cancelled" name="cancelled" checked={tournInReview?.cancelled} onChange={handleCheck} disabled={!isAdmin}></input>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="row my-4">
+                                <div className="col-12 d-flex flex-column align-items-center">
                                     {
                                         !tournInReview.isParade ? <></> :
                                          <div className="text-center"><i>Don't select any Total Points regions for parades, but you're welcome to use the Schedule regions.</i></div>
@@ -574,7 +582,9 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             </div>
                             <div className="">
                                 <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                                <button type="button" className="btn btn-primary mx-2" disabled={reqSubmitted} onClick={insertOrUpdate}>Save changes</button>
+                                <button type="button" className="btn btn-primary mx-2" 
+                                    disabled={reqSubmitted || (!tournInReview.name || !tournInReview.date || !tournInReview.track) } 
+                                    onClick={insertOrUpdate}>Save changes</button>
                             </div>
                         </div>
                     </div>

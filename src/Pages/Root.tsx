@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Outlet, useLocation } from "react-router-dom";
 
 import Nav from '../Components/Nav';  
+import ScrollToTop from "../utils/ScrollToTop";
 
 
 export default function Root() {
@@ -20,6 +21,7 @@ export default function Root() {
     return (
 
         <div className="">
+            <ScrollToTop />
             <Nav />
             <div className="">
                 <Outlet />

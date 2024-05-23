@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import useWindowDimensions from "../utils/windowDimensions";
 
 

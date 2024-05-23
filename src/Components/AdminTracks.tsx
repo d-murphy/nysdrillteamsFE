@@ -162,8 +162,8 @@ export default function AdminTracks(props:AdminTracksProps) {
                                         </div>
                                     </div>
                                     <div className="col-4">
-                                        <div className="test-center d-flex justify-content-center align-items-center">
-                                            <div className="pointer px-3"
+                                        <div className="test-center d-flex justify-content-between align-items-center">
+                                            <div className="pointer ps-5"
                                             data-bs-toggle="modal" 
                                             data-bs-target="#editTrackModal"
                                             onClick={()=>{
@@ -173,7 +173,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                                             }}
                                             ><FontAwesomeIcon className="crud-links font-x-large" icon={faPenToSquare} /></div>
                                             {track.afterMigrate ? 
-                                                <div className="pointer px-3"
+                                                <div className="pointer pe-5"
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#deleteTrackModal"
                                                     onClick={()=>{

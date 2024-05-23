@@ -20,10 +20,6 @@ export default function RunVideos(props:RunVideosProps) {
     }
 
     function addVideoLink(){
-        if(!newUrl.toLowerCase().includes('youtube')){
-            setNewUrl(''); 
-            return; 
-        }
         let urls = runInReview.urls && runInReview.urls.length ? runInReview.urls : []; 
         setRunInReview({
             ...runInReview, 

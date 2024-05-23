@@ -16,7 +16,7 @@ export default function TeamHistoryBase(){
     }, [])
 
     const groups = teams.reduce((accum: Record<string, Team[]>, el: Team) => {
-//        if(!el.display) return accum; 
+        if(!el.display) return accum; 
         if(!accum[el.circuit]){
             accum[el.circuit] = [el]
         } else {
@@ -53,7 +53,7 @@ export default function TeamHistoryBase(){
                                     groups[el].map(team => {
                                         return (
                                             <div className="px-2 py-1">
-                                                <Link className="video-links " to={`/TeamHistory/${team.fullName}`}>
+                                                <Link className="video-links " to={`/TeamHistory/${encodeURIComponent(team.fullName)}`}>
                                                     {team.fullName}
                                                 </Link>
                                             </div>

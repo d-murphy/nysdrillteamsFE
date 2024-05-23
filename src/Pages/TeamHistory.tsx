@@ -361,7 +361,7 @@ function calcOpacity(item: TeamTournHistory, opacCtrl: opacityControl) {
 function getTeamHistory(teamname:string, stateSetter:Function, errorSetter:Function, setLoading:Function){
     setLoading(true)
     stateSetter([])
-    fetch(`${SERVICE_URL}/histories/getHistory?teamname=${teamname}`)
+    fetch(`${SERVICE_URL}/histories/getHistory?teamname=${encodeURIComponent(teamname)}`)
         .then(response => response.json())
         .then(data => {
             stateSetter(data.histories); 
@@ -376,7 +376,7 @@ function getTeamHistory(teamname:string, stateSetter:Function, errorSetter:Funct
 function getTeamRecords(teamName: string, stateSetter:Function, errorSetter:Function, setLoading:Function){
     setLoading(true)
     stateSetter([])
-    fetch(`${SERVICE_URL}/runs/getTeamRecords?team=${teamName}`)
+    fetch(`${SERVICE_URL}/runs/getTeamRecords?team=${encodeURIComponent(teamName)}`)
         .then(response => response.json())
         .then(data => {
             stateSetter(data); 

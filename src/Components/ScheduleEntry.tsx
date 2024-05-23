@@ -109,7 +109,8 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
 
                 <div className="col-lg-3 col-12 d-flex justify-content-center align-items-center px-2 py-3">
                     {
-                        tournament.isParade ? <></> : 
+                        tournament?.cancelled ? <div className="px-3 text-center"><i>This event was cancelled.</i></div> : 
+                        tournament?.isParade ? <></> : 
                             <div className="schedule-entry-button font-medium px-3 py-2 rounded text-center" onClick={() => navigate(`/Tournament/${tournament.id}`)}>View Scorecard</div>
                     }
                 </div>

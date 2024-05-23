@@ -76,6 +76,8 @@ export default function Tournament() {
                     <TournamentHeader tournament={tournament} />
                 </div>
                 {
+                tournament?.cancelled ? 
+                    <div className="row bg-white my-1 shadow-sm rounded p-5 d-flex justify-content-center shadow-sm">This event has been cancelled.</div> :
                 !Object.keys(tournament.runningOrder).length  && !runs.length? 
                     <div className="row bg-white my-1 shadow-sm rounded p-5 d-flex justify-content-center shadow-sm">The lineup for the drill is not yet available.</div> : 
                     <div className="row bg-white my-1 shadow-sm rounded p-2 shadow-sm">
