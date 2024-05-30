@@ -1,6 +1,7 @@
 import React, {useState} from 'react'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faTrash, faPlus, faVideo } from "@fortawesome/free-solid-svg-icons"; 
+import { faTrash, faPlus } from "@fortawesome/free-solid-svg-icons"; 
+import { faSquareYoutube } from '@fortawesome/free-brands-svg-icons';
 import { Tournament, Team } from "../../types/types"
 
 interface TournVideosProps {
@@ -51,7 +52,7 @@ export default function TournVideos(props:TournVideosProps) {
             {tournInReview.urls.map((el, ind) => {
                 return (
                     <div className="my-1" key={ind}>
-                        <a href={el}><FontAwesomeIcon icon={faVideo} size='sm' className="mx-2"/></a>
+                        <a href={el}><FontAwesomeIcon icon={faSquareYoutube} size='sm' className="mx-2"/></a>
                         <FontAwesomeIcon icon={faTrash} size='sm' onClick={() => removeVideoLink(ind)} className="mx-2"/>
 
                     </div>)

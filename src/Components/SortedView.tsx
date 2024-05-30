@@ -6,10 +6,11 @@ import getImgLocation from "../utils/imgLU";
 import { Tournament, Run } from "../types/types"; 
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faVideo } from '@fortawesome/free-solid-svg-icons'
+import { faSquareYoutube } from '@fortawesome/free-brands-svg-icons'
 import { niceTime } from "../utils/timeUtils";
 import StateRecordIcon from "./StateRecordIcon";
 import { TotalPointsOverrideMsg } from "./Scorecard";
+import useWindowDimensions from "../utils/windowDimensions";
 
 interface SortedViewProp {
     tournament: Tournament;
@@ -141,14 +142,14 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
                                 tournament.contests.map(contest => {
                                     let key:string = el.team + " - " + contest.name
                                     return (
-                                        <div className="col-6 col-sm-3">
+                                        <div className="col-6 col-lg-3">
                                             <div className="d-flex flex-column justify-content-center align-items-center">
-                                                <div className="text-secondary font-x-small text-nowrap text-truncate text-center">{contest.name}</div>
+                                                <div className="text-secondary font-x-small text-nowrap text-truncate text-center w-100">{contest.name}</div>
                                                 <div className="font-small text-center">
                                                     {
                                                         runsLU[key]?.urls.length ? 
                                                             <span className="me-2">
-                                                                <a className="video-links" href={`${ runsLU[key]?.urls.length ? runsLU[key]?.urls[0] : "" }`} target="_blank"> <FontAwesomeIcon icon={faVideo} size="sm"/></a>
+                                                                <a className="video-links" href={`${ runsLU[key]?.urls.length ? runsLU[key]?.urls[0] : "" }`} target="_blank"> <FontAwesomeIcon icon={faSquareYoutube} size="sm"/></a>
                                                             </span> : <></>
                                                     }
                                                     { runsLU[key]?.time ? niceTime(runsLU[key].time) : "--" } / 
@@ -244,7 +245,7 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
                                             {
                                                 run?.urls.length ? 
                                                     <span>
-                                                        <a className="video-links" href={`${ run.urls.length ? run.urls[0] : "" }`} target="_blank"> <FontAwesomeIcon icon={faVideo} /></a>
+                                                        <a className="video-links" href={`${ run.urls.length ? run.urls[0] : "" }`} target="_blank"> <FontAwesomeIcon icon={faSquareYoutube} /></a>
                                                     </span> : <></>
                                             }
                                         </span>

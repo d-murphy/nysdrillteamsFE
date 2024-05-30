@@ -8,7 +8,7 @@ import { niceTime } from "../utils/timeUtils";
 import { SizedImage } from "./SizedImage";
 import getImgLocation from "../utils/imgLU";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faVideo } from '@fortawesome/free-solid-svg-icons'; 
+import { faSquareYoutube } from '@fortawesome/free-brands-svg-icons'
 import StateRecordIcon from "./StateRecordIcon";
 
 
@@ -50,12 +50,12 @@ export default function Big8Contest(props:Big8ContestProp) {
                                     {
                                         run?.urls && run.urls.length ? 
                                             <span className="ms-2">
-                                                <a href={run.urls[0]} target="_blank"><FontAwesomeIcon className="video-links" icon={faVideo} size="sm" /></a>
+                                                <a href={run.urls[0]} target="_blank"><FontAwesomeIcon className="video-links" icon={faSquareYoutube} size="lg" /></a>
                                             </span> : <></>
                                     }
                                     {
                                         run?.stateRecord || run?.currentStateRecord ? 
-                                            <span className="ms-1"><StateRecordIcon run={run} size="sm" /></span> : <></>
+                                            <span className="ms-1"><StateRecordIcon run={run} size="lg" /></span> : <></>
                                     }
                                 </div>
                             </div>

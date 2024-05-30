@@ -1,10 +1,10 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faVideo, faCircleInfo, faTicket } from '@fortawesome/free-solid-svg-icons'
+import { faTicket, faTrophy } from '@fortawesome/free-solid-svg-icons'
+import { faSquareYoutube } from "@fortawesome/free-brands-svg-icons";
 import TournamentWinners from "./TournamentWinners"
 import getTournamentWinner from "../utils/getTournamentWinners";
-import { WinnerIcon } from "./SizedImage";
 import Tooltip from "react-bootstrap/Tooltip"; 
 import OverlayTrigger from "react-bootstrap/OverlayTrigger"; 
 
@@ -22,6 +22,10 @@ export default function TournamentHeader(props:TournamentProp) {
     const tournament = props.tournament;
 
     let winnerStr = getTournamentWinner(tournament, " | "); 
+    let secondStr = getTournamentWinner(tournament, " | ", true, "2nd Place");
+    let thirdStr = getTournamentWinner(tournament, " | ", true, "3rd Place");
+    let fourthStr = getTournamentWinner(tournament, " | ", true, "4th Place");
+    let fifthStr = getTournamentWinner(tournament, " | ", true, "5th Place");
     let winnerArr = winnerStr.split(" | "); 
 
 
@@ -47,7 +51,7 @@ export default function TournamentHeader(props:TournamentProp) {
     }
 
     let urlList = printUrlWithIcon(tournament); 
-
+    console.log("urlList: ", urlList, tournament?.urls?.length); 
     return (
         <div className="bg-white shadow-sm rounded mb-1 mt-2">
             <div className="row ">
@@ -78,39 +82,55 @@ export default function TournamentHeader(props:TournamentProp) {
                 </div>
             </div>
             <div className="row">
-
-                <div className="col-12 d-flex flex-column align-items-center justify-content-center py-1">
-                    {
-                        (tournament.top5 && tournament.top5.length) ? 
-                            <div className="schedule-entry-winner text-center py-2 px-5 font-large border-top border-bottom">
-                                <div>1st Place</div>
-                                <div className="d-flex flex-row flex-wrap justify-content-center align-items-center">
-                                    {winnerArr.map(el => <WinnerIcon team={el} size="sm"/>)}
+                {
+                    (!tournament?.top5 || !Object.keys(tournament?.top5).length) ?
+                        <div className="col-12">
+                            <div className="d-flex justify-content-center align-items-center my-2">
+                                <TournamentWinners tournamentName={tournament.name} numberShown={3} yearOfDrill={tournament.date.getFullYear()} />
+                            </div>
+                        </div> : 
+                        <div className="col-12 d-flex flex-column align-items-center justify-content-center py-1">
+                            <div className="w-100 d-flex flex-column h-100">
+                                <div className="pb-2 pt-1 d-flex align-items-center flex-column">
+                                    <div className="h5 text-start mt-2 text-wrap">
+                                        {
+                                            winnerArr.map(el => {
+                                                return (
+                                                    <>
+                                                        <FontAwesomeIcon className="pe-2 trophyGold" icon={faTrophy} size="sm"/>
+                                                        <span className="me-2">{el}</span>                                        
+                                                    </>
+                                                )
+                                            })
+                                        }  
+                                    </div>
+                                    <div className="text-wrap h6 grayText text-start">
+                                        {tournament?.top5 && Object.keys(tournament?.top5).length && tournament.top5[0].points + " points"}
+                                    </div>
                                 </div>
-                            </div> : 
-                            !tournament.liveStreamPlanned ? <></> : 
-                                <div className="schedule-entry-link text-center font-medium mt-1 px-5 py-2 border-top border-bottom">Live Stream Planned!</div>
-                    }
-                </div>
-                {tournament?.urls?.length ?  
-                    <div className="col-12">
-                        <div className="video-icon text-center my-2 d-flex align-items-center justify-content-center">{urlList}</div>
-                    </div> : <></>
+                                <div className="d-flex flex-row justify-content-center grayText font-x-small pt-1 pb-3 text-center">
+                                    {secondStr && <div className="mx-2">{secondStr}</div>}
+                                    {thirdStr && <div className="mx-2">{thirdStr}</div>}
+                                    {fourthStr && <div className="mx-2">{fourthStr}</div>}
+                                    {fifthStr && <div className="mx-2">{fifthStr}</div>}
+                                </div>
+                            </div>
+                        </div>
                 }
-                <div className="col-12">
-                    <div className="d-flex justify-content-center align-items-center my-2">
-                        <TournamentWinners tournamentName={tournament.name} numberShown={3} yearOfDrill={tournament.date.getFullYear()} />
-                    </div>
-                </div>
-                <div className="col-12">
-                    <div className="d-flex justify-content-center align-items-center my-2 font-small video-links">
-                        <div className="pointer" onClick={() => navigate(`/TournamentHistory/${tournament.name}`)}>View more tournament history</div>
+
+                <div className="col-12 mb-2">
+                    <div className="d-flex justify-content-center align-items-center my-2 font-small video-links">                        
+                        {
+                            tournament?.urls?.length > 0 && 
+                                <div className="px-3">{urlList}</div>
+                        }
+                        <div className="pointer px-3" onClick={() => navigate(`/TournamentHistory/${tournament.name}`)}>View more tournament history</div>
                     </div>
                 </div>
                 {
                     !tournament?.notes ? <></> : 
                     <div className="col-12">
-                        <div className="d-flex justify-content-center align-items-center my-2 font-small">
+                        <div className="d-flex justify-content-center align-items-center mb-2 font-small">
                             Note: {tournament.notes}
                         </div>
                     </div>
@@ -125,12 +145,12 @@ function printUrlWithIcon(tournament:Tournament){
         return tournament?.urls.map((el, index) => { 
             return <div className="font-small" key={index}>
                 { index == 0 ? 
-                    <a className="video-links px-1" href={`${el}`} target="_blank">Watch the Drill <FontAwesomeIcon className="ms-2" icon={faVideo} /></a> : 
-                    <a className="video-links px-1" href={`${el}`} target="_blank"><FontAwesomeIcon icon={faVideo} /></a>
+                    <a className="video-links px-1" href={`${el}`} target="_blank">Watch the Drill <FontAwesomeIcon className="ms-2" icon={faSquareYoutube} /></a> : 
+                    <a className="video-links px-1" href={`${el}`} target="_blank"><FontAwesomeIcon icon={faSquareYoutube} /></a>
                 }
             </div> })     
     }
-    return <div></div>
+    return <></>
 }
 
 interface EntryFromProps {

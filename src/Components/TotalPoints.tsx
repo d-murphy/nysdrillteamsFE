@@ -17,6 +17,18 @@ export const JR_CONTEST_STR = "Jr Division - Junior Ladder,Jr Division - Interme
     "Jr Division - Junior Cart Hose,Jr Division - Cart Hose,Jr Division - Cart Replacement,Jr Division - Junior Eff. Replacement,Jr Division - Wye," + 
     "Jr Division - Efficiency,Jr Division - Junior Wye"
 
+const srContestArr = [
+    "Three Man Ladder", 
+    "B Ladder", 
+    "C Ladder", 
+    "C Hose", 
+    "B Hose", 
+    "Efficiency",
+    "Motor Pump",
+    "Buckets"
+]
+
+
 export default function TotalPoints(props:TotalPointsProp) {
     let year = props.year; 
     const headingAligned = props.headingAligned; 
@@ -31,6 +43,7 @@ export default function TotalPoints(props:TotalPointsProp) {
     const [isLoading, setIsLoading] = useState(false); 
     const [errorLoading, setErrorLoading] = useState(false); 
     const [noMoreClicks, setNoMoreClicks] = useState(false); 
+    const [chartOrTable, setChartOrTable] = useState<"chart" | "table">("chart");
 
     const fetchTotalPoints = (region:Regions) => {
         let urlWithRegion = `${url}${region}`; 
@@ -105,6 +118,15 @@ export default function TotalPoints(props:TotalPointsProp) {
                         <div className={`${region == "Suffolk" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center w-100`} onClick={() => selectRegion("Suffolk")}>Suffolk</div>
                         <div className={`${region == "Western" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center w-100`} onClick={() => selectRegion("Western")}>Western</div>
                         <div className={`${region == "Junior" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center w-100`} onClick={() => selectRegion("Junior")}>Junior</div>
+
+                        {
+                            chartOrTable == 'chart' && 
+                                <div className="m-1 mt-5 px-3 pb-2 rounded text-center w-100 video-links btn btn-link" onClick={() => setChartOrTable('table')}>Table View</div>
+                        }
+                        {
+                            chartOrTable == 'table' &&
+                                <div className="m-1 mt-5 px-3 pb-2 rounded text-center w-100 video-links btn btn-link" onClick={() => setChartOrTable('chart')}>Chart View</div>
+                        }
                     </div>                
                 </div>
                 <div className="col-12 col-md-9">
@@ -122,17 +144,80 @@ export default function TotalPoints(props:TotalPointsProp) {
                             </div>
                         </div> : <></>                    
                     }
-                    { !isLoading && !errorLoading ?
-                        <div className="w-100 big8-bg shadow-sm rounded px-4 py-4 d-flex flex-column align-items-center">
-                            <div style={{ width: '100%', height: 500 }}>
-                                {selectedRegionTpArr.length ? 
-                                    <Chart data={selectedRegionTpArr} year={year} region={region} />
-                                    : <div className="w-100 text-center mt-5">No total points reported.</div>                        
-                                }
+                    { isLoading || errorLoading ?
+                        <></> : 
+                        chartOrTable == 'chart' ? 
+                            <div className="w-100 big8-bg shadow-sm rounded px-4 py-4 d-flex flex-column align-items-center">
+                                <div style={{ width: '100%', height: 500 }}>
+                                    {selectedRegionTpArr.length ? 
+                                        <Chart data={selectedRegionTpArr} year={year} region={region} />
+                                        : <div className="w-100 text-center mt-5">No total points reported.</div>                        
+                                    }
+                                </div>
+                                <div className="mt-4 font-x-small text-center"><i>Total points reflect runs saved in DB and may not match official results.</i></div>
+                            </div> : 
+                            selectedRegionTpArr.length == 0 ?
+                            <div className="d-flex justify-content-center p-5 m-5">No total points recorded</div> : 
+                            <div className="w-100 h-100 px-4 py-4 d-flex flex-column align-items-center">
+                                <div className="w-100 overflow-scroll">
+                                    <table className="table table-striped table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th className="fixed-col">Team</th>
+                                                <th>Points</th>
+                                                {
+                                                    region != 'Junior' && srContestArr.map(el => {
+                                                        return (
+                                                            <th className="text-nowrap">{el}</th>
+                                                        )
+                                                    })
+                                                }
+                                                {
+                                                    region == 'Junior' && JR_CONTEST_STR.split(",").map(el => {
+                                                        return (
+                                                            <th className="text-nowrap">{el}</th>
+                                                        )
+                                                    })
+                                                }
+                                            </tr>
+                                        </thead>
+                                        <tbody >
+                                            {
+                                                selectedRegionTpArr
+                                                    .map(
+                                                    (el) => {
+                                                    return (
+                                                        <tr>
+                                                            {/** @ts-expect-error not fixing */}
+                                                            <th className="text-nowrap fixed-col">{el.team}</th>
+                                                            {/** @ts-expect-error not fixing */}
+                                                            <td>{el.points}</td>
+                                                            {
+                                                                region != 'Junior' && srContestArr.map(contest => {
+                                                                    console.log(el)
+                                                                    return (
+                                                                        // @ts-expect-error not fixing
+                                                                        <td>{el[contest] ? el[contest] : ""}</td>
+                                                                    )
+                                                                })
+                                                            }
+                                                            {
+                                                                region == 'Junior' && JR_CONTEST_STR.split(",").map(contest => {
+                                                                    return (
+                                                                        // @ts-expect-error not fixing
+                                                                        <td>{el[contest] ? el[contest] : ""}</td>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </tr>
+                                                    )
+                                                })
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                                        
                             </div>
-                            <div className="mt-4 font-x-small text-center"><i>Total points reflect runs saved in DB and may not match official results.</i></div>
-                        </div> : 
-                        <></>                    
                     }
                 </div>
 

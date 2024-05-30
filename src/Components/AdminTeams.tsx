@@ -4,7 +4,7 @@ import { useLoginContext } from "../utils/context";
 import { Team } from "../types/types"
 import { fetchPost, logUpdate } from "../utils/network"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons"; 
+import { faPenToSquare, faTrash, faEyeSlash, faA } from "@fortawesome/free-solid-svg-icons"; 
 
 
 
@@ -37,6 +37,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
 
     const isAdmin = role === "admin"; 
     const isAdminOrScorekeeper = role === 'admin' || role === 'scorekeeper'; 
+    const isFormComplete = teamInReview.hometown && teamInReview.nickname && teamInReview.circuit;
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){
         setTeamInReview({
@@ -152,11 +153,12 @@ export default function AdminTeams(props:AdminTeamsProps) {
                 <div className="bg-light w-100 mx-5 rounded py-4 mb-2">
                     {
                         teams.map((team, ind) => {
+                            if(!team.fullName) return <></>
                             return (
                                 <div className='row w-100 my-1'>
                                     <div className="col-8">
                                         <div 
-                                            className="pointer d-flex justify-content-center font-large"
+                                            className="pointer d-flex justify-content-start align-items-center font-large ms-5"
                                             data-bs-toggle="modal" 
                                             data-bs-target="#editTeamModal"
                                             onClick={()=>{
@@ -164,7 +166,9 @@ export default function AdminTeams(props:AdminTeamsProps) {
                                                 modalCleanup(); 
                                                 loadTeam(team); 
                                             }}>
-                                            {team.fullName} - {team.circuit}
+                                            <div>{team.fullName} - {team.circuit}</div>
+                                            <div>{team.active && <div className="font-x-small grayText ms-3">Active</div>}</div>
+                                            <div>{!team.display && <FontAwesomeIcon className="crud-links font-xs-small ms-3" icon={faEyeSlash} />}</div>
                                         </div>
                                     </div>
                                     <div className="col-4 d-flex align-items-center justify-content-between">
@@ -213,7 +217,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
                             }
                         </div>
                         <div className="row my-1">
-                            <div className="col-4 text-center">Town</div>
+                            <div className="col-4 text-center">Town*</div>
                             <div className="col-8 text-center px-4">
                                 <input 
                                     onChange={(e) => handleNameChange(e)} 
@@ -225,7 +229,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
                             </div>
                         </div>
                         <div className="row my-1">
-                            <div className="col-4 text-center">Nickname</div>
+                            <div className="col-4 text-center">Nickname*</div>
                             <div className="col-8 text-center px-4" >
                                 <input 
                                     onChange={(e) => handleNameChange(e)} 
@@ -237,7 +241,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
                             </div>
                         </div>
                         <div className="row my-1">
-                            <div className="col-4 text-center">Fullname</div>
+                            <div className="col-4 text-center">Fullname*</div>
                             <div className="col-8 text-center px-4">
                                 <input 
                                     id="fullName" 
@@ -258,7 +262,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
                             </div>
                         </div>
                         <div className="row my-1">
-                            <div className="col-4 text-center">Circuit</div>
+                            <div className="col-4 text-center">Circuit*</div>
                             <div className="col-8 text-center px-4">
                                 <select onChange={handleSelect} id="circuit" name="circuit" className="width-100 text-center" value={teamInReview.circuit} disabled={editOrCreate == "Edit" && !teamInReview?.afterMigrate}>
                                     {circuits.map(el => {
@@ -313,7 +317,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
                         </div>
                         <div className="">
                             <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted} onClick={insertOrUpdate}>Save changes</button>
+                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted || !isFormComplete} onClick={insertOrUpdate}>Save changes</button>
                         </div>
                     </div>
                     </div>

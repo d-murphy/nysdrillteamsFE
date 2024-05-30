@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faVideo, faCircleInfo } from '@fortawesome/free-solid-svg-icons'
+import { faSquareYoutube } from '@fortawesome/free-brands-svg-icons'
 import OverlayTrigger from "react-bootstrap/OverlayTrigger"; 
 import Tooltip from "react-bootstrap/Tooltip"; 
 import { WinnerIcon } from "./SizedImage"; 
@@ -65,7 +65,7 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
                             !tournament.urls.length ? <></> : 
                                 <span className="ms-3 video-icon">
                                     <a href={tournament.urls[0]} target="_blank">
-                                        <FontAwesomeIcon icon={faVideo} size="lg" className="" />
+                                        <FontAwesomeIcon icon={faSquareYoutube} size="lg" className="" />
                                     </a>
                                 </span>
                         }

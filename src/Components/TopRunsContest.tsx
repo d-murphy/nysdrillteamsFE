@@ -1,6 +1,6 @@
 import * as React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faVideo } from '@fortawesome/free-solid-svg-icons'
+import { faSquareYoutube } from '@fortawesome/free-brands-svg-icons'
 import { niceTime } from "../utils/timeUtils";
 import { useNavigate } from "react-router-dom";
 
@@ -39,7 +39,7 @@ export default function TopRunsContest(props:TopRunsContestProp) {
                                         el.urls.map(url => {
                                             return (
                                                 <div className="video-icon">
-                                                    <a href={`${url}`} target="_blank"><FontAwesomeIcon className="video-links" icon={faVideo} size='lg'/></a>
+                                                    <a href={`${url}`} target="_blank"><FontAwesomeIcon className="video-links" icon={faSquareYoutube} size='lg'/></a>
                                                 </div>  
                                             )
                                         }) : <></>

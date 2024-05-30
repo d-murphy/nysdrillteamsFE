@@ -319,7 +319,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                 return(
                                     <div key={ind} className="row w-100 my-1">
                                         <div className="col-7">
-                                            <div className="pointer d-flex justify-content-center">
+                                            <div className="pointer d-flex justify-content-start ms-5">
                                                 {`${ dateUtil.getMMDDYYYY(tourn.date)} - ${tourn.name}`}
                                             </div>
                                         </div>

@@ -4,7 +4,7 @@ import { useLoginContext } from "../utils/context";
 import { Track } from "../types/types"
 import { fetchPost, logUpdate } from "../utils/network"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons"; 
+import { faEyeSlash, faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons"; 
 
 
 declare var SERVICE_URL: string;
@@ -38,6 +38,7 @@ export default function AdminTracks(props:AdminTracksProps) {
     const isAdmin = role === "admin"; 
     const isAdminOrScorekeeper = role === 'admin' || role === 'scorekeeper'
     const disableOnDupe = editOrCreate === "Create" && tracks.map(el => el.name.toLowerCase()).includes(trackInReview.name.toLowerCase()); 
+    const isFormComplete = trackInReview.name && trackInReview.address && trackInReview.city;
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){
         setTrackInReview({
@@ -148,17 +149,19 @@ export default function AdminTracks(props:AdminTracksProps) {
                             return (
                                 <div className="row my-1">
                                     <div className="col-8">
-                                        <div className="test-center d-flex justify-content-center align-items-center ">
-                                                <div className="pointer font-large"
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#editTrackModal"
-                                                onClick={()=>{
-                                                    setEditOrCreate("Edit"); 
-                                                    modalCleanup(); 
-                                                    loadTrack(track); 
-                                                }}
-                                                >{track.name}
-                                                </div>
+                                        <div className="test-start d-flex justify-content-start align-items-center ">
+                                            <div className="pointer font-large ms-5"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editTrackModal"
+                                            onClick={()=>{
+                                                setEditOrCreate("Edit"); 
+                                                modalCleanup(); 
+                                                loadTrack(track); 
+                                            }}
+                                            >{track.name}</div>
+                                            <div>{track.active && <div className="font-x-small grayText ms-3">Active</div>}</div>
+                                            <div>{!track.display && <FontAwesomeIcon className="crud-links font-xs-small ms-3" icon={faEyeSlash} />}</div>
+
                                         </div>
                                     </div>
                                     <div className="col-4">
@@ -207,7 +210,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                             }
                         </div>
                         <div className="row my-1">
-                            <div className="col-4 text-center">Name</div>
+                            <div className="col-4 text-center">Name*</div>
                             <div className="col-8 text-center px-4">
                                 <input 
                                     onChange={(e) => handleTextInput(e)} 
@@ -219,7 +222,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                             </div>
                         </div>
                         <div className="row my-1">
-                            <div className="col-4 text-center">Address</div>
+                            <div className="col-4 text-center">Address*</div>
                             <div className="col-8 text-center px-4" >
                                 <input 
                                     onChange={(e) => handleTextInput(e)} 
@@ -231,7 +234,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                             </div>
                         </div>
                         <div className="row my-1">
-                            <div className="col-4 text-center">City</div>
+                            <div className="col-4 text-center">City*</div>
                             <div className="col-8 text-center px-4">
                                 <input 
                                     onChange={(e) => handleTextInput(e)} 
@@ -313,7 +316,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                         </div>
                         <div className="">
                             <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted || disableOnDupe} onClick={insertOrUpdate}>Save changes</button>
+                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted || disableOnDupe || !isFormComplete} onClick={insertOrUpdate}>Save changes</button>
                         </div>
                     </div>
                     </div>

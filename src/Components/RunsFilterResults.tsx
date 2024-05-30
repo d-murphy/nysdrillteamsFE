@@ -5,7 +5,8 @@ import { niceTime } from "../utils/timeUtils";
 import { useNavigate } from "react-router-dom";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faArrowLeft, faArrowRight, faVideo } from '@fortawesome/free-solid-svg-icons'; 
+import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons'; 
+import { faSquareYoutube } from '@fortawesome/free-brands-svg-icons'
 import StateRecordIcon from "./StateRecordIcon";
 import { TotalPointsOverrideMsg } from "./Scorecard";
 
@@ -120,7 +121,7 @@ export default function RunFilterResults(props:RunFilterResultsProps) {
                                         {   
                                             run.urls.length ? 
                                                 <div className="pointer ms-2 me-1">
-                                                    <a href={`${run.urls[0]}`} target="_blank"><FontAwesomeIcon className="video-links" icon={faVideo} size='sm'/></a>
+                                                    <a href={`${run.urls[0]}`} target="_blank"><FontAwesomeIcon className="video-links" icon={faSquareYoutube} size='sm'/></a>
                                                 </div> : <></>
                                         }
                                         {
@@ -135,7 +136,7 @@ export default function RunFilterResults(props:RunFilterResultsProps) {
                                         {   
                                             run.urls.length ? 
                                                 <div className="pointer mx-2">
-                                                    <a href={`${run.urls[0]}`} target="_blank"><FontAwesomeIcon className="video-links" icon={faVideo} size='sm'/></a>
+                                                    <a href={`${run.urls[0]}`} target="_blank"><FontAwesomeIcon className="video-links" icon={faSquareYoutube} size='sm'/></a>
                                                 </div> : <></>
                                         }
                                         {

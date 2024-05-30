@@ -5,6 +5,9 @@ import Placeholder from "react-bootstrap/Placeholder";
 import getTournamentWinner from "../utils/getTournamentWinners";
 import { WinnerIconNoHov } from "./SizedImage";
 import { useNavigate } from "react-router-dom";
+import dateUtil from "../utils/dateUtils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrophy } from "@fortawesome/free-solid-svg-icons";
 
 interface StateWinnersProps {
     year: string
@@ -46,7 +49,7 @@ export default function StateWinners(props: StateWinnersProps) {
         })
         :
         tourns.map((el:Tournament) => {
-        
+            if(Object.keys(el.top5).length === 0) return <></>;
             return (
                 <StateWinnerSq tournament={el} />
             )
@@ -58,7 +61,7 @@ export default function StateWinners(props: StateWinnersProps) {
                 <span className="h4 pb-3 me-3">Season Champions</span>
             </div>
 
-            <div className="d-flex justify-content-center align-items-center flex-wrap">
+            <div className="d-flex justify-content-center flex-wrap">
                 {content}
             </div>
         </div>
@@ -77,16 +80,54 @@ function StateWinnerSq(props: StateWinnerSqProps) {
     let winnerArr = winnerStr.split(seperator); 
     const navigate = useNavigate(); 
 
+    let secondStr = getTournamentWinner(tourn, seperator, true, "2nd Place"); 
+    let thirdStr = getTournamentWinner(tourn, seperator, true, "3rd Place"); 
+    let fourthStr = getTournamentWinner(tourn, seperator, true, "4th Place"); 
+    let fifthStr = getTournamentWinner(tourn, seperator, true, "5th Place"); 
+
     return (
-        <div className="mx-1 h-100 my-1 flex-grow-1">
-            <div className="champs-bg rounded shadow-sm d-flex flex-column align-items-center justify-content-center p-4 text-center pointer" 
+        <div className="mx-1 my-1 flex-grow-1">
+            <div className="champs-bg rounded shadow-sm d-flex flex-column align-items-start justify-content-center p-4 text-center pointer" 
                 onClick={() => navigate(`/Tournament/${tourn.id}`)}> 
-                <div className="text-wrap h5" >{tourn.name.replace("New York State", "NYS")}</div>
-                <div className="d-flex flex-row justify-content-center align-items-center">
-                    {winnerArr.map(el => <WinnerIconNoHov team={el} size="lg"/>)}
+                <div className="text-wrap h5" >
+                    <span>{tourn.name.replace("New York State", "NYS")}</span>
+                </div>
+                <div className="text-wrap h6 grayText text-start mb-2" >
+                    <span>{tourn.date ? dateUtil.getMMDDYYYY(new Date(tourn.date)) : ""}</span>
+                    <span className="ps-1 grayText font-small">{tourn.track ? "@ " + tourn.track : ""}</span>
+                    <span className="ps-1 grayText font-small">{(tourn.host && tourn.track && tourn.track !== tourn.host) ? "hosted by " + tourn.host : ""}</span>
                 </div>
                 <div className="flex-grow-1" />
-                <div>{winnerStr}</div>
+                <div className="d-flex flex-row justify-content-center align-items-center align-self-center flex-wrap">
+                    {winnerArr.map(el => <span className="p-1"><WinnerIconNoHov team={el} size="lg"/></span>)}
+                </div>
+                <div className="flex-grow-1" />
+                <div className="w-100 d-flex flex-column h-100">
+                    <div className="pb-2 pt-1 d-flex align-items-start flex-column">
+                        <div className="h5 text-start mt-2 text-wrap">
+                            {
+                                winnerArr.map(el => {
+                                    return (
+                                        <>
+                                            <FontAwesomeIcon className="pe-2 trophyGold" icon={faTrophy} size="sm"/>
+                                            <span className="me-2">{el}</span>                                        
+                                        </>
+                                    )
+                                })
+                            }  
+                        </div>
+                        <div className="text-wrap h6 grayText text-start">
+                            {tourn?.top5 && Object.keys(tourn?.top5).length && tourn.top5[0].points + " points"}
+                        </div>
+                    </div>
+                    <div className="d-flex flex-column align-items-end grayText font-xx-small pt-3">
+                        <div className="flex-grow-1"></div>
+                        <div>{secondStr}</div>
+                        <div>{thirdStr}</div>
+                        <div>{fourthStr}</div>
+                        <div>{fifthStr}</div>
+                    </div>
+                </div>
             </div>
         </div>
     )
