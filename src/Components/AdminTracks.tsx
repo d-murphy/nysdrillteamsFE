@@ -24,7 +24,9 @@ let initialTrack:Track = {
     archHeightFt: null, 
     archHeightInches: null, 
     distanceToHydrant: null, 
-    imageUrls: []
+    imageUrls: [], 
+    longitude: null,
+    latitude: null
 }
 
 export default function AdminTracks(props:AdminTracksProps) {
@@ -161,6 +163,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                                             >{track.name}</div>
                                             <div>{track.active && <div className="font-x-small grayText ms-3">Active</div>}</div>
                                             <div>{!track.display && <FontAwesomeIcon className="crud-links font-xs-small ms-3" icon={faEyeSlash} />}</div>
+                                            <div>{(!track?.latitude || !track?.longitude) && <div className="font-x-small grayText ms-3">No Lon/Lat</div>}</div>                                            
 
                                         </div>
                                     </div>
@@ -284,6 +287,35 @@ export default function AdminTracks(props:AdminTracksProps) {
                                 </select>
                             </div>
                         </div>
+
+
+                        <div className="row my-1">
+                            <div className="col-4 text-center">Longitude</div>
+                            <div className="col-8 text-center px-4">
+                                <input 
+                                    onChange={(e) => handleTextInput(e)} 
+                                    id="longitude" 
+                                    value={trackInReview?.longitude} 
+                                    disabled={!isAdminOrScorekeeper} 
+                                    className="text-center width-100"
+                                    autoComplete="off"></input>
+                            </div>
+                        </div>
+
+                        <div className="row my-1">
+                            <div className="col-4 text-center">Latitude</div>
+                            <div className="col-8 text-center px-4">
+                                <input 
+                                    onChange={(e) => handleTextInput(e)} 
+                                    id="latitude" 
+                                    value={trackInReview?.latitude} 
+                                    disabled={!isAdminOrScorekeeper} 
+                                    className="text-center width-100"
+                                    autoComplete="off"></input>
+                            </div>
+                        </div>
+
+
 
                         <div className="row mb-1 mt-3">
                             <div className="col-6 d-flex flex-column align-items-center justify-content-end text-center">

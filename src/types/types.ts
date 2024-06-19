@@ -83,7 +83,9 @@ export type Track = {
     distanceToHydrant: 200 | 225 | 999,
     afterMigrate?: boolean, 
     active?:boolean, 
-    display?: boolean
+    display?: boolean, 
+    longitude: number,
+    latitude: number
 }
 
 
