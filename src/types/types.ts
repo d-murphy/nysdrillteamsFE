@@ -77,7 +77,6 @@ export type Track = {
     address: string, 
     city: string, 
     notes: string,
-    imageUrls: string[], 
     archHeightFt: number, 
     archHeightInches: number, 
     distanceToHydrant: 200 | 225 | 999,
@@ -153,4 +152,12 @@ export type TeamTournHistory = {
     stateRecordCount?: number, 
     runCount?: number
     videoCount?: number
+}
+
+export type ImageDbEntry = {
+    fileName: string, 
+    url: string, 
+    thumbnailUrl: string,
+    track?: string, 
+    sortOrder?: number
 }

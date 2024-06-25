@@ -30,8 +30,28 @@ export class CustomError extends Error {
     })
 }
 
+export const fetchPostFile = async function(url:string, body:FormData, sessionId?:string){
+    body.append("sessionId", sessionId)
+    return fetch(url, {
+        method: 'POST', 
+        // headers: {
+        //     'Content-Type': 'multipart/form-data'
+        // },
+        body: body
+    })
+    .then(res => {
+        // have fetch throw an error if non-200
+        if (!res.ok) {
+            throw new CustomError(res, res.status, "HTTP Status Code: " + res.status); 
+        }
+        return res
+    })
+}
+
 export const fetchGet = async function(url:string, sessionId?:string){
-    if(sessionId) url += "?sessionId=" + sessionId
+    if(!url.includes("?")) url += "?"
+    else if(sessionId) url += "&"
+    if(sessionId) url += "sessionId=" + sessionId
     return fetch(url, {
         method: 'GET', 
         headers: {

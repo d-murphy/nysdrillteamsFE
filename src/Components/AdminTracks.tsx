@@ -1,10 +1,10 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLoginContext } from "../utils/context";
-import { Track } from "../types/types"
-import { fetchPost, logUpdate } from "../utils/network"
+import { ImageDbEntry, Track } from "../types/types"
+import { fetchGet, fetchPost, fetchPostFile, logUpdate } from "../utils/network"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faEyeSlash, faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons"; 
+import { faEyeSlash, faPenToSquare, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"; 
 
 
 declare var SERVICE_URL: string;
@@ -24,7 +24,6 @@ let initialTrack:Track = {
     archHeightFt: null, 
     archHeightInches: null, 
     distanceToHydrant: null, 
-    imageUrls: [], 
     longitude: null,
     latitude: null
 }
@@ -32,6 +31,11 @@ let initialTrack:Track = {
 export default function AdminTracks(props:AdminTracksProps) {
     const tracks = props.tracks; 
     let [trackInReview, setTrackInReview] = useState<Track>(initialTrack)
+    let [images, setImages] = useState<ImageDbEntry[]>([]);
+    let [imageEditOrCreate, setImageEditOrCreate] = useState<"Edit" | "Create">("Create");
+    let [imageInReview, setImageInReview] = useState<ImageDbEntry>(null);
+    let [imageName, setImageName] = useState("");
+    let [imageSortOrder, setImageSortOrder] = useState(0);
     let [editOrCreate, setEditOrCreate] = useState(""); 
     let [reqSubmitted, setReqSubmitted] = useState(false); 
     let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
@@ -123,12 +127,98 @@ export default function AdminTracks(props:AdminTracksProps) {
         }
     }
 
+    async function deleteImage(){
+        setReqSubmitted(true); 
+        let body = {image: imageInReview?.fileName}; 
+        let url = `${SERVICE_URL}/images/deleteImage`
+        try {
+            await fetchPost(url, body, sessionId)
+            let updateMsg = `Delete Image: ${imageInReview?.fileName}`
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
+            setReqResult({error: false, message: "Update successful."}); 
+            getTrackImages(); 
+        } catch (e){
+            console.log(e.message)
+            setReqResult({error: true, message: "An error occurred. Try again later."}); 
+            setReqSubmitted(false); 
+        }
+    }
 
+    function getTrackImages(){
+        let url = `${SERVICE_URL}/images/getImages?track=${trackInReview.name}`
+        fetchGet(url, sessionId)
+        .then(res => res.json())
+        .then(data => {
+            setImages(data.results);
+        })
+        .catch(e => {
+            console.log(e.message)
+        })
+    }
 
-    function modalCleanup(){
+    const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        console.log('event: ', e); 
+        //@ts-expect-error
+        const file = e.target[0].files[0]; 
+
+        setReqSubmitted(true); 
+
+        let url = `${SERVICE_URL}/images/uploadImage`
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('imageName', imageName);
+        formData.append('sortOrder', imageSortOrder.toString());
+        formData.append('track', trackInReview.name);
+        try {
+            await fetchPostFile(url, formData, sessionId)
+            let updateMsg = `Upload Image: ${imageInReview.track}-${imageInReview.fileName}`
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
+            setReqResult({error: false, message: "Update successful."}); 
+            getTrackImages(); 
+        } catch (e){
+            console.log(e.message)
+            setReqResult({error: true, message: "An error occurred.  Make sure all required fields are complete or try again later."}); 
+            setReqSubmitted(false); 
+        }
+
+    
+    }
+
+    async function updateImage(){
+        let url = `${SERVICE_URL}/images/updateSortOrder`
+        let body = {
+            fileName: imageInReview.fileName, sortOrder: imageSortOrder
+        }
+        try {
+            await fetchPost(url, body, sessionId)
+            let updateMsg = `Image Sort Order Change: ${imageInReview.fileName}`
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
+            setReqResult({error: false, message: "Update successful."}); 
+            getTrackImages(); 
+        } catch (e){
+            console.log(e.message)
+            setReqResult({error: true, message: "An error occurred.  Make sure all required fields are complete or try again later."}); 
+            setReqSubmitted(false); 
+        }
+    }
+
+    function clearImageModal(){
+        setImageName(""); 
+        setImageSortOrder(0);
+    }
+
+    function modalCleanup(clearImages: boolean = false){
         setReqResult({error:false, message: ""}); 
         setReqSubmitted(false); 
+        if(clearImages) setImages([]);
     }
+
+    useEffect(() => {
+        if(trackInReview?.name){
+            getTrackImages(); 
+        }
+    }, [trackInReview])
 
     return (
         <div className="container">
@@ -139,7 +229,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                     data-bs-toggle="modal" 
                     data-bs-target="#editTrackModal"
                     onClick={()=>{
-                        modalCleanup(); 
+                        modalCleanup(true); 
                         setEditOrCreate("Create"); 
                         loadTrack(initialTrack); 
                     }}>Add New Track
@@ -147,7 +237,7 @@ export default function AdminTracks(props:AdminTracksProps) {
 
                 <div className="w-100 mx-5 rounded bg-light py-4 mb-2">
                     {
-                        tracks.map((track, ind) => {
+                        tracks?.map((track, ind) => {
                             return (
                                 <div className="row my-1">
                                     <div className="col-8">
@@ -157,7 +247,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                                             data-bs-target="#editTrackModal"
                                             onClick={()=>{
                                                 setEditOrCreate("Edit"); 
-                                                modalCleanup(); 
+                                                modalCleanup(true); 
                                                 loadTrack(track); 
                                             }}
                                             >{track.name}</div>
@@ -197,8 +287,8 @@ export default function AdminTracks(props:AdminTracksProps) {
                 </div>
             </div>
 
-            <div className="modal fade" id="editTrackModal" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-l">
+            <div className="modal fade" id="editTrackModal" aria-labelledby="trackModalLabel" aria-hidden="true">
+                <div className="modal-dialog modal-xl">
                     <div className="modal-content">
                     <div className="modal-header">
                         <h5 className="modal-title" id="trackModalLabel">{editOrCreate == "Edit" ? "Edit Track" : "Add Track"}</h5>
@@ -331,7 +421,38 @@ export default function AdminTracks(props:AdminTracksProps) {
                                 </div>
                             </div>
                         </div>
+
+                        <div className="row mb-1 mt-3">
+                            <div className="d-flex w-100 align-items-start justify-content-center">
+                                <div className="col d-flex justify-content-center align-items-center my-2"
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#addImageModal"                                    
+                                    >
+                                    Add Image<FontAwesomeIcon className="mx-2 pointer" icon={faPlus} onClick={() => {clearImageModal()}} />
+                                </div>
+                                {
+                                    images.map(el => {
+                                        return (
+                                            <>
+                                            <img src={el.thumbnailUrl} alt={el?.fileName || ''} className=" m-2" />
+                                            <div className="pointer pe-5"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteImageModal"
+                                                onClick={()=>{
+                                                    setImageInReview(el); 
+                                                }}
+                                                ><FontAwesomeIcon className="crud-links font-x-large" icon={faTrash}/>
+                                            </div>
+                                            </>
+                                        )})
+                                }
+
+
+                            </div>
+                        </div>
+
                     </div>
+
                     <div className="modal-footer d-flex flex-column">
                         <div className="text-center">
                             {!isAdminOrScorekeeper ? <span>
@@ -354,7 +475,6 @@ export default function AdminTracks(props:AdminTracksProps) {
                     </div>
                 </div>
             </div>
-
 
             <div className="modal fade" id="deleteTrackModal" aria-labelledby="deleteModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-l">
@@ -387,6 +507,113 @@ export default function AdminTracks(props:AdminTracksProps) {
                     </div>
                 </div>
             </div>
+
+            <div className="modal fade" id="addImageModal" aria-labelledby="addModalLabel" aria-hidden="true">
+                <div className="modal-dialog modal-l">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="deleteTrackModalLabel">Add Image?</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form onSubmit={handleSubmit}>
+                        <div className="modal-body">
+                            <p>Upload an image for {trackInReview?.name || ""}.</p>
+                                <div className="row my-1">
+                                    <div className="col-4 text-center"></div>
+                                    <div className="col-8 text-center px-4">
+                                        <input type="file" name="file" id="file" />
+                                    </div>
+                                </div>
+                                <div className="row my-1">
+                                    <div className="col-4 text-center">Image Name</div>
+                                    <div className="col-8 text-center px-4">
+                                        {
+                                            imageEditOrCreate === 'Edit' ? 
+                                                imageInReview?.fileName : 
+                                                <input 
+                                                onChange={(e) => setImageName(e.target.value)} 
+                                                id="imageName" 
+                                                value={imageName} 
+                                                disabled={!isAdminOrScorekeeper} 
+                                                className="text-center width-100"
+                                                autoComplete="off"></input>
+                                        }
+                                    </div>
+                                </div>
+                                <div className="row my-1">
+                                    <div className="col-4 text-center">Image Sort Value</div>
+                                    <div className="col-8 text-center px-4">
+                                        <input 
+                                            type="number"
+                                            onChange={(e) => setImageSortOrder(parseInt(e.target.value))} 
+                                            id="sortOrder" 
+                                            value={imageSortOrder} 
+                                            disabled={!isAdminOrScorekeeper} 
+                                            className="text-center width-100"
+                                            autoComplete="off"></input>
+                                    </div>
+                                </div>
+                        </div>
+                        <div className="modal-footer d-flex flex-column">
+                            <div className="text-center">
+                                {!isAdmin ? <span>
+                                    Only admin can make changes here.
+                                </span> : <></>}
+                            </div>
+                            <div className="text-center my-3">
+                                {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
+                                    {reqResult.message}
+                                </span> : <></>}
+                            </div>
+                            <div className="">
+                                <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
+                                {
+                                    imageEditOrCreate === 'Edit' ? 
+                                        <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted} onClick={updateImage}>Update Sort Order</button> :
+                                        <button type="submit" className="btn btn-success mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted} >Add Image</button>
+                                }
+                            </div>
+                        </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div className="modal fade" id="deleteImageModal" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div className="modal-dialog modal-l">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="deleteTrackModalLabel">Delete Image?</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+                            <p>Are you sure you want to remove {imageInReview?.fileName}?</p>
+                        </div>
+                        <div className="modal-footer d-flex flex-column">
+                            <div className="text-center">
+                                {!isAdmin ? <span>
+                                    Only admin can make changes here.
+                                </span> : <></>}
+                            </div>
+                            <div className="text-center my-3">
+                                {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
+                                    {reqResult.message}
+                                </span> : <></>}
+                            </div>
+                            <div className="">
+                                <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
+                                <button type="button" className="btn btn-warning mx-2" disabled={!isAdmin || reqSubmitted} onClick={deleteImage}>Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
 
         </div>
     )
