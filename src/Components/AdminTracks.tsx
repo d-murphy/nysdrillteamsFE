@@ -1,10 +1,10 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLoginContext } from "../utils/context";
 import { ImageDbEntry, Track } from "../types/types"
 import { fetchGet, fetchPost, fetchPostFile, logUpdate } from "../utils/network"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faEyeSlash, faPenToSquare, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"; 
+import { faEdit, faEyeSlash, faPenToSquare, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"; 
 
 
 declare var SERVICE_URL: string;
@@ -36,7 +36,7 @@ export default function AdminTracks(props:AdminTracksProps) {
     let [imageInReview, setImageInReview] = useState<ImageDbEntry>(null);
     let [imageName, setImageName] = useState("");
     let [imageSortOrder, setImageSortOrder] = useState(0);
-    let [editOrCreate, setEditOrCreate] = useState(""); 
+    let [editOrCreate, setEditOrCreate] = useState<"Edit" | "Create">("Create"); 
     let [reqSubmitted, setReqSubmitted] = useState(false); 
     let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
     const { sessionId, role, username  } = useLoginContext(); 
@@ -44,7 +44,9 @@ export default function AdminTracks(props:AdminTracksProps) {
     const isAdmin = role === "admin"; 
     const isAdminOrScorekeeper = role === 'admin' || role === 'scorekeeper'
     const disableOnDupe = editOrCreate === "Create" && tracks.map(el => el.name.toLowerCase()).includes(trackInReview.name.toLowerCase()); 
+    const disableImageOnDupe = imageEditOrCreate === "Create" && images.map(el => el.fileName.toLowerCase()).includes(imageName.toLowerCase());
     const isFormComplete = trackInReview.name && trackInReview.address && trackInReview.city;
+    const imageFormRef = useRef<HTMLInputElement>(null); 
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){
         setTrackInReview({
@@ -129,7 +131,7 @@ export default function AdminTracks(props:AdminTracksProps) {
 
     async function deleteImage(){
         setReqSubmitted(true); 
-        let body = {image: imageInReview?.fileName}; 
+        let body = {imageName: imageInReview?.fileName}; 
         let url = `${SERVICE_URL}/images/deleteImage`
         try {
             await fetchPost(url, body, sessionId)
@@ -158,7 +160,6 @@ export default function AdminTracks(props:AdminTracksProps) {
 
     const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log('event: ', e); 
         //@ts-expect-error
         const file = e.target[0].files[0]; 
 
@@ -176,6 +177,7 @@ export default function AdminTracks(props:AdminTracksProps) {
             logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
             setReqResult({error: false, message: "Update successful."}); 
             getTrackImages(); 
+            clearImageForm(); 
         } catch (e){
             console.log(e.message)
             setReqResult({error: true, message: "An error occurred.  Make sure all required fields are complete or try again later."}); 
@@ -196,6 +198,7 @@ export default function AdminTracks(props:AdminTracksProps) {
             logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
             setReqResult({error: false, message: "Update successful."}); 
             getTrackImages(); 
+            clearImageForm(); 
         } catch (e){
             console.log(e.message)
             setReqResult({error: true, message: "An error occurred.  Make sure all required fields are complete or try again later."}); 
@@ -203,8 +206,9 @@ export default function AdminTracks(props:AdminTracksProps) {
         }
     }
 
-    function clearImageModal(){
-        setImageName(""); 
+    function clearImageForm(){
+        if (imageFormRef.current) imageFormRef.current.value = "";
+        setImageName("");
         setImageSortOrder(0);
     }
 
@@ -423,27 +427,51 @@ export default function AdminTracks(props:AdminTracksProps) {
                         </div>
 
                         <div className="row mb-1 mt-3">
-                            <div className="d-flex w-100 align-items-start justify-content-center">
+                            <div className="d-flex w-100 justify-content-center">
                                 <div className="col d-flex justify-content-center align-items-center my-2"
                                     data-bs-toggle="modal" 
                                     data-bs-target="#addImageModal"                                    
-                                    >
-                                    Add Image<FontAwesomeIcon className="mx-2 pointer" icon={faPlus} onClick={() => {clearImageModal()}} />
+                                    >                                                            
+                                    Add Image<FontAwesomeIcon className="mx-2 pointer" icon={faPlus} 
+                                        onClick={() => {
+                                            setImageEditOrCreate("Create");
+                                            clearImageForm()
+                                        }} />
                                 </div>
+                            </div>
+                            <div className="d-flex w-100 align-items-center justify-content-start flex-wrap">
                                 {
-                                    images.map(el => {
+                                    images
+                                        .sort((a,b) => { 
+                                            return a.sortOrder < b.sortOrder ? -1 : 1
+                                        })
+                                        .map(el => {
                                         return (
-                                            <>
-                                            <img src={el.thumbnailUrl} alt={el?.fileName || ''} className=" m-2" />
-                                            <div className="pointer pe-5"
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#deleteImageModal"
-                                                onClick={()=>{
-                                                    setImageInReview(el); 
-                                                }}
-                                                ><FontAwesomeIcon className="crud-links font-x-large" icon={faTrash}/>
+                                            <div className="d-flex flex-column justify-content-center align-items-center">
+                                                <img src={el.thumbnailUrl} alt={el?.fileName || ''} className=" m-2" />
+                                                <div className="d-flex justify-content-center align-items-center mb-2">
+                                                    <div className="pointer px-2 pt-1"
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#deleteImageModal"
+                                                        onClick={()=>{
+                                                            clearImageForm()
+                                                            setImageInReview(el); 
+                                                        }}
+                                                        ><FontAwesomeIcon className="crud-links font-x-large" icon={faTrash}/>
+                                                    </div>
+                                                    <div className="pointer px-2 pt-1"
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#addImageModal"
+                                                        onClick={()=>{
+                                                            clearImageForm()
+                                                            setImageEditOrCreate("Edit"); 
+                                                            setImageSortOrder(el.sortOrder); 
+                                                            setImageInReview(el); 
+                                                        }}
+                                                        ><FontAwesomeIcon className="crud-links font-x-large" icon={faEdit}/>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            </>
                                         )})
                                 }
 
@@ -518,12 +546,15 @@ export default function AdminTracks(props:AdminTracksProps) {
                         <form onSubmit={handleSubmit}>
                         <div className="modal-body">
                             <p>Upload an image for {trackInReview?.name || ""}.</p>
-                                <div className="row my-1">
-                                    <div className="col-4 text-center"></div>
-                                    <div className="col-8 text-center px-4">
-                                        <input type="file" name="file" id="file" />
+                                {
+                                    imageEditOrCreate === 'Edit' ? <></> : 
+                                    <div className="row my-1">
+                                        <div className="col-4 text-center"></div>
+                                        <div className="col-8 text-center px-4">
+                                            <input type="file" name="file" id="file" ref={imageFormRef}/>
+                                        </div>
                                     </div>
-                                </div>
+                                }
                                 <div className="row my-1">
                                     <div className="col-4 text-center">Image Name</div>
                                     <div className="col-8 text-center px-4">
@@ -565,12 +596,16 @@ export default function AdminTracks(props:AdminTracksProps) {
                                     {reqResult.message}
                                 </span> : <></>}
                             </div>
+                            <div className="text-center my-3">
+                                {disableImageOnDupe && <span className="text-danger">Name already in use.</span>}
+                            </div>
+
                             <div className="">
                                 <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
                                 {
                                     imageEditOrCreate === 'Edit' ? 
                                         <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted} onClick={updateImage}>Update Sort Order</button> :
-                                        <button type="submit" className="btn btn-success mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted} >Add Image</button>
+                                        <button type="submit" className="btn btn-success mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted || disableImageOnDupe} >Add Image</button>
                                 }
                             </div>
                         </div>
