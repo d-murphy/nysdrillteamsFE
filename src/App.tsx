@@ -26,6 +26,7 @@ import Image from "react-bootstrap/Image";
 import TeamSummary from "./Pages/TeamSummary";
 import TeamHistoryBase from "./Pages/TeamHistoryBase";
 import TeamHistory from "./Pages/TeamHistory";
+import Locations from "./Pages/Locations";
 
   
 const ErrorPage = () => {
@@ -125,6 +126,14 @@ const router = createBrowserRouter([
             {
                 path: "/TeamHistory/:teamName", 
                 element: <TeamHistory />
+            }, 
+            {
+                path: "/Locations",
+                element: <Locations />
+            },
+            {
+                path: "/Locations/:location",
+                element: <Locations />
             }
         ],
     },
