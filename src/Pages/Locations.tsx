@@ -5,6 +5,7 @@ import { Form, Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from "@fortawesome/free-solid-svg-icons"; 
 import { Bar, BarChart, Label, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+import { useNavigate } from 'react-router-dom';
 
 
 declare var SERVICE_URL: string;
@@ -114,12 +115,58 @@ export default function Locations(){
                             </div>
                         </div>
                     </div>
+                    { trackSelected && trackTourns.length ? 
+                        <div className='row g-0 px-1 mt-2 pb-2'>
+                            <TournamentHistory tourns={trackTourns} />
+                        </div> : <></>                
+                    }
                 </div>
             </StateHandler>
         </div>
 
     )
 }
+
+interface TournamentHistoryProps {
+    tourns: Tournament[];
+}
+
+function TournamentHistory({tourns}: TournamentHistoryProps){
+    const sorted = tourns.sort((a,b) => {
+        return new Date(a.date).getTime() < new Date(b.date).getTime() ? 1 : -1
+    })
+    const navigate = useNavigate(); 
+
+
+    return(
+        <div className='w-100 bg-white rounded '>
+            <div className='h5 p-2'>Tournament History</div>
+            <div className=''>
+                <div className=" overflow-scroll text-nowrap pb-3">
+                    {
+                        sorted
+                            .map(el => {
+                            return (
+                                <div className='d-inline-block m-1 p-2 bg-light rounded pointer' 
+                                    onClick={() => navigate(`/Tournament/${el.id}`)}>
+                                    <div>{el.name}</div>
+                                    <div>{new Date(el.date).toLocaleDateString()}</div>
+                                </div>
+                            )})
+                    }
+                </div>
+            </div> 
+        </div>
+
+    )
+
+}
+
+
+
+
+
+
 
 interface TrackImagesProps {
     trackImages: ImageDbEntry[];
@@ -353,7 +400,12 @@ interface TrackInfo {
 }
 
 function TrackInfo({track, trackImages, setTrackSelected, trackTourns}: TrackInfo){
-    console.log('trackTourns', trackTourns)
+    const stateTournYears = trackTourns.filter(el => {
+        return el.name === "New York State Championship"
+    }).map(el => el.year).sort((a,b) => a < b ? -1 : 1);
+
+
+
     return (
         <div className='pt-3 d-flex flex-column h-100 map-selection-made-height'>
             <div className="d-flex justify-content-between">
@@ -370,6 +422,10 @@ function TrackInfo({track, trackImages, setTrackSelected, trackTourns}: TrackInf
             {
                 track.distanceToHydrant ?
                     <div className='h5'>Arch Distance to Hydrant: {track.distanceToHydrant} feet</div> : <></>
+            }
+            {
+                stateTournYears.length ?
+                    <div className='my-2'>State Tournaments Hosted: {stateTournYears.join(", ")}</div> : <></>
             }
             {
                 track.notes ?
