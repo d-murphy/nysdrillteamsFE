@@ -31,7 +31,10 @@ module.exports = {
   },
   plugins: [
     new ReactRefreshWebpackPlugin(),
-    new webpack.DefinePlugin({SERVICE_URL: JSON.stringify(process.env.SERVICE_URL)})
+    new webpack.DefinePlugin({
+        SERVICE_URL: JSON.stringify(process.env.SERVICE_URL), 
+        MAPS_API_KEY: JSON.stringify(process.env.MAPS_API_KEY)
+    })
   ],
   resolve: {
       extensions: ['.tsx', '.ts', '.js']

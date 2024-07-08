@@ -22,6 +22,7 @@
     "@fortawesome/free-brands-svg-icons": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/react-fontawesome": "^0.1.19",
+    "@googlemaps/react-wrapper": "^1.1.35",
     "@types/react": "^18.0.11",
     "@types/react-dom": "^18.0.5",
     "bootstrap": "^5.2.3",
@@ -34,6 +35,7 @@
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
+    "@types/google.maps": "^3.55.11",
     "react-refresh": "^0.13.0",
     "ts-loader": "^9.3.0",
     "webpack": "^5.73.0",

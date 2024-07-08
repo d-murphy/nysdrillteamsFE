@@ -471,6 +471,10 @@ html, body, #root {
     height: 400px; 
 }
 
+.some-more-height {
+    height: 500px; 
+}
+
 .height-70 {
     height: 70px; 
 }
@@ -503,4 +507,36 @@ html, body, #root {
 
 .trophyGold {
     color: #a67c00; 
+}
+
+/* Locations */
+
+.map-height {
+    height: 100%; 
+    min-height: 250px;
+    /* max-height: 800px; */
+}
+
+.map-selection-height {
+    min-height: 150px;
+}
+
+.map-selection-made-height {
+    min-height: 500px;
+}
+
+.track-image-mx-ht {
+    max-height: 800px;
+}
+
+/* Unwanted Google Maps Divs:  */
+
+a[href^="http://maps.google.com/maps"]{display:none !important}
+a[href^="https://maps.google.com/maps"]{display:none !important}
+
+.gmnoprint a, .gmnoprint span, .gm-style-cc {
+    display:none;
+} */
+.gmnoprint div {
+    background:none !important;
 }

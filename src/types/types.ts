@@ -83,8 +83,8 @@ export type Track = {
     afterMigrate?: boolean, 
     active?:boolean, 
     display?: boolean, 
-    longitude: number,
-    latitude: number
+    longitude: string,
+    latitude: string
 }
 
 
