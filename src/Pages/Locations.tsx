@@ -11,26 +11,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 declare var SERVICE_URL: string;
 declare var MAPS_API_KEY: string; 
 
-
-// To Do List: 
-// * add the urls to the restriction list in google
-// * use url parameter for track seelcted state
-// * check loading / error states
-// * add name to image and forms
-
-
-// * why is form state failing to reset
-
-
-// * make location in scorecard a link to location page
-
-
-
-
-
-
-
-
 export default function Locations(){
     const params = useParams();
     const navigate = useNavigate();
@@ -369,7 +349,7 @@ function LocationMap({tracks, selectedTrack, setTrackSelected}: LocationMapProp)
         scale: 8, 
         anchor: new google.maps.Point(8, 8.5)
     }
-    const normalIcon = { icon: {...iconBase}}; 
+    const normalIcon = { icon: {...iconBase, fillOpacity: .6}}; 
     const activeIcon = { icon: {...iconBase, fillColor: "green"}}
 
     useEffect(() => {
@@ -407,19 +387,30 @@ function LocationMap({tracks, selectedTrack, setTrackSelected}: LocationMapProp)
         
         const newMarkerArr: google.maps.Marker[] = [];
         tracks
+            .sort((a,b) => a.active && !b.active ? 1 : -1)
             .forEach(track => {
-            // const infoWindow = new google.maps.InfoWindow({
-            //     content: `<div><b>${track.name}</b></div>`, 
-            //     ariaLabel: `${track.name}-marker`
-            // }); 
+
+            const contentStr = track.address && track.city ? 
+                `<br/><div><b>${track.name}</b></div><div>${track.address}</div><div>${track.city}</div>` : 
+                `<br/><div><b>${track.name}</b></div>`
+
+            const infoWindow = new google.maps.InfoWindow({
+                content: contentStr, 
+                ariaLabel: `${track.name}-marker`
+            }); 
             const iconChange = track.active ? activeIcon : normalIcon; 
             const marker = new google.maps.Marker({
                 ...iconChange, 
                 position: {lat: parseFloat(track.latitude), lng: parseFloat(track.longitude)}, 
                 map: map,
             });
+            marker.addListener("mouseover", () => {
+                infoWindow.open({anchor: marker}); 
+            }); 
+            marker.addListener("mouseout", () => {
+                infoWindow.close();
+            })
             marker.addListener("click", () => {
-                // infoWindow.open({anchor: marker}); 
                 setTrackSelected(track.name);
             })
             newMarkerArr.push(marker);
