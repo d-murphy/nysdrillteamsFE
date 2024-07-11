@@ -30,12 +30,17 @@ let initialTrack:Track = {
 
 export default function AdminTracks(props:AdminTracksProps) {
     const tracks = props.tracks; 
-    let [trackInReview, setTrackInReview] = useState<Track>(initialTrack)
+    console.log("initialTrack: ", initialTrack)
+    let [trackInReview, setTrackInReview] = useState<Track>({...initialTrack})
     let [images, setImages] = useState<ImageDbEntry[]>([]);
+
     let [imageEditOrCreate, setImageEditOrCreate] = useState<"Edit" | "Create">("Create");
     let [imageInReview, setImageInReview] = useState<ImageDbEntry>(null);
+    let [imageFileName, setImageFileName] = useState<string>("");
     let [imageName, setImageName] = useState("");
+    let [imageCaption, setImageCaption] = useState("");
     let [imageSortOrder, setImageSortOrder] = useState(0);
+
     let [editOrCreate, setEditOrCreate] = useState<"Edit" | "Create">("Create"); 
     let [reqSubmitted, setReqSubmitted] = useState(false); 
     let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
@@ -72,11 +77,14 @@ export default function AdminTracks(props:AdminTracksProps) {
 
 
     function loadTrack(track:Track){
-        if(!track?.archHeightFt) track.archHeightFt = 999; 
-        if(!track?.archHeightInches) track.archHeightInches = 999; 
-        if(!track?.distanceToHydrant) track.distanceToHydrant = 999; 
         setTrackInReview({
-            ...track
+            ...track, 
+            longitude: track.longitude || "",
+            latitude: track.latitude || "",
+            archHeightFt: track.archHeightFt || null,
+            archHeightInches: track.archHeightInches || null,
+            distanceToHydrant: track.distanceToHydrant || null, 
+            notes: track.notes || "",
         })
     }
 
@@ -168,7 +176,9 @@ export default function AdminTracks(props:AdminTracksProps) {
         let url = `${SERVICE_URL}/images/uploadImage`
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('fileName', imageFileName);
         formData.append('imageName', imageName);
+        formData.append('imageCaption', imageCaption);
         formData.append('sortOrder', imageSortOrder.toString());
         formData.append('track', trackInReview.name);
         try {
@@ -188,13 +198,14 @@ export default function AdminTracks(props:AdminTracksProps) {
     }
 
     async function updateImage(){
-        let url = `${SERVICE_URL}/images/updateSortOrder`
+        let url = `${SERVICE_URL}/images/updateImage`
         let body = {
-            fileName: imageInReview.fileName, sortOrder: imageSortOrder
+            fileName: imageInReview.fileName, sortOrder: imageSortOrder, 
+            imageName: imageName, imageCaption: imageCaption
         }
         try {
             await fetchPost(url, body, sessionId)
-            let updateMsg = `Image Sort Order Change: ${imageInReview.fileName}`
+            let updateMsg = `Image Update: ${imageInReview.fileName}`
             logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
             setReqResult({error: false, message: "Update successful."}); 
             getTrackImages(); 
@@ -210,6 +221,8 @@ export default function AdminTracks(props:AdminTracksProps) {
         if (imageFormRef.current) imageFormRef.current.value = "";
         setImageName("");
         setImageSortOrder(0);
+        setImageCaption("");
+        setImageFileName(""); 
     }
 
     function modalCleanup(clearImages: boolean = false){
@@ -235,7 +248,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                     onClick={()=>{
                         modalCleanup(true); 
                         setEditOrCreate("Create"); 
-                        loadTrack(initialTrack); 
+                        loadTrack({...initialTrack}); 
                     }}>Add New Track
                 </div>
 
@@ -466,6 +479,9 @@ export default function AdminTracks(props:AdminTracksProps) {
                                                             clearImageForm()
                                                             setImageEditOrCreate("Edit"); 
                                                             setImageSortOrder(el.sortOrder); 
+                                                            setImageName(el.imageName || "");
+                                                            setImageCaption(el.imageCaption || "");
+                                                            setImageFileName(el.fileName);
                                                             setImageInReview(el); 
                                                         }}
                                                         ><FontAwesomeIcon className="crud-links font-x-large" icon={faEdit}/>
@@ -556,21 +572,49 @@ export default function AdminTracks(props:AdminTracksProps) {
                                     </div>
                                 }
                                 <div className="row my-1">
-                                    <div className="col-4 text-center">Image Name</div>
+                                    <div className="col-4 text-center">File Name</div>
                                     <div className="col-8 text-center px-4">
                                         {
                                             imageEditOrCreate === 'Edit' ? 
                                                 imageInReview?.fileName : 
                                                 <input 
-                                                onChange={(e) => setImageName(e.target.value)} 
-                                                id="imageName" 
-                                                value={imageName} 
+                                                onChange={(e) => setImageFileName(e.target.value)} 
+                                                id="imageFileName" 
+                                                value={imageFileName} 
                                                 disabled={!isAdminOrScorekeeper} 
                                                 className="text-center width-100"
                                                 autoComplete="off"></input>
                                         }
                                     </div>
                                 </div>
+
+                                <div className="row my-1">
+                                    <div className="col-4 text-center">Image Name</div>
+                                    <div className="col-8 text-center px-4">
+                                        <input 
+                                        onChange={(e) => setImageName(e.target.value)} 
+                                        id="imageName" 
+                                        value={imageName} 
+                                        disabled={!isAdminOrScorekeeper} 
+                                        className="text-center width-100"
+                                        autoComplete="off"></input>
+                                    </div>
+                                </div>
+
+                                <div className="row my-1">
+                                    <div className="col-4 text-center">Image Caption</div>
+                                    <div className="col-8 text-center px-4">
+                                        <input 
+                                        onChange={(e) => setImageCaption(e.target.value)} 
+                                        id="imageCaption" 
+                                        value={imageCaption} 
+                                        disabled={!isAdminOrScorekeeper} 
+                                        className="text-center width-100"
+                                        autoComplete="off"></input>
+                                    </div>
+                                </div>
+
+
                                 <div className="row my-1">
                                     <div className="col-4 text-center">Image Sort Value</div>
                                     <div className="col-8 text-center px-4">
@@ -604,7 +648,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                                 <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
                                 {
                                     imageEditOrCreate === 'Edit' ? 
-                                        <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted} onClick={updateImage}>Update Sort Order</button> :
+                                        <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted} onClick={updateImage}>Update Image</button> :
                                         <button type="submit" className="btn btn-success mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted || disableImageOnDupe} >Add Image</button>
                                 }
                             </div>

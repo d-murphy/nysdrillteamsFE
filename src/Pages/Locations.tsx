@@ -1,28 +1,51 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ImageDbEntry, Tournament, Track } from '../types/types';
 import { Wrapper, Status } from "@googlemaps/react-wrapper"; 
-import { Form, Modal } from 'react-bootstrap';
+import { Form, Modal, Placeholder } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from "@fortawesome/free-solid-svg-icons"; 
 import { Bar, BarChart, Label, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 
 declare var SERVICE_URL: string;
 declare var MAPS_API_KEY: string; 
 
-// the api key is going to be accessible in the network requests either way, so
-// import to restict to url
+
+// To Do List: 
+// * add the urls to the restriction list in google
+// * use url parameter for track seelcted state
+// * check loading / error states
+// * add name to image and forms
+
+
+// * why is form state failing to reset
+
+
+// * make location in scorecard a link to location page
+
+
+
+
+
+
 
 
 export default function Locations(){
+    const params = useParams();
+    const navigate = useNavigate();
 
+    const trackSelected = params.location
     const [loading, setLoading] = useState(true); 
     const [tracks, setTracks] = useState<Track[]>([]);
     const [errorLoading, setErrorLoading] = useState(false);
-    const [trackSelected, setTrackSelected] = useState<string>('');
+
     const [trackImages, setTrackImages] = useState<ImageDbEntry[]>([])
     const [trackTourns, setTrackTourns] = useState<Tournament[]>([]);
+
+    const setTrackSelected = (track: string) => {
+        navigate(`/Locations/${encodeURIComponent(track)}`)
+    }
 
     const fetchTracks = () => {
         setLoading(true); 
@@ -90,7 +113,7 @@ export default function Locations(){
         <div className="container mb-2">
             <div className="text-center font-x-large my-2"><b>Track Locations</b></div>
             <StateHandler loading={loading} error={errorLoading}>
-                <div className="container">
+                <div className="">
                     <div className="row g-0">
                         <div className="col-md-4 col-12">
                             <div className='bg-white rounded mx-1 '>
@@ -150,7 +173,7 @@ function TournamentHistory({tourns}: TournamentHistoryProps){
                                 <div className='d-inline-block m-1 p-2 bg-light rounded pointer' 
                                     onClick={() => navigate(`/Tournament/${el.id}`)}>
                                     <div>{el.name}</div>
-                                    <div>{new Date(el.date).toLocaleDateString()}</div>
+                                    <div className='grayText'>{new Date(el.date).toLocaleDateString()}</div>
                                 </div>
                             )})
                     }
@@ -175,6 +198,7 @@ interface TrackImagesProps {
 
 function TrackImages({trackImages, trackSelected}: TrackImagesProps){
     const [showImage, setShowImage] = useState("");
+    const imageObj = trackImages.find(el => el.url === showImage);
 
     return (
         <div className="w-100 overflow-scroll text-nowrap ">
@@ -201,11 +225,15 @@ function TrackImages({trackImages, trackSelected}: TrackImagesProps){
         >
             <Modal.Header closeButton>
             <Modal.Title id="image-modal">
-                {trackSelected} Image
+                {trackSelected} {imageObj?.imageName ? ` - ${imageObj.imageName}` : ""}
             </Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <img src={showImage} alt="track-image" className="w-100 track-image-mx-ht" />
+                {
+                    imageObj?.imageCaption ? 
+                        <div className='text-center mt-3 mb-1'>{imageObj?.imageCaption}</div> : <></>
+                }
             </Modal.Body>
         </Modal>
 
@@ -231,7 +259,7 @@ function SelectionSection({trackSelected, setTrackSelected, tracks, trackImages,
 
     return (
         <div className='p-1 w-100'>
-            <div className='px-2 h-100 map-selection-height'>
+            <div className='px-2 h-100'>
                 {trackSelected ? 
                     <TrackInfo 
                         track={tracks.find(el => el.name === trackSelected) as Track}
@@ -240,7 +268,7 @@ function SelectionSection({trackSelected, setTrackSelected, tracks, trackImages,
                         trackTourns={trackTourns}
                         /> : 
                     <div>
-                        <div className='ps-1 py-1'>Select a track or click a marker on the map:</div>
+                        <div className='ps-1 py-2'>Select a track or click a marker on the map:</div>
                         <Form.Select aria-label="Select Track" value={trackSelected} onChange={((e) => {
                                 setTrackSelected(e.target.value)
                             })}>
@@ -248,7 +276,8 @@ function SelectionSection({trackSelected, setTrackSelected, tracks, trackImages,
                             {tracks.sort((a,b) => a.name < b.name ? -1 : 1).map(el => {
                                 return <option key={el.name} value={el.name}>{el.name}</option>
                             })}
-                        </Form.Select>                        
+                        </Form.Select>
+                        <div className='py-2' />                        
                     </div>
                 }
             </div>
@@ -269,8 +298,26 @@ const StateHandler = function({loading, error, children}: StateHandlerProps){
     return (
         <>
         {
-            loading ? <div className="spinner-border text-secondary" role="status"></div> : 
-            error ? <div>Error loading tracks</div> :
+            loading ? 
+                <div className="row g-0">
+                    <div className="col-md-4 col-12">
+                        <div className='bg-white rounded px-1 pt-4 pb-2 me-1'>
+                            <Placeholder animation="glow" className="p-0 text-center my-3">
+                                <Placeholder className="rounded w-100 height-30" bg="secondary" />
+                            </Placeholder>
+                        </div>
+                    </div>
+                    <div className="col-md-8 col-12">
+                        <Placeholder animation="glow" className="ms-1">
+                            <Placeholder  className="w-100 map-selection-made-height"  bg="secondary"/>
+                        </Placeholder>
+                    </div>
+                </div>
+            : 
+            error ? 
+                <div className='m-5 d-flex justify-content-center h5'>
+                    There was an error loading location data.  Please try again later. 
+                </div> :
             children
         }
         </>
@@ -334,7 +381,6 @@ function LocationMap({tracks, selectedTrack, setTrackSelected}: LocationMapProp)
         } else {
             tracks.forEach(track => {
                 if(track.latitude && track.longitude){
-                    console.log(parseFloat(track.latitude), parseFloat(track.longitude))
                     bounds.extend({lat: parseFloat(track.latitude), lng: parseFloat(track.longitude)});
                 }
             })    

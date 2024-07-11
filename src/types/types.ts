@@ -159,5 +159,7 @@ export type ImageDbEntry = {
     url: string, 
     thumbnailUrl: string,
     track?: string, 
-    sortOrder?: number
+    sortOrder?: number, 
+    imageName: string, 
+    imageCaption: string
 }

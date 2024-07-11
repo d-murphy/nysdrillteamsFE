@@ -479,6 +479,10 @@ html, body, #root {
     height: 70px; 
 }
 
+.height-30 {
+    height: 30px; 
+}
+
 .minheight-10 {
     min-height: 10px;
 }
