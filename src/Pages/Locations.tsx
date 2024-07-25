@@ -223,7 +223,9 @@ function TrackImages({trackImages, trackSelected}: TrackImagesProps){
             </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <img src={showImage} alt="track-image" className="w-100 track-image-mx-ht" />
+                <div className='w-100 d-flex justify-content-center'>
+                    <img src={showImage} alt="track-image" className="track-image-mx-ht" />
+                </div>
                 {
                     imageObj?.imageCaption ? 
                         <div className='text-center mt-3 mb-1'>{imageObj?.imageCaption}</div> : <></>
