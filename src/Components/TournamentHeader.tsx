@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faTicket, faTrophy } from '@fortawesome/free-solid-svg-icons'
+import { faTicket, faTrophy, faMapLocationDot } from '@fortawesome/free-solid-svg-icons'
 import { faSquareYoutube } from "@fortawesome/free-brands-svg-icons";
 import TournamentWinners from "./TournamentWinners"
 import getTournamentWinner from "../utils/getTournamentWinners";
@@ -51,7 +51,7 @@ export default function TournamentHeader(props:TournamentProp) {
     }
 
     let urlList = printUrlWithIcon(tournament); 
-    console.log("urlList: ", urlList, tournament?.urls?.length); 
+
     return (
         <div className="bg-white shadow-sm rounded mb-1 mt-2">
             <div className="row ">
@@ -64,8 +64,16 @@ export default function TournamentHeader(props:TournamentProp) {
                     </div>
                 </div>
                 <div className="col-12">
-                    <div className="row my-2 font-small">
-                        <div className="col-4 px-2 text-center">Location: {tournament.track}</div>
+                    <div className="row my-2 font-medium">
+                        <div className="col-4 px-2 text-center">
+                            <span className="pointer px-2" onClick={()=>navigate(`/locations/${encodeURIComponent(tournament.track)}`)}>
+                                Location: {tournament.track}
+                                <FontAwesomeIcon className="ps-2 crud-links font-x-large" icon={faMapLocationDot} />
+                            </span>
+                        </div>
+
+
+
                         <div className="col-4 px-2">
                             <div className=" d-flex justify-content-center align-items-center">
                                 {
@@ -108,7 +116,7 @@ export default function TournamentHeader(props:TournamentProp) {
                                         {tournament?.top5 && Object.keys(tournament?.top5).length && tournament.top5[0].points + " points"}
                                     </div>
                                 </div>
-                                <div className="d-flex flex-row justify-content-center grayText font-x-small pt-1 pb-3 text-center">
+                                <div className="d-flex flex-row justify-content-center grayText font-small pt-1 pb-3 text-center">
                                     {secondStr && <div className="mx-2">{secondStr}</div>}
                                     {thirdStr && <div className="mx-2">{thirdStr}</div>}
                                     {fourthStr && <div className="mx-2">{fourthStr}</div>}

@@ -6,6 +6,7 @@
     --nav-bg-dk: #001d3c; 
     --nav-bg: #013369; 
     --total-points-bg: hwb(210 66% 3%); 
+    --footer-bg: #3e3d47;
 }
 
 
@@ -21,6 +22,10 @@ html, body, #root {
     font-optical-sizing: auto;
     font-weight: 400;
     font-style: normal;
+}
+
+.min-screen-height {
+    min-height: 100vh;
 }
 
 
@@ -100,27 +105,11 @@ html, body, #root {
     padding-bottom: 80px;
 }
 
+
 .footer {
-    background-color: var(--bs-gray-100); 
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    color: black;
-    text-align: center;
-    height: 80px; 
+    background-color: var(--bs-gray-700); 
+    color: white;
 }
-
-.underline-hover-ft {
-    border-bottom: 2px solid var(--bs-gray-600)
-}
-
-.underline-hover-ft:hover {
-    border-bottom: 2px solid var(--nav-bg-dk);
-    color: var(--nav-bg-dk);
-    cursor: pointer;
-}
-
 
 
 /* Home */
@@ -493,6 +482,10 @@ html, body, #root {
 
 .minwidth-800 {
     min-width: 800px;
+}
+
+.dash-logo-width {
+    width: 120px; 
 }
 
 

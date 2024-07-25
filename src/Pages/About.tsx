@@ -79,43 +79,59 @@ export default function About() {
     );
 }
 
-export const Social = function(){
+interface SocialProps {
+    clearBackground?: boolean
+}
+
+export const Social = function({clearBackground}:SocialProps ){
+
+    const wrapperClasses = clearBackground ? 
+        "py-2 w-100" : 
+        "bg-white rounded py-2 w-100 shadow-sm";
+
+    const socialClasses = clearBackground ?
+        "pointer p-2 font-medium text-white" :
+        "pointer p-2 font-x-large crud-links"; 
+
     return (
-        <div className="bg-white rounded py-2 w-100 shadow-sm">
-            <div className="w-100">
-                <h5 className="my-2 text-center">
-                    Follow the NYS FD Drill Teams
-                </h5>
-            </div>
+        <div className={wrapperClasses}>
+            {
+                clearBackground ? <></> : 
+                    <div className="w-100">
+                        <h5 className="my-2 text-center">
+                            Follow the NYS FD Drill Teams
+                        </h5>
+                    </div>
+            }
             <div className="d-flex flex-row justify-content-center">
                 <div>
                     <a href="https://www.facebook.com/groups/NYSDrillTeams/" target="_blank">
-                        <FontAwesomeIcon icon={faFacebook} size="lg" className="pointer crud-links font-x-large p-2" />
+                        <FontAwesomeIcon icon={faFacebook}  className={socialClasses} />
                     </a>
                 </div>
                 <div>
                     <a href="https://www.instagram.com/nysfddrillteams/?hl=en" target="_blank">
-                        <FontAwesomeIcon icon={faInstagram} size="lg" className="pointer crud-links font-x-large p-2" />
+                        <FontAwesomeIcon icon={faInstagram}  className={socialClasses} />
                     </a>
                 </div>
                 <div>
                     <a href="https://twitter.com/nysfddrillteams?lang=en" target="_blank">
-                        <FontAwesomeIcon icon={faTwitter} size="lg" className="pointer crud-links font-x-large p-2" />
+                        <FontAwesomeIcon icon={faTwitter} className={socialClasses} />
                     </a>
                 </div>
                 <div>
                     <a href="https://www.twitch.tv/nysfddrillteams" target="_blank">
-                        <FontAwesomeIcon icon={faTwitch} size="lg" className="pointer crud-links font-x-large p-2" />
+                        <FontAwesomeIcon icon={faTwitch} className={socialClasses} />
                     </a>
                 </div>
                 <div>
                     <a href="https://www.tiktok.com/@nysfddrillteams?lang=en" target="_blank">
-                        <FontAwesomeIcon icon={faTiktok} size="lg" className="pointer crud-links font-x-large p-2" />
+                        <FontAwesomeIcon icon={faTiktok} className={socialClasses} />
                     </a>
                 </div>
                 <div>
                     <a href="https://www.youtube.com/@NYSFDdrillteams" target="_blank">
-                        <FontAwesomeIcon icon={faYoutube} size="lg" className="pointer crud-links font-x-large p-2" />
+                        <FontAwesomeIcon icon={faYoutube} className={socialClasses} />
                     </a>
                 </div>
             </div>

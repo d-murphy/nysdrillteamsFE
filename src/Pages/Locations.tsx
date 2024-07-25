@@ -89,10 +89,24 @@ export default function Locations(){
         fetchTracks(); 
     }, []);
 
+    const selectedTrackInfo = tracks.find(el => el.name === trackSelected);
+
+    if(tracks.length && trackSelected && !selectedTrackInfo){
+        return <div className='container p-5 d-flex w-100 align-items-center flex-column'>
+            <div className='py-2'>
+                Sorry, we're missing info on this track.
+            </div>
+            <div className='py-2'>
+                <button className="btn btn-secondary" onClick={() => setTrackSelected("")}>Back to Tracks</button>
+            </div>
+        </div>
+    }
+
+
     return (
         <div className="container mb-2">
             <div className="text-center font-x-large my-2"><b>Track Locations</b></div>
-            <StateHandler loading={loading} error={errorLoading}>
+            <StateHandler loading={loading} error={errorLoading} trackSelected={trackSelected}>
                 <div className="">
                     <div className="row g-0">
                         <div className="col-md-4 col-12">
@@ -236,7 +250,6 @@ interface SelectionSectionProps {
 
 
 function SelectionSection({trackSelected, setTrackSelected, tracks, trackImages, trackTourns}: SelectionSectionProps){
-
     return (
         <div className='p-1 w-100'>
             <div className='px-2 h-100'>
@@ -268,12 +281,13 @@ function SelectionSection({trackSelected, setTrackSelected, tracks, trackImages,
 
 interface StateHandlerProps {
     loading: boolean;
+    trackSelected: string; 
     error: boolean;
     children: React.ReactNode;
 }
 
 
-const StateHandler = function({loading, error, children}: StateHandlerProps){
+const StateHandler = function({loading, trackSelected,  error, children}: StateHandlerProps){
 
     return (
         <>
@@ -281,11 +295,28 @@ const StateHandler = function({loading, error, children}: StateHandlerProps){
             loading ? 
                 <div className="row g-0">
                     <div className="col-md-4 col-12">
-                        <div className='bg-white rounded px-1 pt-4 pb-2 me-1'>
-                            <Placeholder animation="glow" className="p-0 text-center my-3">
-                                <Placeholder className="rounded w-100 height-30" bg="secondary" />
-                            </Placeholder>
-                        </div>
+                        {
+                            trackSelected ? 
+                                <div className='bg-white rounded px-2 pt-4 pb-2 me-1 map-selection-made-height'>
+                                    <div className="d-flex flex-column">
+                                        <div>
+                                            <Placeholder animation="glow" className="p-0 text-center mt-1">
+                                                <Placeholder className="rounded w-50 height-30" bg="secondary" />
+                                            </Placeholder>
+                                        </div>
+                                        <div className="mt-5">
+                                            <Placeholder animation="glow" className="p-0 text-center mt-1">
+                                                <Placeholder className="rounded w-100 minheight-180" bg="secondary" />
+                                            </Placeholder>
+                                        </div>
+                                    </div>
+                                </div> : 
+                                <div className='bg-white rounded px-1 pt-4 pb-2 me-1'>
+                                    <Placeholder animation="glow" className="p-0 text-center my-3">
+                                        <Placeholder className="rounded w-100 height-30" bg="secondary" />
+                                    </Placeholder>
+                                </div>                            
+                        }
                     </div>
                     <div className="col-md-8 col-12">
                         <Placeholder animation="glow" className="ms-1">
@@ -354,7 +385,7 @@ function LocationMap({tracks, selectedTrack, setTrackSelected}: LocationMapProp)
 
     useEffect(() => {
         const bounds = new google.maps.LatLngBounds();
-        const track = selectedTrack ? tracks.find(el => el.name === selectedTrack) : undefined;
+        const track = selectedTrack ? tracks.find(el => el?.name === selectedTrack) : undefined;
 
         if(track && track.latitude && track.longitude) {
             bounds.extend({lat: parseFloat(track.latitude), lng: parseFloat(track.longitude)});
@@ -372,8 +403,12 @@ function LocationMap({tracks, selectedTrack, setTrackSelected}: LocationMapProp)
                 streetViewControl: false,
             }); 
             setMap(myMap);
-            myMap.fitBounds(bounds);
-            if(track && track.latitude && track.longitude) myMap.setZoom(15);
+            if(track && track.latitude && track.longitude) {
+                myMap.setCenter({lat: parseFloat(track.latitude), lng: parseFloat(track.longitude)});
+                myMap.setZoom(15);
+            } else {
+                myMap.fitBounds(bounds); 
+            }
         } else if(map){
             map.fitBounds(bounds);
             if(track && track.latitude && track.longitude) map.setZoom(15);
@@ -418,7 +453,7 @@ function LocationMap({tracks, selectedTrack, setTrackSelected}: LocationMapProp)
         setMarkers([...newMarkerArr]);
     }, [tracks, selectedTrack, map])
 
-    if(selectedTrack && !(tracks.find(el => el.name === selectedTrack))){
+    if(selectedTrack && !(tracks.find(el => el?.name === selectedTrack))){
         return <div>Track is missing location data.</div>
     }
 
@@ -453,11 +488,12 @@ function TrackInfo({track, trackImages, setTrackSelected, trackTourns}: TrackInf
             </div>
             <div className='my-2 h5'>Address: {track.address}{track.address && track.city ? ", " : ""}{track.city}</div>
             {
-                track.archHeightFt && track.archHeightInches ?
+                track.archHeightFt && track.archHeightFt !== 999 && 
+                track.archHeightInches && track.archHeightInches !== 999 ?
                     <div className='h5'>Arch Height: {track.archHeightFt}'{track.archHeightInches}"</div> : <></>
             }
             {
-                track.distanceToHydrant ?
+                track.distanceToHydrant && track.distanceToHydrant !== 999 ?
                     <div className='h5'>Arch Distance to Hydrant: {track.distanceToHydrant} feet</div> : <></>
             }
             {
