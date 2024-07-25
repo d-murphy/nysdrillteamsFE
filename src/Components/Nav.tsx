@@ -75,6 +75,9 @@ export default function Nav() {
                                         dropdownOpen ? 
                                         <div className="position-absolute dropdown-pos-top start-25 bg-white border border-1 rounded py-2 px-4" onClick={() => setDropdownOpen(false)}>
                                             <div className="my-2">
+                                                <Link className="video-links " to="/locations">Locations</Link>
+                                            </div>
+                                            <div className="my-2">
                                                 <Link className="video-links " to="/TeamSummaries">Team Seasons</Link>
                                             </div>
                                             <div className="my-2">
