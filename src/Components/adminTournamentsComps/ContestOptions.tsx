@@ -83,9 +83,11 @@ export default function ContestOptions() {
             <option value={"Jr Division - Junior Ladder"}>Jr Division - Junior Ladder</option> 
             <option value={"Jr Division - Junior Wye"}>Jr Division - Junior Wye</option> 
             <option value={"Jr Division - Wye"}>Jr Division - Wye</option> 
+            <option value={"Department Contest"}>Department Contest</option>
             <option value={"Dummy"}>Dummy</option> 
             <option value={"Motor Hose Class 3"}>Motor Hose Class 3</option>
             <option value={"Motor Hose Class A"}>Motor Hose Class A</option>
+            <option value={"Running Hose No. 2"}>Running Hose No. 2</option>
             <option value={"First Aid"}>First Aid</option>
             <option value={"Jr Division - Efficiency Replacement"}>Jr Division - Efficiency Replacement</option>
         </>

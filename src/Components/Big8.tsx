@@ -4,6 +4,9 @@ import dateUtil from "../utils/dateUtils"
 import { Run } from "../types/types"
 import Big8Contest from "../Components/Big8Contest"
 import Big8ContestLoading from "./Big8ContestLoading";
+import { faList } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useNavigate } from "react-router-dom";
 
 interface Big8Prop {
     year?: number;
@@ -18,6 +21,8 @@ export default function Big8(props:Big8Prop) {
     const [big8, setBig8] = useState<{_id:string, matched_doc:Run}[]>([]); 
     const [errorLoading, setErrorLoading] = useState(false); 
     const [isLoading, setIsLoading] = useState(true); 
+
+    const navigate = useNavigate();
 
     const fetchBig8 = () => {
         fetch(`${SERVICE_URL}/runs/getBig8?year=${big8Year}`)
@@ -53,6 +58,14 @@ export default function Big8(props:Big8Prop) {
                     <Big8Contest run={getRun("Efficiency", big8)} />
                     <Big8Contest run={getRun("Motor Pump", big8)} />
                     <Big8Contest run={getRun("Buckets", big8)} />
+                </div>
+                <div className="row w-100 g-2 mt-1">
+                    <div className="d-flex flex-column align-items-end">
+                        <div className="pointer" onClick={() => {navigate("/topRuns?year=" + big8Year)}}>
+                            See the Top 10 for {big8Year}
+                            <FontAwesomeIcon className="crud-links font-large ms-2" icon={faList}/>
+                        </div>
+                    </div>
                 </div>
             </div>
         )

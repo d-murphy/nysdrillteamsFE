@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchGet } from '../utils/network'; 
 import Image from "react-bootstrap/Image";
+import { Collapse } from "react-bootstrap";
 
 
 declare var SERVICE_URL: string;
@@ -11,6 +12,7 @@ export default function Nav() {
     let navigate = useNavigate();
     const [announcements, setAnnoucements] = useState([]); 
     const [dropdownOpen, setDropdownOpen] = useState(false); 
+    const [collapseOpen, setCollapseOpen] = useState(true);
 
     useEffect(() => {
         fetchGet(`${SERVICE_URL}/announcements/getAnnouncements`)
@@ -29,7 +31,7 @@ export default function Nav() {
                 </div> : <></>
                 }
             </div>
-            <div className="nav-bg-color-dk" onClick={() => setDropdownOpen(false)}>
+            <div className="nav-bg-color-dk" onClick={() => {setDropdownOpen(false); setCollapseOpen(false)}}>
                 <div className="container d-flex justify-content-start p-4 "
                     onClick={() => navigate("/")}>
                     <div className="header-logo">
@@ -40,7 +42,7 @@ export default function Nav() {
 
             {/* mobile nav */}
             <nav className="nav-bg-color d-block d-md-none">
-                <nav className="navbar navbar-dark nav-bg-color" onClick={() => setDropdownOpen(false)}>
+                <nav className="navbar navbar-dark nav-bg-color" onClick={() => {setDropdownOpen(false); setCollapseOpen(!collapseOpen)}}>
                     <div className="container-fluid">
                         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
                         <span className="navbar-toggler-icon"></span>
@@ -48,7 +50,7 @@ export default function Nav() {
                     </div>
                 </nav>
 
-                <div className="collapse" id="navbarToggleExternalContent">
+                <Collapse in={collapseOpen}>
                     <div className="nav-bg-color px-4 pb-4">
 
 
@@ -58,12 +60,12 @@ export default function Nav() {
                                 <div className="col-12 d-flex justify-content-center text-center" onClick={() => setDropdownOpen(false)}>
                                     <div 
                                         className=" underline-hover my-3 px-1 py-2"
-                                        onClick={() => {navigate("/Schedule")}}>Schedule / Results</div>                            
+                                        onClick={() => {navigate("/Schedule"); setCollapseOpen(false)}}>Schedule / Results</div>                            
                                 </div>
                                 <div className="col-12 d-flex justify-content-center text-center " onClick={() => setDropdownOpen(false)}>
                                     <div 
                                         className="underline-hover my-3 px-1 py-2"
-                                        onClick={() => {navigate("/PastSeasons")}}>Past Seasons</div>
+                                        onClick={() => {navigate("/PastSeasons"); setCollapseOpen(false)}}>Past Seasons</div>
                                 </div>
                                 <div className="col-12 d-flex justify-content-center text-center position-relative">
                                     <div 
@@ -75,22 +77,22 @@ export default function Nav() {
                                         dropdownOpen ? 
                                         <div className="position-absolute dropdown-pos-top start-25 bg-white border border-1 rounded py-2 px-4" onClick={() => setDropdownOpen(false)}>
                                             <div className="my-2">
-                                                <Link className="video-links " to="/locations">Locations</Link>
+                                                <Link className="video-links " to="/locations" onClick={() => setCollapseOpen(false)}>Locations</Link>
                                             </div>
                                             <div className="my-2">
-                                                <Link className="video-links " to="/TeamSummaries">Team Seasons</Link>
+                                                <Link className="video-links " to="/TeamSummaries" onClick={() => setCollapseOpen(false)}>Team Seasons</Link>
                                             </div>
                                             <div className="my-2">
-                                                <Link className="video-links " to="/TeamHistory">Team Histories</Link>
+                                                <Link className="video-links " to="/TeamHistory" onClick={() => setCollapseOpen(false)}>Team Histories</Link>
                                             </div>
                                             <div className="my-2 ">
-                                                <Link className="video-links " to="/TotalPoints">Total Points</Link>
+                                                <Link className="video-links " to="/TotalPoints" onClick={() => setCollapseOpen(false)}>Total Points</Link>
                                             </div>
                                             <div className="my-2 ">
-                                                <Link className="video-links" to="/TopRuns">Top Runs</Link>
+                                                <Link className="video-links" to="/TopRuns" onClick={() => setCollapseOpen(false)}>Top Runs</Link>
                                             </div>
                                             <div className="my-2 "> 
-                                                <Link className="video-links" to="/RunSearch">Run Search</Link>
+                                                <Link className="video-links" to="/RunSearch" onClick={() => setCollapseOpen(false)}>Run Search</Link>
                                             </div>
                                         </div> : <></>
                                     }
@@ -99,7 +101,7 @@ export default function Nav() {
                                 <div className="col-12 d-flex justify-content-center" onClick={() => setDropdownOpen(false)}>
                                     <div 
                                         className="text-center underline-hover my-3 px-1 py-2"
-                                        onClick={() => {navigate("/About")}}>About</div>
+                                        onClick={() => {navigate("/About"); setCollapseOpen(false)}}>About</div>
                                 </div>
 
                             </div>
@@ -108,7 +110,7 @@ export default function Nav() {
 
 
                     </div>
-                </div>
+                </Collapse>
             </nav>
 
 

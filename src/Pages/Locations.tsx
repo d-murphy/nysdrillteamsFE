@@ -224,7 +224,7 @@ function TrackImages({trackImages, trackSelected}: TrackImagesProps){
             </Modal.Header>
             <Modal.Body>
                 <div className='w-100 d-flex justify-content-center'>
-                    <img src={showImage} alt="track-image" className="track-image-mx-ht" />
+                    <img src={showImage} alt="track-image" className="track-image-mx-ht max-width-100" />
                 </div>
                 {
                     imageObj?.imageCaption ? 
@@ -320,11 +320,7 @@ const StateHandler = function({loading, trackSelected,  error, children}: StateH
                                 </div>                            
                         }
                     </div>
-                    <div className="col-md-8 col-12">
-                        <Placeholder animation="glow" className="ms-1">
-                            <Placeholder  className="w-100 map-selection-made-height"  bg="secondary"/>
-                        </Placeholder>
-                    </div>
+                    <MapLoadingBlock />
                 </div>
             : 
             error ? 
@@ -338,10 +334,20 @@ const StateHandler = function({loading, trackSelected,  error, children}: StateH
     )
 }
 
+const MapLoadingBlock = () => {
+    return (
+        <div className="col-md-8 col-12">
+            <Placeholder animation="glow" className="ms-1">
+                <Placeholder  className="w-100 map-selection-made-height"  bg="secondary"/>
+            </Placeholder>
+        </div>
+    )
+}
+
 
 const otherMapStates = (status: Status) => {
     if(status === Status.FAILURE) return <div>Failed to load map</div>
-    if(status === Status.LOADING) return <div>Loading map...</div>
+    if(status === Status.LOADING) return <MapLoadingBlock />
 }
 
 interface LocationMapWrapperProp {

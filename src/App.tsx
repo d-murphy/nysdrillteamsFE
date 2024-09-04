@@ -4,7 +4,7 @@ import {
     createBrowserRouter,
     Link,
     RouterProvider,
-    useNavigate
+    useNavigate, 
 } from "react-router-dom";
 
 import Root from "./Pages/Root";
