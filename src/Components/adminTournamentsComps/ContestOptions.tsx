@@ -87,6 +87,8 @@ export default function ContestOptions() {
             <option value={"Dummy"}>Dummy</option> 
             <option value={"Motor Hose Class 3"}>Motor Hose Class 3</option>
             <option value={"Motor Hose Class A"}>Motor Hose Class A</option>
+            <option value={"Motor Pump Class A"}>Motor Pump Class A</option>
+            <option value={"Combination Hose and Pump Class A"}>Combination Hose and Pump Class A</option>
             <option value={"Running Hose No. 2"}>Running Hose No. 2</option>
             <option value={"First Aid"}>First Aid</option>
             <option value={"Jr Division - Efficiency Replacement"}>Jr Division - Efficiency Replacement</option>
