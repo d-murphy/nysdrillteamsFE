@@ -12,7 +12,7 @@ export default function Nav() {
     let navigate = useNavigate();
     const [announcements, setAnnoucements] = useState([]); 
     const [dropdownOpen, setDropdownOpen] = useState(false); 
-    const [collapseOpen, setCollapseOpen] = useState(true);
+    const [collapseOpen, setCollapseOpen] = useState(false);
 
     useEffect(() => {
         fetchGet(`${SERVICE_URL}/announcements/getAnnouncements`)
@@ -137,14 +137,8 @@ export default function Nav() {
                             {
                                 dropdownOpen ? 
                                 <div className="position-absolute dropdown-pos-top start-25 bg-white border border-1 rounded py-2 px-4 shadow-sm" onClick={() => setDropdownOpen(false)}>
-                                    <div className="my-2">
-                                        <Link className="video-links " to="/Locations">Locations</Link>
-                                    </div>
-                                    <div className="my-2">
-                                        <Link className="video-links " to="/TeamSummaries">Team Seasons</Link>
-                                    </div>
-                                    <div className="my-2">
-                                        <Link className="video-links " to="/TeamHistory">Team Histories</Link>
+                                    <div>
+                                        <Link className="video-links" to="/TournamentHistory/New%20York%20State%20Championship">State Champions</Link>
                                     </div>
                                     <div className="my-2 ">
                                         <Link className="video-links " to="/TotalPoints">Total Points</Link>
@@ -152,8 +146,17 @@ export default function Nav() {
                                     <div className="my-2 ">
                                         <Link className="video-links" to="/TopRuns">Top Runs</Link>
                                     </div>
+                                    <div className="my-2">
+                                        <Link className="video-links " to="/TeamHistory">Team Histories</Link>
+                                    </div>
+                                    <div className="my-2">
+                                        <Link className="video-links " to="/TeamSummaries">Team Seasons</Link>
+                                    </div>
                                     <div className="my-2 "> 
                                         <Link className="video-links" to="/RunSearch">Run Search</Link>
+                                    </div>
+                                    <div className="my-2">
+                                        <Link className="video-links " to="/Locations">Locations</Link>
                                     </div>
                                 </div> : <></>
 

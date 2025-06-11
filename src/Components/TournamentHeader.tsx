@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faTicket, faTrophy, faMapLocationDot } from '@fortawesome/free-solid-svg-icons'
+import { faTicket, faTrophy, faLocationDot } from '@fortawesome/free-solid-svg-icons'
 import { faSquareYoutube } from "@fortawesome/free-brands-svg-icons";
 import TournamentWinners from "./TournamentWinners"
 import getTournamentWinner from "../utils/getTournamentWinners";
@@ -68,7 +68,7 @@ export default function TournamentHeader(props:TournamentProp) {
                         <div className="col-4 px-2 text-center">
                             <span className="pointer px-2" onClick={()=>navigate(`/locations/${encodeURIComponent(tournament.track)}`)}>
                                 Location: {tournament.track}
-                                <FontAwesomeIcon className="ps-2 crud-links font-x-large" icon={faMapLocationDot} />
+                                <FontAwesomeIcon className="ps-2 crud-links font-x-large" icon={faLocationDot} />
                             </span>
                         </div>
 

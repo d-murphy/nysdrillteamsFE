@@ -1,10 +1,10 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faSquareYoutube } from '@fortawesome/free-brands-svg-icons'
 import OverlayTrigger from "react-bootstrap/OverlayTrigger"; 
 import Tooltip from "react-bootstrap/Tooltip"; 
-import { WinnerIcon } from "./SizedImage"; 
+import { faTruckPickup, faPersonRunning, faFlagUsa, faLocationDot } from "@fortawesome/free-solid-svg-icons";
 
 
 import { Tournament } from "../types/types"; 
@@ -20,99 +20,118 @@ interface ScheduleEntryProp {
 
 export default function ScheduleEntry(props:ScheduleEntryProp) {
     const tournament = props.tournament;
-    const seperator = " | "; 
-    let winnerStr = getTournamentWinner(tournament, seperator); 
-    let winnerArr = winnerStr.split(seperator); 
-
-    let nassauIcon = tournament.nassauPoints; 
-    let northernIcon = tournament.northernPoints; 
-    let suffolkIcon = tournament.suffolkPoints; 
-    let westernIcon = tournament.westernPoints; 
-    let oldfashionedIcon = tournament.liOfPoints || tournament.suffolkOfPoints || tournament.nassauOfPoints; 
-    let juniorIcon = tournament.juniorPoints; 
-
     const navigate = useNavigate(); 
-    const routeChange = () =>{ 
-        let path = `/Track/${tournament.track}`; 
-        navigate(path);
-    }
-    
+
+    const dtOpts = { month: '2-digit' as '2-digit', day: '2-digit' as '2-digit'};
+
+    const isMotorized = tournament.nassauSchedule || tournament.northernSchedule || tournament.suffolkSchedule || tournament.westernSchedule; 
+
+    const drillClass = tournament.isParade ? "Parade" : 
+        isMotorized ? 'Motorized' : 
+        tournament.liOfSchedule ? 'Old Fashioned' : 
+        tournament.juniorSchedule ? 'Junior' : ""
+
+    const DrillIcon = tournament.isParade ? faFlagUsa :
+        isMotorized ? faTruckPickup : faPersonRunning; 
+
+
+    const seperator = " | "; 
+    let winnerStr = getTournamentWinner(tournament, seperator, true); 
+    let winnerArr = winnerStr.split(seperator); 
+        
     return (
-        <div className={`${props.bgColorClass} shadow-sm rounded my-1 w-100`}>
+        <div className={`${props.bgColorClass} shadow-sm rounded my-3 w-100`}>
             <div className="row">
 
                 {/* Left column - using d-none to hide one of these two clusters  */}
 
-                <div className="d-lg-block d-none col-2">
-                    <div className="d-flex flex-column align-items-center justify-content-center h-100">
-                        <div className="font-medium text-uppercase text-center"><b>{dateUtil.getDay(tournament?.date.getDay())}</b></div>
-                        <div className="font-medium text-center"><b>{new Date(tournament.date).toLocaleDateString()}</b></div>
-                        <div className="font-medium text-center"><b>{dateUtils.getTime(tournament.startTime)}</b></div>
-                    </div>
-                </div>
-                <div className="d-block d-lg-none col-12">
-                    <div className="d-flex flex-row align-items-center justify-content-center mx-5 py-3 border-bottom">
-                        <div className="font-medium text-uppercase mx-2 text-center"><b>{dateUtil.getDay(tournament?.date.getDay())}</b></div>
-                        <div className="font-medium mx-2 text-center"><b>{new Date(tournament.date).toLocaleDateString()}</b></div>
-                        <div className="font-medium mx-2 text-center"><b>{dateUtils.getTime(tournament.startTime)}</b></div>
-                    </div>
-                </div>
-
-                <div className="col-lg-4 col-12 d-flex flex-column align-items-center justify-content-center p-3">
-                    <div className="font-large font-weight-bold mb-2 text-center">
-                        <b>{tournament.name}</b>
+                <div className="d-block col-12">
+                    <div className="d-flex flex-md-row flex-column align-items-center justify-content-center justify-content-md-start py-3 px-4 border-bottom">
+                        <div className="text-uppercase font-large text-center text-md-left"><b>{tournament.name}</b></div>
+                        <div className="mx-2 font-large d-none d-md-block">&#8226;</div>
+                        <div className="font-medium text-uppercase ">{dateUtil.getDay(tournament?.date.getDay()).substring(0,3)}</div>
+                        <div className="ms-md-2 font-medium text-center">{new Date(tournament.date).toLocaleDateString('en-US', dtOpts)}</div>
+                        <div className="ms-md-2 font-medium text-center">{dateUtils.getTime(tournament.startTime)}</div>
+                        <div className="flex-grow-1"></div>
                         {
-                            !tournament.urls.length ? <></> : 
-                                <span className="ms-3 video-icon">
-                                    <a href={tournament.urls[0]} target="_blank">
-                                        <FontAwesomeIcon icon={faSquareYoutube} size="lg" className="" />
+                            tournament.urls.length ?  
+                                <span className="video-icon">
+                                    <a href={tournament.urls[0]} target="_blank" className="video-links">
+                                        Video Available
+                                        <FontAwesomeIcon icon={faSquareYoutube} size="lg" className="ms-2" />
                                     </a>
-                                </span>
+                                </span> : 
+                                tournament.liveStreamPlanned ? 
+                                    <div className="schedule-entry-link text-center font-medium ">Live Stream Planned!</div> :  
+                                    <div></div>
                         }
-                    </div>
-                    {/* <div className="schedule-entry-tournament-track font-medium text-uppercase mb-2" onClick={routeChange}>
-                        {tournament.track}
-                        {tournament.track ? <span className="track-info-icon font-small ms-1"><FontAwesomeIcon icon={faCircleInfo} /></span> : <></> }
-                    </div> */}
-                    <div className="d-flex flex-wrap justify-content-center my-2">
 
-                        <div className="d-flex justify-content-center my-1">
-                            <CountyIcon active={nassauIcon} label="Na" popoverText="Nassau" />
-                            <CountyIcon active={northernIcon} label="No" popoverText="Northern" />
-                            <CountyIcon active={suffolkIcon} label="Su" popoverText="Suffolk" />
-                            <CountyIcon active={westernIcon} label="We" popoverText="Western" />
-                        </div>
-                        <div className="d-flex justify-content-center my-1 mx-2">
-                            <CountyIcon active={oldfashionedIcon} label="OF" popoverText="Old-Fashioned" />
-                        </div>
-                        <div className="d-flex justify-content-center my-1 mx-2">
-                            <CountyIcon active={juniorIcon} label="Jr" popoverText="Junior" />
-                        </div>
                     </div>
                 </div>
-
-
-                <div className="col-lg-3 col-12 d-flex flex-column align-items-center justify-content-center py-1">
-                    {
-                        (tournament.top5 && tournament.top5.length) ? 
-                            <div className="schedule-entry-winner text-center border-top border-bottom py-2 font-large">
-                                <div>1st Place</div>
-                                <div className="d-flex flex-row flex-wrap justify-content-center align-items-center">
-                                    {winnerArr.map(el => <WinnerIcon team={el} size="sm"/>)}
+                <div className="d-block col-12">
+                    <div className="d-flex flex-column justify-content-center">
+                        <div className="d-flex flex-row justify-content-between align-start pb-2 pt-3 px-4">
+                            <div className="d-flex flex-column justify-content-start">
+                                <div className="grayText d-flex flex-row justify-content-start align-items-center">
+                                    {
+                                        drillClass &&
+                                        <>
+                                        <FontAwesomeIcon icon={DrillIcon} className="me-1" />
+                                        <div>{drillClass}</div>
+                                        </>
+                                    }
                                 </div>
-                            </div> : 
-                            tournament.liveStreamPlanned ? 
-                                <div className="schedule-entry-link text-center font-medium mt-4">Live Stream Planned!</div> :  
-                                <div className=""></div>
-                    }
-                </div>
+                                <div className="flex-grow-1" />
+                                <div className="mb-3 d-none d-md-block">
+                                    {winnerStr && `1st: ${winnerStr}`}
+                                </div>
+                            </div>
+                            <div className="d-flex flex-column align-items-end">
+                                <div className="d-block d-md-none mb-4 text-right">
+                                    {
+                                        tournament.track === 'Unknown' ? <></> : 
+                                            <Link
+                                                to={`/locations/${tournament.track}`}
+                                                className="video-links pointer"
+                                                >
+                                                <FontAwesomeIcon icon={faLocationDot} size="lg" className="me-2" />
+                                                {tournament.track}
+                                            </Link>
+                                    }
+                                </div>
+                                <div className="d-md-block d-none ">
+                                    {
+                                        tournament?.cancelled ? <div className="mb-3 text-center"><i>This event was cancelled.</i></div> : 
+                                        tournament?.isParade ? <></> : 
+                                            <div className="pointer schedule-entry-button  font-medium px-3 py-2 mb-3 rounded text-center" onClick={() => navigate(`/Tournament/${tournament.id}`)}>View Scorecard</div>
+                                    }
+                                </div>
+                                <div className="d-flex flex-row mb-3 d-md-block d-none text-right">
+                                    {
+                                        tournament.track === 'Unknown' ? <></> : 
+                                            <Link
+                                                to={`/locations/${tournament.track}`}
+                                                className="video-links pointer"
+                                                >
+                                                <FontAwesomeIcon icon={faLocationDot} size="lg" className="me-2" />
+                                                {tournament.track}
+                                            </Link>
+                                    }
+                                </div>
 
-                <div className="col-lg-3 col-12 d-flex justify-content-center align-items-center px-2 py-3">
-                    {
-                        tournament?.cancelled ? <div className="px-3 text-center"><i>This event was cancelled.</i></div> : 
-                        tournament?.isParade ? <></> : 
-                            <div className="schedule-entry-button font-medium px-3 py-2 rounded text-center" onClick={() => navigate(`/Tournament/${tournament.id}`)}>View Scorecard</div>
-                    }
+                            </div>
+                        </div>
+                        <div className="mb-3 d-block d-md-none d-flex justify-content-center">
+                            {winnerStr && `1st: ${winnerStr}`}
+                        </div>
+                        <div className="d-md-none d-block d-flex justify-content-center">
+                            {
+                                tournament?.cancelled ? <div className="mb-3 text-center"><i>This event was cancelled.</i></div> : 
+                                tournament?.isParade ? <></> : 
+                                    <div className="pointer schedule-entry-button width-50 font-medium px-3 py-2 mb-3 rounded text-center" onClick={() => navigate(`/Tournament/${tournament.id}`)}>View Scorecard</div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
 

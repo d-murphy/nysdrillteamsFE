@@ -26,8 +26,6 @@ export default function TeamHistory(){
     const [isError, setError] = useState(false); 
     const [opacityControl, setOpacityControl] = useState<opacityControl>("appearance"); 
 
-    console.log("teamRecords: ", teamRecords)
-
     useEffect(() => {
         getTeamHistory(teamName, setTeamHistory, setError, setLoading); 
         getTeamRecords(teamName, setTeamRecords, setError, setTrLoading); 
@@ -232,7 +230,17 @@ interface ChartProps {
 
 function Chart({teamHistory, opacityControl}: ChartProps){
 
-    const yearStart = 1947; 
+    const minYear = teamHistory.reduce((acc, el) => {
+        const newYear = new Date(el.date).getFullYear(); 
+        if(newYear < acc){
+            acc = newYear
+        }
+        return acc; 
+    }, 1947)
+
+    console.log("minYear: ", minYear)
+    
+    const yearStart = minYear; 
     const currentYear = new Date().getFullYear(); 
     const yearsCovered = currentYear - yearStart;
     const tickCount = Math.round((yearsCovered) / 4); 

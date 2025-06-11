@@ -39,7 +39,16 @@ const dateUtil = {
         let hourStr = String(date.getHours()).length < 2 ? `0${date.getHours()}` : `${date.getHours()}` 
         let minStr = String(date.getMinutes()).length < 2 ? `0${date.getMinutes()}` : `${date.getMinutes()}`
         return `${hourStr}:${minStr}`
+    },
+    getMMDD: function(date:Date): string{
+        date = new Date(date);
+        return date.toLocaleString('en-US', {
+            month: '2-digit',
+            day: '2-digit',
+        })
     }
+
+
     
 }
 

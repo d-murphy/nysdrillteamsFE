@@ -312,7 +312,8 @@ const StateHandler = function({loading, trackSelected,  error, children}: StateH
                                             </Placeholder>
                                         </div>
                                     </div>
-                                </div> : 
+                                </div> 
+                                : 
                                 <div className='bg-white rounded px-1 pt-4 pb-2 me-1'>
                                     <Placeholder animation="glow" className="p-0 text-center my-3">
                                         <Placeholder className="rounded w-100 height-30" bg="secondary" />
@@ -344,10 +345,21 @@ const MapLoadingBlock = () => {
     )
 }
 
+const MapLoadingBlock2 = () => {
+    return (
+        <div className="col-12">
+            <Placeholder animation="glow" className="ms-1">
+                <Placeholder  className="w-100 map-selection-made-height"  bg="secondary"/>
+            </Placeholder>
+        </div>
+    )
+}
+
+
 
 const otherMapStates = (status: Status) => {
     if(status === Status.FAILURE) return <div>Failed to load map</div>
-    if(status === Status.LOADING) return <MapLoadingBlock />
+    if(status === Status.LOADING) return <MapLoadingBlock2 />
 }
 
 interface LocationMapWrapperProp {
@@ -494,23 +506,31 @@ function TrackInfo({track, trackImages, setTrackSelected, trackTourns}: TrackInf
                     <FontAwesomeIcon className='font-x-large pointer' icon={faXmark} onClick={() => setTrackSelected("")} />
                 </div>
             </div>
-            <div className='my-2 h5'>Address: {track.address}{track.address && track.city ? ", " : ""}{track.city}</div>
-            {
-                track.archHeightFt && track.archHeightFt !== 999 && 
-                track.archHeightInches && track.archHeightInches !== 999 ?
-                    <div className='h5'>Arch Height: {track.archHeightFt}'{track.archHeightInches}"</div> : <></>
-            }
-            {
-                track.distanceToHydrant && track.distanceToHydrant !== 999 ?
-                    <div className='h5'>Arch Distance to Hydrant: {track.distanceToHydrant} feet</div> : <></>
-            }
+            <div className='my-2 h6'>{track.address}{track.address && track.city ? ", " : ""}{track.city}</div>
+            <div className="font-small">
+                {
+                    track.archHeightFt && track.archHeightFt !== 999 && 
+                    track.archHeightInches && track.archHeightInches !== 999 ?
+                        <span className='grayText'>Arch Height: {track.archHeightFt}'{track.archHeightInches}"</span> : <></>
+                }
+                {
+                    track.archHeightFt && track.archHeightFt !== 999 && 
+                    track.archHeightInches && track.archHeightInches !== 999 && 
+                    track.distanceToHydrant && track.distanceToHydrant !== 999 ? 
+                        <span className='grayText px-1'>|</span> : ""
+                }
+                {
+                    track.distanceToHydrant && track.distanceToHydrant !== 999 ?
+                        <span className='grayText'>Arch Distance to Hydrant: {track.distanceToHydrant} feet</span> : <></>
+                }
+            </div>
             {
                 stateTournYears.length ?
                     <div className='my-2'>State Tournaments Hosted: {stateTournYears.join(", ")}</div> : <></>
             }
             {
                 track.notes ?
-                    <div className='my-2'>{track.notes}</div> : <></>
+                    <div className='my-2 font-small'>{track.notes}</div> : <></>
             }
             {
                 !track.active ?
