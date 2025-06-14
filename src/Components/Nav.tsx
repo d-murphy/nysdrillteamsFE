@@ -76,14 +76,9 @@ export default function Nav() {
                                     {
                                         dropdownOpen ? 
                                         <div className="position-absolute dropdown-pos-top start-25 bg-white border border-1 rounded py-2 px-4" onClick={() => setDropdownOpen(false)}>
-                                            <div className="my-2">
-                                                <Link className="video-links " to="/locations" onClick={() => setCollapseOpen(false)}>Locations</Link>
-                                            </div>
-                                            <div className="my-2">
-                                                <Link className="video-links " to="/TeamSummaries" onClick={() => setCollapseOpen(false)}>Team Seasons</Link>
-                                            </div>
-                                            <div className="my-2">
-                                                <Link className="video-links " to="/TeamHistory" onClick={() => setCollapseOpen(false)}>Team Histories</Link>
+
+                                            <div className="mt-1">
+                                                <Link className="video-links" to="/TournamentHistory/New%20York%20State%20Championship" onClick={() => setCollapseOpen(false)}>State Champions</Link>
                                             </div>
                                             <div className="my-2 ">
                                                 <Link className="video-links " to="/TotalPoints" onClick={() => setCollapseOpen(false)}>Total Points</Link>
@@ -91,8 +86,17 @@ export default function Nav() {
                                             <div className="my-2 ">
                                                 <Link className="video-links" to="/TopRuns" onClick={() => setCollapseOpen(false)}>Top Runs</Link>
                                             </div>
+                                            <div className="my-2">
+                                                <Link className="video-links " to="/TeamHistory" onClick={() => setCollapseOpen(false)}>Team Histories</Link>
+                                            </div>
+                                            <div className="my-2">
+                                                <Link className="video-links " to="/TeamSummaries" onClick={() => setCollapseOpen(false)}>Team Seasons</Link>
+                                            </div>
                                             <div className="my-2 "> 
                                                 <Link className="video-links" to="/RunSearch" onClick={() => setCollapseOpen(false)}>Run Search</Link>
+                                            </div>
+                                            <div className="my-2">
+                                                <Link className="video-links " to="/Locations" onClick={() => setCollapseOpen(false)}>Locations</Link>
                                             </div>
                                         </div> : <></>
                                     }
@@ -137,7 +141,7 @@ export default function Nav() {
                             {
                                 dropdownOpen ? 
                                 <div className="position-absolute dropdown-pos-top start-25 bg-white border border-1 rounded py-2 px-4 shadow-sm" onClick={() => setDropdownOpen(false)}>
-                                    <div>
+                                    <div className="mt-1">
                                         <Link className="video-links" to="/TournamentHistory/New%20York%20State%20Championship">State Champions</Link>
                                     </div>
                                     <div className="my-2 ">

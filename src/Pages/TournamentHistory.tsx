@@ -4,6 +4,7 @@ import getTournamentWinner from '../utils/getTournamentWinners';
 import { Run, Tournament } from '../types/types';
 import dateUtil from '../utils/dateUtils';
 import { niceTime } from '../utils/timeUtils';
+import {  WinnerIconNoHov } from '../Components/SizedImage';
 
 declare var SERVICE_URL: string; 
 
@@ -118,24 +119,41 @@ export default function TournamentHistory(props:TournamentHistoryProps){
         let thirdStr = getTournamentWinner(tourn, seperator, true, "3rd Place"); 
         let fourthStr = getTournamentWinner(tourn, seperator, true, "4th Place"); 
         let fifthStr = getTournamentWinner(tourn, seperator, true, "5th Place"); 
+
+        let winnerStrNoPts = getTournamentWinner(tourn, seperator); 
+        let winnerArr = winnerStrNoPts.split(seperator); 
+
         return (
-            <div className='row shadow-sm rounded my-2 w-100 bg-white pointer' 
+            <div className='row shadow-sm rounded py-2 my-2 mx-1 bg-white pointer' 
                 onClick={() => {navigate(`/Tournament/${tourn.id}`)}}>
                 <div className='col-12 col-md-3'>
-                    <div className='h-100 d-flex justify-content-start align-items-start flex-column ps-1 py-2'>
-                        <div className='font-x-large'>                        
-                            <b>{tourn.year}</b>
+                    <div className="d-flex flex-row">
+                        <div className='h-100 d-flex justify-content-start align-items-start flex-column ps-1 py-2'>
+                            <div className='font-x-large'>                        
+                                <b>{tourn.year}</b>
+                            </div>
+                            <div className="font-small text-left grayText">
+                                {`${dateUtil.getMMDD(tourn.date)}${tourn.track && tourn.track !== 'null' ? ` @ ${tourn.track}` : ""}`}
+                            </div>
+                            <div className="font-small text-left grayText">
+                                {tourn.host ? `Host: ${tourn.host}` : ""}
+                            </div>
                         </div>
-                        <div className="font-small text-left grayText">
-                            {`${dateUtil.getMMDD(tourn.date)}${tourn.track && tourn.track !== 'null' ? ` @ ${tourn.track}` : ""}`}
-                        </div>
-                        <div className="font-small text-left grayText">
-                            {tourn.host ? `Host: ${tourn.host}` : ""}
+                        <div className="flex-grow-1" />
+                        <div className='d-md-none d-block'>
+                            <div className="d-flex flex-row pt-1">
+                                {winnerArr.map(el => <span className="p-1"><WinnerIconNoHov team={el} size="md"/></span>)}
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div className='col-12 col-md-5'>
-                    <div className='h-100 d-flex flex-column justify-content-start align-items-start text-left py-2'>
+                <div className='d-none d-md-block col-md-1'>
+                    <div className="d-flex flex-column pt-1">
+                        {winnerArr.map(el => <span className="p-1"><WinnerIconNoHov team={el} size="sm"/></span>)}
+                    </div>
+                </div>
+                <div className='col-12 col-md-4'>
+                    <div className='h-100 d-flex flex-column justify-content-start align-items-start text-left ps-1 py-2'>
                         {winnerStr ? <div className='font-x-small'>{`1st Place`}</div> : <></> }
                         <div className='font-large' ><b>{winnerStr}</b></div>
                         {   
@@ -158,7 +176,7 @@ export default function TournamentHistory(props:TournamentHistoryProps){
                     </div>
                 </div>
                 <div className='col-12 col-md-4'>
-                    <div className='h-100 d-flex flex-column justify-content-start align-items-start text-left py-2'>
+                    <div className='h-100 d-flex flex-column justify-content-start align-items-start text-left ps-1 py-2'>
                         <div className="font-x-small">Contest Winners</div>
                         <div className="row">
                             {
@@ -187,9 +205,9 @@ export default function TournamentHistory(props:TournamentHistoryProps){
 
     return (
         <div className='container'>
-            <div className="text-center w-100 font-x-large mx-2 my-3"><b>Tournament History: {name}</b></div>
-            <div className='row shadow-sm rounded my-1 w-100 bg-white '>
-                <div className="d-block d-md-none col-12 my-3">
+            <div className="text-center w-100 font-x-large my-3"><b>Tournament History: {name}</b></div>
+            <div className='row shadow-sm rounded py-4 bg-white mx-1'>
+                <div className="d-block d-md-none col-12 my-4">
                     <div className=' d-flex flex-column justify-content-center text-center h-100'>
                         <div className="font-xx-large">{tournCt}</div>
                         <div>Recorded Events</div>
@@ -201,7 +219,7 @@ export default function TournamentHistory(props:TournamentHistoryProps){
                         <div>Recorded Events</div>
                     </div>
                 </div>
-                <div className="d-block d-md-none col-12 my-3">
+                <div className="d-block d-md-none col-12 my-4">
                     <div className=' d-flex flex-column justify-content  text-center h-100'>
                         <div className="font-xx-large">{winnerCountsArr.length}</div>
                         <div># of Winners</div>
@@ -213,7 +231,7 @@ export default function TournamentHistory(props:TournamentHistoryProps){
                         <div># of Winners</div>
                     </div>
                 </div>
-                <div className="d-block d-md-none col-12 my-3">
+                <div className="d-block d-md-none col-12 my-4">
                     <div className=' d-flex flex-column justify-content-center text-center h-100'>
                         <div className='font-small grayText'>Most Wins</div>
                         <div>
@@ -237,9 +255,7 @@ export default function TournamentHistory(props:TournamentHistoryProps){
             
             </div> 
 
-            <div>
-                {list}
-            </div>
+            {list}
         </div>
     )
 }

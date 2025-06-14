@@ -71,7 +71,7 @@ export default function Tournament() {
 
     if((!tournLoading && !runLoading) && !errorLoading){
         content = (
-            <div className="">
+            <div className="mx-2">
                 <div className="row">
                     <TournamentHeader tournament={tournament} />
                 </div>
