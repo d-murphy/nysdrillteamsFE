@@ -40,10 +40,9 @@ export default function TeamHistoryBase(){
         <div className="container">
             <div className="w-100 d-flex flex-column align-items-center justify-content-center">
                 <div className="text-center font-x-large mt-2"><b>Team Histories</b></div>
-                <div className="pt-2 pb-1">Select a team to view the team's history.</div>
-                <div className="pt-1 pb-2"><i>Note: Team Histories reflect available data and may be incomplete.</i></div>
+                <div className="pt-2 pb-3">Select a team to view the team's history.</div>
             </div>
-            <div className="row bg-white rounded shadow-sm">
+            <div className="row bg-white rounded shadow-sm mx-1">
                 {
                     Object.keys(groups).sort((a,b) => sortOrder[a.toLowerCase()] < sortOrder[b.toLowerCase()] ? -1 : 1).map(el => {
                         return(

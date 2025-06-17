@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react"
-import { Tournament } from "../types/types";
+import { Run, Tournament } from "../types/types";
 import Placeholder from "react-bootstrap/Placeholder"; 
 import getTournamentWinner from "../utils/getTournamentWinners";
 import { WinnerIconNoHov } from "./SizedImage";
@@ -8,21 +8,26 @@ import { useNavigate } from "react-router-dom";
 import dateUtil from "../utils/dateUtils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrophy } from "@fortawesome/free-solid-svg-icons";
+import { TournHistoryEntry, makeRunLuKey } from "../Pages/TournamentHistory";
 
 interface StateWinnersProps {
     year: string
 }
 
 declare var SERVICE_URL: string; 
+const TOURN_NAMES = "New York State Championship,New York State OF Championship,New York State Jr. Championship"; 
 
 export default function StateWinners(props: StateWinnersProps) {
     const [tourns, setTourns] = useState<Tournament[]>([])
     const [loading, setLoading] = useState(true); 
     const [error, setError] = useState(false); 
 
+    const [runs, setRuns] = useState<Record<string, Run>>(null); 
+    const [runsLoading, setRunsLoading] = useState(true); 
+    const [runError, setRunError] = useState(false); 
 
     useEffect(() => {
-        fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?years=${props.year}&tournaments=New York State Championship,New York State OF Championship,New York State Jr. Championship`)
+        fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?years=${props.year}&tournaments=${TOURN_NAMES}`)
         .then(response => response.json())
         .then(data => {
             data.sort((a:Tournament, b:Tournament) => a.name < b.name ? -1 : 1)
@@ -35,23 +40,65 @@ export default function StateWinners(props: StateWinnersProps) {
         })
     },[])
 
+    useEffect(() => {
+        if(!tourns.length) return; 
+
+        const contestSet = new Set(); 
+        tourns.forEach(tourn => {
+            tourn.contests.forEach(contest => {
+                contestSet.add(contest.name)
+            })
+        })
+        const contestArr = Array.from(contestSet); 
+
+        let url = `${SERVICE_URL}/runs/getFilteredRuns?`;
+        url += "tournaments=" + TOURN_NAMES; 
+        url += "&contests=" + contestArr.join(",").replace("&", "%26"); 
+        url += "&ranks=1"; 
+        url += "&limit=2000"
+        fetch(`${url}`)
+            .then(data => data.json())
+            .then(data => {
+                if(!data.length) return setError(true); 
+                const runData = data[0].data as Run[]
+
+                const runLu: Record<string, Run> = {}; 
+                runData.forEach(el => {
+                    const key = makeRunLuKey(el.contest, el.year.toString()); 
+                    runLu[key] = el; 
+                })
+
+                setRuns(runLu); 
+                setRunsLoading(false); 
+            })
+            .catch((err:Error) => {
+                console.log(err); 
+                setRunError(true); 
+            })
+    }, [tourns])
+
+
     const skeletonKeys = [0,1,2]; 
 
-    if(error) return <></> // fail quietly
-    if(!loading && !tourns.length) return <></> // fail quietly
+    if(error || runError) return <></> // fail quietly
+    if(!loading &&  tourns.length === 0) return <></> // fail quietly
 
 
-    const content = loading ?
-        skeletonKeys.map((el:number) => {
-            return (
-                <StateWinnerLoadingSq key={el}/>
-            )
-        })
-        :
-        tourns.map((el:Tournament) => {
+    const content = (loading || (tourns.length > 0 && runsLoading)) ?
+        <>
+            {
+                skeletonKeys.map((el:number) => {
+                    return (
+                        <StateWinnerLoadingSq key={el}/>
+                    )
+                })
+            }
+        </> : tourns
+        .sort((a,b) => a.name < b.name ? -1 : 1)
+        .map((el:Tournament) => {
             if(Object.keys(el.top5).length === 0) return <></>;
             return (
-                <StateWinnerSq tournament={el} />
+                <TournHistoryEntry tourn={el} runLu={runs} showName={true} />
             )
         })
 
@@ -61,9 +108,7 @@ export default function StateWinners(props: StateWinnersProps) {
                 <span className="h4 pb-3 me-3">Season Champions</span>
             </div>
 
-            <div className="d-flex justify-content-center flex-wrap">
                 {content}
-            </div>
         </div>
     )
 }
@@ -135,17 +180,54 @@ function StateWinnerSq(props: StateWinnerSqProps) {
 
 function StateWinnerLoadingSq() {
     return (
-        <div className="mx-1 w-25">
-            <div className="champs-bg rounded shadow-sm w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4 text-center" > 
-                <Placeholder animation="glow" className="p-0 text-center w-100">
-                    <Placeholder xs={10} className="rounded" size="lg" bg="secondary"/>
+        <div className='row shadow-sm rounded py-2 my-2 mx-1 bg-white pointer'>
+            <div className='col-12 col-md-3 d-flex flex-column'>
+                <Placeholder animation="glow" className="p-0 d-none d-md-block">
+                    <Placeholder xs={6} className="rounded" size="lg" bg="secondary"/>
                 </Placeholder>
-                 <div className="placeholder-glow d-flex justify-content-center align-items-center">
-                    <div className="image-wrap-md placeholder bg-secondary mt-3 mb-4 rounded"></div>
+                <Placeholder animation="glow" className="p-0 d-none d-md-block">
+                    <Placeholder xs={6} className="rounded" size="sm" bg="secondary"/>
+                </Placeholder>
+            </div>
+            <div className='d-none d-md-block col-md-1'>
+                <div className="placeholder-glow d-flex justify-content-end align-items-end fluid-width">
+                    <div className="image-wrap-sm placeholder bg-secondary rounded"></div>
+                </div> 
+            </div>
+            <div className='col-12 col-md-4'>
+                <div className="d-flex flex-column pb-3">
+                    <Placeholder animation="glow" className="p-0">
+                        <Placeholder xs={2} className="rounded" size="xs" bg="secondary"/>
+                    </Placeholder>
+                    <Placeholder animation="glow" className="p-0">
+                        <Placeholder xs={8} className="rounded" size="lg" bg="secondary"/>
+                    </Placeholder>
+                    <Placeholder animation="glow" className="pt-2">
+                        <Placeholder xs={4} className="rounded" size="xs" bg="secondary"/>
+                    </Placeholder>
+                    <Placeholder animation="glow" className="p-0">
+                        <Placeholder xs={4} className="rounded" size="xs" bg="secondary"/>
+                    </Placeholder>
                 </div>
-                <Placeholder animation="glow" className="p-0 text-center w-100">
-                    <Placeholder xs={10} className="rounded" size="lg" bg="secondary"/>
-                </Placeholder>
+
+            </div>
+            <div className='col-12 col-md-4'>
+                <div className="row">
+                    {
+                        [0,1,2,3,4,5,6,7].map(el => {
+                            return (
+                                <div className="font-x-small col-4 d-flex flex-column mb-1">
+                                    <Placeholder animation="glow" className="p-0 ">
+                                        <Placeholder xs={6} className="rounded" size="lg" bg="secondary"/>
+                                    </Placeholder>
+                                    <Placeholder animation="glow" className="p-0 ">
+                                        <Placeholder xs={6} className="rounded" size="lg" bg="secondary"/>
+                                    </Placeholder>
+                                </div>
+                            )
+                        })
+                    }
+                </div>
             </div>
         </div>
     )

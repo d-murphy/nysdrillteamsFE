@@ -12,12 +12,11 @@ interface TournamentHistoryProps {
 
 }
 
-const makeRunLuKey = (contest: string, year: string) => `${year}-${contest}`; 
+export const makeRunLuKey = (contest: string, year: string) => `${year}-${contest}`; 
 
 export default function TournamentHistory(props:TournamentHistoryProps){
     let params = useParams();
     const name = params.name; 
-    const navigate = useNavigate(); 
 
     const [loading, setLoading] = useState(true); 
     const [runLoading, setRunLoading] = useState(true); 
@@ -112,96 +111,7 @@ export default function TournamentHistory(props:TournamentHistoryProps){
         return ind < 5; 
     })    
 
-    const list = tourns.map(tourn => {
-        const seperator = " | "; 
-        let winnerStr = getTournamentWinner(tourn, seperator, true); 
-        let secondStr = getTournamentWinner(tourn, seperator, true, "2nd Place"); 
-        let thirdStr = getTournamentWinner(tourn, seperator, true, "3rd Place"); 
-        let fourthStr = getTournamentWinner(tourn, seperator, true, "4th Place"); 
-        let fifthStr = getTournamentWinner(tourn, seperator, true, "5th Place"); 
-
-        let winnerStrNoPts = getTournamentWinner(tourn, seperator); 
-        let winnerArr = winnerStrNoPts.split(seperator); 
-
-        return (
-            <div className='row shadow-sm rounded py-2 my-2 mx-1 bg-white pointer' 
-                onClick={() => {navigate(`/Tournament/${tourn.id}`)}}>
-                <div className='col-12 col-md-3'>
-                    <div className="d-flex flex-row">
-                        <div className='h-100 d-flex justify-content-start align-items-start flex-column ps-1 py-2'>
-                            <div className='font-x-large'>                        
-                                <b>{tourn.year}</b>
-                            </div>
-                            <div className="font-small text-left grayText">
-                                {`${dateUtil.getMMDD(tourn.date)}${tourn.track && tourn.track !== 'null' ? ` @ ${tourn.track}` : ""}`}
-                            </div>
-                            <div className="font-small text-left grayText">
-                                {tourn.host ? `Host: ${tourn.host}` : ""}
-                            </div>
-                        </div>
-                        <div className="flex-grow-1" />
-                        <div className='d-md-none d-block'>
-                            <div className="d-flex flex-row pt-1">
-                                {winnerArr.map(el => <span className="p-1"><WinnerIconNoHov team={el} size="md"/></span>)}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className='d-none d-md-block col-md-1'>
-                    <div className="d-flex flex-column pt-1">
-                        {winnerArr.map(el => <span className="p-1"><WinnerIconNoHov team={el} size="sm"/></span>)}
-                    </div>
-                </div>
-                <div className='col-12 col-md-4'>
-                    <div className='h-100 d-flex flex-column justify-content-start align-items-start text-left ps-1 py-2'>
-                        {winnerStr ? <div className='font-x-small'>{`1st Place`}</div> : <></> }
-                        <div className='font-large' ><b>{winnerStr}</b></div>
-                        {   
-                            secondStr ? 
-                                <div className="font-xx-small grayText">2nd Place: {secondStr}</div> : <></>
-                        }
-                        {   
-                            thirdStr ? 
-                                <div className="font-xx-small grayText">3rd Place: {thirdStr}</div> : <></>
-                        }
-                        {   
-                            fourthStr ? 
-                                <div className="font-xx-small grayText">4th Place: {fourthStr}</div> : <></>
-                        }
-                        {   
-                            fifthStr ? 
-                                <div className="font-xx-small grayText">5th Place: {fifthStr}</div> : <></>
-                        }
-
-                    </div>
-                </div>
-                <div className='col-12 col-md-4'>
-                    <div className='h-100 d-flex flex-column justify-content-start align-items-start text-left ps-1 py-2'>
-                        <div className="font-x-small">Contest Winners</div>
-                        <div className="row">
-                            {
-                                tourn.contests.map(el => {
-                                    const runKey = makeRunLuKey(el.name, tourn.year.toString()); 
-                                    const run = runs[runKey]; 
-                                    if(!run) return <></>;
-                                    return (
-                                        <div className="font-x-small col-4 d-flex flex-column mb-1">
-                                            <div className="grayText font-xx-small">{run.contest}</div>
-                                            <div className="">{niceTime(run.time)}</div>
-                                        </div>
-                                    )
-                                })
-                            }
-                        </div>
-
-
-
-
-                    </div>
-                </div>
-            </div>
-        )
-    })
+    const list = tourns.map(tourn => <TournHistoryEntry tourn={tourn} runLu={runs} />); 
 
     return (
         <div className='container'>
@@ -256,6 +166,114 @@ export default function TournamentHistory(props:TournamentHistoryProps){
             </div> 
 
             {list}
+        </div>
+    )
+}
+
+
+
+interface TournHistoryEntryProps {
+    tourn: Tournament
+    runLu: Record<string, Run>
+    showName?: boolean
+}
+
+export function TournHistoryEntry ({tourn, runLu, showName = false} : TournHistoryEntryProps) { 
+    const navigate = useNavigate(); 
+
+    const seperator = " | "; 
+    let winnerStr = getTournamentWinner(tourn, seperator, true); 
+    let secondStr = getTournamentWinner(tourn, seperator, true, "2nd Place"); 
+    let thirdStr = getTournamentWinner(tourn, seperator, true, "3rd Place"); 
+    let fourthStr = getTournamentWinner(tourn, seperator, true, "4th Place"); 
+    let fifthStr = getTournamentWinner(tourn, seperator, true, "5th Place"); 
+
+    let winnerStrNoPts = getTournamentWinner(tourn, seperator); 
+    let winnerArr = winnerStrNoPts.split(seperator); 
+
+    const nameChange = {
+        "New York State Championship" : "NYS Motorized Championship", 
+        "New York State Jr. Championship" : "NYS Junior Championship", 
+        "New York State OF Championship": "NYS Old Fashioned Championship"
+    }
+
+    console.log("tourn.name: ", tourn.name)
+    //@ts-ignore ok
+    const titleBlock = showName ? nameChange[tourn.name] : tourn.year
+
+    return (
+        <div className='row shadow-sm rounded py-2 my-2 mx-1 bg-white pointer' 
+            onClick={() => {navigate(`/Tournament/${tourn.id}`)}}>
+            <div className='col-12 col-md-3'>
+                <div className="d-flex flex-row justify-content-between flex-wrap">
+                    <div className='h-100 d-flex justify-content-start align-items-start flex-column ps-1 py-2 max-width-50'>
+                        <div className='font-x-large'>                        
+                            <b>{titleBlock}</b>
+                        </div>
+                        <div className="font-small text-left grayText">
+                            {`${dateUtil.getMMDD(tourn.date)}${tourn.track && tourn.track !== 'null' ? ` @ ${tourn.track}` : ""}`}
+                        </div>
+                        <div className="font-small text-left grayText">
+                            {tourn.host ? `Host: ${tourn.host}` : ""}
+                        </div>
+                    </div>
+                    <div className="flex-grow-1" />
+                    <div className="flex-grow-1" />
+                    <div className='d-md-none d-block'>
+                        <div className="d-flex flex-row pt-1">
+                            {winnerArr.map(el => <span className="p-1"><WinnerIconNoHov team={el} size="md"/></span>)}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className='d-none d-md-block col-md-1'>
+                <div className="d-flex flex-column pt-1">
+                    {winnerArr.map(el => <span className="p-1"><WinnerIconNoHov team={el} size="sm"/></span>)}
+                </div>
+            </div>
+            <div className='col-12 col-md-4'>
+                <div className='h-100 d-flex flex-column justify-content-start align-items-start text-left ps-1 py-2'>
+                    {winnerStr ? <div className='font-x-small'>{`1st Place`}</div> : <></> }
+                    <div className='font-large' ><b>{winnerStr}</b></div>
+                    {   
+                        secondStr ? 
+                            <div className="font-xx-small grayText">2nd Place: {secondStr}</div> : <></>
+                    }
+                    {   
+                        thirdStr ? 
+                            <div className="font-xx-small grayText">3rd Place: {thirdStr}</div> : <></>
+                    }
+                    {   
+                        fourthStr ? 
+                            <div className="font-xx-small grayText">4th Place: {fourthStr}</div> : <></>
+                    }
+                    {   
+                        fifthStr ? 
+                            <div className="font-xx-small grayText">5th Place: {fifthStr}</div> : <></>
+                    }
+
+                </div>
+            </div>
+            <div className='col-12 col-md-4'>
+                <div className='h-100 d-flex flex-column justify-content-start align-items-start text-left ps-1 py-2'>
+                    <div className="font-x-small">Contest Winners</div>
+                    <div className="row">
+                        {
+                            tourn.contests.map(el => {
+                                const runKey = makeRunLuKey(el.name, tourn.year.toString()); 
+                                const run = runLu[runKey]; 
+                                if(!run) return <></>;
+                                return (
+                                    <div className="font-x-small col-4 d-flex flex-column mb-1">
+                                        <div className="grayText font-xx-small">{run.contest}</div>
+                                        <div className="">{niceTime(run.time)}</div>
+                                    </div>
+                                )
+                            })
+                        }
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }

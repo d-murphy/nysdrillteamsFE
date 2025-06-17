@@ -534,6 +534,10 @@ html, body, #root {
     max-width: 100%;
 }
 
+.max-width-50 {
+    max-width: 50%;
+}
+
 /* Unwanted Google Maps Divs:  */
 
 a[href^="http://maps.google.com/maps"]{display:none !important}
