@@ -5,6 +5,7 @@ import { Run, Tournament } from '../types/types';
 import dateUtil from '../utils/dateUtils';
 import { niceTime } from '../utils/timeUtils';
 import {  WinnerIconNoHov } from '../Components/SizedImage';
+import { makeRunLuKey } from '../Components/StateWinners';
 
 declare var SERVICE_URL: string; 
 
@@ -12,7 +13,6 @@ interface TournamentHistoryProps {
 
 }
 
-export const makeRunLuKey = (contest: string, year: string) => `${year}-${contest}`; 
 
 export default function TournamentHistory(props:TournamentHistoryProps){
     let params = useParams();
@@ -67,7 +67,7 @@ export default function TournamentHistory(props:TournamentHistoryProps){
 
                 const runLu: Record<string, Run> = {}; 
                 runData.forEach(el => {
-                    const key = makeRunLuKey(el.contest, el.year.toString()); 
+                    const key = makeRunLuKey(el.contest, el.year.toString(), name); 
                     runLu[key] = el; 
                 })
 
@@ -260,7 +260,7 @@ export function TournHistoryEntry ({tourn, runLu, showName = false} : TournHisto
                     <div className="row">
                         {
                             tourn.contests.map(el => {
-                                const runKey = makeRunLuKey(el.name, tourn.year.toString()); 
+                                const runKey = makeRunLuKey(el.name, tourn.year.toString(), tourn.name); 
                                 const run = runLu[runKey]; 
                                 if(!run) return <></>;
                                 return (
