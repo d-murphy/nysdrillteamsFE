@@ -19,6 +19,7 @@ const imgLU: {[index:string]: string}  = {
     "Elsmere Wanderers": "Elsmere.png", 
     "Farmingville Bandits": "Farmingville.png", 
     "Farmingville Jr. Bandits": "Farmingville.png", 
+    "Freeport Red Devils": "freeport.png", 
     "Great Bend Cobras": "Great Bend.png", 
     "Hagerman Gamblers": "Hagerman.png", 
     "Hagerman Jr. Gamblers": "Hagerman.png", 

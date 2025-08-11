@@ -28,7 +28,7 @@ export default function Footer(){
                     </div>
 
                     <div className="col-12 col-md-8">
-                        <div className="d-flex w-100 h-100 justify-content-center align-items-center flex-column">
+                        <div className="d-flex w-100 h-100 justify-content-center align-items-center flex-column py-3">
                             <div>Follow the NYS Drill Teams</div>
                             <Social clearBackground={true}/>
                         </div>
