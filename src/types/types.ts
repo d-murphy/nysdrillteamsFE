@@ -163,3 +163,27 @@ export type ImageDbEntry = {
     imageName: string, 
     imageCaption: string
 }
+
+export type Projection = {
+    _id: string, 
+    team: string, 
+    year: number, 
+    "Three Man Ladder Wins": number,
+    "Three Man Ladder Top5": number,
+    "B Ladder Wins": number,
+    "B Ladder Top5": number,
+    "C Ladder Wins": number,
+    "C Ladder Top5": number,
+    "C Hose Wins": number,
+    "C Hose Top5": number,
+    "B Hose Wins": number,
+    "B Hose Top5": number,
+    "Efficiency Wins": number,
+    "Efficiency Top5": number,
+    "Motor Pump Wins": number,
+    "Motor Pump Top5": number,
+    "Buckets Wins": number,
+    "Buckets Top5": number,
+    "Overall Wins": number,
+    "Overall Top5": number
+}
