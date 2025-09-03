@@ -1,19 +1,23 @@
+import React, { useState } from "react";
+import { Projection, Run } from "../types/types";
+import { useProjections } from "../hooks/useProjections";
+import { useTournamentByNameYear } from "../hooks/useTournament";
+import { useTournamentRuns } from "../hooks/useTournamentRuns";
+import { faSort, faSortUp, faSortDown } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { useParams } from "react-router-dom";
-import React, { useEffect, useState } from "react";
-import { Projection } from "../types/types";
-
-declare var SERVICE_URL: string;
 
 export default function Projections(){
-    const [projections, setProjections] = useState<Projection[]>([]); 
-    const [loading, setLoading] = useState(true); 
-    const [error, setError] = useState(false); 
+
+    const { year } = useParams();
     const [sortField, setSortField] = useState<keyof Projection>('team');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-
-    useEffect(() => {
-        getProjections('2021', setProjections, setError, setLoading); 
-    }, [])
+    
+    const { projections, isLoading, isError, error } = useProjections({ year: year.toString() });
+    const { tournaments, isLoading: tournamentLoading, isError: tournamentError } = useTournamentByNameYear('New York State Championship', year.toString());
+    const tournament =  tournaments ? tournaments[0] : null;
+    const top5 = tournament?.top5;
+    const { runs, isLoading: runsLoading, isError: runsError } = useTournamentRuns({ tournamentId: tournament?.id.toString() });
 
     const handleSort = (field: keyof Projection) => {
         if (sortField === field) {
@@ -48,8 +52,8 @@ export default function Projections(){
     };
 
     const getSortIcon = (field: keyof Projection) => {
-        if (sortField !== field) return '↕️';
-        return sortDirection === 'asc' ? '↑' : '↓';
+        if (sortField !== field) return <FontAwesomeIcon icon={faSort} className="ms-1" />;
+        return sortDirection === 'asc' ? <FontAwesomeIcon icon={faSortUp} className="ms-1" /> : <FontAwesomeIcon icon={faSortDown} className="ms-2" />;
     };
 
     return (
@@ -58,8 +62,13 @@ export default function Projections(){
             <div className="w-100 bg-white rounded shadow-sm">
                 <div className="overflow-auto pb-3">
                     {
-                        loading ? 
-                            <div className="width-100 some-height"></div> : 
+                        isLoading || tournamentLoading || runsLoading ? 
+                            <div className="text-center p-4">
+                                <div className="spinner-border text-primary" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                </div>
+                                <div className="mt-2">Loading projections data...</div>
+                            </div> : 
                             <div className="p-3">
                                 <div className="text-center pb-3"><b>Projections Data</b></div>
                                 <div className="table-responsive">
@@ -75,7 +84,6 @@ export default function Projections(){
                                                         Team {getSortIcon('team')}
                                                     </span>
                                                 </th>
-
                                                 <th 
                                                     scope="col" 
                                                     className="text-center pointer scorecard-cell-lg"
@@ -92,6 +100,14 @@ export default function Projections(){
                                                 >
                                                     <span className="d-flex align-items-center justify-content-center">
                                                         Overall Top5 {getSortIcon('Overall Top5')}
+                                                    </span>
+                                                </th>
+                                                <th
+                                                    scope="col"
+                                                    className="text-center pointer scorecard-cell-lg"
+                                                >
+                                                    <span className="d-flex align-items-center justify-content-center">
+                                                        Finish
                                                     </span>
                                                 </th>
                                                 <th 
@@ -115,6 +131,14 @@ export default function Projections(){
                                                 <th 
                                                     scope="col" 
                                                     className="text-center pointer scorecard-cell-lg"
+                                                >
+                                                    <span className="d-flex align-items-center justify-content-center">
+                                                        3ML Points
+                                                    </span>
+                                                </th>
+                                                <th 
+                                                    scope="col" 
+                                                    className="text-center pointer scorecard-cell-lg"
                                                     onClick={() => handleSort('B Ladder Wins')}
                                                 >
                                                     <span className="d-flex align-items-center justify-content-center">
@@ -128,6 +152,14 @@ export default function Projections(){
                                                 >
                                                     <span className="d-flex align-items-center justify-content-center">
                                                         B Ladder Top5 {getSortIcon('B Ladder Top5')}
+                                                    </span>
+                                                </th>
+                                                <th 
+                                                    scope="col" 
+                                                    className="text-center pointer scorecard-cell-lg"
+                                                >
+                                                    <span className="d-flex align-items-center justify-content-center">
+                                                        B Ladder Points
                                                     </span>
                                                 </th>
                                                 <th 
@@ -151,6 +183,14 @@ export default function Projections(){
                                                 <th 
                                                     scope="col" 
                                                     className="text-center pointer scorecard-cell-lg"
+                                                >
+                                                    <span className="d-flex align-items-center justify-content-center">
+                                                        C Ladder Points
+                                                    </span>
+                                                </th>
+                                                <th 
+                                                    scope="col" 
+                                                    className="text-center pointer scorecard-cell-lg"
                                                     onClick={() => handleSort('C Hose Wins')}
                                                 >
                                                     <span className="d-flex align-items-center justify-content-center">
@@ -169,6 +209,15 @@ export default function Projections(){
                                                 <th 
                                                     scope="col" 
                                                     className="text-center pointer scorecard-cell-lg"
+                                                >
+                                                    <span className="d-flex align-items-center justify-content-center">
+                                                        C Hose Points
+                                                    </span>
+                                                </th>
+
+                                                <th 
+                                                    scope="col" 
+                                                    className="text-center pointer scorecard-cell-lg"
                                                     onClick={() => handleSort('B Hose Wins')}
                                                 >
                                                     <span className="d-flex align-items-center justify-content-center">
@@ -182,6 +231,14 @@ export default function Projections(){
                                                 >
                                                     <span className="d-flex align-items-center justify-content-center">
                                                         B Hose Top5 {getSortIcon('B Hose Top5')}
+                                                    </span>
+                                                </th>
+                                                <th 
+                                                    scope="col" 
+                                                    className="text-center pointer scorecard-cell-lg"
+                                                >
+                                                    <span className="d-flex align-items-center justify-content-center">
+                                                        B Hose Points
                                                     </span>
                                                 </th>
                                                 <th 
@@ -205,6 +262,14 @@ export default function Projections(){
                                                 <th 
                                                     scope="col" 
                                                     className="text-center pointer scorecard-cell-lg"
+                                                >
+                                                    <span className="d-flex align-items-center justify-content-center">
+                                                        Efficiency Points
+                                                    </span>
+                                                </th>
+                                                <th 
+                                                    scope="col" 
+                                                    className="text-center pointer scorecard-cell-lg"
                                                     onClick={() => handleSort('Motor Pump Wins')}
                                                 >
                                                     <span className="d-flex align-items-center justify-content-center">
@@ -218,6 +283,14 @@ export default function Projections(){
                                                 >
                                                     <span className="d-flex align-items-center justify-content-center">
                                                         Motor Pump Top5 {getSortIcon('Motor Pump Top5')}
+                                                    </span>
+                                                </th>
+                                                <th 
+                                                    scope="col" 
+                                                    className="text-center pointer scorecard-cell-lg"
+                                                >
+                                                    <span className="d-flex align-items-center justify-content-center">
+                                                        Motor Pump Points
                                                     </span>
                                                 </th>
                                                 <th 
@@ -238,6 +311,14 @@ export default function Projections(){
                                                         Buckets Top5 {getSortIcon('Buckets Top5')}
                                                     </span>
                                                 </th>
+                                                <th 
+                                                    scope="col" 
+                                                    className="text-center pointer scorecard-cell-lg"
+                                                >
+                                                    <span className="d-flex align-items-center justify-content-center">
+                                                        Buckets Points
+                                                    </span>
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -246,22 +327,31 @@ export default function Projections(){
                                                     <th scope="col" className="px-2 fixed-col bg-white">{projection.team}</th>
                                                     <td className="text-center">{formatPercentage(projection['Overall Wins'])}</td>
                                                     <td className="text-center">{formatPercentage(projection['Overall Top5'])}</td>
+                                                    <td className="text-center">{getFinishAndPoints(projection.team, top5)}</td>
                                                     <td className="text-center">{formatPercentage(projection['Three Man Ladder Wins'])}</td>
                                                     <td className="text-center">{formatPercentage(projection['Three Man Ladder Top5'])}</td>
+                                                    <td className="text-center">{getRunPoints(projection.team, 'Three Man Ladder', runs)}</td>
                                                     <td className="text-center">{formatPercentage(projection['B Ladder Wins'])}</td>
                                                     <td className="text-center">{formatPercentage(projection['B Ladder Top5'])}</td>
+                                                    <td className="text-center">{getRunPoints(projection.team, 'B Ladder', runs)}</td>
                                                     <td className="text-center">{formatPercentage(projection['C Ladder Wins'])}</td>
                                                     <td className="text-center">{formatPercentage(projection['C Ladder Top5'])}</td>
+                                                    <td className="text-center">{getRunPoints(projection.team, 'C Ladder', runs)}</td>
                                                     <td className="text-center">{formatPercentage(projection['C Hose Wins'])}</td>
                                                     <td className="text-center">{formatPercentage(projection['C Hose Top5'])}</td>
+                                                    <td className="text-center">{getRunPoints(projection.team, 'C Hose', runs)}</td>
                                                     <td className="text-center">{formatPercentage(projection['B Hose Wins'])}</td>
                                                     <td className="text-center">{formatPercentage(projection['B Hose Top5'])}</td>
+                                                    <td className="text-center">{getRunPoints(projection.team, 'B Hose', runs)}</td>
                                                     <td className="text-center">{formatPercentage(projection['Efficiency Wins'])}</td>
                                                     <td className="text-center">{formatPercentage(projection['Efficiency Top5'])}</td>
+                                                    <td className="text-center">{getRunPoints(projection.team, 'Efficiency', runs)}</td>
                                                     <td className="text-center">{formatPercentage(projection['Motor Pump Wins'])}</td>
                                                     <td className="text-center">{formatPercentage(projection['Motor Pump Top5'])}</td>
+                                                    <td className="text-center">{getRunPoints(projection.team, 'Motor Pump', runs)}</td>
                                                     <td className="text-center">{formatPercentage(projection['Buckets Wins'])}</td>
                                                     <td className="text-center">{formatPercentage(projection['Buckets Top5'])}</td>
+                                                    <td className="text-center">{getRunPoints(projection.team, 'Buckets', runs)}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -270,7 +360,7 @@ export default function Projections(){
                             </div>
                     }
                     {
-                        error && <div className="text-center">An error occurred please try again.</div>
+                        isError || tournamentError || runsError && <div className="text-center">An error occurred please try again.</div>
                     }
                 </div>
             </div>
@@ -278,17 +368,16 @@ export default function Projections(){
     )
 }
 
-function getProjections(year: string, stateSetter:Function, errorSetter:Function, setLoading:Function){
-    setLoading(true)
-    stateSetter([])
-    fetch(`${SERVICE_URL}/projections/getProjections?year=${year}`)
-        .then(response => response.json())
-        .then(data => {
-            stateSetter(data); 
-            setLoading(false); 
-        })
-        .catch(err => {
-            console.log(err); 
-            errorSetter(true)
-        })
-} 
+ 
+function getFinishAndPoints(teamName: string, top5: {teamName: string, points: number, finishingPosition: string}[]) {
+    const finish = top5.find(t => t.teamName === teamName)?.finishingPosition;
+    const points = top5.find(t => t.teamName === teamName)?.points;
+    if(!finish) return ""; 
+    return `${finish} - ${points} pt${points === 1 ? "" : "s"}`;
+}; 
+
+function getRunPoints(teamName: string, contest: string, runs: Run[]) {
+    const run = runs.find(r => r.team === teamName && r.contest === contest);
+    if(!run || !run.points) return "";
+    return `${run.time} - ${run.points} pt${run.points === 1 ? "" : "s"}`;
+}

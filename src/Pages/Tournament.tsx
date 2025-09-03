@@ -2,47 +2,43 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import { Tournament, Run } from "../types/types"; 
-
+import { Tournament, Run } from "../types/types";
 import TournamentHeader from "../Components/TournamentHeader";
 import Scorecard from "../Components/Scorecard";
 import SortedView from "../Components/SortedView";
 import useWindowDimensions from "../utils/windowDimensions";
-
-declare var SERVICE_URL: string;
+import { useTournament } from "../hooks/useTournament";
+import { useTournamentRuns } from "../hooks/useTournamentRuns";
 
 
 export default function Tournament() {
-
-    const [tournLoading, setTournLoading] = useState(true); 
-    const [runLoading, setRunLoading] = useState(true); 
-    const [errorLoading, setErrorLoading] = useState(false);
-    const [tournament, setTournament] = useState<Tournament>(); 
-    const [runs, setRuns] = useState<Run[]>([]); 
-    const [view, setView] =useState("scorecard")  
+    const [view, setView] = useState("scorecard");
     const { width } = useWindowDimensions();
 
-    let params = useParams();
-    const tournamentId = params.id
+    const params = useParams<{ id: string }>();
+    const tournamentId = params.id;
 
-    async function getTournAndRuns(){
-        let response = await fetch(`${SERVICE_URL}/tournaments/getTournament?tournamentId=${tournamentId}`); 
-        let data = await response.json(); 
-        data.date = new Date(data.date); 
-        setTournament(data); 
-        setTournLoading(false);
-        let response2 = await fetch(`${SERVICE_URL}/runs/getRunsFromTournament?tournamentId=${data.id}`)
-        let runs = await response2.json(); 
-        setRuns(runs)
-        setRunLoading(false); 
-    }
+    // Use the new hooks
+    const { 
+        tournament, 
+        isLoading: tournLoading, 
+        isError: tournError 
+    } = useTournament({ 
+        tournamentId: tournamentId || '', 
+        enabled: !!tournamentId 
+    });
 
-    useEffect(() => {
-        getTournAndRuns().catch(e => {
-            console.log(e)
-            setErrorLoading(true); 
-        })
-    }, [tournamentId])
+    const { 
+        runs, 
+        isLoading: runLoading, 
+        isError: runError 
+    } = useTournamentRuns({ 
+        tournamentId: tournamentId || '', 
+        enabled: !!tournamentId 
+    });
+
+    const isLoading = tournLoading || runLoading;
+    const isError = tournError || runError;
 
     useEffect(() => {
         if(width < 750) setView('sortedview'); 
@@ -58,7 +54,7 @@ export default function Tournament() {
             </div>
         )
     }
-    if(errorLoading){
+    if(isError){
         content = (
             <div className="row">
                 <div className="col-12 d-flex flex-column align-items-center mt-5">
@@ -69,7 +65,7 @@ export default function Tournament() {
     }
 
 
-    if((!tournLoading && !runLoading) && !errorLoading){
+    if((!tournLoading && !runLoading) && !isError){
         content = (
             <div className="mx-2">
                 <div className="row">

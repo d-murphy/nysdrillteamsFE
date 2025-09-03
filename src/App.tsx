@@ -1,5 +1,6 @@
 import * as React from "react";
-import { LoginProvider } from "./utils/context"; 
+import { LoginProvider } from "./utils/context";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; 
 import {
     createBrowserRouter,
     Link,
@@ -137,7 +138,7 @@ const router = createBrowserRouter([
                 element: <Locations />
             },
             {
-                path: "/Projections",
+                path: "/Projections/:year",
                 element: <Projections />
             }
         ],
@@ -156,11 +157,24 @@ const router = createBrowserRouter([
     }
 ]);
   
+// Create a client
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: 5 * 60 * 1000, // 5 minutes
+            gcTime: 10 * 60 * 1000, // 10 minutes
+            retry: 1,
+        },
+    },
+});
+
 export default function App() {
 
     return (
-        <LoginProvider>
-            <RouterProvider router={router} />
-        </LoginProvider>
+        <QueryClientProvider client={queryClient}>
+            <LoginProvider>
+                <RouterProvider router={router} />
+            </LoginProvider>
+        </QueryClientProvider>
     );
 }
