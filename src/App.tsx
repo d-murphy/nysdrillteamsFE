@@ -28,7 +28,8 @@ import TeamSummary from "./Pages/TeamSummary";
 import TeamHistoryBase from "./Pages/TeamHistoryBase";
 import TeamHistory from "./Pages/TeamHistory";
 import Locations from "./Pages/Locations";
-import Projections from "./Pages/Projections";
+import Projections from "./Pages/Simulation/Projections";
+import Fantasy from "./Pages/Simulation/Fantasy";
 
   
 const ErrorPage = () => {
@@ -140,6 +141,10 @@ const router = createBrowserRouter([
             {
                 path: "/Projections/:year",
                 element: <Projections />
+            }, 
+            {
+                path: "/Fantasy",
+                element: <Fantasy />
             }
         ],
     },
