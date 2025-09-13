@@ -33,7 +33,8 @@ module.exports = {
     new ReactRefreshWebpackPlugin(),
     new webpack.DefinePlugin({
         SERVICE_URL: JSON.stringify(process.env.SERVICE_URL), 
-        MAPS_API_KEY: JSON.stringify(process.env.MAPS_API_KEY)
+        MAPS_API_KEY: JSON.stringify(process.env.MAPS_API_KEY),
+        INSTANCE_URL: JSON.stringify(process.env.INSTANCE_URL)
     })
   ],
   resolve: {

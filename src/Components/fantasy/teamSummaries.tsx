@@ -2,13 +2,8 @@ import React from "react";
 import { useSimTeamSummaries } from "../../hooks/useSimTeamSummaries";
 
 
-
-
-
-
-
-export default function Fantasy() {
-
+export default function TeamSummaries() {
+  
     const teamSummaries = useSimTeamSummaries('Buckets', undefined, '', 100, 0, 'speedRating');
 
     return (
@@ -19,8 +14,7 @@ export default function Fantasy() {
                 </div>
             ))}
         </div>
-    )
+  )
 }
-
 
 

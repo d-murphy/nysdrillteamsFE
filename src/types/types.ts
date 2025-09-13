@@ -187,3 +187,37 @@ export type Projection = {
     "Overall Wins": number,
     "Overall Top5": number
 }
+
+
+
+export type FantasyGame = {
+    _id: string,
+    gameId: string, 
+    status: 'stage' | 'draft' | 'complete', 
+    gameType: 'one-team' | '8-team' | '8-team-no-repeat'
+    countAgainstRecord: boolean, 
+    users: string[], 
+    simulationIndex: number[], 
+    secondsPerPick: number
+}
+
+export type FantasyDraftPick = {
+    _id: string,
+    gameId: string, 
+    user: string, 
+    contestSummaryKey: string,
+    draftPick: number, 
+}
+
+export type FantasyGameHistory = {
+    _id: string,
+    gameId: string, 
+    user: string, 
+    teamName: string, 
+    contestSummaryKeys: string[]
+    gameType: 'one-team' | '8-team' | '8-team-no-repeat'
+    win: boolean, 
+    top5: boolean, 
+    finish: number, 
+    participantCount: number, 
+}

@@ -29,7 +29,10 @@ import TeamHistoryBase from "./Pages/TeamHistoryBase";
 import TeamHistory from "./Pages/TeamHistory";
 import Locations from "./Pages/Locations";
 import Projections from "./Pages/Simulation/Projections";
-import Fantasy from "./Pages/Simulation/Fantasy";
+import Simulation from "./Pages/Simulation";
+import ProjectionsHome from "./Pages/Simulation/ProjectionsHome";
+import FantasyHome from "./Pages/Simulation/FantasyHome";
+import FantasyNewGame from "./Pages/Simulation/FantasyNewGame";
 
   
 const ErrorPage = () => {
@@ -139,13 +142,25 @@ const router = createBrowserRouter([
                 element: <Locations />
             },
             {
-                path: "/Projections/:year",
-                element: <Projections />
+                path: "/Simulation",
+                element: <Simulation />
             }, 
             {
-                path: "/Fantasy",
-                element: <Fantasy />
-            }
+                path: "/Simulation/Fantasy", 
+                element: <FantasyHome />
+            },
+            {
+                path: "/Simulation/Fantasy/:pageToShow", 
+                element: <FantasyHome />
+            },
+            {
+                path: "Simulation/Projections", 
+                element: <ProjectionsHome />
+            }, 
+            {
+                path: "/Simulation/Projections/:year",
+                element: <Projections />
+            }, 
         ],
     },
     {
