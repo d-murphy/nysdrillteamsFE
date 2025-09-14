@@ -38,7 +38,9 @@ export default function FantasyHome() {
         <>
             <MyStats />
             <Leaderboard />
-            <Button onClick={() => navigate('/Simulation/Fantasy/newgame')}>New Game</Button>
+            <div className="d-flex justify-content-center">
+                <Button onClick={() => navigate('/Simulation/Fantasy/newgame')}>Start a New Game</Button>
+            </div>
         </>
     : pageToShow === 'newgame' ? 
         <>

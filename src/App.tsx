@@ -154,6 +154,10 @@ const router = createBrowserRouter([
                 element: <FantasyHome />
             },
             {
+                path: "/Simulation/Fantasy/:pageToShow/:gameId", 
+                element: <FantasyHome />
+            },
+            {
                 path: "Simulation/Projections", 
                 element: <ProjectionsHome />
             }, 

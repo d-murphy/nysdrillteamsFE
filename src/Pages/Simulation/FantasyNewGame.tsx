@@ -19,16 +19,18 @@ export default function FantasyNewGame() {
     const [gameType, setGameType] = useState<'one-team' | '8-team' | '8-team-no-repeat'>('8-team');
     const [countAgainstRecord, setCountAgainstRecord] = useState(true);
     const [secondsPerPick, setSecondsPerPick] = useState(30);
+    const [tournamentSize, setTournamentSize] = useState<10 | 30 | 50>(10);
+    const [isSeason, setIsSeason] = useState(true);
 
     const mutation = useMutation({
-        mutationFn: ({ gameType, countAgainstRecord, secondsPerPick }: { gameType: 'one-team' | '8-team' | '8-team-no-repeat', countAgainstRecord: boolean, secondsPerPick: number }) => {
-            return createFantasyGame(email, gameType, countAgainstRecord, secondsPerPick);
+        mutationFn: () => {
+            return createFantasyGame(email, gameType, countAgainstRecord, secondsPerPick, tournamentSize, isSeason);
         },
         onSuccess: async (result) => {
             console.log(result); 
             const resultJson = await result.json() as FantasyGame; 
             const gameId = resultJson.gameId; 
-            navigate(`/Simulation/Fantasy/${gameId}`);
+            navigate(`/Simulation/Fantasy/game/${gameId}`);
         }
     });
 
@@ -46,13 +48,28 @@ export default function FantasyNewGame() {
             <div className="w-100">
                 <Form className="d-flex flex-column align-items-start justify-content-center gap-1 mt-2">
 
-                    <Form.Label>Game Type</Form.Label>
+                    <Form.Label className="mt-4">Tournament Size</Form.Label>
+                    <Form.Select aria-label="Select Game Type" value={tournamentSize} onChange={(e) => setTournamentSize(parseInt(e.target.value) as 10 | 30 | 50)}>
+                        <option value="10">Town Tournament</option>
+                        <option value="30">County Tournament</option>
+                        <option value="50">State Tournament</option>
+                    </Form.Select>
+
+                    <Form.Label className="mt-4">Season / Single Drill</Form.Label>
+                    <Form.Select aria-label="Select number of drills in sim" value={isSeason.toString()} onChange={(e) => setIsSeason(e.target.value === 'true')}>
+                        <option value="true">Season</option>
+                        <option value="false">Single Drill</option>
+                    </Form.Select>
+
+                    <Form.Label className="mt-4">Draft Type</Form.Label>
                     <Form.Select aria-label="Select Game Type" value={gameType} onChange={(e) => setGameType(e.target.value as 'one-team' | '8-team' | '8-team-no-repeat')}>
-                        <option>Select Game Type</option>
                         <option value="one-team">One Team - All 8 Contests</option>
                         <option value="8-team">New Team Each Contest</option>
                         <option value="8-team-no-repeat">New Team Each Contest - No Repeats</option>
                     </Form.Select>
+
+                    <Form.Label className="mt-4">Draft - Seconds Per Pick</Form.Label>
+                    <Form.Control type="number" value={secondsPerPick} onChange={(e) => setSecondsPerPick(parseInt(e.target.value))} />
 
                     <Form.Label className="mt-4">Count Against Record</Form.Label>
                     <Form.Check 
@@ -61,12 +78,11 @@ export default function FantasyNewGame() {
                         checked={countAgainstRecord}
                         onChange={(e) => setCountAgainstRecord(e.target.checked)}
                     />
-                    <Form.Label className="mt-4">Seconds Per Pick</Form.Label>
-                    <Form.Control type="number" value={secondsPerPick} onChange={(e) => setSecondsPerPick(parseInt(e.target.value))} />
+
                 </Form>
 
                 <div className="d-flex justify-content-center align-items-center mt-4">
-                    <Button onClick={() => mutation.mutate({ gameType, countAgainstRecord, secondsPerPick })}>Create Game</Button>
+                    <Button onClick={() => mutation.mutate()}>Create Game</Button>
                 </div>
 
 
@@ -89,7 +105,10 @@ function createFantasyGame(
         user: string, 
         gameType: 'one-team' | '8-team' | '8-team-no-repeat', 
         countAgainstRecord: boolean, 
-        secondsPerPick: number) 
+        secondsPerPick: number,
+        tournamentSize: 10 | 30 | 50,
+        isSeason: boolean
+    ) 
     {
 
 
@@ -97,7 +116,9 @@ function createFantasyGame(
         user, 
         gameType, 
         countAgainstRecord, 
-        secondsPerPick
+        secondsPerPick,
+        tournamentSize,
+        isSeason
     }
     console.log(body); 
         
