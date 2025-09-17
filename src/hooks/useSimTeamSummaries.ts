@@ -14,10 +14,11 @@ interface SimTeamSummary {
     consistency: number, 
     speedRating: number, 
     goodRunTimes: string[], 
+    key: string, 
 }
 
 interface UseSimTeamSummariesReturn {
-    simTeamSummaries: SimTeamSummary[], 
+    data: SimTeamSummary[], 
     isLoading: boolean, 
     isError: boolean, 
     error: Error | null, 
@@ -26,7 +27,7 @@ interface UseSimTeamSummariesReturn {
 
 export function useSimTeamSummaries(contests: string, years: string, teams: string, limit: number, offset: number, sortBy: 'consistency' | 'speedRating'): UseSimTeamSummariesReturn {
     const {
-        data: simTeamSummaries = [], 
+        data = [], 
         isLoading, 
         isError, 
         error, 
@@ -50,7 +51,7 @@ export function useSimTeamSummaries(contests: string, years: string, teams: stri
         },
     });
     return {
-        simTeamSummaries,
+        data,
         isLoading,
         isError,
         error,

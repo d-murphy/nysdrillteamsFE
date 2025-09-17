@@ -5,7 +5,6 @@ import { useAuth } from 'react-oidc-context';
 import Button from '../Button';
 import { useMutation } from '@tanstack/react-query';
 
-
 interface FantasyGameSignupProps {
     gameId: string;
     game: FantasyGame;
@@ -48,7 +47,7 @@ export default function FantasyGameSignup({ gameId, game, refetchGame }: Fantasy
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ state: 'draft' }),
+                body: JSON.stringify({ state: 'draft', users: gameData?.users }),
             });
             return response.json();
         },
