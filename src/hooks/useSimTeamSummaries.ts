@@ -13,6 +13,7 @@ interface SimTeamSummary {
     goodSd: number, 
     consistency: number, 
     speedRating: number, 
+    overallScore: number, 
     goodRunTimes: string[], 
     key: string, 
 }
@@ -25,7 +26,7 @@ interface UseSimTeamSummariesReturn {
     refetch: () => void, 
 }
 
-export function useSimTeamSummaries(contests: string, years: string, teams: string, limit: number, offset: number, sortBy: 'consistency' | 'speedRating'): UseSimTeamSummariesReturn {
+export function useSimTeamSummaries(contests: string, years: string, teams: string, limit: number, offset: number, sortBy: 'consistency' | 'speedRating' | 'overallScore'): UseSimTeamSummariesReturn {
     const {
         data = [], 
         isLoading, 

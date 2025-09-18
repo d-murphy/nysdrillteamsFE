@@ -7,7 +7,7 @@ import { useGameDraftPicks } from '../../hooks/useGameDraftPicks';
 import { Button } from 'react-bootstrap';
 import { useSimTeamSummaries } from '../../hooks/useSimTeamSummaries';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSort, faSortDown } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faSort, faSortDown } from '@fortawesome/free-solid-svg-icons';
 
 
 interface FantasyGameDraftProps {
@@ -80,7 +80,7 @@ export default function FantasyGameDraft({ gameId, game, refetchGame }: FantasyG
                 <DraftGrid users={users}  draftPicks={draftPicks} />
 
                 <div className="my-4">
-                    <DraftOptions draftPicks={draftPicks} gameId={gameId} currentDraftPick={currentDraftPick} />
+                    <DraftOptions draftPicks={draftPicks} game={game}  gameId={gameId} currentDraftPick={currentDraftPick} />
                 </div>
 
 
@@ -100,13 +100,33 @@ export default function FantasyGameDraft({ gameId, game, refetchGame }: FantasyG
 
 
 
-function DraftOptions({ draftPicks, gameId, currentDraftPick }: { draftPicks: FantasyDraftPick[], gameId: string, currentDraftPick: number }) {
+function DraftOptions({ draftPicks, gameId,game, currentDraftPick }: { draftPicks: FantasyDraftPick[], gameId: string, game: FantasyGame, currentDraftPick: number }) {
     const [selectedContest, setSelectedContest] = useState<string>(contests[0]);
-    const [selectedSort, setSelectedSort] = useState<'consistency' | 'speedRating'>('consistency');
+    const [selectedSort, setSelectedSort] = useState<'consistency' | 'speedRating' | 'overallScore'>('speedRating');
 
     return (
         <div>
             <div className="d-flex flex-column">
+
+
+                <div className="my-5">
+
+                    autodraft pulls from top of each of 3 lists. 
+
+                    this has to somehow account for what contest is needed. 
+                    it somehow has to account for not repeating teams if i do that. 
+
+                    it could also handle auto-pick when a user doesn't pick in time? 
+
+                    when a human drafts, the next X autodraft picks should happen right after. 
+
+                    can the backend assess when the draft is complete? might have to repeat the logic there. 
+
+                    how 
+
+                </div>
+
+
                 <ContestSelector 
                     contests={contests}
                     selectedContest={selectedContest}
@@ -119,6 +139,7 @@ function DraftOptions({ draftPicks, gameId, currentDraftPick }: { draftPicks: Fa
                     onSortChange={setSelectedSort}
                     draftPicks={draftPicks}
                     gameId={gameId}
+                    game={game}
                     currentDraftPick={currentDraftPick}
                 />
             </div>
@@ -151,12 +172,13 @@ function ContestSelector({ contests, selectedContest, onContestChange }: {
 }
 
 // Table component - handles its own scroll state
-function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, gameId, currentDraftPick }: {
+function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, gameId, game, currentDraftPick }: {
     selectedContest: string;
-    selectedSort: 'consistency' | 'speedRating';
-    onSortChange: (sort: 'consistency' | 'speedRating') => void;
+    selectedSort: 'consistency' | 'speedRating' | 'overallScore';
+    onSortChange: (sort: 'consistency' | 'speedRating' | 'overallScore') => void;
     draftPicks: FantasyDraftPick[];
     gameId: string;
+    game: FantasyGame;
     currentDraftPick: number;
 }) {
     const auth = useAuth(); 
@@ -171,7 +193,9 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
     const lastItemCountRef = useRef<number>(0);
     const loadingTriggerRef = useRef<HTMLDivElement>(null);
 
-    const { data: teamSummaries } = useSimTeamSummaries(selectedContest, '', '', numResults, 0, selectedSort);
+    const isNoRepeat = game.gameType === '8-team-no-repeat'; 
+
+    const { data: teamSummaries, isLoading } = useSimTeamSummaries(selectedContest, '', '', numResults, 0, selectedSort);
 
     // Use Intersection Observer for better scroll handling
     useEffect(() => {
@@ -306,19 +330,22 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
                 overflowAnchor: 'auto'   // CSS scroll anchoring to help maintain position
             }}
         >
-            <table className="table table-sm table-striped" key={`${selectedContest}-${selectedSort}`}>
+            <table className="table table-sm table-striped overflow-x-auto" key={`${selectedContest}-${selectedSort}`}>
                 <TableHeader 
-                    selectedSort={selectedSort}
                     onSortChange={handleSortChange}
                     getSortIcon={getSortIcon}
                 />
-                <TableBody 
-                    teamSummaries={teamSummaries}
-                    previousPicks={previousPicks}
-                    selectedContest={selectedContest}
-                    onDraftPick={handleDraftPick}
-                    makePickMutation={makePickMutation}
-                />
+
+                {isLoading ? 
+                    <TableBodySkeleton /> : (
+                    <TableBody 
+                        teamSummaries={teamSummaries}
+                        selectedContest={selectedContest}
+                        previousPicksObj={draftPicks}
+                        onDraftPick={handleDraftPick}
+                        makePickMutation={makePickMutation}
+                        isNoRepeat={isNoRepeat}
+                    />)}
             </table>
             {isLoadingMore && (
                 <div className="text-center p-3">
@@ -332,11 +359,26 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
     );
 }
 
+function TableBodySkeleton() {
+
+    return (
+        <tbody>
+            {Array.from({ length: 100 }).map((_, index) => (
+                <tr key={index}>
+                    <td colSpan={6} className="text-center">
+                        <div style={{ minHeight: '20px'}} ></div>
+                    </td>
+                </tr>
+            ))}
+        </tbody>
+    )
+}
+
+
 // Table header component
-function TableHeader({ selectedSort, onSortChange, getSortIcon }: {
-    selectedSort: 'consistency' | 'speedRating';
-    onSortChange: (column: 'consistency' | 'speedRating') => void;
-    getSortIcon: (column: 'consistency' | 'speedRating') => JSX.Element;
+function TableHeader({ onSortChange, getSortIcon }: {
+    onSortChange: (column: 'consistency' | 'speedRating' | 'overallScore') => void;
+    getSortIcon: (column: 'consistency' | 'speedRating' | 'overallScore') => JSX.Element;
 }) {
     return (
         <thead className="sticky-top bg-white">
@@ -344,7 +386,17 @@ function TableHeader({ selectedSort, onSortChange, getSortIcon }: {
                 <th style={{ width: '80px' }}>Draft</th>
                 <th style={{ width: '150px' }}>Team - Year</th>
                 <th 
-                    style={{ width: '120px', cursor: 'pointer' }} 
+                    style={{ minWidth: '120px', maxWidth: '120px', cursor: 'pointer' }} 
+                    onClick={() => onSortChange('speedRating')}
+                    className="user-select-none"
+                >
+                    <div className="d-flex align-items-center justify-content-between">
+                        <span>Speed Rating</span>
+                        {getSortIcon('speedRating')}
+                    </div>
+                </th>
+                <th 
+                    style={{ minWidth: '120px', maxWidth: '120px', cursor: 'pointer' }} 
                     onClick={() => onSortChange('consistency')}
                     className="user-select-none"
                 >
@@ -354,74 +406,119 @@ function TableHeader({ selectedSort, onSortChange, getSortIcon }: {
                     </div>
                 </th>
                 <th 
-                    style={{ width: '120px', cursor: 'pointer' }} 
-                    onClick={() => onSortChange('speedRating')}
+                    style={{ minWidth: '120px', maxWidth: '120px', cursor: 'pointer' }} 
+                    onClick={() => onSortChange('overallScore')}
                     className="user-select-none"
                 >
                     <div className="d-flex align-items-center justify-content-between">
-                        <span>Speed Rating</span>
-                        {getSortIcon('speedRating')}
+                        <span>Overall</span>
+                        {getSortIcon('overallScore')}
                     </div>
                 </th>
-                <th>Good Runs</th>
+
+                <th 
+                    className="text-end text-nowrap"
+                    style={{ minWidth: '120px', maxWidth: '120px' }}
+                >Top Runs</th>
             </tr>
         </thead>
     );
 }
 
 // Table body component
-function TableBody({ teamSummaries, previousPicks, selectedContest, onDraftPick, makePickMutation }: {
+function TableBody({ teamSummaries, selectedContest,  previousPicksObj, isNoRepeat, onDraftPick, makePickMutation }: {
     teamSummaries: any[];
-    previousPicks: string[];
     selectedContest: string;
+    previousPicksObj: FantasyDraftPick[];
     onDraftPick: (teamSummary: any) => void;
     makePickMutation: any;
+    isNoRepeat: boolean;
 }) {
+
+    const auth = useAuth(); 
+    const username = auth.user?.profile.email; 
+    const previousPicks = previousPicksObj.map(el => el.contestSummaryKey);
+    const myPicks = previousPicksObj.filter(el => el.user === username);
+    const pickedContests = myPicks.map(el => el.contestSummaryKey.split("|")[2])
+
+    let filteredTeamSummaries = teamSummaries.filter(el => !previousPicks.includes(el.key));
+
+    if(isNoRepeat) {
+        console.log("previousPicks", previousPicks);
+        const teamsToSkip = new Set([...previousPicks
+            .map(el => {
+                const [team, year, contest] = el.split("|");
+                return `${team}|${contest}`;
+            })
+        ]); 
+        filteredTeamSummaries = filteredTeamSummaries.filter(el => {
+            const teamContestKey = `${el.team}|${el.contest}`;
+            return !teamsToSkip.has(teamContestKey);
+        });
+    }
+
+
+
     return (
         <tbody>
-            {teamSummaries
-                .filter(el => !previousPicks.includes(el.key))
+            {filteredTeamSummaries
                 .map((teamSummary) => (
                     <tr key={teamSummary._id}>
-                        <td>
-                            <Button 
-                                size="sm" 
-                                variant="primary"
-                                onClick={() => onDraftPick(teamSummary)}
-                                disabled={makePickMutation.isPending}
-                            >
-                                {makePickMutation.isPending ? '...' : 'Draft'}
-                            </Button>
+                        <td className="align-middle text-center" style={{ height: '100%' }}>
+                            {
+                                pickedContests.includes(selectedContest) ? <div className="text-muted"><FontAwesomeIcon icon={faCheck} /></div> :
+                                    <Button 
+                                        size="sm" 
+                                        className="fantasy-draft-btn"                                 
+                                        onClick={() => onDraftPick(teamSummary)}
+                                        disabled={makePickMutation.isPending}
+                                    >
+                                        {makePickMutation.isPending ? '...' : 'Draft'}
+                                    </Button>
+                            }
                         </td>
-                        <td>{teamSummary.team} - {teamSummary.year}</td>
-                        <td>
-                            <div className="d-flex align-items-center">
+                        <td className="text-nowrap align-middle text-start">{teamSummary.team} - {teamSummary.year}</td>
+                        <td className="align-middle text-center" style={{ height: '100%' }}>
+                            <div className="d-flex align-items-center justify-content-between">
                                 <div 
-                                    className="bg-success" 
-                                    style={{ 
-                                        width: `${teamSummary.consistency * 100}%`, 
-                                        height: '20px',
-                                        minWidth: '2px'
-                                    }}
-                                ></div>
-                                <span className="ms-2 small">{teamSummary?.consistency?.toFixed(3)}</span>
-                            </div>
-                        </td>
-                        <td>
-                            <div className="d-flex align-items-center">
-                                <div 
-                                    className="bg-primary" 
+                                    className="nav-bg-color-dk" 
                                     style={{ 
                                         width: `${teamSummary.speedRating * 100}%`, 
                                         height: '20px',
                                         minWidth: '2px'
                                     }}
                                 ></div>
-                                <span className="ms-2 small">{teamSummary?.speedRating?.toFixed(2)}</span>
+                                <span className="ms-2 small">{((teamSummary?.speedRating || 0 ) * 100).toFixed(0)}</span>
                             </div>
                         </td>
-                        <td>
-                            <div className="small">
+                        <td className="align-middle text-center">
+                            <div className="d-flex align-items-center justify-content-between">
+                                <div 
+                                    className="nav-bg-color" 
+                                    style={{ 
+                                        width: `${teamSummary.consistency * 100}%`, 
+                                        height: '20px',
+                                        minWidth: '2px'
+                                    }}
+                                ></div>
+                                <span className="ms-2 small">{((teamSummary?.consistency || 0 ) * 100).toFixed(0)}</span>
+                            </div>
+                        </td>
+                        <td className="align-middle text-center">
+                            <div className="d-flex align-items-center justify-content-between">
+                                <div 
+                                    className="contest-selected" 
+                                    style={{ 
+                                        width: `${teamSummary.overallScore * 100}%`, 
+                                        height: '20px',
+                                        minWidth: '2px'
+                                    }}
+                                ></div>
+                                <span className="ms-2 small">{((teamSummary?.overallScore || 0 ) * 100).toFixed(0)}</span>
+                            </div>
+                        </td>
+                        <td className="align-middle text-center">
+                            <div className="small text-end text-wrap ms-2">
                                 {teamSummary.goodRunTimes.join(', ')}
                             </div>
                         </td>

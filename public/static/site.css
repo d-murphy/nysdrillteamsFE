@@ -132,9 +132,13 @@ html, body, #root {
 
 /* Schedule */
 
-.circuit-selected, .contest-selected {
+.circuit-selected, .contest-selected, .fantasy-draft-btn {
     background-color: var(--button-blue);
     color: var(--bs-white)
+}
+
+.fantasy-draft-btn:hover {
+    background-color: var(--button-blue-hover);
 }
 
 .circuit-not-selected:hover, .contest-not-selected:hover {
