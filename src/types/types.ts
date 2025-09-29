@@ -193,7 +193,7 @@ export type Projection = {
 export type FantasyGame = {
     _id: string,
     gameId: string, 
-    status: 'stage' | 'draft' | 'complete', 
+    status: 'stage' | 'draft' | 'complete' | 'stage-draft', 
     gameType: 'one-team' | '8-team' | '8-team-no-repeat'
     countAgainstRecord: boolean, 
     users: string[], 

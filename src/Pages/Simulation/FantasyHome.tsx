@@ -33,6 +33,8 @@ export default function FantasyHome() {
     const pageToShow = pathSegments[3]; 
     const gameId = pathSegments[4]; 
 
+    console.log('FantasyHome rendered');
+
 
     const content = !pageToShow ? 
         <>

@@ -1,28 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { FantasyGame } from '../../types/types';
-import { useGameSignupUpdate } from '../../hooks/useGameSignupUpdate';
+import { FantasyGame, FantasyDraftPick } from '../../types/types';
 import { useAuth } from 'react-oidc-context';
 import Button from '../Button';
 import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 interface FantasyGameSignupProps {
-    gameId: string;
     game: FantasyGame;
-    refetchGame: () => void;
+    draftPicks: FantasyDraftPick[];
+    loading: boolean;
+    error: string | null;
 }
 
 declare var SERVICE_URL: string;
 
-export default function FantasyGameSignup({ gameId, game, refetchGame }: FantasyGameSignupProps) {
-
-    const { game: gameData, loading, error } = useGameSignupUpdate(gameId);
+function FantasyGameSignup({ game: gameData, draftPicks, loading, error }: FantasyGameSignupProps) {
 
     const auth = useAuth(); 
     const username = auth.user?.profile.email; 
     const isMyGame = gameData?.users[0] === username; 
     const inGame = gameData?.users.includes(username); 
     const humanUsers = gameData?.users.filter(user => user !== 'autodraft');
-    if(gameData?.status === 'draft') refetchGame();
+    const gameId = gameData?.gameId;
 
     const joinDraftMutation = useMutation({
         mutationFn: async () => {
@@ -47,13 +46,12 @@ export default function FantasyGameSignup({ gameId, game, refetchGame }: Fantasy
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ state: 'draft', users: gameData?.users }),
+                body: JSON.stringify({ state: 'stage-draft', users: gameData?.users }),
             });
             return response.json();
         },
         onSuccess: () => {
             console.log('started draft - success function');
-            refetchGame();
         },
     });
 
@@ -66,7 +64,7 @@ export default function FantasyGameSignup({ gameId, game, refetchGame }: Fantasy
 
             {
                 loading ? <div>Loading...</div> : 
-                error ? <div>Error: {error}</div> : 
+                error ? <div>SignupError: {error}</div> : 
                 <>
                 <div>
                     Current Users: 
@@ -76,7 +74,7 @@ export default function FantasyGameSignup({ gameId, game, refetchGame }: Fantasy
                     {!inGame && <Button text="Join Game" onClick={() => {joinDraftMutation.mutate()}} />}
                 </div>
                 <div>
-                    {isMyGame && <Button text="Start Draft" onClick={() => {startDraftMutation.mutate()}} />}
+                    {isMyGame && <Button text="Start Game" onClick={() => {startDraftMutation.mutate()}} />}
                     {humanUsers.length === 1 ? "Multiple players required for results to count towards user record." : ""}
                 </div>
                 </>
@@ -84,3 +82,5 @@ export default function FantasyGameSignup({ gameId, game, refetchGame }: Fantasy
         </div>
     )
 }
+
+export default React.memo(FantasyGameSignup);

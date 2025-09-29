@@ -8,6 +8,7 @@ import Footer from "../Components/Footer";
 
 
 export default function Root() {
+    console.log('Root component rendered');
     const location = useLocation(); 
     const pagePath = location.pathname + location.search
     useEffect(() => {

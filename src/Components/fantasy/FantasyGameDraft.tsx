@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FantasyDraftPick, FantasyGame } from '../../types/types';
-import { useGameSignupUpdate } from '../../hooks/useGameSignupUpdate';
 import { useAuth } from 'react-oidc-context';
 import { useMutation } from '@tanstack/react-query';
-import { useGameDraftPicks } from '../../hooks/useGameDraftPicks';
+import { useGameUpdate } from '../../hooks/useGameUpdate';
 import { Button } from 'react-bootstrap';
 import { useSimTeamSummaries } from '../../hooks/useSimTeamSummaries';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faSort, faSortDown } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faArrowRight, faCheck, faExclamationTriangle, faRefresh, faSort, faSortDown } from '@fortawesome/free-solid-svg-icons';
 
 
 interface FantasyGameDraftProps {
-    gameId: string;
     game: FantasyGame;
-    refetchGame: () => void;
+    draftPicks: FantasyDraftPick[];
+    loading: boolean;
+    error: string | null;
 }
 
 declare var SERVICE_URL: string;
@@ -31,33 +31,30 @@ const contests = [
 
 
 
-export default function FantasyGameDraft({ gameId, game, refetchGame }: FantasyGameDraftProps) {
+function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraftProps) {
     
-    const { draftPicks, loading, error } = useGameDraftPicks(gameId);
-
-    const auth = useAuth(); 
     const users = game?.users; 
+    const gameId = game?.gameId;
 
-    const startSimMutation = useMutation({
-        mutationFn: async () => {
+    const changeGameStateMutation = useMutation({
+        mutationFn: async (newState: 'complete' | 'draft') => {
             const response = await fetch(`${SERVICE_URL}/fantasy/updateGameState/${gameId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ state: 'complete' }),
+                body: JSON.stringify({ state: newState }),
             });
             return response.json();
         },
         onSuccess: () => {
-            console.log('game complete - success function');
-            refetchGame();
+            console.log('game stage change');
         },
     });
 
     const currentDraftPick = draftPicks?.length || 0; 
     const picksNeeded = !game ? 1000000 : game.users?.length  * contests.length; 
-    const draftComplete = currentDraftPick >= picksNeeded; 
+    const draftComplete = game?.status === 'draft' && currentDraftPick >= picksNeeded; 
 
 
 
@@ -68,12 +65,18 @@ export default function FantasyGameDraft({ gameId, game, refetchGame }: FantasyG
 
             {
                 loading ? <div>Loading...</div> : 
-                error ? <div>Error: {error}</div> : 
+                error ? <div>Draft Error: {error}</div> : 
                 <>
 
                 <div>
-                    {!draftComplete ? "Draft in progress" : 
-                        <Button onClick={() => {startSimMutation.mutate()}}>Start Simulation</Button>
+                    {
+                        game?.status === 'stage-draft' ? <Button onClick={() => {changeGameStateMutation.mutate('draft')}}>Start Draft</Button> : <></>
+                    }
+                </div>
+
+                <div>
+                    {!draftComplete ? "" : 
+                        <Button onClick={() => {changeGameStateMutation.mutate('complete')}}>Start Simulation</Button>
                     }
                 </div>
 
@@ -190,7 +193,6 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
     
     const tableContainerRef = useRef<HTMLDivElement>(null);
     const scrollPositionRef = useRef<number>(0);
-    const lastItemCountRef = useRef<number>(0);
     const loadingTriggerRef = useRef<HTMLDivElement>(null);
 
     const isNoRepeat = game.gameType === '8-team-no-repeat'; 
@@ -294,7 +296,7 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
             return response.json();
         },
         onSuccess: () => {
-            console.log('pick made successfully');
+            console.log('pick posted successfully');
         },
     });
 
@@ -330,7 +332,7 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
                 overflowAnchor: 'auto'   // CSS scroll anchoring to help maintain position
             }}
         >
-            <table className="table table-sm table-striped overflow-x-auto" key={`${selectedContest}-${selectedSort}`}>
+            <table className="table table-sm table-striped " key={`${selectedContest}-${selectedSort}`}>
                 <TableHeader 
                     onSortChange={handleSortChange}
                     getSortIcon={getSortIcon}
@@ -364,7 +366,7 @@ function TableBodySkeleton() {
     return (
         <tbody>
             {Array.from({ length: 100 }).map((_, index) => (
-                <tr key={index}>
+                <tr key={index + "table-body-skeleton"}>
                     <td colSpan={6} className="text-center">
                         <div style={{ minHeight: '20px'}} ></div>
                     </td>
@@ -444,7 +446,6 @@ function TableBody({ teamSummaries, selectedContest,  previousPicksObj, isNoRepe
     let filteredTeamSummaries = teamSummaries.filter(el => !previousPicks.includes(el.key));
 
     if(isNoRepeat) {
-        console.log("previousPicks", previousPicks);
         const teamsToSkip = new Set([...previousPicks
             .map(el => {
                 const [team, year, contest] = el.split("|");
@@ -463,7 +464,7 @@ function TableBody({ teamSummaries, selectedContest,  previousPicksObj, isNoRepe
         <tbody>
             {filteredTeamSummaries
                 .map((teamSummary) => (
-                    <tr key={teamSummary._id}>
+                    <tr key={teamSummary._id + "available-teams"}>
                         <td className="align-middle text-center" style={{ height: '100%' }}>
                             {
                                 pickedContests.includes(selectedContest) ? <div className="text-muted"><FontAwesomeIcon icon={faCheck} /></div> :
@@ -538,10 +539,10 @@ function DraftGrid({ users, draftPicks }: { users: string[], draftPicks: Fantasy
 
 
     return (
-        <div className="overflow-x-auto">
+        <div className="max-width-100 overflow-auto">
             {
                 Array.from({ length: rowCt }, (_, rowInd) => (
-                    <div className="row gx-2">
+                    <div className="w-100 d-flex " key={rowInd + "draft-grid-row"}>
                         {Array.from({ length: colCt }, (_, colInd) => (
                             <DraftGridCell draftPicks={draftPicks} colCt={colCt} rowInd={rowInd} colInd={colInd} />
                         ))}
@@ -558,7 +559,9 @@ function DraftGridCell({ draftPicks, colCt, rowInd, colInd }: { draftPicks: Fant
     const evenRound = rowInd % 2 === 0;
 
     const draftPickNumber = evenRound ? rowInd * colCt + colInd : rowInd * colCt + colCt - colInd - 1;
-    const draftPick = draftPicks.find(el => el.draftPick === draftPickNumber);
+    const draftPick = draftPicks.find(el => el?.draftPick === draftPickNumber);
+    const lastPick = draftPicks[draftPicks.length - 1];
+    const isCurrentPick = draftPickNumber === (lastPick?.draftPick + 1);
     const draftPickRound = Math.floor(draftPickNumber / colCt);
     const draftPickInRound = draftPickNumber % colCt;
     const draftPickDisplayNum = `${draftPickRound + 1}.${draftPickInRound + 1}`;
@@ -568,24 +571,36 @@ function DraftGridCell({ draftPicks, colCt, rowInd, colInd }: { draftPicks: Fant
 
 
     if(!draftPick) return (
-        <div className={`draft-grid-cell ${rowIsEven ? "bg-light" : "bg-white"} col`}>
-            <div className="flex flex-column align-items-start justify-content-start">
-                <div className="font-small">{draftPickDisplayNum}</div>
+        <div className={`draft-grid-cell ${isCurrentPick ? "bg-primary" : rowIsEven ? "bg-lightgray" : "bg-light"} w-100`}>
+            <div className="d-flex flex-row align-items-center justify-content-end w-100 p-2">
+                <div className="font-small l-grayText m-1">{draftPickDisplayNum}</div>
             </div>
         </div>
     );
 
-    const pickInfo = draftPick.contestSummaryKey.split("|");
+    const pickInfo = draftPick?.contestSummaryKey.split("|");
     const team = pickInfo[0];
     const year = pickInfo[1];
     const contest = pickInfo[2];
 
     return (
-        <div className={`draft-grid-cell ${rowIsEven ? "bg-light" : "bg-white"} ${draftPick.draftPick === draftPickNumber ? "bg-primary" : ""} col`}>
-            <div className="flex flex-column align-items-start justify-content-start">
-                <div className="font-small">{draftPickDisplayNum}</div>
-                <div className="font-small">{year} {team} {contest}</div>
+        <div className={`draft-grid-cell ${rowIsEven ? "bg-lightgray" : "bg-light"} col`}>
+            <div className="d-flex flex-column align-items-start justify-content-start h-100 p-2">
+                <div className="d-flex flex-row align-items-center justify-content-start w-100">
+                    <div className="font-medium text-nowrap text-truncate">{team}</div>
+                    <div className="flex-grow-1"></div>
+                    <div className="font-small l-grayText m-1">{draftPickDisplayNum}</div>
+                </div>
+                <div className="font-small">{year} - {contest}</div>
+                <div className="flex-grow-1"></div>
+                {
+                    rowIsEven ? 
+                        <FontAwesomeIcon icon={faArrowRight} className="ms-1 grayText" /> :
+                        <FontAwesomeIcon icon={faArrowLeft} className="ms-1 grayText" />
+                }
             </div>
         </div>
     )
 }
+
+export default React.memo(FantasyGameDraft);

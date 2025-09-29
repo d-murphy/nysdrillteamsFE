@@ -98,6 +98,10 @@ html, body, #root {
     color: var(--bs-gray-600)
 }
 
+.l-grayText {
+    color: var(--bs-gray-500)
+}
+
 .dropdown-pos-top {
     top: 62px; 
     z-index: 999;
@@ -235,6 +239,11 @@ html, body, #root {
 
 .scorecard-cell-md {
     min-width: 120px;
+}
+
+.draft-grid-cell {
+    min-width: 160px;
+    min-height: 100px;
 }
 
 .scorecard-cell-sm {

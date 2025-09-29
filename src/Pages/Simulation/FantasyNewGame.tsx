@@ -29,6 +29,7 @@ export default function FantasyNewGame() {
         onSuccess: async (result) => {
             console.log(result); 
             const resultJson = await result.json() as FantasyGame; 
+            console.log('new game result', resultJson); 
             const gameId = resultJson.gameId; 
             navigate(`/Simulation/Fantasy/game/${gameId}`);
         }
@@ -67,9 +68,6 @@ export default function FantasyNewGame() {
                         <option value="8-team">New Team Each Contest</option>
                         <option value="8-team-no-repeat">New Team Each Contest - No Repeats</option>
                     </Form.Select>
-
-                    <Form.Label className="mt-4">Draft - Seconds Per Pick</Form.Label>
-                    <Form.Control type="number" value={secondsPerPick} onChange={(e) => setSecondsPerPick(parseInt(e.target.value))} />
 
                     <Form.Label className="mt-4">Count Against Record</Form.Label>
                     <Form.Check 
