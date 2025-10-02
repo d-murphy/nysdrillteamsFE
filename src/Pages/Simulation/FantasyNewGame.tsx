@@ -1,11 +1,11 @@
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useMutation } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { FantasyGame } from "../../types/types";
 import { useNavigate } from "react-router-dom";
 import { Button, Form } from "react-bootstrap";
+import { useMakeGameMutation } from "../../hooks/useMakeGameMutation";
 
 
 declare var SERVICE_URL: string;
@@ -22,18 +22,20 @@ export default function FantasyNewGame() {
     const [tournamentSize, setTournamentSize] = useState<10 | 30 | 50>(10);
     const [isSeason, setIsSeason] = useState(true);
 
-    const mutation = useMutation({
-        mutationFn: () => {
-            return createFantasyGame(email, gameType, countAgainstRecord, secondsPerPick, tournamentSize, isSeason);
-        },
-        onSuccess: async (result) => {
-            console.log(result); 
-            const resultJson = await result.json() as FantasyGame; 
-            console.log('new game result', resultJson); 
-            const gameId = resultJson.gameId; 
-            navigate(`/Simulation/Fantasy/game/${gameId}`);
-        }
-    });
+    const onSuccess = async (result: Response) => {
+        console.log(result); 
+        const resultJson = await result.json() as FantasyGame; 
+        console.log('new game result', resultJson); 
+        const gameId = resultJson.gameId; 
+        navigate(`/Simulation/Fantasy/game/${gameId}`);
+    }
+
+    const onError = (error: Error) => {
+        console.log(error); 
+        navigate("/Error");
+    }
+
+    const mutation = useMakeGameMutation(onSuccess,onError);
 
     return (
 
@@ -80,7 +82,14 @@ export default function FantasyNewGame() {
                 </Form>
 
                 <div className="d-flex justify-content-center align-items-center mt-4">
-                    <Button onClick={() => mutation.mutate()}>Create Game</Button>
+                    <Button onClick={() => mutation.mutate({
+                        user: email,
+                        gameType,
+                        countAgainstRecord,
+                        secondsPerPick,
+                        tournamentSize,
+                        isSeason
+                    })}>Create Game</Button>
                 </div>
 
 
@@ -89,42 +98,5 @@ export default function FantasyNewGame() {
 
         </div>
 
-
-
-
-
     )
-}
-
-
-
-
-function createFantasyGame(
-        user: string, 
-        gameType: 'one-team' | '8-team' | '8-team-no-repeat', 
-        countAgainstRecord: boolean, 
-        secondsPerPick: number,
-        tournamentSize: 10 | 30 | 50,
-        isSeason: boolean
-    ) 
-    {
-
-
-    const body = {
-        user, 
-        gameType, 
-        countAgainstRecord, 
-        secondsPerPick,
-        tournamentSize,
-        isSeason
-    }
-    console.log(body); 
-        
-    return fetch(`${SERVICE_URL}/fantasy/createGame`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-    });
 }

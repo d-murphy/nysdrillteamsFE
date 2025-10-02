@@ -20,7 +20,7 @@ declare var INSTANCE_URL: string;
 const cognitoAuthConfig = {
   authority: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_MH5nFKQ9Z",
   client_id: "1slj05luihr2tnuoitm8dfv7nn",
-  redirect_uri: "http://localhost:8080/Simulation/Fantasy",
+  redirect_uri: `${INSTANCE_URL}/Simulation/Fantasy`,
   response_type: "code",
   scope: "email openid phone",
 };  

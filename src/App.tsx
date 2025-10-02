@@ -34,13 +34,19 @@ import ProjectionsHome from "./Pages/Simulation/ProjectionsHome";
 import FantasyHome from "./Pages/Simulation/FantasyHome";
 import FantasyNewGame from "./Pages/Simulation/FantasyNewGame";
 
+
+interface ErrorPageProps {
+    includeImage?: boolean;
+}
   
-const ErrorPage = () => {
+const ErrorPage = (props: ErrorPageProps) => {
+    const { includeImage = true } = props;
     const navigate = useNavigate(); 
     return (
         <div>
 
-            <div className="nav-bg-color-dk">
+            {includeImage && (
+                <div className="nav-bg-color-dk">
                 <div className="container d-flex justify-content-start p-4 "
                     onClick={() => navigate("/")}>
                     <div className="header-logo">
@@ -48,6 +54,7 @@ const ErrorPage = () => {
                     </div>
                 </div>
             </div>
+            )}
             <div className="content">
                 <div className="container">
                     <div className="d-flex align-items-center justify-content-center mt-5">
@@ -72,6 +79,10 @@ const router = createBrowserRouter([
             {
                 path: "",
                 element: <Home />,
+            },
+            {
+                path: "/Error", 
+                element: <ErrorPage includeImage={false} />
             },
             {
                 path: "/Schedule", 

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FantasyDraftPick, FantasyGame } from '../../types/types';
 import { useAuth } from 'react-oidc-context';
-import { useMutation } from '@tanstack/react-query';
-import { useGameUpdate } from '../../hooks/useGameUpdate';
 import { Button } from 'react-bootstrap';
 import { useSimTeamSummaries } from '../../hooks/useSimTeamSummaries';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight, faCheck, faExclamationTriangle, faRefresh, faSort, faSortDown } from '@fortawesome/free-solid-svg-icons';
+import { useChangeGameStateMutation } from '../../hooks/useChangeGameStateMutation';
+import { useMakePickMutation } from '../../hooks/useMakePickMutation';
 
 
 interface FantasyGameDraftProps {
@@ -36,27 +36,10 @@ function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraft
     const users = game?.users; 
     const gameId = game?.gameId;
 
-    const changeGameStateMutation = useMutation({
-        mutationFn: async (newState: 'complete' | 'draft') => {
-            const response = await fetch(`${SERVICE_URL}/fantasy/updateGameState/${gameId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ state: newState }),
-            });
-            return response.json();
-        },
-        onSuccess: () => {
-            console.log('game stage change');
-        },
-    });
-
+    const changeGameStateMutation = useChangeGameStateMutation(gameId);
     const currentDraftPick = draftPicks?.length || 0; 
     const picksNeeded = !game ? 1000000 : game.users?.length  * contests.length; 
     const draftComplete = game?.status === 'draft' && currentDraftPick >= picksNeeded; 
-
-
 
     return (
         <div className="container bg-white rounded shadow-sm p-2">
@@ -279,27 +262,7 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
         }
     }, [selectedContest, selectedSort]);
 
-    const makePickMutation = useMutation({
-        mutationFn: async ({ contestSummaryKey, draftPick }: { contestSummaryKey: string, draftPick: number }) => {
-            const response = await fetch(`${SERVICE_URL}/fantasy/insertDraftPick`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },        
-                body: JSON.stringify({ 
-                    user: username,
-                    gameId: gameId,
-                    contestSummaryKey: contestSummaryKey,
-                    draftPick: draftPick
-                }),
-            });
-            return response.json();
-        },
-        onSuccess: () => {
-            console.log('pick posted successfully');
-        },
-    });
-
+    const makePickMutation = useMakePickMutation(username, gameId);
     const handleDraftPick = (teamSummary: any) => {
         const contestSummaryKey = `${teamSummary.team}|${teamSummary.year}|${selectedContest}`;
         makePickMutation.mutate({ 
