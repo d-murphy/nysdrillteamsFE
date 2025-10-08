@@ -48,7 +48,7 @@ html, body, #root {
     background-color: var(--bs-gray-100); 
 }
 
-.champs-bg {
+.champs-bg, .leaderboard-bg {
     min-height: 300px;
     height: 100%; 
 }
@@ -136,7 +136,7 @@ html, body, #root {
 
 /* Schedule */
 
-.circuit-selected, .contest-selected, .fantasy-draft-btn {
+.circuit-selected, .contest-selected, .fantasy-draft-btn, .fantasy-game-card {
     background-color: var(--button-blue);
     color: var(--bs-white)
 }
@@ -244,6 +244,11 @@ html, body, #root {
 .draft-grid-cell {
     min-width: 160px;
     min-height: 100px;
+}
+
+.draft-grid-header-cell {
+    min-width: 160px; 
+    min-height: 50px; 
 }
 
 .scorecard-cell-sm {
@@ -503,6 +508,12 @@ html, body, #root {
 
 .dash-logo-width {
     width: 120px; 
+}
+
+.fantasy-game-card-w { 
+    width: 190px; 
+    min-width: 190px; 
+    max-width: 190px; 
 }
 
 

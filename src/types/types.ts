@@ -198,7 +198,8 @@ export type FantasyGame = {
     countAgainstRecord: boolean, 
     users: string[], 
     simulationIndex: number[], 
-    secondsPerPick: number
+    secondsPerPick: number, 
+    name: string
 }
 
 export type FantasyDraftPick = {

@@ -1,15 +1,16 @@
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "react-oidc-context";
+import { getAuthHeaders } from "../utils/getAuthHeaders";
 
 declare var SERVICE_URL: string;
 
 interface CreateGameParams {
-    user: string;
     gameType: 'one-team' | '8-team' | '8-team-no-repeat';
     countAgainstRecord: boolean;
     secondsPerPick: number;
     tournamentSize: 10 | 30 | 50;
     isSeason: boolean;
+    name: string;
 }
 
 export function useMakeGameMutation(
@@ -20,16 +21,14 @@ export function useMakeGameMutation(
     
     return useMutation({
         mutationFn: async (params: CreateGameParams) => {
-            const accessToken = auth.user?.access_token;
-            const idToken = auth.user?.id_token;
 
             const body = {
-                user: params.user,
                 gameType: params.gameType,
                 countAgainstRecord: params.countAgainstRecord,
                 secondsPerPick: params.secondsPerPick,
                 tournamentSize: params.tournamentSize,
-                isSeason: params.isSeason
+                isSeason: params.isSeason,
+                name: params.name
             };
 
             console.log(body);
@@ -38,8 +37,7 @@ export function useMakeGameMutation(
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`,
-                    'X-Id-Token': idToken
+                    ...getAuthHeaders(auth)
                 },
                 body: JSON.stringify(body),
             });

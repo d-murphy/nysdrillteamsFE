@@ -30,18 +30,13 @@ function FantasyGame({ gameId }: FantasyGameProps) {
     const content = !connected ? 
      <div>Disconnected, please refresh the page and try again.</div> :
      !gameStatus ? <div>Game not found</div> :
-     gameStatus === 'stage' ? <FantasyGameSignup game={game} draftPicks={draftPicks} loading={loading} error={error} /> :
+     gameStatus === 'stage' ? <FantasyGameSignup game={game} loading={loading} error={error} /> :
      gameStatus === 'draft' || gameStatus === 'stage-draft' ? <FantasyGameDraft draftPicks={draftPicks} game={game} loading={loading} error={error} /> :
      <div>Game in progress</div>;
 
     return (
         <div>
-            <div>FantasyGame</div>
-            <div>{gameStatus}</div>
-
-            <div className="mt-3">
-                {content}
-            </div>
+            {content}
         </div>
     )
 }

@@ -4,9 +4,10 @@ import { useAuth } from 'react-oidc-context';
 import { Button } from 'react-bootstrap';
 import { useSimTeamSummaries } from '../../hooks/useSimTeamSummaries';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faArrowRight, faCheck, faExclamationTriangle, faRefresh, faSort, faSortDown } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faArrowRight, faCheck, faClock, faExclamationTriangle, faLock, faRefresh, faRobot, faSort, faSortDown, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useChangeGameStateMutation } from '../../hooks/useChangeGameStateMutation';
 import { useMakePickMutation } from '../../hooks/useMakePickMutation';
+import isMyPick from '../../utils/isMyPick';
 
 
 interface FantasyGameDraftProps {
@@ -43,15 +44,17 @@ function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraft
 
     return (
         <div className="container bg-white rounded shadow-sm p-2">
-            <div>Fantasy Game Draft</div>
-            <div>{gameId}</div>
-
             {
-                loading ? <div>Loading...</div> : 
-                error ? <div>Draft Error: {error}</div> : 
+                loading ? 
+                    <div className="d-flex align-items-center justify-content-center m-5 p-5">
+                        <div className="spinner-border text-secondary" role="status"></div>
+                    </div> : 
+                error ? 
+                    <div className="d-flex align-items-center justify-content-center m-5 p-5">
+                        <div>Draft Error: {error}</div>
+                    </div> : 
                 <>
-
-                <div>
+                <div className="d-flex flex-column align-items-center justify-content-center my-4">
                     {
                         game?.status === 'stage-draft' ? <Button onClick={() => {changeGameStateMutation.mutate('draft')}}>Start Draft</Button> : <></>
                     }
@@ -69,14 +72,6 @@ function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraft
                     <DraftOptions draftPicks={draftPicks} game={game}  gameId={gameId} currentDraftPick={currentDraftPick} />
                 </div>
 
-
-                {/* <div>
-                    {!inGame && <Button text="Join Game" onClick={() => {joinDraftMutation.mutate()}} />}
-                </div>
-                <div>
-                    {isMyGame && <Button text="Start Draft" onClick={() => {startDraftMutation.mutate()}} />}
-                    {humanUsers.length === 1 ? "Multiple players required for results to count towards user record." : ""}
-                </div> */}
                 </>
             }
         </div>
@@ -93,26 +88,6 @@ function DraftOptions({ draftPicks, gameId,game, currentDraftPick }: { draftPick
     return (
         <div>
             <div className="d-flex flex-column">
-
-
-                <div className="my-5">
-
-                    autodraft pulls from top of each of 3 lists. 
-
-                    this has to somehow account for what contest is needed. 
-                    it somehow has to account for not repeating teams if i do that. 
-
-                    it could also handle auto-pick when a user doesn't pick in time? 
-
-                    when a human drafts, the next X autodraft picks should happen right after. 
-
-                    can the backend assess when the draft is complete? might have to repeat the logic there. 
-
-                    how 
-
-                </div>
-
-
                 <ContestSelector 
                     contests={contests}
                     selectedContest={selectedContest}
@@ -169,7 +144,15 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
 }) {
     const auth = useAuth(); 
     const username = auth.user?.profile.email; 
-    const previousPicks = draftPicks.map(el => el.contestSummaryKey);
+    // const previousPicks = draftPicks.map(el => el.contestSummaryKey);
+
+    console.log('draftPicks', draftPicks);
+    console.log("username", username);
+    console.log("game", game);
+    console.log("currentDraftPick", currentDraftPick);
+    const isMyPickResult = isMyPick(currentDraftPick, username, game);
+    console.log("isMyPickResult", isMyPickResult);
+    
 
     const [numResults, setNumResults] = useState<number>(100);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -284,6 +267,10 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
         return <FontAwesomeIcon icon={faSortDown} className="text-primary" />;
     };
 
+    if(makePickMutation.isError){
+        return <div>An error occurred while making your pick.  Please refresh the page and try again.</div>;
+    }
+
     return (
         <div 
             ref={tableContainerRef}
@@ -310,6 +297,7 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
                         onDraftPick={handleDraftPick}
                         makePickMutation={makePickMutation}
                         isNoRepeat={isNoRepeat}
+                        isMyPick={isMyPickResult}
                     />)}
             </table>
             {isLoadingMore && (
@@ -391,13 +379,14 @@ function TableHeader({ onSortChange, getSortIcon }: {
 }
 
 // Table body component
-function TableBody({ teamSummaries, selectedContest,  previousPicksObj, isNoRepeat, onDraftPick, makePickMutation }: {
+function TableBody({ teamSummaries, selectedContest,  previousPicksObj, isNoRepeat, onDraftPick, makePickMutation, isMyPick }: {
     teamSummaries: any[];
     selectedContest: string;
     previousPicksObj: FantasyDraftPick[];
     onDraftPick: (teamSummary: any) => void;
     makePickMutation: any;
     isNoRepeat: boolean;
+    isMyPick: boolean;
 }) {
 
     const auth = useAuth(); 
@@ -430,7 +419,9 @@ function TableBody({ teamSummaries, selectedContest,  previousPicksObj, isNoRepe
                     <tr key={teamSummary._id + "available-teams"}>
                         <td className="align-middle text-center" style={{ height: '100%' }}>
                             {
-                                pickedContests.includes(selectedContest) ? <div className="text-muted"><FontAwesomeIcon icon={faCheck} /></div> :
+                                pickedContests.includes(selectedContest) ? 
+                                    <div className="text-muted"><FontAwesomeIcon icon={faCheck} /></div> :
+                                    !isMyPick ? <div className="text-muted"><FontAwesomeIcon icon={faClock} /></div> :
                                     <Button 
                                         size="sm" 
                                         className="fantasy-draft-btn"                                 
@@ -503,6 +494,19 @@ function DraftGrid({ users, draftPicks }: { users: string[], draftPicks: Fantasy
 
     return (
         <div className="max-width-100 overflow-auto">
+            <div className="w-100 d-flex " key={"user-" + "draft-grid-row"}>
+                {
+                    users.map(user => {
+                        const isAuto = user.startsWith('autodraft');
+                        return (
+                            <div className="font-small l-grayText draft-grid-header-cell col d-flex flex-column justify-content-between align-items-center py-2 text-center">
+                                {isAuto ? <FontAwesomeIcon icon={faRobot} /> : <FontAwesomeIcon icon={faUser} />}
+                                <div>{isAuto ? "Auto" : user}</div>
+                            </div>
+                        )
+                    })
+                }
+            </div>
             {
                 Array.from({ length: rowCt }, (_, rowInd) => (
                     <div className="w-100 d-flex " key={rowInd + "draft-grid-row"}>

@@ -1,15 +1,15 @@
 import React from "react";
 import { useAuth } from "react-oidc-context";
-import { useSimTeamSummaries } from "../../hooks/useSimTeamSummaries";
 import { AuthProvider } from "react-oidc-context";
-import { Button } from "react-bootstrap";
-import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
+import { Button, Spinner } from "react-bootstrap";
+import { faArrowRightFromBracket, faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MyStats from "../../Components/fantasy/myStats";
 import Leaderboard from "../../Components/fantasy/leaderboard";
 import { useLocation, useNavigate } from "react-router-dom";
 import FantasyNewGame from "./FantasyNewGame";
 import FantasyGame from "./FantasyGame";
+import LandingPage from "../../Components/fantasy/LandingPage";
 
 
 
@@ -37,13 +37,7 @@ export default function FantasyHome() {
 
 
     const content = !pageToShow ? 
-        <>
-            <MyStats />
-            <Leaderboard />
-            <div className="d-flex justify-content-center">
-                <Button onClick={() => navigate('/Simulation/Fantasy/newgame')}>Start a New Game</Button>
-            </div>
-        </>
+        <LandingPage />
     : pageToShow === 'newgame' ? 
         <>
             <FantasyNewGame />
@@ -88,40 +82,37 @@ function LoginWrapper({children}: LoginProps) {
   };
 
   if (auth.isLoading) {
-    return <div className="text-center w-100">Loading...</div>;
+    return (
+        <div className="text-center w-100 pt-5">
+            <div className="spinner-border text-secondary" role="status"></div>
+        </div>
+    );
   }
 
   if (auth.error) {
     return <div className="text-center w-100">Encountering error... {auth.error.message}</div>;
   }
 
-  if (auth.isAuthenticated) {
     return (
-      <div className="d-flex flex-column">
-        <div className="d-flex justify-content-end w-100">
-            <button data-type="button" className="btn filter-icon-bg d-flex justify-content-center align-items-center  me-1" onClick={() => {auth.removeUser(); signOutRedirect()}}>
-                <FontAwesomeIcon icon={faArrowRightFromBracket} size="lg" className="mx-2"/> 
-            </button> 
-        </div>        
-        {/* <pre> Hello: {auth.user?.profile.email} </pre>
-        <pre> ID Token: {auth.user?.id_token} </pre>
-        <pre> Access Token: {auth.user?.access_token} </pre>
-        <pre> Refresh Token: {auth.user?.refresh_token} </pre> */}
-        {children}
-      </div>
-    );
-  }
-
-  return (
-        <div className="d-flex justify-content-center">
-            <div>Please login to start fantasy racing</div>
-            <Button onClick={() => auth.signinRedirect()}>Sign in</Button>
+        <div className="d-flex flex-column">
+        <div className="d-flex justify-content-end w-100 mb-2">
+            {
+                auth.isAuthenticated ? 
+                    <button data-type="button" className="btn filter-icon-bg d-flex justify-content-center align-items-center " onClick={() => {auth.removeUser(); signOutRedirect()}}>
+                        Log Out
+                        <FontAwesomeIcon icon={faArrowRightFromBracket} size="lg" className="ms-2"/> 
+                    </button> : 
+                    <button data-type="button" className="btn filter-icon-bg d-flex justify-content-center align-items-center " onClick={() => auth.signinRedirect()}>
+                        Log In
+                        <FontAwesomeIcon icon={faCircleUser} size="lg" className="ms-2"/> 
+                    </button> 
+            }            
         </div>
-  );
+        {children}
+        </div>
+    );
+
 }
-  
-
-
 
   
   

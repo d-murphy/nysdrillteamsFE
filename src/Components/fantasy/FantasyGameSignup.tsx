@@ -1,26 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { FantasyGame, FantasyDraftPick } from '../../types/types';
 import { useAuth } from 'react-oidc-context';
-import Button from '../Button';
+import { Button } from 'react-bootstrap';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { getAuthHeaders } from '../../utils/getAuthHeaders';
 
 interface FantasyGameSignupProps {
     game: FantasyGame;
-    draftPicks: FantasyDraftPick[];
     loading: boolean;
     error: string | null;
 }
 
 declare var SERVICE_URL: string;
 
-function FantasyGameSignup({ game: gameData, draftPicks, loading, error }: FantasyGameSignupProps) {
+function FantasyGameSignup({ game: gameData, loading: liveUpdateLoading, error: liveUpdateError }: FantasyGameSignupProps) {
 
     const auth = useAuth(); 
     const username = auth.user?.profile.email; 
     const isMyGame = gameData?.users[0] === username; 
     const inGame = gameData?.users.includes(username); 
-    const humanUsers = gameData?.users.filter(user => user !== 'autodraft');
+    const humanUsers = gameData?.users.filter(user => !user.startsWith('autodraft'));
+    const autodraftUsers = gameData?.users.filter(user => user.startsWith('autodraft'));
+    const hasRoom = autodraftUsers.length > 0; 
     const gameId = gameData?.gameId;
 
     const joinDraftMutation = useMutation({
@@ -29,13 +31,20 @@ function FantasyGameSignup({ game: gameData, draftPicks, loading, error }: Fanta
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    ...getAuthHeaders(auth)
                 },        
                 body: JSON.stringify({ users: [username] }),
             });
+            if(!response.ok){
+                throw new Error('Failed to join draft');
+            }
             return response.json();
         },
         onSuccess: () => {
             console.log('joined draft');
+        },
+        onError: (error) => {
+            console.log('join draft error', error);
         },
     });
 
@@ -45,40 +54,67 @@ function FantasyGameSignup({ game: gameData, draftPicks, loading, error }: Fanta
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    ...getAuthHeaders(auth)
                 },
                 body: JSON.stringify({ state: 'stage-draft', users: gameData?.users }),
             });
+            if(!response.ok){
+                throw new Error('Failed to start draft');
+            }
             return response.json();
         },
         onSuccess: () => {
             console.log('started draft - success function');
         },
+        onError: (error) => {
+            console.log('start draft error', error);
+        },
     });
 
-
+    const spotsAvailableMsg = autodraftUsers.length > 0 ? `(${autodraftUsers.length} spot${autodraftUsers.length > 1 ? "s" : ""} available)` : "";
 
     return (
-        <div>
-            <div>FantasyGameSignup</div>
-            <div>{gameId}</div>
-
-            {
-                loading ? <div>Loading...</div> : 
-                error ? <div>SignupError: {error}</div> : 
-                <>
-                <div>
-                    Current Users: 
-                    {humanUsers.map(el => el).join(', ')}
+        <div className="p-5 bg-white rounded shadow-sm h-100">
+            <div className="d-flex flex-column">
+                <div className="d-flex flex-row align-items-start justify-content-between w-100">
+                    <div className="d-flex flex-column flex-grow-1">
+                        <div className="font-large">{gameData?.name}</div>
+                        <div className="font-small text-secondary">Game Created - waiting for players {spotsAvailableMsg}</div>
+                        <div className="mt-4">
+                            Current Users: 
+                        </div>
+                        <div className="">
+                            {humanUsers.sort().map(el => el).join(', ')}
+                        </div>
+                        <div className="font-small text-secondary">
+                            {humanUsers.length === 1 && hasRoom ? "Multiple players required for results to count towards user records." : ""}
+                        </div>
+                    </div>
+                    <div>
+                        {
+                            isMyGame ? 
+                                <Button className="pointer" onClick={() => {startDraftMutation.mutate()}}>Start Game</Button> : 
+                            !inGame && hasRoom  && <Button className="pointer" disabled={!hasRoom} onClick={() => {joinDraftMutation.mutate()}}>Join Game</Button>
+                        }
+                    </div>
                 </div>
-                <div>
-                    {!inGame && <Button text="Join Game" onClick={() => {joinDraftMutation.mutate()}} />}
+                <div className="mt-5 w-100 text-center">
+                    {liveUpdateLoading || joinDraftMutation.isPending || startDraftMutation.isPending ? (
+                        <div>Loading...</div>
+                    ) : liveUpdateError ? (
+                        <div>Game Error: {liveUpdateError}</div>
+                    ) : joinDraftMutation.isError || startDraftMutation.isError ? (
+                        <div>Error: {joinDraftMutation.error?.message || startDraftMutation.error?.message}</div>
+                    ) : (
+                        isMyGame ? 
+                            <div>You're the game owner.  When you're ready, click the button to start the game.</div> :
+                            !inGame && hasRoom ? <div>You're not in the lineup.  Click the button to join the game.</div> :
+                            !inGame && !hasRoom ? <div>Sorry, the game is full. Please start a new game.</div> :
+                            !isMyGame && inGame ? <div>You're in the lineup!  The game owner will start the game when they're ready.</div> :
+                            ""
+                    )}
                 </div>
-                <div>
-                    {isMyGame && <Button text="Start Game" onClick={() => {startDraftMutation.mutate()}} />}
-                    {humanUsers.length === 1 ? "Multiple players required for results to count towards user record." : ""}
-                </div>
-                </>
-            }
+            </div>
         </div>
     )
 }
