@@ -1,5 +1,4 @@
-import { FantasyDraftPick, FantasyGame } from "../types/types";
-
+import { FantasyGame } from "../../types/types";
 
 
 export default function isMyPick(currentDraftPick: number, username: string, game: FantasyGame) {

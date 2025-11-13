@@ -1,16 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { AuthProvider } from "react-oidc-context";
-import { Button, Spinner } from "react-bootstrap";
-import { faArrowRightFromBracket, faCircleUser } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRightFromBracket, faCircleUser, faHome, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import MyStats from "../../Components/fantasy/myStats";
-import Leaderboard from "../../Components/fantasy/leaderboard";
+
 import { useLocation, useNavigate } from "react-router-dom";
 import FantasyNewGame from "./FantasyNewGame";
 import FantasyGame from "./FantasyGame";
 import LandingPage from "../../Components/fantasy/LandingPage";
-
+import MyTooltip from "../../GeneralComponents/Tooltip";
+import FantasyProfile from "../../Components/fantasy/FantasyProfile";
+import useAssureTeamName from "../../hooks/useAssureTeamName";
 
 
 
@@ -33,22 +33,11 @@ export default function FantasyHome() {
     const pageToShow = pathSegments[3]; 
     const gameId = pathSegments[4]; 
 
-    console.log('FantasyHome rendered');
-
-
-    const content = !pageToShow ? 
-        <LandingPage />
-    : pageToShow === 'newgame' ? 
-        <>
-            <FantasyNewGame />
-        </>
-    : pageToShow === 'game' ? 
-        <>
-            <FantasyGame gameId={gameId} />
-        </>
+    const content = !pageToShow ? <LandingPage />
+    : pageToShow === 'newgame' ? <FantasyNewGame />
+    : pageToShow === 'game' ? <FantasyGame gameId={gameId} />
+    : pageToShow === 'profile' ? <FantasyProfile />
     : null; 
-
-
 
     if(!content) navigate('/'); 
 
@@ -73,6 +62,10 @@ interface LoginProps {
 
 function LoginWrapper({children}: LoginProps) {
   const auth = useAuth();
+  const navigate = useNavigate();
+  const pathname = useLocation();
+  const { data: teamName } = useAssureTeamName(auth.user?.profile.email);
+  console.log("new team name", teamName);
 
   const signOutRedirect = () => {
     const clientId = "1slj05luihr2tnuoitm8dfv7nn";
@@ -93,16 +86,42 @@ function LoginWrapper({children}: LoginProps) {
     return <div className="text-center w-100">Encountering error... {auth.error.message}</div>;
   }
 
+  console.log("pathname", pathname.pathname);
+
+  const includeHomeLink = !['/simulation/fantasy/', '/simulation/fantasy'].includes(pathname.pathname.toLowerCase());
+
+
     return (
         <div className="d-flex flex-column">
         <div className="d-flex justify-content-end w-100 mb-2">
             {
                 auth.isAuthenticated ? 
-                    <button data-type="button" className="btn filter-icon-bg d-flex justify-content-center align-items-center " onClick={() => {auth.removeUser(); signOutRedirect()}}>
-                        Log Out
-                        <FontAwesomeIcon icon={faArrowRightFromBracket} size="lg" className="ms-2"/> 
-                    </button> : 
-                    <button data-type="button" className="btn filter-icon-bg d-flex justify-content-center align-items-center " onClick={() => auth.signinRedirect()}>
+                <div className="d-flex justify-content-end w-100 ">
+                    {
+                        includeHomeLink && (
+                            <button data-type="button" className="btn filter-icon-bg d-flex justify-content-center align-items-center me-1" onClick={() => navigate("/simulation/fantasy/")}>
+                                <FontAwesomeIcon icon={faHome} size="lg"/> 
+                            </button>
+                        )
+                    }
+
+                    <MyTooltip text="My Profile">
+                        <button data-type="button" className="btn filter-icon-bg d-flex justify-content-center align-items-center me-1" onClick={() => navigate("/simulation/fantasy/profile")}>
+                            <FontAwesomeIcon icon={faUser} size="lg"/> 
+                        </button>
+                    </MyTooltip>
+                    
+                    <MyTooltip text="Log Out">
+                        <button 
+                            data-type="button" 
+                            className="btn filter-icon-bg d-flex justify-content-center align-items-center" 
+                            onClick={() => {auth.removeUser(); signOutRedirect()}}
+                            >
+                            <FontAwesomeIcon icon={faArrowRightFromBracket} size="lg"/> 
+                        </button> 
+                    </MyTooltip>
+                </div> : 
+                    <button data-type="button" className="btn filter-icon-bg d-flex justify-content-center align-items-center" onClick={() => auth.signinRedirect()}>
                         Log In
                         <FontAwesomeIcon icon={faCircleUser} size="lg" className="ms-2"/> 
                     </button> 

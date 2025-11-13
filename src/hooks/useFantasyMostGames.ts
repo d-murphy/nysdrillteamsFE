@@ -6,6 +6,7 @@ declare var SERVICE_URL: string;
 
 export default function useFantasyMostGames() {
 
+    console.log("useFantasyMostGames");
     const {
         data: mostGames,
         isLoading,
@@ -14,7 +15,7 @@ export default function useFantasyMostGames() {
         refetch
       } = useQuery({
         queryKey: ['fantasyMostGames'],
-        queryFn: async (): Promise<{user: string, gameCount: number}[]> => {
+        queryFn: async (): Promise<{_id: string, gameCount: number}[]> => {
           const response = await fetch(`${SERVICE_URL}/fantasy/getMostGamesPlayed?limit=10&offset=0`);
           if (!response.ok) {
             throw new Error(`Failed to fetch most games played: ${response.statusText}`);

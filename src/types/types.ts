@@ -200,6 +200,7 @@ export type FantasyGame = {
     simulationIndex: number[], 
     secondsPerPick: number, 
     name: string
+    completed: Date
 }
 
 export type FantasyDraftPick = {
@@ -222,3 +223,11 @@ export type FantasyGameHistory = {
     finish: number, 
     participantCount: number, 
 }
+
+export type SimulationRun = {
+    _id: string,
+    key: string,
+    finalRun: number,
+}
+
+export type TotalPointsWFinish = {user: string, points: number, finish?: number};

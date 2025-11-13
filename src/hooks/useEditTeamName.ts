@@ -4,36 +4,32 @@ import { getAuthHeaders } from "../utils/fantasy/getAuthHeaders";
 
 declare var SERVICE_URL: string;
 
-interface CreateGameParams {
-    gameType: 'one-team' | '8-team' | '8-team-no-repeat';
-    countAgainstRecord: boolean;
-    secondsPerPick: number;
-    tournamentSize: 10 | 30 | 50;
-    isSeason: boolean;
-    name: string;
+interface EditTeamNameParams {
+    town: string; 
+    name: string; 
 }
 
-export function useMakeGameMutation(
+export function useEditTeamName(
     onSuccess?: (result: Response) => void,
     onError?: (error: Error) => void
 ) {
     const auth = useAuth();
+    const email = auth.user?.profile.email; 
+
+    if(!email){
+        throw new Error("Email not found");
+    }
     
     return useMutation({
-        mutationFn: async (params: CreateGameParams) => {
+        mutationFn: async (params: EditTeamNameParams) => {
 
             const body = {
-                gameType: params.gameType,
-                countAgainstRecord: params.countAgainstRecord,
-                secondsPerPick: params.secondsPerPick,
-                tournamentSize: params.tournamentSize,
-                isSeason: params.isSeason,
-                name: params.name
+                email, 
+                town: params.town,
+                name: params.name,
             };
 
-            console.log(body);
-
-            const response = await fetch(`${SERVICE_URL}/fantasy/createGame`, {
+            const response = await fetch(`${SERVICE_URL}/fantasyNames/upsertFantasyTeamName`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -42,7 +38,7 @@ export function useMakeGameMutation(
                 body: JSON.stringify(body),
             });
             if(!response.ok){
-                throw new Error("Error creating game");
+                throw new Error("Error changing team name");
             }
             return response;
         },

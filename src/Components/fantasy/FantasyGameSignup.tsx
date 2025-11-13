@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { FantasyGame, FantasyDraftPick } from '../../types/types';
+import React from 'react';
+import { FantasyGame } from '../../types/types';
 import { useAuth } from 'react-oidc-context';
-import { Button } from 'react-bootstrap';
+import { Button, Placeholder } from 'react-bootstrap';
 import { useMutation } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-import { getAuthHeaders } from '../../utils/getAuthHeaders';
+import { getAuthHeaders } from '../../utils/fantasy/getAuthHeaders';
+import useTeamNames from '../../hooks/useTeamNames';
 
 interface FantasyGameSignupProps {
     game: FantasyGame;
@@ -24,6 +24,9 @@ function FantasyGameSignup({ game: gameData, loading: liveUpdateLoading, error: 
     const autodraftUsers = gameData?.users.filter(user => user.startsWith('autodraft'));
     const hasRoom = autodraftUsers.length > 0; 
     const gameId = gameData?.gameId;
+    const { data: teamNamesData, isLoading: isLoadingTeamNames, error: errorTeamNames } = useTeamNames(humanUsers);
+
+    
 
     const joinDraftMutation = useMutation({
         mutationFn: async () => {
@@ -81,10 +84,17 @@ function FantasyGameSignup({ game: gameData, loading: liveUpdateLoading, error: 
                         <div className="font-large">{gameData?.name}</div>
                         <div className="font-small text-secondary">Game Created - waiting for players {spotsAvailableMsg}</div>
                         <div className="mt-4">
-                            Current Users: 
+                            Current Teams: 
                         </div>
                         <div className="">
-                            {humanUsers.sort().map(el => el).join(', ')}
+                            {
+                                isLoadingTeamNames ? 
+                                    <Placeholder animation="glow" className="p-0 text-center">
+                                        <Placeholder xs={10} className="rounded" size="lg" bg="secondary"/>
+                                    </Placeholder> : 
+                                    errorTeamNames ? <div>Error loading team names</div> :
+                                    teamNamesData?.map(team => team.town + ' ' + team.name).sort().join(', ')
+                            }
                         </div>
                         <div className="font-small text-secondary">
                             {humanUsers.length === 1 && hasRoom ? "Multiple players required for results to count towards user records." : ""}
@@ -92,6 +102,7 @@ function FantasyGameSignup({ game: gameData, loading: liveUpdateLoading, error: 
                     </div>
                     <div>
                         {
+                            !auth.isAuthenticated ? <></> :
                             isMyGame ? 
                                 <Button className="pointer" onClick={() => {startDraftMutation.mutate()}}>Start Game</Button> : 
                             !inGame && hasRoom  && <Button className="pointer" disabled={!hasRoom} onClick={() => {joinDraftMutation.mutate()}}>Join Game</Button>
@@ -108,6 +119,7 @@ function FantasyGameSignup({ game: gameData, loading: liveUpdateLoading, error: 
                     ) : (
                         isMyGame ? 
                             <div>You're the game owner.  When you're ready, click the button to start the game.</div> :
+                            !inGame && hasRoom && !auth.isAuthenticated ? <div>You're not logged in.  Please login to join the game.</div> :
                             !inGame && hasRoom ? <div>You're not in the lineup.  Click the button to join the game.</div> :
                             !inGame && !hasRoom ? <div>Sorry, the game is full. Please start a new game.</div> :
                             !isMyGame && inGame ? <div>You're in the lineup!  The game owner will start the game when they're ready.</div> :

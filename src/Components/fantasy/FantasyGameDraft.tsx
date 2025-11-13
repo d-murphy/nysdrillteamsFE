@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FantasyDraftPick, FantasyGame } from '../../types/types';
 import { useAuth } from 'react-oidc-context';
-import { Button } from 'react-bootstrap';
+import { Button, Form, Placeholder } from 'react-bootstrap';
 import { useSimTeamSummaries } from '../../hooks/useSimTeamSummaries';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faArrowRight, faCheck, faClock, faExclamationTriangle, faLock, faRefresh, faRobot, faSort, faSortDown, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faArrowRight, faCheck, faClock,  faRobot, faSort, faSortDown, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useChangeGameStateMutation } from '../../hooks/useChangeGameStateMutation';
 import { useMakePickMutation } from '../../hooks/useMakePickMutation';
-import isMyPick from '../../utils/isMyPick';
+import isMyPick from '../../utils/fantasy/isMyPick';
+import generateAutoDraftMap from '../../utils/fantasy/autoNames';
+import useTeamNames from '../../hooks/useTeamNames';
+import useDebounce from '../../hooks/useDebounce';
 
 
 interface FantasyGameDraftProps {
@@ -84,15 +87,36 @@ function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraft
 function DraftOptions({ draftPicks, gameId,game, currentDraftPick }: { draftPicks: FantasyDraftPick[], gameId: string, game: FantasyGame, currentDraftPick: number }) {
     const [selectedContest, setSelectedContest] = useState<string>(contests[0]);
     const [selectedSort, setSelectedSort] = useState<'consistency' | 'speedRating' | 'overallScore'>('speedRating');
+    const [searchInput, setSearchInput] = useState<string>('');
+    const debouncedSearchInput = useDebounce(searchInput, 500);
 
     return (
         <div>
             <div className="d-flex flex-column">
-                <ContestSelector 
-                    contests={contests}
-                    selectedContest={selectedContest}
-                    onContestChange={setSelectedContest}
+                <Form.Control
+                    className="w-100 height-30 d-lg-none d-block mb-2"
+                    type="text" 
+                    placeholder="Search Teams" 
+                    value={searchInput} 
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchInput(e.target.value)}
                 />
+                <div className="d-flex justify-content-between align-items-center w-100 flex-wrap">
+                    <div className="d-lg-block d-none me-5">
+                        <Form.Control
+                            className="height-30 w-250 mb-1"
+                            type="text" 
+                            placeholder="Search Teams" 
+                            value={searchInput} 
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchInput(e.target.value)}
+                        />
+                    </div>
+                    <ContestSelector 
+                        draftPicks={draftPicks}
+                        contests={contests}
+                        selectedContest={selectedContest}
+                        onContestChange={setSelectedContest}
+                    />
+                </div>
                 
                 <DraftTable 
                     selectedContest={selectedContest}
@@ -102,25 +126,31 @@ function DraftOptions({ draftPicks, gameId,game, currentDraftPick }: { draftPick
                     gameId={gameId}
                     game={game}
                     currentDraftPick={currentDraftPick}
+                    teamSearch={debouncedSearchInput}
                 />
             </div>
         </div>
     );
 }
 
-// Contest selector component - isolated from table state
-function ContestSelector({ contests, selectedContest, onContestChange }: {
+function ContestSelector({ contests, selectedContest, onContestChange, draftPicks }: {
     contests: string[];
     selectedContest: string;
     onContestChange: (contest: string) => void;
+    draftPicks: FantasyDraftPick[];
 }) {
+    const user = useAuth().user?.profile.email; 
+    const myPicks = draftPicks.filter(el => el.user === user);
+    const pickedContests = myPicks.map(el => el.contestSummaryKey.split("|")[2]);
+    
     return (
-        <div className="d-flex flex-row w-full justify-content-center mb-3">
+        <div className="d-flex flex-row w-full justify-content-end flex-wrap gap-1">
             {contests.map(el => 
                 <Button 
-                    className="mx-1" 
+                    className="d-flex text-nowrap mb-1" 
                     size="sm" 
-                    variant={el === selectedContest ? "secondary" : "outline-secondary"} 
+                    variant={el === selectedContest ? "primary" : 
+                        !pickedContests.includes(el) ? "secondary" : "outline-secondary"} 
                     key={el} 
                     value={el} 
                     onClick={() => onContestChange(el)}
@@ -133,7 +163,7 @@ function ContestSelector({ contests, selectedContest, onContestChange }: {
 }
 
 // Table component - handles its own scroll state
-function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, gameId, game, currentDraftPick }: {
+function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, gameId, game, currentDraftPick, teamSearch }: {
     selectedContest: string;
     selectedSort: 'consistency' | 'speedRating' | 'overallScore';
     onSortChange: (sort: 'consistency' | 'speedRating' | 'overallScore') => void;
@@ -141,19 +171,13 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
     gameId: string;
     game: FantasyGame;
     currentDraftPick: number;
+    teamSearch: string;
 }) {
     const auth = useAuth(); 
     const username = auth.user?.profile.email; 
     // const previousPicks = draftPicks.map(el => el.contestSummaryKey);
-
-    console.log('draftPicks', draftPicks);
-    console.log("username", username);
-    console.log("game", game);
-    console.log("currentDraftPick", currentDraftPick);
     const isMyPickResult = isMyPick(currentDraftPick, username, game);
-    console.log("isMyPickResult", isMyPickResult);
     
-
     const [numResults, setNumResults] = useState<number>(100);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     
@@ -163,7 +187,7 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
 
     const isNoRepeat = game.gameType === '8-team-no-repeat'; 
 
-    const { data: teamSummaries, isLoading } = useSimTeamSummaries(selectedContest, '', '', numResults, 0, selectedSort);
+    const { data: teamSummaries, isLoading } = useSimTeamSummaries(selectedContest, '', teamSearch, numResults, 0, selectedSort);
 
     // Use Intersection Observer for better scroll handling
     useEffect(() => {
@@ -490,6 +514,9 @@ function DraftGrid({ users, draftPicks }: { users: string[], draftPicks: Fantasy
 
     const colCt = users.length; 
     const rowCt = contests.length; 
+    const autoDraftMap = generateAutoDraftMap();
+    const humanUsers = users.filter(user => !user.startsWith('autodraft'));
+    const { data: teamNamesData, isLoading: isLoadingTeamNames, error: errorTeamNames } = useTeamNames(humanUsers);
 
 
     return (
@@ -498,10 +525,26 @@ function DraftGrid({ users, draftPicks }: { users: string[], draftPicks: Fantasy
                 {
                     users.map(user => {
                         const isAuto = user.startsWith('autodraft');
+                        const teamNameInfo = teamNamesData?.find((team) => team.email === user); 
+                        const displayName = isAuto ? autoDraftMap.get(user) : 
+                            teamNameInfo ? `${teamNameInfo.town} ${teamNameInfo.name}` : 'Unable to load team name'; 
+
+
                         return (
                             <div className="font-small l-grayText draft-grid-header-cell col d-flex flex-column justify-content-between align-items-center py-2 text-center">
                                 {isAuto ? <FontAwesomeIcon icon={faRobot} /> : <FontAwesomeIcon icon={faUser} />}
-                                <div>{isAuto ? "Auto" : user}</div>
+                                <div>
+                                    {
+                                    isAuto ? 
+                                        autoDraftMap.get(user) : 
+                                        isLoadingTeamNames ? 
+                                            <Placeholder animation="glow" className="p-0 text-center">
+                                                <Placeholder xs={10} className="rounded" size="lg" bg="secondary"/>
+                                            </Placeholder> : 
+                                                errorTeamNames ? <div>Error loading team name</div> :
+                                                displayName
+                                    }
+                                </div>
                             </div>
                         )
                     })
