@@ -1,35 +1,32 @@
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "react-oidc-context";
-import { getAuthHeaders } from "../utils/fantasy/getAuthHeaders";
+import { getAuthHeaders } from "../../utils/fantasy/getAuthHeaders";
 
 declare var SERVICE_URL: string;
 
 interface EditTeamNameParams {
-    town: string; 
-    name: string; 
+    accessCode: string; 
 }
 
-export function useEditTeamName(
+export function useSubmitAccessCode(
     onSuccess?: (result: Response) => void,
     onError?: (error: Error) => void
 ) {
     const auth = useAuth();
     const email = auth.user?.profile.email; 
-
-    if(!email){
-        throw new Error("Email not found");
-    }
     
     return useMutation({
         mutationFn: async (params: EditTeamNameParams) => {
-
+            if(!email){
+                throw new Error("Email not found");
+            }
+        
             const body = {
                 email, 
-                town: params.town,
-                name: params.name,
+                accessCode: params.accessCode,
             };
 
-            const response = await fetch(`${SERVICE_URL}/fantasyNames/upsertFantasyTeamName`, {
+            const response = await fetch(`${SERVICE_URL}/fantasyNames/setCodeUsed`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -38,7 +35,8 @@ export function useEditTeamName(
                 body: JSON.stringify(body),
             });
             if(!response.ok){
-                throw new Error("Error changing team name");
+                const result = await response.json();
+                throw new Error(result?.message || "Error submitting access code");
             }
             return response;
         },

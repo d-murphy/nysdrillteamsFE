@@ -1,9 +1,9 @@
 import * as React from "react";
 import { useAuth } from "react-oidc-context";
-import useOpenGames from "../../hooks/useOpenGames";
+import useOpenGames from "../../hooks/fantasy/useOpenGames";
 import { FantasyGame } from "../../types/types";
 import { useNavigate } from "react-router-dom";
-import useFantasyGames from "../../hooks/useFantasyGames";
+import useFantasyGames from "../../hooks/fantasy/useFantasyGames";
 import { faPlusCircle} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 

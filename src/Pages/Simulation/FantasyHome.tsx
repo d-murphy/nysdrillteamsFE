@@ -10,7 +10,10 @@ import FantasyGame from "./FantasyGame";
 import LandingPage from "../../Components/fantasy/LandingPage";
 import MyTooltip from "../../GeneralComponents/Tooltip";
 import FantasyProfile from "../../Components/fantasy/FantasyProfile";
-import useAssureTeamName from "../../hooks/useAssureTeamName";
+import useAssureTeamName from "../../hooks/fantasy/useAssureTeamName";
+import { useSubmitAccessCode } from "../../hooks/fantasy/useSubmitAccessCode";
+import { Form } from "react-bootstrap";
+import Button from "../../Components/Button";
 
 
 
@@ -39,14 +42,19 @@ export default function FantasyHome() {
     : pageToShow === 'profile' ? <FantasyProfile />
     : null; 
 
+    const header = !pageToShow ? "Fantasy Home" : 
+        pageToShow === 'newgame' ? "New Game" :
+        pageToShow === 'game' ? "Fantasy Game" :
+        pageToShow === 'profile' ? "My Profile" :
+        "Fantasy Home";
+
     if(!content) navigate('/'); 
 
     return (
         <AuthProvider {...cognitoAuthConfig}>
             <div className="container">
-                <div className="text-center font-x-large my-2"><b>Fantasy Home</b></div>
+                <div className="text-center font-x-large my-2"><b>{header}</b></div>
                 <LoginWrapper >
-                    {/* <TeamSummaries /> */}
                     {content}
                 </LoginWrapper>
             </div>
@@ -54,6 +62,17 @@ export default function FantasyHome() {
     )
 }
 
+
+export function TempLandingPage() {
+
+
+    return (
+        <div className="d-flex flex-column align-items-center justify-content-center w-100 bg-white rounded shadow-sm p-5 gap-4">
+            <div className="text-center font-x-large">Welcome to the Fantasy Racing League!</div>
+            <div className="text-center">We're still putting finishing touches on the league.  Create an account to get updates as we get closer to launch.  We'll be rolling out access for everyone soon.</div>
+        </div>
+    )
+}
 
 
 interface LoginProps {
@@ -64,17 +83,20 @@ function LoginWrapper({children}: LoginProps) {
   const auth = useAuth();
   const navigate = useNavigate();
   const pathname = useLocation();
-  const { data: teamName } = useAssureTeamName(auth.user?.profile.email);
-  console.log("new team name", teamName);
+  const { data: userInfo, isLoading: isLoadingUserInfo, refetch: refetchUserInfo } = useAssureTeamName(auth.user?.profile.email);
+
+  const url = window.location.href;
+  const domain = url.split('/')[2];
+  const urlToUse = domain.includes('localhost') ? `http://${domain}` : `https://${domain}`;
 
   const signOutRedirect = () => {
     const clientId = "1slj05luihr2tnuoitm8dfv7nn";
-    const logoutUri = "http://localhost:8080/Simulation/Fantasy";
+    const logoutUri = `${urlToUse}/Simulation/Fantasy`;
     const cognitoDomain = "https://us-east-1mh5nfkq9z.auth.us-east-1.amazoncognito.com";
     window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
   };
 
-  if (auth.isLoading) {
+  if (auth.isLoading || isLoadingUserInfo) {
     return (
         <div className="text-center w-100 pt-5">
             <div className="spinner-border text-secondary" role="status"></div>
@@ -83,10 +105,12 @@ function LoginWrapper({children}: LoginProps) {
   }
 
   if (auth.error) {
-    return <div className="text-center w-100">Encountering error... {auth.error.message}</div>;
+    return <div className="text-center w-100">Encountered error: {auth.error.message}</div>;
   }
 
-  console.log("pathname", pathname.pathname);
+  if (auth.isAuthenticated && !userInfo?.codeUsed) {
+    return <AccessCodeRequired refetchUserInfo={refetchUserInfo} />;
+  }
 
   const includeHomeLink = !['/simulation/fantasy/', '/simulation/fantasy'].includes(pathname.pathname.toLowerCase());
 
@@ -127,10 +151,73 @@ function LoginWrapper({children}: LoginProps) {
                     </button> 
             }            
         </div>
-        {children}
+            {
+            userInfo?.codeUsed ? children : <TempLandingPage />
+            }
         </div>
     );
+}
 
+
+interface AccessCodeRequiredProps {
+    refetchUserInfo: () => void;
+}
+
+function AccessCodeRequired({refetchUserInfo}: AccessCodeRequiredProps) {
+    const [accessCode, setAccessCode] = useState('');
+    const auth = useAuth();
+
+    const url = window.location.href;
+    const domain = url.split('/')[2];
+
+    const signOutRedirect = () => {
+        const clientId = "1slj05luihr2tnuoitm8dfv7nn";
+        const urlToUse = domain.includes('localhost') ? `http://${domain}` : `https://${domain}`;
+        const logoutUri = `${urlToUse}/Simulation/Fantasy`;
+        const cognitoDomain = "https://us-east-1mh5nfkq9z.auth.us-east-1.amazoncognito.com";
+        window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+    };
+
+    const mutation = useSubmitAccessCode(
+        () => {
+            refetchUserInfo();
+        },
+        (error) => {
+            console.error(error);
+        }
+    );
+
+    return (
+        <div className="d-flex flex-column align-items-end justify-content-center w-100">
+            <MyTooltip text="Log Out">
+                <button 
+                    data-type="button" 
+                    className="btn filter-icon-bg d-flex justify-content-center align-items-center mb-2" 
+                    onClick={() => {auth.removeUser(); signOutRedirect()}}
+                    >
+                    <FontAwesomeIcon icon={faArrowRightFromBracket} size="lg"/> 
+                </button> 
+            </MyTooltip>
+            <div className="d-flex flex-column align-items-center justify-content-center w-100 bg-white rounded shadow-sm p-5 gap-4">
+                <div className="text-center">Thanks for creating an account in our new fantasy racing league.  Please enter your access code to continue.</div>
+                <div className="text-center">Don't have a code?  We'll be rolling out access for everyone soon.  Please check back while we finish up some final changes.</div>
+                <div className="d-flex flex-column align-items-center justify-content-center w-100 gap-2 mt-4">
+                    <Form.Control placeholder="Access Code" className="w-160p text-center" type="text" onChange={(e) => setAccessCode(e.target.value)} />
+                    <Button disabled={mutation.isPending || mutation.isSuccess} className="w-80p" onClick={() => mutation.mutate({accessCode: accessCode})} text="Submit"></Button>
+                    {mutation.isPending ? 
+                    <div className="spinner-border text-secondary" role="status"></div>
+                    :
+                    mutation.isError ? 
+                    <div className="text-danger">
+                        {mutation.error.message}
+                    </div>
+                    :
+                    <div className="py-2"></div>
+                    }
+                </div>            
+            </div>
+        </div>
+    );
 }
 
   

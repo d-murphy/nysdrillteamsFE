@@ -2,7 +2,7 @@ import * as React from "react";
 import { FantasyGame, FantasyDraftPick, TotalPointsWFinish, SimulationRun } from "../../types/types";
 import { niceTime } from "../../utils/timeUtils";
 import { assignPoints } from "../../utils/fantasy/assignFinish";
-import useTeamNames from "../../hooks/useTeamNames";
+import useTeamNames from "../../hooks/fantasy/useTeamNames";
 import { Placeholder } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRobot, faUser } from "@fortawesome/free-solid-svg-icons";

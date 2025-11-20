@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "react-oidc-context";
-import { getAuthHeaders } from "../utils/fantasy/getAuthHeaders";
+import { getAuthHeaders } from "../../utils/fantasy/getAuthHeaders";
 
 declare var SERVICE_URL: string;
 
@@ -30,8 +30,6 @@ export function useMakeGameMutation(
                 isSeason: params.isSeason,
                 name: params.name
             };
-
-            console.log(body);
 
             const response = await fetch(`${SERVICE_URL}/fantasy/createGame`, {
                 method: 'POST',

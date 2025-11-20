@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 type TeamName = {
     email: string, 
     town: string, 
-    name: string
+    name: string, 
+    codeUsed?: boolean
 }
 
 export default function useTeamNames(emails: string[]) {

@@ -516,6 +516,18 @@ html, body, #root {
     max-width: 190px; 
 }
 
+.w-80p {
+    width: 80px; 
+}
+
+.w-50p {
+    width: 50px; 
+}
+
+.w-160p {
+    width: 160px; 
+}
+
 
 .pill {
     background-color: var(--button-blue); 

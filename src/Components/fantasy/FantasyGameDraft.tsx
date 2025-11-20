@@ -2,14 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FantasyDraftPick, FantasyGame } from '../../types/types';
 import { useAuth } from 'react-oidc-context';
 import { Button, Form, Placeholder } from 'react-bootstrap';
-import { useSimTeamSummaries } from '../../hooks/useSimTeamSummaries';
+import { useSimTeamSummaries } from '../../hooks/fantasy/useSimTeamSummaries';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight, faCheck, faClock,  faRobot, faSort, faSortDown, faUser } from '@fortawesome/free-solid-svg-icons';
-import { useChangeGameStateMutation } from '../../hooks/useChangeGameStateMutation';
-import { useMakePickMutation } from '../../hooks/useMakePickMutation';
+import { useChangeGameStateMutation } from '../../hooks/fantasy/useChangeGameStateMutation';
+import { useMakePickMutation } from '../../hooks/fantasy/useMakePickMutation';
 import isMyPick from '../../utils/fantasy/isMyPick';
 import generateAutoDraftMap from '../../utils/fantasy/autoNames';
-import useTeamNames from '../../hooks/useTeamNames';
+import useTeamNames from '../../hooks/fantasy/useTeamNames';
 import useDebounce from '../../hooks/useDebounce';
 
 

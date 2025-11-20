@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import FantasyGameSignup from '../../Components/fantasy/FantasyGameSignup';
 import FantasyGameDraft from '../../Components/fantasy/FantasyGameDraft';
-import { useGameUpdate } from '../../hooks/useGameUpdate';
+import { useGameUpdate } from '../../hooks/fantasy/useGameUpdate';
 import FantasyGameResult from '../../Components/fantasy/FantasyGameResult';
 import FantasyGameAnimation from '../../Components/fantasy/FantasyGameAnimation';
 
@@ -12,22 +12,10 @@ interface FantasyGameProps {
 
 function FantasyGame({ gameId }: FantasyGameProps) {
     const [animationComplete, setAnimationComplete] = useState(false); 
-    console.log(`FantasyGame component rendered for gameId: ${gameId}`);
 
     const { gameState } = useGameUpdate(gameId);
     const { game, draftPicks, loading, error, connected, runs, totalPointsWFinish } = gameState;
     
-    // Debug: Log what changed to cause re-render
-    console.log('FantasyGame render state:', { 
-        game,
-        gameId, 
-        gameStatus: game?.status, 
-        loading, 
-        error, 
-        connected,
-        draftPicksLength: draftPicks?.length 
-    });
-
     const gameStatus = game?.status; 
     const gameCompletedDate = game?.completed ? new Date(game.completed) : null;
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);

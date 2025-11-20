@@ -4,7 +4,7 @@ import { useAuth } from 'react-oidc-context';
 import { Button, Placeholder } from 'react-bootstrap';
 import { useMutation } from '@tanstack/react-query';
 import { getAuthHeaders } from '../../utils/fantasy/getAuthHeaders';
-import useTeamNames from '../../hooks/useTeamNames';
+import useTeamNames from '../../hooks/fantasy/useTeamNames';
 
 interface FantasyGameSignupProps {
     game: FantasyGame;

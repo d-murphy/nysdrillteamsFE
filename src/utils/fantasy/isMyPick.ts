@@ -12,9 +12,6 @@ export default function isMyPick(currentDraftPick: number, username: string, gam
         const roundUsers = isSnakeReverseRound ? loopUsers.reverse() : loopUsers;
         draftOrder.push(...roundUsers);
     }
-
-    console.log("draftOrder", draftOrder);
-    console.log("currentDraftPick", currentDraftPick);
     const nextPick = draftOrder[currentDraftPick];
 
     return nextPick === username;

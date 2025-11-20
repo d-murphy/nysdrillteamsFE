@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Projection } from '../types/types';
+import { Projection } from '../../types/types';
 
 declare var SERVICE_URL: string;
 

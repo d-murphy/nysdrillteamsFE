@@ -5,7 +5,7 @@ import { useAuth } from "react-oidc-context";
 import { FantasyGame } from "../../types/types";
 import { useNavigate } from "react-router-dom";
 import { Accordion, Button, Form } from "react-bootstrap";
-import { useMakeGameMutation } from "../../hooks/useMakeGameMutation";
+import { useMakeGameMutation } from "../../hooks/fantasy/useMakeGameMutation";
 import { Filter } from 'bad-words'
 
 declare var SERVICE_URL: string;
@@ -26,7 +26,6 @@ export default function FantasyNewGame() {
     const onSuccess = async (result: Response) => {
         console.log(result); 
         const resultJson = await result.json() as FantasyGame; 
-        console.log('new game result', resultJson); 
         const gameId = resultJson.gameId; 
         navigate(`/Simulation/Fantasy/game/${gameId}`);
     }

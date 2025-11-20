@@ -1,5 +1,5 @@
 import React from "react";
-import { useSimTeamSummaries } from "../../hooks/useSimTeamSummaries";
+import { useSimTeamSummaries } from "../../hooks/fantasy/useSimTeamSummaries";
 
 
 export default function TeamSummaries() {

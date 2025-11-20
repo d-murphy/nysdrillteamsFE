@@ -30,7 +30,12 @@ export default function TournamentHistory(props:TournamentHistoryProps){
         .then(data => data.json())
         .then(data => {
             data = data.filter((el: Tournament) => {
-                return Number(el.year)  < new Date().getFullYear()
+                const curDate = new Date();
+                if(curDate.getMonth() >=8) {
+                    return Number(el.year)  <= new Date().getFullYear()
+                } else {
+                    return Number(el.year)  < new Date().getFullYear()
+                }
             }).sort((a:Tournament, b:Tournament) => {
                 return a.year > b.year ? -1 : 1;
             })
@@ -196,8 +201,6 @@ export function TournHistoryEntry ({tourn, runLu, showName = false} : TournHisto
         "New York State Jr. Championship" : "NYS Junior Championship", 
         "New York State OF Championship": "NYS Old Fashioned Championship"
     }
-
-    console.log("tourn.name: ", tourn.name)
     //@ts-ignore ok
     const titleBlock = showName ? nameChange[tourn.name] : tourn.year
 

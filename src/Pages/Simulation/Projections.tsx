@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Projection, Run } from "../../types/types";
-import { useProjections } from "../../hooks/useProjections";
+import { useProjections } from "../../hooks/simulation/useProjections";
 import { useTournamentByNameYear } from "../../hooks/useTournament";
 import { useTournamentRuns } from "../../hooks/useTournamentRuns";
 import { faSort, faSortUp, faSortDown } from "@fortawesome/free-solid-svg-icons";
@@ -24,7 +24,11 @@ export default function Projections(){
             setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
         } else {
             setSortField(field);
-            setSortDirection('asc');
+            if(field === 'team') {
+                setSortDirection('asc');
+            } else {
+                setSortDirection('desc');
+            }
         }
     };
 
@@ -58,7 +62,7 @@ export default function Projections(){
 
     return (
         <div className="container">
-            <div className="text-center font-x-large mt-2"><b>{`Projections`}</b></div>
+            <div className="text-center font-x-large my-3"><b>{`${year} State Tournament Projections`}</b></div>
             <div className="w-100 bg-white rounded shadow-sm">
                 <div className="overflow-auto pb-3">
                     {
@@ -69,8 +73,7 @@ export default function Projections(){
                                 </div>
                                 <div className="mt-2">Loading projections data...</div>
                             </div> : 
-                            <div className="p-3">
-                                <div className="text-center pb-3"><b>Projections Data</b></div>
+                            <div className="p-4">
                                 <div className="table-responsive">
                                     <table className="table table-sm w-100 other-tables">
                                         <thead>

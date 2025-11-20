@@ -1,4 +1,4 @@
-import useFantasySimulationRuns from "../../hooks/useFantasySimulationRuns";
+import useFantasySimulationRuns from "../../hooks/fantasy/useFantasySimulationRuns";
 import { FantasyGame, FantasyDraftPick, TotalPointsWFinish, SimulationRun } from "../../types/types";
 import React from "react";
 import FantasyScorecard from "./FantasyScorecard";

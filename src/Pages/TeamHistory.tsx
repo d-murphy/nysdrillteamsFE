@@ -237,8 +237,6 @@ function Chart({teamHistory, opacityControl}: ChartProps){
         }
         return acc; 
     }, 1947)
-
-    console.log("minYear: ", minYear)
     
     const yearStart = minYear; 
     const currentYear = new Date().getFullYear(); 

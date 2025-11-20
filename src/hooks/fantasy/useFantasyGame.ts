@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { FantasyGame } from "../types/types";
+import { FantasyGame } from "../../types/types";
 
 declare var SERVICE_URL: string;
 

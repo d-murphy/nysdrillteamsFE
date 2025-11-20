@@ -30,7 +30,6 @@ let initialTrack:Track = {
 
 export default function AdminTracks(props:AdminTracksProps) {
     const tracks = props.tracks; 
-    console.log("initialTrack: ", initialTrack)
     let [trackInReview, setTrackInReview] = useState<Track>({...initialTrack})
     let [images, setImages] = useState<ImageDbEntry[]>([]);
 

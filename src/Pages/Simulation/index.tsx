@@ -22,12 +22,12 @@ export default function Simulation() {
                 </div>
                 <div className="d-none d-md-flex d-flex justify-content-center align-items-center w-100 mt-5">
                     <Button className="mx-2" text="State Tournament Projections" onClick={() => navigate("/Simulation/Projections")} />
-                    <Button className="mx-2" text="The GOAT Tournament" onClick={() => navigate("/Simulation/Goat")} />
+                    {/* <Button className="mx-2" text="The GOAT Tournament" onClick={() => navigate("/Simulation/Goat")} /> */}
                     <Button className="mx-2" text="Fantasy Racing" onClick={() => navigate("/Simulation/Fantasy")} />
                 </div>
                 <div className="d-flex flex-column align-items-center d-md-none w-100 mt-5">
                     <Button className="mx-2" text="State Tournament Projections" onClick={() => navigate("/Simulation/Projections")} />
-                    <Button className="mx-2" text="The GOAT Tournament" onClick={() => navigate("/Simulation/Goat")} />
+                    {/* <Button className="mx-2" text="The GOAT Tournament" onClick={() => navigate("/Simulation/Goat")} /> */}
                     <Button className="mx-2" text="Fantasy Racing" onClick={() => navigate("/Simulation/Fantasy")} />
                 </div>
             </div>

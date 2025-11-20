@@ -5,8 +5,6 @@ declare var SERVICE_URL: string;
 
 
 export default function useFantasyMostGames() {
-
-    console.log("useFantasyMostGames");
     const {
         data: mostGames,
         isLoading,

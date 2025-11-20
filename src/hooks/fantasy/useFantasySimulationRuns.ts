@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { SimulationRun } from "../types/types";
+import { SimulationRun } from "../../types/types";
 
 
 declare const SERVICE_URL: string;

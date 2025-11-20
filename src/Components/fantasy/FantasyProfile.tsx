@@ -1,20 +1,23 @@
 import React, { useCallback, useState } from "react";
 import { useAuth } from "react-oidc-context";
-import useRequireLogIn from "../../hooks/useRequireLogIn";
-import useTeamNames from "../../hooks/useTeamNames";
+import useRequireLogIn from "../../hooks/fantasy/useRequireLogIn";
+import useTeamNames from "../../hooks/fantasy/useTeamNames";
 import { Button, Form, Placeholder, Dropdown } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faRefresh } from "@fortawesome/free-solid-svg-icons";
-import { useEditTeamName } from "../../hooks/useEditTeamName";
+import { useEditTeamName } from "../../hooks/fantasy/useEditTeamName";
 import useDebounce from "../../hooks/useDebounce";
-import useTownNames from "../../hooks/useTownNames";
+import useTownNames from "../../hooks/fantasy/useTownNames";
 import { Filter } from 'bad-words'
-import useTeamNameSuggestions from "../../hooks/useTeamNameSuggestions";
+import useTeamNameSuggestions from "../../hooks/fantasy/useTeamNameSuggestions";
 
 export default function FantasyProfile() {
     return (
         <div className="row g-3">
-            <div className="d-none d-lg-block col-9">
+            <div className="col-12">
+                <ProfileInfo />
+            </div>
+            {/* <div className="d-none d-lg-block col-9">
                 1
             </div>
             <div className="d-none d-lg-block col-3">
@@ -27,7 +30,7 @@ export default function FantasyProfile() {
                 <div className="mt-3">
                     4
                 </div>
-            </div>
+            </div> */}
         </div>
 
 

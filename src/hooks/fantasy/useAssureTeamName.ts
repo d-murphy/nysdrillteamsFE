@@ -1,14 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAuthHeaders } from "../utils/fantasy/getAuthHeaders";
+import { getAuthHeaders } from "../../utils/fantasy/getAuthHeaders";
 import { useAuth } from "react-oidc-context";
 
+
+interface TeamInfo {
+    email: string;
+    town: string;
+    name: string;
+    codeUsed?: boolean;
+}
+
 export default function useAssureTeamName(email: string) {
-    const { data, isLoading, error } = useQuery({
+    const { data, isLoading, error, refetch } = useQuery<TeamInfo>({
         queryKey: ['teamName', email],
         queryFn: getTeamName(email),
         enabled: !!email
     });
-    return { data, isLoading, error };
+    return { data, isLoading, error, refetch };
 }
 
 declare const SERVICE_URL: string;
@@ -21,8 +29,6 @@ function getTeamName(email: string) {
             email: email,
         };
 
-        console.log(body);
-
         const response = await fetch(`${SERVICE_URL}/fantasyNames/getFantasyTeamNamePossiblyNew`, {
             method: 'POST',
             headers: {
@@ -34,7 +40,7 @@ function getTeamName(email: string) {
         if(!response.ok){
             throw new Error("Error creating game");
         }
-        return response;
+        return response.json();
     }
 
 

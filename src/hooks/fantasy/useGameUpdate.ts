@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FantasyGame, FantasyDraftPick, TotalPointsWFinish, SimulationRun } from "../types/types";
+import { FantasyGame, FantasyDraftPick, TotalPointsWFinish, SimulationRun } from "../../types/types";
 
 declare var SERVICE_URL: string;
 
@@ -27,10 +27,7 @@ export function useGameUpdate(gameId: string) {
     );
     
     useEffect(() => {
-        if (!gameId) return;
-        
-        console.log(`Setting up EventSource for gameId: ${gameId}`);
-        
+        if (!gameId) return;        
         const events = new EventSource(`${SERVICE_URL}/fantasy/getGameLive/${gameId}`);
         
         events.onopen = () => {
@@ -39,14 +36,11 @@ export function useGameUpdate(gameId: string) {
         };
         
         events.onmessage = (event) => {
-            console.log("Received SSE event:", event);
             try {
                 const data = JSON.parse(event.data);
                 
                 if (data.type === 'gameUpdate') {
                     const { game, draftPicks, runs, totalPointsWFinish } = data.data;
-                    console.log('runs', runs);
-                    console.log('totalPointsWFinish', totalPointsWFinish);
                     setGameState(prev => ({ ...prev, game: game, draftPicks, runs, totalPointsWFinish, loading: false }));
                 } else if (data.type === 'error') {
                     setGameState(prev => ({ ...prev, error: data.message, loading: false }));
