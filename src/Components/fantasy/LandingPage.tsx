@@ -1,5 +1,5 @@
 import * as React from "react";
-import Leaderboard from "./Leaderboard";
+import Leaderboard from "./leaderboard";
 import Welcome from "./Welcome";
 
 export default function LandingPage() {

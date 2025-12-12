@@ -16,19 +16,6 @@ import { Form } from "react-bootstrap";
 import Button from "../../Components/Button";
 
 
-
-declare var INSTANCE_URL: string;
-// you should use a pathname hook instead
-
-const cognitoAuthConfig = {
-  authority: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_MH5nFKQ9Z",
-  client_id: "1slj05luihr2tnuoitm8dfv7nn",
-  redirect_uri: `${INSTANCE_URL}/Simulation/Fantasy`,
-  response_type: "code",
-  scope: "email openid phone",
-};  
-
-
 export default function FantasyHome() {
     const navigate = useNavigate(); 
     const pathname = useLocation(); 
@@ -47,6 +34,19 @@ export default function FantasyHome() {
         pageToShow === 'game' ? "Fantasy Game" :
         pageToShow === 'profile' ? "My Profile" :
         "Fantasy Home";
+
+    const url = window.location.href;
+    const domain = url.split('/')[2];
+    const urlToUse = domain.includes('localhost') ? `http://${domain}` : `https://${domain}`;
+      
+    const cognitoAuthConfig = {
+        authority: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_MH5nFKQ9Z",
+        client_id: "1slj05luihr2tnuoitm8dfv7nn",
+        redirect_uri: `${urlToUse}/Simulation/Fantasy`,
+        response_type: "code",
+        scope: "email openid phone",
+      };  
+      
 
     if(!content) navigate('/'); 
 

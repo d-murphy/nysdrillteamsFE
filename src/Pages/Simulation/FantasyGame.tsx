@@ -3,7 +3,7 @@ import FantasyGameSignup from '../../Components/fantasy/FantasyGameSignup';
 import FantasyGameDraft from '../../Components/fantasy/FantasyGameDraft';
 import { useGameUpdate } from '../../hooks/fantasy/useGameUpdate';
 import FantasyGameResult from '../../Components/fantasy/FantasyGameResult';
-import FantasyGameAnimation from '../../Components/fantasy/FantasyGameAnimation';
+import FantasyGameDrill from '../../Components/fantasy/FantasyGameDrill';
 
 
 interface FantasyGameProps {
@@ -12,7 +12,6 @@ interface FantasyGameProps {
 
 function FantasyGame({ gameId }: FantasyGameProps) {
     const [animationComplete, setAnimationComplete] = useState(false); 
-
     const { gameState } = useGameUpdate(gameId);
     const { game, draftPicks, loading, error, connected, runs, totalPointsWFinish } = gameState;
     
@@ -27,8 +26,8 @@ function FantasyGame({ gameId }: FantasyGameProps) {
      gameStatus === 'stage' ? <FantasyGameSignup game={game} loading={loading} error={error} /> :
      gameStatus === 'draft' || gameStatus === 'stage-draft' ? <FantasyGameDraft draftPicks={draftPicks} game={game} loading={loading} error={error} /> :
      gameStatus === 'complete' ? 
-        !animationComplete && !skipAnimation ?
-            <FantasyGameAnimation setAnimationComplete={setAnimationComplete} /> :  
+        !skipAnimation && !animationComplete ?
+            <FantasyGameDrill game={game} draftPicks={draftPicks} runs={runs} totalPointsWFinish={totalPointsWFinish} setAnimationComplete={setAnimationComplete} /> : 
             <FantasyGameResult game={game} draftPicks={draftPicks} animate={true} runs={runs} totalPointsWFinish={totalPointsWFinish} /> :
      <div>Please, refresh the page and try again.</div>;
 

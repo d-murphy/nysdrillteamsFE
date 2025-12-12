@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 declare var SERVICE_URL: string;
 
-interface SimTeamSummary {
+export interface SimTeamSummary {
     _id: string, 
     team: string, 
     year: number, 

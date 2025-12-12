@@ -5,6 +5,8 @@
     --button-blue-hover: hwb(210 19% 44%);
     --nav-bg-dk: #001d3c; 
     --nav-bg: #013369; 
+    --nav-bg-10: #01336905;
+    --nav-bg-50: #01336960;
     --total-points-bg: hwb(210 66% 3%); 
     --footer-bg: #3e3d47;
 }
@@ -429,7 +431,7 @@ html, body, #root {
     white-space: break-spaces;
 }
 
-.year-count-width, .admin-btn {
+.year-count-width, .admin-btn, .sim-scorecard {
     min-width: 250px;
 }
 
@@ -611,4 +613,100 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 
 .w-250 {
     width: 250px;
+}
+
+.sim-anim-container {
+    width: 400px;
+    height: 40px;
+    border-bottom: 1px solid var(--bs-gray-500);
+    min-width: 240px; 
+
+}
+
+.sim-anim-runway {
+    width: 40%;
+    height: 100%;
+    background-color: var(--bs-gray-200);
+    border-top-left-radius: 5px;
+}
+
+.sim-anim-scoring-zone {
+    width: 40%;
+    height: 100%;
+    background-color: var(--bs-gray-200);
+}
+
+.sim-anim-team-range {
+    background: linear-gradient(to right, var(--nav-bg-10)0%, var(--nav-bg-50) 50%, var(--nav-bg-10) 100%);   
+}
+
+.sim-anim-good-run-time {
+    opacity: 10%; 
+    width: .5px;
+    height: 40px;
+    background-color: var(--nav-bg);
+}
+
+
+.sim-anim-time {
+    animation: sim-anim-time-animation 2s ease-out 1 backwards;
+}
+
+/* animation: sim-anim-time-animation 3s cubic-bezier(.68,.01,.83,1) 1 backwards; */
+
+
+@keyframes sim-anim-time-animation {
+    0% {
+        left: 0%;
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* Scoreboard animations */
+.scoreboard-container {
+    overflow: hidden;
+}
+
+.scoreboard-item {
+    transition: transform 0.5s ease-out;
+}
+
+.scoreboard-new-item {
+    animation: scoreboard-slide-in 0.5s ease-out forwards;
+}
+
+.scoreboard-time-new {
+    animation: scoreboard-time-fade-in 0.8s ease-out 0.2s backwards;
+}
+
+@keyframes scoreboard-slide-in {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    20% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    80% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes scoreboard-time-fade-in {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }

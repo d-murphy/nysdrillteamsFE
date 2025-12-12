@@ -78,6 +78,11 @@ export default function FantasyScorecard({ game, draftPicks, simulationRuns, tot
 
     return (
         <div>
+            <ResultsList 
+                results={displayedResults}
+                showAllUsers={showAllUsers}
+                onToggle={() => setShowAllUsers(!showAllUsers)}
+            />
             <div className="scorecard-table-wrapper">            
                 <table className="my-4 table-results">
                     <thead className="">
@@ -90,11 +95,6 @@ export default function FantasyScorecard({ game, draftPicks, simulationRuns, tot
                     </tbody>
                 </table>
             </div>
-            <ResultsList 
-                results={displayedResults}
-                showAllUsers={showAllUsers}
-                onToggle={() => setShowAllUsers(!showAllUsers)}
-            />
         </div>
     );
 }
