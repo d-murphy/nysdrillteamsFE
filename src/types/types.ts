@@ -196,6 +196,7 @@ export type FantasyGame = {
     status: 'stage' | 'draft' | 'complete' | 'stage-draft', 
     gameType: 'one-team' | '8-team' | '8-team-no-repeat'
     countAgainstRecord: boolean, 
+    owner: string, 
     users: string[], 
     simulationIndex: number[], 
     secondsPerPick: number, 

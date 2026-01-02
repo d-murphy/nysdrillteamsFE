@@ -96,9 +96,6 @@ function FantasyGameSignup({ game: gameData, loading: liveUpdateLoading, error: 
                                     teamNamesData?.map(team => team.town + ' ' + team.name).sort().join(', ')
                             }
                         </div>
-                        <div className="font-small text-secondary">
-                            {humanUsers.length === 1 && hasRoom ? "Multiple players required for results to count towards user records." : ""}
-                        </div>
                     </div>
                     <div>
                         {

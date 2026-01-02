@@ -1,16 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FantasyDraftPick, FantasyGame } from '../../types/types';
 import { useAuth } from 'react-oidc-context';
-import { Button, Form, Placeholder } from 'react-bootstrap';
+import { Button, Container, Form, Offcanvas, Placeholder } from 'react-bootstrap';
 import { useSimTeamSummaries } from '../../hooks/fantasy/useSimTeamSummaries';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faArrowRight, faCheck, faClock,  faRobot, faSort, faSortDown, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faCheck, faClock,  faRobot, faSort, faSortDown, faUser, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useChangeGameStateMutation } from '../../hooks/fantasy/useChangeGameStateMutation';
 import { useMakePickMutation } from '../../hooks/fantasy/useMakePickMutation';
 import isMyPick from '../../utils/fantasy/isMyPick';
 import generateAutoDraftMap from '../../utils/fantasy/autoNames';
 import useTeamNames from '../../hooks/fantasy/useTeamNames';
 import useDebounce from '../../hooks/useDebounce';
+import useWindowDimensions from '../../utils/windowDimensions';
 
 
 interface FantasyGameDraftProps {
@@ -36,7 +37,14 @@ const contests = [
 
 
 function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraftProps) {
-    
+    const [trayOpen, setTrayOpen] = useState(true);
+    const [trayHeight, setTrayHeight] = useState(0);
+    const { width } = useWindowDimensions();
+    const isSmallScreen = width < 750; 
+
+    const auth = useAuth(); 
+    const owner = game?.owner; 
+    const isMyGame = owner.toLowerCase() === auth.user?.profile.email.toLowerCase(); 
     const users = game?.users; 
     const gameId = game?.gameId;
 
@@ -44,8 +52,15 @@ function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraft
     const currentDraftPick = draftPicks?.length || 0; 
     const picksNeeded = !game ? 1000000 : game.users?.length  * contests.length; 
     const draftComplete = game?.status === 'draft' && currentDraftPick >= picksNeeded; 
+    const trayHeightClass = trayHeight === 0 ? "h-15" : trayHeight === 1 ? "h-30" : "h-60";
 
+    useEffect(() => {
+        if(draftComplete){
+            setTrayOpen(false);
+        }
+    }, [draftComplete]); 
     return (
+        <>
         <div className="container bg-white rounded shadow-sm p-2">
             {
                 loading ? 
@@ -57,27 +72,55 @@ function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraft
                         <div>Draft Error: {error}</div>
                     </div> : 
                 <>
-                <div className="d-flex flex-column align-items-center justify-content-center my-4">
-                    {
-                        game?.status === 'stage-draft' ? <Button onClick={() => {changeGameStateMutation.mutate('draft')}}>Start Draft</Button> : <></>
-                    }
-                </div>
-
-                <div>
-                    {!draftComplete ? "" : 
-                        <Button onClick={() => {changeGameStateMutation.mutate('complete')}}>Start Simulation</Button>
-                    }
+                <div className="d-flex justify-content-between align-items-start my-2 gap-4">
+                    <div className="d-flex flex-column align-items-start justify-content-center">
+                        {
+                            game?.status === 'stage-draft' ? 
+                                isMyGame ? 
+                                    <div className="d-flex flex-column gap-2">
+                                        <Button className="w-160p"  onClick={() => {changeGameStateMutation.mutate('draft')}}>Start Draft</Button> 
+                                        <div className="ms-1">You're the game owner.  When you're ready, click the button to start the draft.</div>
+                                    </div>
+                                    : <div>Wait for the game owner to start the draft.</div>
+                                :
+                                !draftComplete ? 
+                                    <></> : 
+                                    <Button onClick={() => {changeGameStateMutation.mutate('complete')}}>Start Simulation</Button>                                
+                        }                    
+                    </div>
                 </div>
 
                 <DraftGrid users={users}  draftPicks={draftPicks} />
 
-                <div className="my-4">
-                    <DraftOptions draftPicks={draftPicks} game={game}  gameId={gameId} currentDraftPick={currentDraftPick} />
-                </div>
+                <Offcanvas show={trayOpen} placement="bottom" scroll={true} backdrop={false} className={trayHeightClass}>
 
+                    <Container>
+                        <Offcanvas.Header>
+                            <div className="d-flex justify-content-between align-items-center w-100">
+                                <Offcanvas.Title>Draft Options</Offcanvas.Title>
+                                <div className="d-flex flex-row gap-2">
+                                    <Button variant="outline-secondary" size="sm" onClick={() => setTrayHeight(Math.max(trayHeight - 1, 0))}>
+                                        <FontAwesomeIcon icon={faArrowDown} /> 
+                                    </Button>
+                                    <Button variant="outline-secondary" size="sm" onClick={() => setTrayHeight(Math.min(trayHeight + 1, 2))}>
+                                        <FontAwesomeIcon icon={faArrowUp} />
+                                    </Button>
+                                </div>
+
+                            </div>
+                        </Offcanvas.Header>
+                        <Offcanvas.Body>
+                            <div>
+                                <DraftOptions draftPicks={draftPicks} game={game}  gameId={gameId} currentDraftPick={currentDraftPick} />
+                            </div>
+                        </Offcanvas.Body>
+                    </Container>
+                </Offcanvas>
                 </>
             }
         </div>
+        <div className="minheight-180" />
+        </>
     )
 }
 
@@ -177,6 +220,7 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
     const username = auth.user?.profile.email; 
     // const previousPicks = draftPicks.map(el => el.contestSummaryKey);
     const isMyPickResult = isMyPick(currentDraftPick, username, game);
+    const runSearch = isMyPickResult || game.status === 'stage-draft';
     
     const [numResults, setNumResults] = useState<number>(100);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -187,7 +231,13 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
 
     const isNoRepeat = game.gameType === '8-team-no-repeat'; 
 
-    const { data: teamSummaries, isLoading } = useSimTeamSummaries(selectedContest, '', teamSearch, numResults, 0, selectedSort);
+    const teamYearContestKeyArrToExclude = draftPicks.map(el => el.contestSummaryKey);
+    const teamContestKeyArrToExclude = game.gameType !== "8-team-no-repeat" ? undefined : 
+        draftPicks.map(el => el.contestSummaryKey.split("|").filter((el, index) => index !== 1).join("|"));
+
+    const { data: teamSummaries, isLoading } = useSimTeamSummaries(
+        selectedContest, '', teamSearch, numResults, 0, selectedSort, teamContestKeyArrToExclude, teamYearContestKeyArrToExclude, runSearch
+    );
 
     // Use Intersection Observer for better scroll handling
     useEffect(() => {
@@ -312,7 +362,7 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
                     getSortIcon={getSortIcon}
                 />
 
-                {isLoading ? 
+                {isLoading || !runSearch ? 
                     <TableBodySkeleton /> : (
                     <TableBody 
                         teamSummaries={teamSummaries}
@@ -415,30 +465,12 @@ function TableBody({ teamSummaries, selectedContest,  previousPicksObj, isNoRepe
 
     const auth = useAuth(); 
     const username = auth.user?.profile.email; 
-    const previousPicks = previousPicksObj.map(el => el.contestSummaryKey);
     const myPicks = previousPicksObj.filter(el => el.user === username);
     const pickedContests = myPicks.map(el => el.contestSummaryKey.split("|")[2])
 
-    let filteredTeamSummaries = teamSummaries.filter(el => !previousPicks.includes(el.key));
-
-    if(isNoRepeat) {
-        const teamsToSkip = new Set([...previousPicks
-            .map(el => {
-                const [team, year, contest] = el.split("|");
-                return `${team}|${contest}`;
-            })
-        ]); 
-        filteredTeamSummaries = filteredTeamSummaries.filter(el => {
-            const teamContestKey = `${el.team}|${el.contest}`;
-            return !teamsToSkip.has(teamContestKey);
-        });
-    }
-
-
-
     return (
         <tbody>
-            {filteredTeamSummaries
+            {teamSummaries
                 .map((teamSummary) => (
                     <tr key={teamSummary._id + "available-teams"}>
                         <td className="align-middle text-center" style={{ height: '100%' }}>
@@ -533,7 +565,7 @@ function DraftGrid({ users, draftPicks }: { users: string[], draftPicks: Fantasy
                         return (
                             <div className="font-small l-grayText draft-grid-header-cell col d-flex flex-column justify-content-between align-items-center py-2 text-center">
                                 {isAuto ? <FontAwesomeIcon icon={faRobot} /> : <FontAwesomeIcon icon={faUser} />}
-                                <div>
+        <div>
                                     {
                                     isAuto ? 
                                         autoDraftMap.get(user) : 
@@ -556,7 +588,7 @@ function DraftGrid({ users, draftPicks }: { users: string[], draftPicks: Fantasy
                         {Array.from({ length: colCt }, (_, colInd) => (
                             <DraftGridCell draftPicks={draftPicks} colCt={colCt} rowInd={rowInd} colInd={colInd} />
                         ))}
-                    </div>
+                </div>
                 ))
             }
         </div>

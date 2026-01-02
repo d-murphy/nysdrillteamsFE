@@ -5,11 +5,9 @@ import { getAuthHeaders } from "../../utils/fantasy/getAuthHeaders";
 declare var SERVICE_URL: string;
 
 interface CreateGameParams {
-    gameType: 'one-team' | '8-team' | '8-team-no-repeat';
-    countAgainstRecord: boolean;
+    gameType: 'decade' | '8-team' | '8-team-no-repeat';
     secondsPerPick: number;
     tournamentSize: 10 | 30 | 50;
-    isSeason: boolean;
     name: string;
 }
 
@@ -24,10 +22,10 @@ export function useMakeGameMutation(
 
             const body = {
                 gameType: params.gameType,
-                countAgainstRecord: params.countAgainstRecord,
+                countAgainstRecord: true,
                 secondsPerPick: params.secondsPerPick,
                 tournamentSize: params.tournamentSize,
-                isSeason: params.isSeason,
+                isSeason: false,
                 name: params.name
             };
 

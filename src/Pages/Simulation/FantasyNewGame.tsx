@@ -16,11 +16,9 @@ export default function FantasyNewGame() {
     const navigate = useNavigate(); 
     const filter = new Filter();
 
-    const [gameType, setGameType] = useState<'one-team' | '8-team' | '8-team-no-repeat'>('8-team');
-    const [countAgainstRecord, setCountAgainstRecord] = useState(true);
+    const [gameType, setGameType] = useState<'decade' | '8-team' | '8-team-no-repeat'>('8-team-no-repeat');
     const [secondsPerPick, setSecondsPerPick] = useState(30);
     const [tournamentSize, setTournamentSize] = useState<10 | 30 | 50>(10);
-    const [isSeason, setIsSeason] = useState(false);
     const [name, setName] = useState('');
 
     const onSuccess = async (result: Response) => {
@@ -57,9 +55,11 @@ export default function FantasyNewGame() {
                     <Form.Control maxLength={30} type="text" placeholder="Name your event - this helps others find your game" value={name} onChange={(e) => setName(e.target.value)} />
                     {inValidName && <div className="text-danger">Please, keep it clean.</div>}
 
-                    <Accordion className="w-100 mt-4">
+                    <Accordion className="w-100 mt-4 ">
                         <Accordion.Item eventKey="0">
-                            <Accordion.Header >Advanced Settings</Accordion.Header>
+                            <Accordion.Header >
+                                Advanced Settings
+                            </Accordion.Header>
                             <Accordion.Body>
 
                                 <Form.Label className="mt-4">Tournament Size</Form.Label>
@@ -69,26 +69,13 @@ export default function FantasyNewGame() {
                                     <option value="50">State Tournament</option>
                                 </Form.Select>
 
-                                {/* <Form.Label className="mt-4">Season / Single Drill</Form.Label>
-                                <Form.Select aria-label="Select number of drills in sim" value={isSeason.toString()} onChange={(e) => setIsSeason(e.target.value === 'true')}>
-                                    <option value="true">Season</option>
-                                    <option value="false">Single Drill</option>
-                                </Form.Select> */}
+                                <Form.Label className="mt-4">Draft Type</Form.Label>
+                                <Form.Select aria-label="Select Game Type" value={gameType} onChange={(e) => setGameType(e.target.value as 'decade' | '8-team' | '8-team-no-repeat')}>
+                                    <option value="8-team-no-repeat">Single Year Teams - No Team/Contest Repeat</option>
+                                    <option value="8-team">Single Year Teams - Allow Team/Contest Repeat</option>
+                                    <option value="decade">Decade Teams</option>
+                                </Form.Select>
 
-                                {/* <Form.Label className="mt-4">Draft Type</Form.Label>
-                                <Form.Select aria-label="Select Game Type" value={gameType} onChange={(e) => setGameType(e.target.value as 'one-team' | '8-team' | '8-team-no-repeat')}>
-                                    <option value="one-team">One Team - All 8 Contests</option>
-                                    <option value="8-team">New Team Each Contest</option>
-                                    <option value="8-team-no-repeat">New Team Each Contest - No Repeats</option>
-                                </Form.Select> */}
-
-                                <Form.Label className="mt-4">Count Against Record</Form.Label>
-                                <Form.Check 
-                                    type="switch"
-                                    id="countAgainstRecord"
-                                    checked={countAgainstRecord}
-                                    onChange={(e) => setCountAgainstRecord(e.target.checked)}
-                                />
                             </Accordion.Body>
                         </Accordion.Item>
                     </Accordion>
@@ -97,10 +84,8 @@ export default function FantasyNewGame() {
                 <div className="d-flex justify-content-center align-items-center mt-4">
                     <Button disabled={!name.length} onClick={() => mutation.mutate({
                         gameType,
-                        countAgainstRecord,
                         secondsPerPick,
                         tournamentSize,
-                        isSeason,
                         name: filteredName
                     })}>Create Game</Button>
                 </div>

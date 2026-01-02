@@ -531,6 +531,38 @@ html, body, #root {
 }
 
 
+.h-10 {
+    height: 10%; 
+}
+
+.h-15 {
+    height: 15%; 
+}
+
+.h-25 {
+    height: 25%; 
+}
+
+.h-30 {
+    height: 30%; 
+}
+
+.h-40 {
+    height: 40%; 
+}
+
+.h-50 { 
+    height: 50%; 
+}
+
+.h-60 {
+    height: 60%; 
+}
+
+.h-70 {
+    height: 70%; 
+}
+
 .pill {
     background-color: var(--button-blue); 
     color: white; 
@@ -540,8 +572,8 @@ html, body, #root {
 }
 
   .accordion-button:not(.collapsed) {
-    color: #FFF  !important;
-    background-color: var(--button-blue) !important;
+    color: var(--nav-bg) !important;
+    background-color: var(--bs-gray-100) !important;
   }
 
 .trophyGold {

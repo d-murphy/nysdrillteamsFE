@@ -26,7 +26,13 @@ interface UseSimTeamSummariesReturn {
     refetch: () => void, 
 }
 
-export function useSimTeamSummaries(contests: string, years: string, teams: string, limit: number, offset: number, sortBy: 'consistency' | 'speedRating' | 'overallScore'): UseSimTeamSummariesReturn {
+export function useSimTeamSummaries(
+    contests: string, years: string, teams: string, 
+    limit: number, offset: number, sortBy: 'consistency' | 'speedRating' | 'overallScore',
+    teamContestKeyArrToExclude?: string[],
+    teamYearContestKeyArrToExclude?: string[],
+    isMyPick?: boolean,
+): UseSimTeamSummariesReturn {
     const {
         data = [], 
         isLoading, 
@@ -34,7 +40,7 @@ export function useSimTeamSummaries(contests: string, years: string, teams: stri
         error, 
         refetch, 
     } = useQuery({
-        queryKey: ['simTeamSummaries', contests, years, teams, sortBy, limit, offset], 
+        queryKey: ['simTeamSummaries', contests, years, teams, sortBy, limit, offset, teamContestKeyArrToExclude, teamYearContestKeyArrToExclude], 
         queryFn: async (): Promise<SimTeamSummary[]> => {
             let url = `${SERVICE_URL}/simContSum/getTopSimulationContestSummaries?`;
             if(contests) url += "contests=" + contests;
@@ -43,6 +49,8 @@ export function useSimTeamSummaries(contests: string, years: string, teams: stri
             if(limit) url += "&limit=" + limit;
             if(offset) url += "&offset=" + offset;
             if(sortBy) url += "&sortBy=" + sortBy;
+            if(teamContestKeyArrToExclude) url += "&teamContestKeyArrToExclude=" + teamContestKeyArrToExclude.join(',');
+            if(teamYearContestKeyArrToExclude) url += "&teamYearContestKeyArrToExclude=" + teamYearContestKeyArrToExclude.join(',');
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`Failed to fetch sim team summaries: ${response.statusText}`);
@@ -50,6 +58,8 @@ export function useSimTeamSummaries(contests: string, years: string, teams: stri
             const data = await response.json();
             return data;
         },
+        enabled: isMyPick !== undefined ? isMyPick : true,
+
     });
     return {
         data,

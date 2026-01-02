@@ -238,7 +238,6 @@ function LikelihoodChart({ started, simTeamSummary, teamName, contest, index, ru
     const rangeEndPct = (rangeEnd - scoringZoneMin) / scoringZoneWidth;
     const stateRecord = contestChartRange[contest][3];
     const stateRecordPct = 40 + (40 * (stateRecord - scoringZoneMin) / scoringZoneWidth);
-    console.log("state record: ", stateRecord, "state record pct: ", stateRecordPct);
 
     const simRunTimeNum = typeof simRunTime === "string" || simRunTime > scoringZoneMax ? scoringZoneMax : simRunTime; 
     const simRunTimePct = ((simRunTimeNum - scoringZoneMin) / scoringZoneWidth);

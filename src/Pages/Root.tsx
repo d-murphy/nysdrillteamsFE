@@ -19,6 +19,8 @@ export default function Root() {
         })
     }, [pagePath]);
 
+    const isFantasyGame = location.pathname.includes('/Simulation/Fantasy/game')
+
     return (
 
         <div className="d-flex flex-column min-screen-height">
@@ -28,7 +30,7 @@ export default function Root() {
                 <Outlet />
             </div>
             <div className="flex-grow-1"></div>
-            <Footer />
+            { !isFantasyGame && <Footer /> }
         </div>
 
 
