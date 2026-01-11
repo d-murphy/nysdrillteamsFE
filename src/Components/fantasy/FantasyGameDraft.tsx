@@ -372,6 +372,7 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
                         makePickMutation={makePickMutation}
                         isNoRepeat={isNoRepeat}
                         isMyPick={isMyPickResult}
+                        game={game}
                     />)}
             </table>
             {isLoadingMore && (
@@ -453,7 +454,7 @@ function TableHeader({ onSortChange, getSortIcon }: {
 }
 
 // Table body component
-function TableBody({ teamSummaries, selectedContest,  previousPicksObj, isNoRepeat, onDraftPick, makePickMutation, isMyPick }: {
+function TableBody({ teamSummaries, selectedContest,  previousPicksObj, isNoRepeat, onDraftPick, makePickMutation, isMyPick, game }: {
     teamSummaries: any[];
     selectedContest: string;
     previousPicksObj: FantasyDraftPick[];
@@ -461,6 +462,7 @@ function TableBody({ teamSummaries, selectedContest,  previousPicksObj, isNoRepe
     makePickMutation: any;
     isNoRepeat: boolean;
     isMyPick: boolean;
+    game: FantasyGame;
 }) {
 
     const auth = useAuth(); 
@@ -471,7 +473,8 @@ function TableBody({ teamSummaries, selectedContest,  previousPicksObj, isNoRepe
     return (
         <tbody>
             {teamSummaries
-                .map((teamSummary) => (
+                .map((teamSummary) => {
+                    return (
                     <tr key={teamSummary._id + "available-teams"}>
                         <td className="align-middle text-center" style={{ height: '100%' }}>
                             {
@@ -482,9 +485,9 @@ function TableBody({ teamSummaries, selectedContest,  previousPicksObj, isNoRepe
                                         size="sm" 
                                         className="fantasy-draft-btn"                                 
                                         onClick={() => onDraftPick(teamSummary)}
-                                        disabled={makePickMutation.isPending}
+                                        disabled={makePickMutation.isPending || game.status !== 'draft'}
                                     >
-                                        {makePickMutation.isPending ? '...' : 'Draft'}
+                                        {makePickMutation.isPending || game.status !== 'draft' ? '...' : 'Draft'}
                                     </Button>
                             }
                         </td>
@@ -525,7 +528,7 @@ function TableBody({ teamSummaries, selectedContest,  previousPicksObj, isNoRepe
                                         minWidth: '2px'
                                     }}
                                 ></div>
-                                <span className="ms-2 small">{((teamSummary?.overallScore || 0 ) * 100).toFixed(0)}</span>
+                                <span className="ms-2 small">{(teamSummary.overallScore * 100).toFixed(0)}</span>
                             </div>
                         </td>
                         <td className="align-middle text-center">
@@ -534,7 +537,7 @@ function TableBody({ teamSummaries, selectedContest,  previousPicksObj, isNoRepe
                             </div>
                         </td>
                     </tr>
-                ))}
+                )})}
         </tbody>
     );
 }
