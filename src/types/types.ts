@@ -210,6 +210,7 @@ export type FantasyDraftPick = {
     user: string, 
     contestSummaryKey: string,
     draftPick: number, 
+    time: Date
 }
 
 export type FantasyGameHistory = {

@@ -10,27 +10,30 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 
 export default function Welcome() {
-    const auth = useAuth();
-    const navigate = useNavigate();
     return (
         <div className="p-4 bg-white rounded shadow-sm d-flex flex-column align-items-start justify-content-center h-100">
             <CurrentOpenGames />
-            {/* <div>My Recent Games</div>
-            <div>With link to view more game history</div>
-            <div>Place to edit name</div> */}
-            <RecentGames />
+            <ActiveGames />
+            <RecentGames myGamesOnly={true} />
+            <RecentGames myGamesOnly={false} />
         </div>
     );
 }
 
-function RecentGames() {
-    const { data, isLoading, isError, error, refetch } = useFantasyGames(null, 'complete');
+interface RecentGamesProps {
+    myGamesOnly?: boolean;
+}
+function RecentGames({ myGamesOnly }: RecentGamesProps) {
+    const auth = useAuth();
+    const username = auth.user?.profile.email;
+    const { data, isLoading, isError, error, refetch } = useFantasyGames(myGamesOnly ? username : null, ['complete'], new Date(Date.now() - 1000 * 60 * 60 * 24 * 7));
     const navigate = useNavigate();
     if(isError) throw error;
+    const title = myGamesOnly ? "My Recent Games" : "Recent Games - All Players";
 
     return (
         <div className="w-100 mt-4">
-            <div className='h6'>Recent Games</div>
+            <div className='h6'>{title}</div>
             {
                 isLoading ? (
                     <div className="overflow-scroll text-nowrap pb-3">
@@ -58,6 +61,52 @@ function RecentGames() {
     );
 }
 
+function ActiveGames() {
+    const auth = useAuth();
+    const username = auth.user?.profile.email;
+
+    const { data, isLoading, isError, error, refetch } = useFantasyGames(username, ['stage', 'stage-draft', 'draft'], new Date(Date.now() - 1000 * 60 * 60 * 3), true);
+
+    const navigate = useNavigate();
+    if(isError) throw error;
+
+    return (
+        <div className="w-100 mt-4">
+            <div className='h6'>Active Drafts</div>
+            {
+                isLoading ? (
+                    <div className="overflow-scroll text-nowrap pb-3">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className='d-inline-block m-1 p-3 bg-light rounded draft-grid-cell'></div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="overflow-scroll text-nowrap pb-3 pointer">
+                        {
+                        data.length > 0 ? data
+                            .filter((game: FantasyGame) => game?.name?.length > 0)
+                            .map((game: FantasyGame) => (
+                                <div 
+                                    key={game._id} 
+                                    className='d-inline-block m-1 p-3 bg-lightgray rounded'
+                                    onClick={() => navigate(`/simulation/fantasy/game/${game.gameId}`)}
+                                    >
+                                        {game.name}
+                                </div>
+                            )) : 
+                            <div className="font-medium text-start grayText">No active drafts</div>
+                        }
+                    </div>
+                )
+            }
+        </div>
+    );
+
+
+
+}
+
+
 function CurrentOpenGames() {
     const auth = useAuth();
     const { data, isLoading, isError, error, refetch } = useOpenGames();
@@ -69,7 +118,7 @@ function CurrentOpenGames() {
 
     return (
         <div className="w-100 mt-4">
-            <div className='h6'>Current Open Games</div>
+            <div className='h6'>Games Accepting Players</div>
             {
                 isLoading ? (                
                     <div className="overflow-scroll text-nowrap pb-3">

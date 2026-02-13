@@ -24,6 +24,7 @@ function FantasyGameSignup({ game: gameData, loading: liveUpdateLoading, error: 
     const autodraftUsers = gameData?.users.filter(user => user.startsWith('autodraft'));
     const hasRoom = autodraftUsers.length > 0; 
     const gameId = gameData?.gameId;
+
     const { data: teamNamesData, isLoading: isLoadingTeamNames, error: errorTeamNames } = useTeamNames(humanUsers);
 
     

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { useAuth } from "react-oidc-context";
 import useRequireLogIn from "../../hooks/fantasy/useRequireLogIn";
 import useTeamNames from "../../hooks/fantasy/useTeamNames";
@@ -10,6 +10,7 @@ import useDebounce from "../../hooks/useDebounce";
 import useTownNames from "../../hooks/fantasy/useTownNames";
 import { Filter } from 'bad-words'
 import useTeamNameSuggestions from "../../hooks/fantasy/useTeamNameSuggestions";
+import useIsTeamNameAvailable from "../../hooks/fantasy/useIsTeamNameAvailable";
 
 export default function FantasyProfile() {
     return (
@@ -17,31 +18,7 @@ export default function FantasyProfile() {
             <div className="col-12">
                 <ProfileInfo />
             </div>
-            {/* <div className="d-none d-lg-block col-9">
-                1
-            </div>
-            <div className="d-none d-lg-block col-3">
-                <ProfileInfo />
-            </div>
-            <div className="d-block d-lg-none col-12">
-                <div>
-                    <ProfileInfo />
-                </div>
-                <div className="mt-3">
-                    4
-                </div>
-            </div> */}
         </div>
-
-
-        // <div className="bg-white rounded shadow-sm p-4">
-        //     <div className="d-flex flex-column align-items-center justify-content-center">
-
-        //         <ProfileInfo />
-
-
-        //     </div>            
-        // </div>
     );
 }
 
@@ -80,9 +57,11 @@ function EditTeamNameForm({ setEditingTeamName }: EditTeamNameFormProps) {
     const [townSearch, setTownSearch] = useState("");
     const [numResults, setNumResults] = useState(10); 
     const townSearchDebounced = useDebounce(townSearch, 500);
+    const nameDebounced = useDebounce(name, 500);
     const { data: towns, isLoading: isLoadingTowns, error: errorTowns } = useTownNames(townSearchDebounced, numResults);
     const filter = new Filter(); 
     const { data: teamNameSuggestions, isLoading: isLoadingTeamNameSuggestions, error: errorTeamNameSuggestions, refetch: refetchTeamNameSuggestions } = useTeamNameSuggestions(town);
+    const { isAvailable, isLoading: isLoadingAvailability } = useIsTeamNameAvailable(town, nameDebounced);
 
     const auth = useAuth();
     const { refetch: refetchTeamNames } = useTeamNames([auth.user?.profile.email]);
@@ -98,6 +77,7 @@ function EditTeamNameForm({ setEditingTeamName }: EditTeamNameFormProps) {
     ); 
 
     const isInvalidName = filter.isProfane(name);
+    const canSubmit = town.length > 0 && name.length > 0 && !isInvalidName && !isLoadingAvailability && isAvailable;
 
     return (
         <div className="d-flex flex-column align-items-start justify-content-start gap-2 w-100">
@@ -158,7 +138,16 @@ function EditTeamNameForm({ setEditingTeamName }: EditTeamNameFormProps) {
                 value={name} 
                 onChange={(e) => setName(e.target.value)} 
             />
-            {isInvalidName && <div className="text-danger">Please, keep it clean.</div>}
+            {isInvalidName && <div className="text-danger px-1">Please, keep it clean.</div>}
+            {town.length > 0 && nameDebounced.length > 0 && !isInvalidName && (
+                isLoadingAvailability ? (
+                    <div className="text-muted px-1">Checking availability...</div>
+                ) : !isAvailable ? (
+                    <div className="text-danger px-1">This team name is not available.  Town / name combo must be unique and may not use actual team names.</div>
+                ) : (
+                    <div className="text-success px-1">Team name is available.</div>
+                )
+            )}
 
             <div className="d-flex flex-column align-items-start justify-content-start gap-2 font-small text-muted px-1 mt-2">
                 { teamNameSuggestions && teamNameSuggestions.length > 0 && 
@@ -178,26 +167,20 @@ function EditTeamNameForm({ setEditingTeamName }: EditTeamNameFormProps) {
 
             <div className="d-flex flex-row align-items-center justify-content-center w-100 gap-2">
                 <Button className="align-self-center mt-3" variant="outline-secondary" onClick={() => setEditingTeamName(false)}>Cancel</Button>
-                <Button className="align-self-center mt-3" variant="primary" onClick={() => mutation.mutate({ town, name })}>Save</Button>
+                <Button 
+                    className="align-self-center mt-3" 
+                    variant="primary" 
+                    onClick={() => mutation.mutate({ town, name })}
+                    disabled={!canSubmit}
+                >
+                    Save
+                </Button>
             </div>
         </div>
 
 
     )
 }
-
-// interface NameSuggestionsProps {
-//     town: string
-// }
-
-// function NameSuggestions() {
-//     const { nameSuggestions, isLoading: isLoadingNameSuggestions, error: errorNameSuggestions } = useNameSuggestions(town);
-//     const 
-
-
-
-// }
-
 
 
 function EmailDisplay() {

@@ -12,6 +12,7 @@ import generateAutoDraftMap from '../../utils/fantasy/autoNames';
 import useTeamNames from '../../hooks/fantasy/useTeamNames';
 import useDebounce from '../../hooks/useDebounce';
 import useWindowDimensions from '../../utils/windowDimensions';
+import Badge from 'react-bootstrap/Badge';
 
 
 interface FantasyGameDraftProps {
@@ -38,7 +39,7 @@ const contests = [
 
 function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraftProps) {
     const [trayOpen, setTrayOpen] = useState(true);
-    const [trayHeight, setTrayHeight] = useState(0);
+    const [trayHeight, setTrayHeight] = useState(1);
     const { width } = useWindowDimensions();
     const isSmallScreen = width < 750; 
 
@@ -96,8 +97,10 @@ function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraft
 
                     <Container>
                         <Offcanvas.Header>
-                            <div className="d-flex justify-content-between align-items-center w-100">
+                            <div className="d-flex justify-content-start align-items-center w-100">
                                 <Offcanvas.Title>Draft Options</Offcanvas.Title>
+                                <TimeLeft draftPicks={draftPicks} game={game} currentDraftPick={currentDraftPick} key={currentDraftPick} />
+                                <div className="flex-grow-1" />
                                 <div className="d-flex flex-row gap-2">
                                     <Button variant="outline-secondary" size="sm" onClick={() => setTrayHeight(Math.max(trayHeight - 1, 0))}>
                                         <FontAwesomeIcon icon={faArrowDown} /> 
@@ -122,6 +125,38 @@ function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraft
         <div className="minheight-180" />
         </>
     )
+}
+
+interface TimeLeftProps {
+    draftPicks: FantasyDraftPick[];
+    game: FantasyGame;
+    currentDraftPick: number;
+}
+
+function TimeLeft({ draftPicks, game, currentDraftPick }: TimeLeftProps) {
+    const auth = useAuth(); 
+    const username = auth.user?.profile.email; 
+    const isMyPickResult = isMyPick(currentDraftPick, username, game);
+
+    const lastPick = draftPicks[draftPicks.length - 1];
+    const lastPickMs = lastPick?.time ? new Date(lastPick.time).getTime() : new Date().getTime();  
+    const pickDeadlineMs = lastPickMs + game.secondsPerPick * 1000; 
+    const [secondsLeft, setSecondsLeft] = useState(game.secondsPerPick);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setSecondsLeft(Math.round((pickDeadlineMs - Date.now()) / 1000));
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [pickDeadlineMs]);
+
+    if(!isMyPickResult) return <></>;
+
+    return (
+        <div className="px-4 py-2">
+            <Badge className="p-2 font-large w-160p" bg={ secondsLeft < 10 ? "danger" : "primary"} >It's your pick! <span className="ms-2">{secondsLeft}</span></Badge>
+        </div>
+    );
 }
 
 

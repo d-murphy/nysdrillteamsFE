@@ -14,6 +14,7 @@ import useAssureTeamName from "../../hooks/fantasy/useAssureTeamName";
 import { useSubmitAccessCode } from "../../hooks/fantasy/useSubmitAccessCode";
 import { Form } from "react-bootstrap";
 import Button from "../../Components/Button";
+import { useFantasyGame } from "../../hooks/fantasy/useFantasyGame";
 
 
 export default function FantasyHome() {
@@ -22,6 +23,16 @@ export default function FantasyHome() {
     const pathSegments = pathname.pathname.split('/'); 
     const pageToShow = pathSegments[3]; 
     const gameId = pathSegments[4]; 
+    const { data: game, isLoading: isLoadingGame, isError: isErrorGame, error: errorGame } = useFantasyGame({ gameId });
+
+    const gameHeader = isLoadingGame ? "" : 
+        `${game?.name} - ${
+            game?.status === 'stage' ? "Staging Draft" : 
+            game?.status === 'stage-draft' ? "Draft Room Ready" :
+            game?.status === 'draft' ? "Drafting" : 
+            game?.status === 'complete' ? "Let's Race!" : "Unknown"
+        }`;
+
 
     const content = !pageToShow ? <LandingPage />
     : pageToShow === 'newgame' ? <FantasyNewGame />
@@ -31,7 +42,7 @@ export default function FantasyHome() {
 
     const header = !pageToShow ? "Fantasy Home" : 
         pageToShow === 'newgame' ? "New Game" :
-        pageToShow === 'game' ? "Fantasy Game" :
+        pageToShow === 'game' ? gameHeader :
         pageToShow === 'profile' ? "My Profile" :
         "Fantasy Home";
 

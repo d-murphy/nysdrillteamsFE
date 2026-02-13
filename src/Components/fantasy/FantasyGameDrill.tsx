@@ -35,7 +35,7 @@ export default function FantasyGameDrill({game, draftPicks, runs, totalPointsWFi
     const isRunReveal = timeIndex % 3 === 2; 
     const contestToShow = contestMap[contestInd]; 
     const runKeyToTimeMap: Record<string, number> = {}; 
-    runs.forEach(run => {
+    runs && runs.forEach(run => {
         const keyWoSimIndex = run.key.split("|").slice(0, -1).join("|"); 
         runKeyToTimeMap[keyWoSimIndex] = run.finalRun; 
     }); 
@@ -116,8 +116,8 @@ export default function FantasyGameDrill({game, draftPicks, runs, totalPointsWFi
                         game.users.map((team, index) => {
                             const email = team; 
                             const teamName = teamNamesData.find(team => team.email === email)?.name || autoDraftMap.get(email); 
-                            const draftPick = draftPicks.find(pick => pick.user === email && pick.contestSummaryKey.split("|")[2] === contestToShow); 
-                            const key = draftPick.contestSummaryKey; 
+                            const draftPick = draftPicks.find(pick => pick.user === email && pick?.contestSummaryKey.split("|")[2] === contestToShow); 
+                            const key = draftPick?.contestSummaryKey || ""; 
                             const summary = simTeamSummaries.find(summary => summary.key === key); 
                             const simRunTime = runKeyToTimeMap[key]; 
                             return (

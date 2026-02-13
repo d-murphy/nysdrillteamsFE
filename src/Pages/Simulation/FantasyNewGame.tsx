@@ -73,8 +73,11 @@ export default function FantasyNewGame() {
                                 <Form.Select aria-label="Select Game Type" value={gameType} onChange={(e) => setGameType(e.target.value as 'decade' | '8-team' | '8-team-no-repeat')}>
                                     <option value="8-team-no-repeat">Single Year Teams - No Team/Contest Repeat</option>
                                     <option value="8-team">Single Year Teams - Allow Team/Contest Repeat</option>
-                                    <option value="decade">Decade Teams</option>
+                                    {/* <option value="decade">Decade Teams</option> */}
                                 </Form.Select>
+
+                                <Form.Label className="mt-4">Seconds per Pick</Form.Label>
+                                <Form.Control type="number" min={10} max={60} value={secondsPerPick} onChange={(e) => setSecondsPerPick(parseInt(e.target.value))} />
 
                             </Accordion.Body>
                         </Accordion.Item>

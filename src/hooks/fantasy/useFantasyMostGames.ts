@@ -14,7 +14,7 @@ export default function useFantasyMostGames() {
       } = useQuery({
         queryKey: ['fantasyMostGames'],
         queryFn: async (): Promise<{_id: string, gameCount: number}[]> => {
-          const response = await fetch(`${SERVICE_URL}/fantasy/getMostGamesPlayed?limit=10&offset=0`);
+          const response = await fetch(`${SERVICE_URL}/fantasy/getMostGamesPlayed?limit=5&offset=0`);
           if (!response.ok) {
             throw new Error(`Failed to fetch most games played: ${response.statusText}`);
           }

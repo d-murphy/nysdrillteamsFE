@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { FantasyGame, FantasyDraftPick, TotalPointsWFinish, SimulationRun } from "../../types/types";
+import { useAuth } from "react-oidc-context";
 
 declare var SERVICE_URL: string;
 
@@ -14,6 +15,8 @@ type GameState = {
 }
 
 export function useGameUpdate(gameId: string) {
+    const auth = useAuth();
+    const username = auth.user?.profile.email;
     const [gameState, setGameState] = useState<GameState>(
         {
             game: null, 
@@ -28,7 +31,7 @@ export function useGameUpdate(gameId: string) {
     
     useEffect(() => {
         if (!gameId) return;        
-        const events = new EventSource(`${SERVICE_URL}/fantasy/getGameLive/${gameId}`);
+        const events = new EventSource(`${SERVICE_URL}/fantasy/getGameLive/${gameId}?user=${username}`);
         
         events.onopen = () => {
             console.log(`Connected to game updates for gameId: ${gameId}`);
@@ -41,7 +44,7 @@ export function useGameUpdate(gameId: string) {
                 
                 if (data.type === 'gameUpdate') {
                     const { game, draftPicks, runs, totalPointsWFinish } = data.data;
-                    setGameState(prev => ({ ...prev, game: game, draftPicks, runs, totalPointsWFinish, loading: false }));
+                    setGameState(prev => ({ ...prev, game, draftPicks, runs, totalPointsWFinish, loading: false }));
                 } else if (data.type === 'error') {
                     setGameState(prev => ({ ...prev, error: data.message, loading: false }));
                 }
