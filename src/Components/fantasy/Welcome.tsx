@@ -12,6 +12,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 export default function Welcome() {
     return (
         <div className="p-4 bg-white rounded shadow-sm d-flex flex-column align-items-start justify-content-center h-100">
+            <p className="text-center font-x-large mx-auto"><b>Welcome to the Fantasy Racing League!</b></p>
+            <p className="text-start">
+                Looking to test your racing IQ?  Draft your favorite teams and run simulated drills to see how they stack up.  
+                Join an open game or create your own to get started.  Play solo or with friends. Login to get started.
+            </p>
+            <p>This is still a work in progress - we're adding new features and improving the experience.  Check back soon for more updates!</p>
+            <div className="w-100 my-2 border-top border-bottom border-gray"/>
             <CurrentOpenGames />
             <ActiveGames />
             <RecentGames myGamesOnly={true} />
