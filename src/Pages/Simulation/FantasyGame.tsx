@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import FantasyGameSignup from '../../Components/fantasy/FantasyGameSignup';
 import FantasyGameDraft from '../../Components/fantasy/FantasyGameDraft';
 import { useGameUpdate } from '../../hooks/fantasy/useGameUpdate';
@@ -9,9 +9,10 @@ import { Button } from 'react-bootstrap';
 
 interface FantasyGameProps {
     gameId: string;
+    refetchGame: () => void;
 }
 
-function FantasyGame({ gameId }: FantasyGameProps) {
+function FantasyGame({ gameId, refetchGame }: FantasyGameProps) {
     const [animationComplete, setAnimationComplete] = useState(false); 
     const { gameState } = useGameUpdate(gameId);
     const { game, draftPicks, loading, error, connected, runs, totalPointsWFinish } = gameState;
@@ -20,6 +21,10 @@ function FantasyGame({ gameId }: FantasyGameProps) {
     const gameCompletedDate = game?.completed ? new Date(game.completed) : null;
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
     const skipAnimation = gameStatus === 'complete' && gameCompletedDate && gameCompletedDate < tenMinutesAgo;
+
+    useEffect(() => {
+        refetchGame();
+    }, [refetchGame, game?.status]);
 
     const content = 
     loading ? 

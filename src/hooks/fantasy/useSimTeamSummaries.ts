@@ -59,7 +59,7 @@ export function useSimTeamSummaries(
             return data;
         },
         enabled: isMyPick !== undefined ? isMyPick : true,
-
+        
     });
     return {
         data,

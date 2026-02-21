@@ -15,6 +15,7 @@ import { useSubmitAccessCode } from "../../hooks/fantasy/useSubmitAccessCode";
 import { Form } from "react-bootstrap";
 import Button from "../../Components/Button";
 import { useFantasyGame } from "../../hooks/fantasy/useFantasyGame";
+import { useGameUpdate } from "../../hooks/fantasy/useGameUpdate";
 
 
 export default function FantasyHome() {
@@ -23,11 +24,12 @@ export default function FantasyHome() {
     const pathSegments = pathname.pathname.split('/'); 
     const pageToShow = pathSegments[3]; 
     const gameId = pathSegments[4]; 
-    const { data: game, isLoading: isLoadingGame, isError: isErrorGame, error: errorGame } = useFantasyGame({ gameId });
+
+    const { data: game, isLoading: isLoadingGame, isError: isErrorGame, error: errorGame, refetch: refetchGame } = useFantasyGame({ gameId });
 
     const gameHeader = isLoadingGame ? "" : 
         `${game?.name} - ${
-            game?.status === 'stage' ? "Staging Draft" : 
+            game?.status === 'stage' ? "Waiting for Players" : 
             game?.status === 'stage-draft' ? "Draft Room Ready" :
             game?.status === 'draft' ? "Drafting" : 
             game?.status === 'complete' ? "Let's Race!" : "Unknown"
@@ -36,7 +38,7 @@ export default function FantasyHome() {
 
     const content = !pageToShow ? <LandingPage />
     : pageToShow === 'newgame' ? <FantasyNewGame />
-    : pageToShow === 'game' ? <FantasyGame gameId={gameId} />
+    : pageToShow === 'game' ? <FantasyGame gameId={gameId} refetchGame={refetchGame} />
     : pageToShow === 'profile' ? <FantasyProfile />
     : null; 
 
@@ -119,9 +121,9 @@ function LoginWrapper({children}: LoginProps) {
     return <div className="text-center w-100">Encountered error: {auth.error.message}</div>;
   }
 
-  if (auth.isAuthenticated && !userInfo?.codeUsed) {
-    return <AccessCodeRequired refetchUserInfo={refetchUserInfo} />;
-  }
+//   if (auth.isAuthenticated && !userInfo?.codeUsed) {
+//     return <AccessCodeRequired refetchUserInfo={refetchUserInfo} />;
+//   }
 
   const includeHomeLink = !['/simulation/fantasy/', '/simulation/fantasy'].includes(pathname.pathname.toLowerCase());
 
@@ -162,9 +164,10 @@ function LoginWrapper({children}: LoginProps) {
                     </button> 
             }            
         </div>
-            {
+            {/* {
             userInfo?.codeUsed ? children : <TempLandingPage />
-            }
+            } */}
+            {children}
         </div>
     );
 }

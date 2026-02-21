@@ -202,6 +202,7 @@ export type FantasyGame = {
     secondsPerPick: number, 
     name: string
     completed: Date
+    draftStarted?: Date
 }
 
 export type FantasyDraftPick = {

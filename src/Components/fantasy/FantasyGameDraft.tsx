@@ -136,14 +136,16 @@ interface TimeLeftProps {
 function TimeLeft({ draftPicks, game, currentDraftPick }: TimeLeftProps) {
     const auth = useAuth(); 
     const username = auth.user?.profile.email; 
-    const isMyPickResult = isMyPick(currentDraftPick, username, game);
+    const isDraft = game.status === 'draft';
+    const isMyPickResult = isDraft && isMyPick(currentDraftPick, username, game);
 
     const lastPick = draftPicks[draftPicks.length - 1];
-    const lastPickMs = lastPick?.time ? new Date(lastPick.time).getTime() : new Date().getTime();  
+    const lastPickMs = lastPick?.time ? new Date(lastPick.time).getTime() : new Date(game.draftStarted).getTime();  
     const pickDeadlineMs = lastPickMs + game.secondsPerPick * 1000; 
     const [secondsLeft, setSecondsLeft] = useState(game.secondsPerPick);
 
     useEffect(() => {
+        if(!isDraft) return;
         const interval = setInterval(() => {
             setSecondsLeft(Math.round((pickDeadlineMs - Date.now()) / 1000));
         }, 1000);
@@ -227,7 +229,7 @@ function ContestSelector({ contests, selectedContest, onContestChange, draftPick
                 <Button 
                     className="d-flex text-nowrap mb-1" 
                     size="sm" 
-                    variant={el === selectedContest ? "primary" : 
+                    variant={el === selectedContest ? !pickedContests.includes(el) ? "primary" : "outline-primary" : 
                         !pickedContests.includes(el) ? "secondary" : "outline-secondary"} 
                     key={el} 
                     value={el} 
