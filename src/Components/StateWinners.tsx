@@ -32,8 +32,7 @@ export default function StateWinners(props: StateWinnersProps) {
             setTourns(data); 
             setLoading(false);
         })
-        .catch((err:Error) => {
-            console.log(err)
+        .catch(() => {
             setError(true);
         })
     },[])
@@ -69,9 +68,8 @@ export default function StateWinners(props: StateWinnersProps) {
                 setRuns(runLu); 
                 setRunsLoading(false); 
             })
-            .catch((err:Error) => {
-                console.log(err); 
-                setRunError(true); 
+            .catch(() => {
+                setRunError(true);
             })
     }, [tourns])
 

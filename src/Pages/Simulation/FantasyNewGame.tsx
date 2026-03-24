@@ -22,14 +22,12 @@ export default function FantasyNewGame() {
     const [name, setName] = useState('');
 
     const onSuccess = async (result: Response) => {
-        console.log(result); 
         const resultJson = await result.json() as FantasyGame; 
         const gameId = resultJson.gameId; 
         navigate(`/Simulation/Fantasy/game/${gameId}`);
     }
 
-    const onError = (error: Error) => {
-        console.log(error); 
+    const onError = (_error: Error) => {
         navigate("/Error");
     }
 

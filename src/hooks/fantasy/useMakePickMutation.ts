@@ -27,8 +27,5 @@ export function useMakePickMutation(username: string, gameId: string) {
             }
             return response.json();
         },
-        onSuccess: () => {
-            console.log('pick posted successfully');
-        },
     });
 }

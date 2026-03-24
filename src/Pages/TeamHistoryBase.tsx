@@ -79,8 +79,7 @@ function getTeams(stateSetter:Function, errorSetter:Function, setLoading:Functio
             stateSetter(data); 
             setLoading(false); 
         })
-        .catch(err => {
-            console.log(err); 
+        .catch(() => {
             errorSetter(true)
         })
 }

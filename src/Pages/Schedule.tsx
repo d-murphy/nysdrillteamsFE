@@ -38,9 +38,8 @@ export default function Schedule(props:ScheduleProp) {
             setFilteredRows(data); 
             setLoading(false);
         })
-        .catch(err => {
-            console.log(err)
-            setErrorLoading(true); 
+        .catch(() => {
+            setErrorLoading(true);
         })
     }
 

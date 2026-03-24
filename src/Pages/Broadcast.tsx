@@ -51,9 +51,8 @@ export default function Broadcast() {
     }
 
     useEffect(() => {
-        getTournAndRuns().catch(e => {
-            console.log(e)
-            setErrorLoading(true); 
+        getTournAndRuns().catch(() => {
+            setErrorLoading(true);
         })
     }, [tournamentId])
 

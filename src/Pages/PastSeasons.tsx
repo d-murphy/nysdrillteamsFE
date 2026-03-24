@@ -25,9 +25,8 @@ export default function PastSeasons() {
             setTournYearCts(data); 
             setLoading(false);
         })
-        .catch(err => {
-            console.log(err)
-            setErrorLoading(true); 
+        .catch(() => {
+            setErrorLoading(true);
         })
     }
 

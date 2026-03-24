@@ -47,9 +47,7 @@ export default function AdminAnnouncements(props:AdminAnnouncementsProps) {
             setAnnoucements(data)
             setReqSubmitted(false); 
         })
-        .catch(e => {
-            console.log("Error retrieving announcements: ", e); 
-        })
+        .catch(() => {})
     }
 
     useEffect(() => {
@@ -64,9 +62,8 @@ export default function AdminAnnouncements(props:AdminAnnouncementsProps) {
             setReqResult({error: false, message: "Update successful."}); 
             setReqSubmitted(false);
         } catch (e){
-            console.log(e.message)
-            setReqResult({error: true, message: "An error occurred. Try again later."}); 
-            setReqSubmitted(false); 
+            setReqResult({error: true, message: "An error occurred. Try again later."});
+            setReqSubmitted(false);
         }
     }
 

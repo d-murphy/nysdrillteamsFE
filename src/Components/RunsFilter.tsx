@@ -412,8 +412,7 @@ async function getTracksForFilter(stateSetter:Function){
                 .sort((a:string, b:string) => a < b ? -1 : 1)
             stateSetter(data); 
         })
-        .catch(err => {
-            console.log(err)
+        .catch(() => {
             stateSetter([])
         })
 }
@@ -436,8 +435,7 @@ async function getTeamsForFilter(stateSetter:Function){
                .map((el:Team) => el.fullName)
             stateSetter(data); 
         })
-        .catch(err => {
-            console.log(err)
+        .catch(() => {
             stateSetter([])
         })
 }
@@ -452,8 +450,7 @@ async function getYearsForFilter(stateSetter:Function){
                 .sort((a:number, b:number) => a < b ? -1 : 1)
             stateSetter(data); 
         })
-        .catch(err => {
-            console.log(err)
+        .catch(() => {
             stateSetter([])
         })
 }
@@ -467,8 +464,7 @@ async function getTournamentsForFilter(stateSetter:Function){
                 .sort((a:string, b:string) => a < b ? -1 : 1)
             stateSetter(data); 
         })
-        .catch(err => {
-            console.log(err)
+        .catch(() => {
             stateSetter([])
         })
 }

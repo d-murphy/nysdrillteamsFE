@@ -50,9 +50,8 @@ export default function RunSearch(props:TopRunsProp) {
             setTopsRuns(data); 
             props.setLoading(false);
         })
-        .catch(err => {
-            console.log(err)
-            setErrorLoading(true); 
+        .catch(() => {
+            setErrorLoading(true);
         })
     }
 

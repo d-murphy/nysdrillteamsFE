@@ -77,9 +77,8 @@ export default function TotalPoints(props:TotalPointsProp) {
             setNoMoreClicks(false); 
             setIsLoading(false); 
         })
-        .catch(err => {
-            console.log(err)
-            setErrorLoading(true); 
+        .catch(() => {
+            setErrorLoading(true);
             setIsLoading(false);
         })
     }
@@ -194,7 +193,6 @@ export default function TotalPoints(props:TotalPointsProp) {
                                                             <td>{el.points}</td>
                                                             {
                                                                 region != 'Junior' && srContestArr.map(contest => {
-                                                                    console.log(el)
                                                                     return (
                                                                         // @ts-expect-error not fixing
                                                                         <td>{el[contest] ? el[contest] : ""}</td>

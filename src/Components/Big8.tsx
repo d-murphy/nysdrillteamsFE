@@ -31,10 +31,9 @@ export default function Big8(props:Big8Prop) {
            setBig8(data); 
            setIsLoading(false); 
         })
-        .catch(err => {
-            console.log(err)
-            setErrorLoading(true); 
-            setIsLoading(false); 
+        .catch(() => {
+            setErrorLoading(true);
+            setIsLoading(false);
         })
     }
 

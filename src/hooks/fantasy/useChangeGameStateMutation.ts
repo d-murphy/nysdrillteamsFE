@@ -22,8 +22,5 @@ export function useChangeGameStateMutation(gameId: string) {
             });
             return response.json();
         },
-        onSuccess: () => {
-            console.log('game stage change');
-        },
     });
 }

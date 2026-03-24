@@ -45,8 +45,6 @@ export default function TeamSummary(){
             setSearchParams(searchParams)    
         }
     }
-    console.log('render')
-
     useEffect(() => {
         getTeamsForFilter(setTeams, setError); 
     }, [])
@@ -487,8 +485,7 @@ function getTeamsForFilter(stateSetter:Function, errorSetter: Function){
                 .sort((a:string, b:string) => a.toLowerCase() < b.toLowerCase() ? -1 : 1)
             stateSetter(data); 
         })
-        .catch(err => {
-            console.log(err); 
+        .catch(() => {
             errorSetter(true)
         })
 }
@@ -505,8 +502,7 @@ function getYearsForFilter(stateSetter:Function, errorSetter:Function, setLoadin
             stateSetter(data); 
             setLoading(false); 
         })
-        .catch(err => {
-            console.log(err); 
+        .catch(() => {
             errorSetter(true)
         })
 }
@@ -519,8 +515,7 @@ function getRuns(teamSelected: string, yearSelected:number, setRuns: Function, s
         setRuns(data); 
         setLoading(false); 
     })
-    .catch(err => {
-        console.log(err); 
+    .catch(() => {
         setError(true)
     })
 }
@@ -533,9 +528,7 @@ function getSimilarYears(stateSetter:Function, teamSelected: string, year: numbe
         .then(data => {
             stateSetter(data); 
         })
-        .catch(err => {
-            console.log('Error pulling similar teams: ', err); 
-            //quiet fail
+        .catch(() => {
             stateSetter([])
         })
 }
@@ -548,9 +541,7 @@ function getFinishes(stateSetter: Function, teamSelected: string, year: number){
             data.sort((a:FinishesReturn,b:FinishesReturn) => new Date(a.date) < new Date(b.date) ? -1 : 1)
             stateSetter(data); 
         })
-        .catch(err => {
-            console.log('Error pulling finishes: ', err); 
-            //quiet fail
+        .catch(() => {
             stateSetter([])
         })
 }

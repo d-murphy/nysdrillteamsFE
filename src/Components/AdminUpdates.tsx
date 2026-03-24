@@ -25,10 +25,9 @@ export default function AdminUpdates(props:AdminUpdatesProps) {
                 setUpdates(data)
                 setLoading(false)
             })
-            .catch(e => {
-                console.log(e)
-                setLoading(false); 
-                setIsError(true)        
+            .catch(() => {
+                setLoading(false);
+                setIsError(true);
             })
     }
 

@@ -196,9 +196,7 @@ function AccessCodeRequired({refetchUserInfo}: AccessCodeRequiredProps) {
         () => {
             refetchUserInfo();
         },
-        (error) => {
-            console.error(error);
-        }
+        () => {}
     );
 
     return (

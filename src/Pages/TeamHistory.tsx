@@ -373,8 +373,7 @@ function getTeamHistory(teamname:string, stateSetter:Function, errorSetter:Funct
             stateSetter(data.histories); 
             setLoading(false); 
         })
-        .catch(err => {
-            console.log(err); 
+        .catch(() => {
             errorSetter(true)
         })
 }
@@ -388,8 +387,7 @@ function getTeamRecords(teamName: string, stateSetter:Function, errorSetter:Func
             stateSetter(data); 
             setLoading(false); 
         })
-        .catch(err => {
-            console.log(err); 
+        .catch(() => {
             errorSetter(true)
         })
 

@@ -82,6 +82,5 @@ export const logUpdate = function(url:string, sessionId: string, user:string, up
             }
         })
     })
-    .then(res => {console.log(res.json())})
-    .catch(e => console.log(e))
+    .catch(() => {})
 }

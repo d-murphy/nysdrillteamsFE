@@ -48,9 +48,8 @@ export default function TournamentWinners(props:TournamentWinnersProp) {
             setTournaments(data)
             setLoading(false);
         })
-        .catch(err => {
-            console.log(err)
-            setErrorLoading(true); 
+        .catch(() => {
+            setErrorLoading(true);
         })
     }
 

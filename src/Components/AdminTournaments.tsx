@@ -176,8 +176,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
             data = data.sort((a:Tournament,b:Tournament) => a.date < b.date ? -1 : 1)
             setTourns(data)    
         })
-        .catch(e => {
-            console.log("Error getting tournaments: ", e); 
+        .catch(() => {
             setIsError(true)
         })
     }
@@ -189,8 +188,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
             let keepThese = data.filter(el => el._id)
             setTournamentNames(keepThese)    
         })
-        .catch(e => {
-            console.log("Error getting tournament names: ", e); 
+        .catch(() => {
             setIsError(true)
         })
     }
@@ -203,8 +201,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
             let keepThese = data.filter(el => el._id)
             setHostNames(keepThese)    
         })
-        .catch(e => {
-            console.log("Error getting host names: ", e); 
+        .catch(() => {
             setIsError(true)
         })
     }
@@ -247,9 +244,8 @@ export default function AdminTournaments(props:AdminTournamentProps) {
             setReqResult({error: false, message: "Update successful."}); 
             getTournaments(year); 
         } catch (e){
-            console.log(e.message)
-            setReqResult({error: true, message: "An error occurred. Try again later."}); 
-            setReqSubmitted(false); 
+            setReqResult({error: true, message: "An error occurred. Try again later."});
+            setReqSubmitted(false);
         }
     }
 
@@ -265,9 +261,8 @@ export default function AdminTournaments(props:AdminTournamentProps) {
             setReqSubmitted(false); 
             getTournaments(year); 
         } catch (e){
-            console.log(e.message)
-            setReqResult({error: true, message: "An error occurred. Try again later."}); 
-            setReqSubmitted(false); 
+            setReqResult({error: true, message: "An error occurred. Try again later."});
+            setReqSubmitted(false);
         }
     }
 

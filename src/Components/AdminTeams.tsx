@@ -108,7 +108,6 @@ export default function AdminTeams(props:AdminTeamsProps) {
             logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
             props.updateTeams(); 
         } catch (e){
-            console.log(e.message)
             setReqResult({error: true, message: "An error occurred.  Make sure all required fields are complete or try again later."}); 
             setReqSubmitted(false); 
         }
@@ -125,7 +124,6 @@ export default function AdminTeams(props:AdminTeamsProps) {
             setReqResult({error: false, message: "Update successful."}); 
             props.updateTeams(); 
         } catch (e){
-            console.log(e.message)
             setReqResult({error: true, message: "An error occurred. Try again later."}); 
             setReqSubmitted(false); 
         }

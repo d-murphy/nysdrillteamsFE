@@ -34,7 +34,6 @@ export function useGameUpdate(gameId: string) {
         const events = new EventSource(`${SERVICE_URL}/fantasy/getGameLive/${gameId}?user=${username}`);
         
         events.onopen = () => {
-            console.log(`Connected to game updates for gameId: ${gameId}`);
             setGameState(prev => ({ ...prev, connected: true }));
         };
         
@@ -49,18 +48,15 @@ export function useGameUpdate(gameId: string) {
                     setGameState(prev => ({ ...prev, error: data.message, loading: false }));
                 }
             } catch (parseError) {
-                console.error('Failed to parse SSE data:', parseError);
                 setGameState(prev => ({ ...prev, error: 'Failed to parse server data', loading: false }));
             }
         };
         
-        events.onerror = (error) => {
-            console.error(`SSE connection error for gameId ${gameId}:`, error);
+        events.onerror = () => {
             setGameState(prev => ({ ...prev, error: 'Connection failed', loading: false, connected: false }));
         };
         
         return () => {
-            console.log(`Cleaning up EventSource for gameId: ${gameId}`);
             events.close();
             setGameState(prev => ({ ...prev, connected: false }));
         };

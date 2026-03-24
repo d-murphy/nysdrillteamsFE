@@ -37,9 +37,8 @@ export default function Schedule(props:ScheduleProp) {
             setTournaments(data); 
             setLoading(false);
         })
-        .catch(err => {
-            console.log(err)
-            setErrorLoading(true); 
+        .catch(() => {
+            setErrorLoading(true);
         })
     }
 

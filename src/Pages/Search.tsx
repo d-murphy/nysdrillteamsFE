@@ -105,9 +105,8 @@ export default function Search() {
                 setMaxPage(maxPage); 
                 setLoading(false);
             })
-            .catch((err:Error) => {
-                console.log(err)
-                setError(true); 
+            .catch(() => {
+                setError(true);
                 setLoading(false); 
             })
     }

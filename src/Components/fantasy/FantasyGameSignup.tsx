@@ -44,12 +44,6 @@ function FantasyGameSignup({ game: gameData, loading: liveUpdateLoading, error: 
             }
             return response.json();
         },
-        onSuccess: () => {
-            console.log('joined draft');
-        },
-        onError: (error) => {
-            console.log('join draft error', error);
-        },
     });
 
     const startDraftMutation = useMutation({
@@ -66,12 +60,6 @@ function FantasyGameSignup({ game: gameData, loading: liveUpdateLoading, error: 
                 throw new Error('Failed to start draft');
             }
             return response.json();
-        },
-        onSuccess: () => {
-            console.log('started draft - success function');
-        },
-        onError: (error) => {
-            console.log('start draft error', error);
         },
     });
 

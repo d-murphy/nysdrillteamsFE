@@ -33,8 +33,7 @@ export default function AdminUpdates(props:AdminUsersProps) {
         .then(data => {
             setUsers(data)
         })
-        .catch(e => {
-            console.log(e)
+        .catch(() => {
             setIsError(true)
         })
     }
@@ -96,8 +95,7 @@ export default function AdminUpdates(props:AdminUsersProps) {
             setReqResult({error: false, message: "Update successful."}); 
             getUsers();
         } catch (e){
-            console.log(e.message)
-            setReqResult({error: true, message: "An error occurred. Try again later."}); 
+            setReqResult({error: true, message: "An error occurred. Try again later."});
         }
     }
 
@@ -110,8 +108,7 @@ export default function AdminUpdates(props:AdminUsersProps) {
             setReqResult({error: false, message: "Deletion successful."}); 
             getUsers(); 
         } catch (e){
-            console.log(e.message)
-            setReqResult({error: true, message: "An error occurred. Try again later."}); 
+            setReqResult({error: true, message: "An error occurred. Try again later."});
         }
     }
 

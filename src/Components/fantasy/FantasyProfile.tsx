@@ -71,9 +71,7 @@ function EditTeamNameForm({ setEditingTeamName }: EditTeamNameFormProps) {
             setEditingTeamName(false);
             refetchTeamNames();
         },
-        (error: any) => {
-            console.error("Error editing team name", error);
-        }
+        () => {}
     ); 
 
     const isInvalidName = filter.isProfane(name);

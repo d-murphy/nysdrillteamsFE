@@ -18,9 +18,7 @@ export default function Nav() {
         fetchGet(`${SERVICE_URL}/announcements/getAnnouncements`)
             .then(data => data.json())
             .then(data => setAnnoucements(data))
-            .catch(e => {
-                console.log("Error retrieving announcements: ", e); 
-            })   
+            .catch(() => {})
     }, [])
     return (
         <div className="">

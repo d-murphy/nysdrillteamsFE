@@ -31,9 +31,8 @@ export default function AdminHome() {
             data = data.sort((a:Team,b:Team) => !a.fullName ? -1 : !b.fullName ? 1 : a.fullName.toLowerCase() < b.fullName.toLowerCase() ? -1 : 1 )
             setTeams(data)    
         })
-        .catch(e => {
-            console.log("Error getting teams: ", e); 
-            setView("ErrorMsg"); 
+        .catch(() => {
+            setView("ErrorMsg");
         })
     
     }
@@ -45,9 +44,8 @@ export default function AdminHome() {
             data = data.sort((a:Track,b:Track) => a.name < b.name ? -1 : 1)
             setTracks(data)    
         })
-        .catch(e => {
-            console.log("Error getting tracks: ", e); 
-            setView("ErrorMsg"); 
+        .catch(() => {
+            setView("ErrorMsg");
         })
     }
 

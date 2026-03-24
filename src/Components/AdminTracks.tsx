@@ -113,7 +113,6 @@ export default function AdminTracks(props:AdminTracksProps) {
             setReqResult({error: false, message: "Update successful."}); 
             props.updateTracks(); 
         } catch (e){
-            console.log(e.message)
             setReqResult({error: true, message: "An error occurred.  Make sure all required fields are complete or try again later."}); 
             setReqSubmitted(false); 
         }
@@ -130,7 +129,6 @@ export default function AdminTracks(props:AdminTracksProps) {
             setReqResult({error: false, message: "Update successful."}); 
             props.updateTracks(); 
         } catch (e){
-            console.log(e.message)
             setReqResult({error: true, message: "An error occurred. Try again later."}); 
             setReqSubmitted(false); 
         }
@@ -147,7 +145,6 @@ export default function AdminTracks(props:AdminTracksProps) {
             setReqResult({error: false, message: "Update successful."}); 
             getTrackImages(); 
         } catch (e){
-            console.log(e.message)
             setReqResult({error: true, message: "An error occurred. Try again later."}); 
             setReqSubmitted(false); 
         }
@@ -160,9 +157,7 @@ export default function AdminTracks(props:AdminTracksProps) {
         .then(data => {
             setImages(data.results);
         })
-        .catch(e => {
-            console.log(e.message)
-        })
+        .catch(() => {})
     }
 
     const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
@@ -188,7 +183,6 @@ export default function AdminTracks(props:AdminTracksProps) {
             getTrackImages(); 
             clearImageForm(); 
         } catch (e){
-            console.log(e.message)
             setReqResult({error: true, message: "An error occurred.  Make sure all required fields are complete or try again later."}); 
             setReqSubmitted(false); 
         }
@@ -210,7 +204,6 @@ export default function AdminTracks(props:AdminTracksProps) {
             getTrackImages(); 
             clearImageForm(); 
         } catch (e){
-            console.log(e.message)
             setReqResult({error: true, message: "An error occurred.  Make sure all required fields are complete or try again later."}); 
             setReqSubmitted(false); 
         }

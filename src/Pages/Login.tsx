@@ -38,8 +38,7 @@ export default function Login() {
             login(username, role, sessionId); 
             navigate('/adminHome'); 
         })
-        .catch(err => {
-            console.log(err); 
+        .catch(() => {
             setErrorMessage("Unsuccessful login."); 
             setLoggingIn(false); 
             setInputFields( {

@@ -40,8 +40,7 @@ export default function Locations(){
             setTracks(data); 
             setLoading(false);
         })
-        .catch(err => {
-            console.log(err)
+        .catch(() => {
             setLoading(false); 
             setErrorLoading(true); 
         })
@@ -55,8 +54,7 @@ export default function Locations(){
         .then(data => {
             setTrackImages(data.results);
         })
-        .catch(e => {
-            console.log(e.message)
+        .catch(() => {
         })
     }
 
@@ -68,8 +66,7 @@ export default function Locations(){
         .then(data => {
             setTrackTourns(data);
         })
-        .catch(e => {
-            console.log(e.message)
+        .catch(() => {
         })
     
     }

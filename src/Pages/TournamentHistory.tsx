@@ -42,8 +42,8 @@ export default function TournamentHistory(props:TournamentHistoryProps){
             setTourns(data); 
             setLoading(false); 
         })
-        .catch((err:Error) => {
-            console.log(err); 
+        .catch(() => {
+
             setError(true); 
         })
     }, [])
@@ -79,9 +79,8 @@ export default function TournamentHistory(props:TournamentHistoryProps){
                 setRuns(runLu); 
                 setRunLoading(false); 
             })
-            .catch((err:Error) => {
-                console.log(err); 
-                setRunError(true); 
+            .catch(() => {
+                setRunError(true);
             })
     }, [tourns])
 
