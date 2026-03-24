@@ -39,21 +39,20 @@ const contests = [
 
 function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraftProps) {
     const [trayOpen, setTrayOpen] = useState(true);
-    const [trayHeight, setTrayHeight] = useState(1);
     const { width } = useWindowDimensions();
-    const isSmallScreen = width < 750; 
+    const isSmallScreen = width < 750;
+    const [trayVh, setTrayVh] = useState(isSmallScreen ? 45 : 55);
 
-    const auth = useAuth(); 
-    const owner = game?.owner; 
-    const isMyGame = owner.toLowerCase() === auth.user?.profile.email.toLowerCase(); 
-    const users = game?.users; 
+    const auth = useAuth();
+    const owner = game?.owner;
+    const isMyGame = owner.toLowerCase() === auth.user?.profile.email.toLowerCase();
+    const users = game?.users;
     const gameId = game?.gameId;
 
     const changeGameStateMutation = useChangeGameStateMutation(gameId);
-    const currentDraftPick = draftPicks?.length || 0; 
-    const picksNeeded = !game ? 1000000 : game.users?.length  * contests.length; 
-    const draftComplete = game?.status === 'draft' && currentDraftPick >= picksNeeded; 
-    const trayHeightClass = trayHeight === 0 ? "h-15" : trayHeight === 1 ? "h-30" : "h-60";
+    const currentDraftPick = draftPicks?.length || 0;
+    const picksNeeded = !game ? 1000000 : game.users?.length  * contests.length;
+    const draftComplete = game?.status === 'draft' && currentDraftPick >= picksNeeded;
 
     useEffect(() => {
         if(draftComplete){
@@ -93,7 +92,8 @@ function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraft
 
                 <DraftGrid users={users}  draftPicks={draftPicks} />
 
-                <Offcanvas show={trayOpen} placement="bottom" scroll={true} backdrop={false} className={trayHeightClass}>
+                <Offcanvas show={trayOpen} placement="bottom" scroll={true} backdrop={false}
+                    style={{ height: `${trayVh}vh`, transition: 'height 0.2s ease' }}>
 
                     <Container>
                         <Offcanvas.Header>
@@ -102,10 +102,10 @@ function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraft
                                 <TimeLeft draftPicks={draftPicks} game={game} currentDraftPick={currentDraftPick} key={currentDraftPick} />
                                 <div className="flex-grow-1" />
                                 <div className="d-flex flex-row gap-2">
-                                    <Button variant="outline-secondary" size="sm" onClick={() => setTrayHeight(Math.max(trayHeight - 1, 0))}>
-                                        <FontAwesomeIcon icon={faArrowDown} /> 
+                                    <Button variant="outline-secondary" size="sm" onClick={() => setTrayVh(v => Math.max(v - 10, 15))}>
+                                        <FontAwesomeIcon icon={faArrowDown} />
                                     </Button>
-                                    <Button variant="outline-secondary" size="sm" onClick={() => setTrayHeight(Math.min(trayHeight + 1, 2))}>
+                                    <Button variant="outline-secondary" size="sm" onClick={() => setTrayVh(v => Math.min(v + 10, 85))}>
                                         <FontAwesomeIcon icon={faArrowUp} />
                                     </Button>
                                 </div>
@@ -122,7 +122,7 @@ function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraft
                 </>
             }
         </div>
-        <div className="minheight-180" />
+        <div style={{ minHeight: '180px' }} />
         </>
     )
 }
