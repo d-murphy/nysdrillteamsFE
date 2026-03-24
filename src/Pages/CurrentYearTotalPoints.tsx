@@ -1,5 +1,5 @@
 import * as React from "react";
-import TotalPoints from "../Components/TotalPoints";
+import TotalPoints from "../shared/components/TotalPoints";
 
 declare var SERVICE_URL: string;
 

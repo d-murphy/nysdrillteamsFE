@@ -1,6 +1,6 @@
 import * as React from "react";
-import Big8 from "../Components/Big8";
-import UpcomingEvents from "../Components/UpcomingEvents"; 
+import Big8 from "../shared/components/Big8";
+import UpcomingEvents from "../shared/components/UpcomingEvents"; 
 import { Link } from "react-router-dom";
 import { Social } from "./About";
 

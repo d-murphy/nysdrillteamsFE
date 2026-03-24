@@ -2,9 +2,9 @@ import * as React from "react";
 import { useEffect } from 'react'; 
 import { Outlet, useLocation } from "react-router-dom";
 
-import Nav from '../Components/Nav';  
+import Nav from '../shared/components/Nav';
 import ScrollToTop from "../utils/ScrollToTop";
-import Footer from "../Components/Footer";
+import Footer from "../shared/components/Footer";
 
 
 export default function Root() {

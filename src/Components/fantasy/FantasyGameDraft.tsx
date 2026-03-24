@@ -10,7 +10,7 @@ import { useMakePickMutation } from '../../hooks/fantasy/useMakePickMutation';
 import isMyPick from '../../utils/fantasy/isMyPick';
 import generateAutoDraftMap from '../../utils/fantasy/autoNames';
 import useTeamNames from '../../hooks/fantasy/useTeamNames';
-import useDebounce from '../../hooks/useDebounce';
+import useDebounce from '../../shared/hooks/useDebounce';
 import useWindowDimensions from '../../utils/windowDimensions';
 import Badge from 'react-bootstrap/Badge';
 

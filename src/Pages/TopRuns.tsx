@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useSearchParams } from 'react-router-dom'
-import TopRuns from "../Components/TopRuns"
+import TopRuns from "../shared/components/TopRuns"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter} from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from "react-router-dom";

@@ -11,22 +11,22 @@ import {
 import Root from "./Pages/Root";
 
 import Home from './Pages/Home';
-import Schedule from './Pages/Schedule'; 
-import Tournament from './Pages/Tournament';
+import Schedule from './features/schedule/Schedule';
+import Tournament from './features/tournament/Tournament';
 import Broadcast, { BroadcastInstructions } from "./Pages/Broadcast";
-import PastSeasons from "./Pages/PastSeasons";
-import PastSeason from "./Pages/PastSeason"; 
+import PastSeasons from "./features/schedule/PastSeasons";
+import PastSeason from "./features/schedule/PastSeason";
 import TopRuns from "./Pages/TopRuns";
-import Login from './Pages/Login'; 
-import AdminHome from "./Pages/AdminHome";
+import Login from './Pages/Login';
+import AdminHome from "./features/admin/AdminHome";
 import About from "./Pages/About"
-import Search from "./Pages/Search";
-import TournamentHistory  from "./Pages/TournamentHistory";
+import Search from "./features/search/Search";
+import TournamentHistory  from "./features/tournament/TournamentHistory";
 import CurrentYearTotalPoints from "./Pages/CurrentYearTotalPoints";
 import Image from "react-bootstrap/Image";
-import TeamSummary from "./Pages/TeamSummary";
-import TeamHistoryBase from "./Pages/TeamHistoryBase";
-import TeamHistory from "./Pages/TeamHistory";
+import TeamSummary from "./features/team/TeamSummary";
+import TeamHistoryBase from "./features/team/TeamHistoryBase";
+import TeamHistory from "./features/team/TeamHistory";
 import Locations from "./Pages/Locations";
 import Projections from "./Pages/Simulation/Projections";
 import Simulation from "./Pages/Simulation";

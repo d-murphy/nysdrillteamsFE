@@ -1,11 +1,11 @@
 import * as React from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import { contestArr } from "../Components/adminTournamentsComps/ContestOptions";
-import { calculateTotalPoints } from "../Components/SortedView";
+import { contestArr } from "../features/admin/adminTournamentsComps/ContestOptions";
+import { calculateTotalPoints } from "../shared/components/SortedView";
 
 import { Tournament, Run } from "../types/types";
 import { niceTime } from "../utils/timeUtils";
-import { SizedImage } from "../Components/SizedImage";
+import { SizedImage } from "../shared/components/SizedImage";
 import getImgLocation from "../utils/imgLU";
 import { useQuery } from "@tanstack/react-query";
 

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Projection, Run } from "../../types/types";
 import { useProjections } from "../../hooks/simulation/useProjections";
-import { useTournamentByNameYear } from "../../hooks/useTournament";
-import { useTournamentRuns } from "../../hooks/useTournamentRuns";
+import { useTournamentByNameYear } from "../../shared/hooks/useTournament";
+import { useTournamentRuns } from "../../shared/hooks/useTournamentRuns";
 import { faSort, faSortUp, faSortDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { useParams } from "react-router-dom";

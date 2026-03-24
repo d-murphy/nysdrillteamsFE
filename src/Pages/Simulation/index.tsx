@@ -1,5 +1,5 @@
 import React from "react";
-import Button from "../../Components/Button";
+import Button from "../../shared/components/Button";
 import { useNavigate } from "react-router-dom";
 
 

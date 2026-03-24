@@ -8,7 +8,7 @@ import { SimTeamSummary } from "../../hooks/fantasy/useSimTeamSummaries";
 import { faPlay, faRobot, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Placeholder } from "react-bootstrap";
-import Button from "../Button";
+import Button from "../../shared/components/Button";
 
 
 

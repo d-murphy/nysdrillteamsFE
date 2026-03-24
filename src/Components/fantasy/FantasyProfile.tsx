@@ -6,7 +6,7 @@ import { Button, Form, Placeholder, Dropdown } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faRefresh } from "@fortawesome/free-solid-svg-icons";
 import { useEditTeamName } from "../../hooks/fantasy/useEditTeamName";
-import useDebounce from "../../hooks/useDebounce";
+import useDebounce from "../../shared/hooks/useDebounce";
 import useTownNames from "../../hooks/fantasy/useTownNames";
 import { Filter } from 'bad-words'
 import useTeamNameSuggestions from "../../hooks/fantasy/useTeamNameSuggestions";

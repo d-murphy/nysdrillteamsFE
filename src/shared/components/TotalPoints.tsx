@@ -1,0 +1,326 @@
+import * as React from "react";
+import { useState, useMemo } from "react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import useWindowDimensions from "../../utils/windowDimensions";
+import { useQuery } from "@tanstack/react-query";
+
+
+declare var SERVICE_URL: string;
+
+interface TotalPointsProp {
+    year: number
+    headingAligned: boolean
+}
+
+type Regions = "Nassau" | "Northern" | "Suffolk" | "Western" | "Junior";
+
+export const JR_CONTEST_STR = "Jr Division - Junior Ladder,Jr Division - Intermediate Ladder,Jr Division - Individual Ladder,Jr Division - Cart Ladder," +
+    "Jr Division - Junior Cart Hose,Jr Division - Cart Hose,Jr Division - Cart Replacement,Jr Division - Junior Eff. Replacement,Jr Division - Wye," +
+    "Jr Division - Efficiency,Jr Division - Junior Wye"
+
+const srContestArr = [
+    "Three Man Ladder",
+    "B Ladder",
+    "C Ladder",
+    "C Hose",
+    "B Hose",
+    "Efficiency",
+    "Motor Pump",
+    "Buckets"
+]
+
+type RawTpEntry = {_id: {contest: string, team: string}, points: number};
+
+function buildTpUrl(year: number, region: Regions): string {
+    const base = `${SERVICE_URL}/runs/getTotalPoints?year=${year}&byContest=true&totalPointsFieldName=`;
+    const jrUrl = `${SERVICE_URL}/runs/getTotalPoints?year=${year}&byContest=true&totalPointsFieldName=Junior&contests=${JR_CONTEST_STR}`;
+    return region !== "Junior" ? `${base}${region}` : jrUrl;
+}
+
+function transformTpData(data: RawTpEntry[]): {}[] {
+    const teamData: {[index:string]: {[index:string]: number | string}} = {};
+    data.forEach(el => {
+        if (!teamData[el._id.team]) {
+            teamData[el._id.team] = {team: el._id.team};
+        }
+        teamData[el._id.team][el._id.contest] = el.points;
+    });
+    let teamDataArr = Object.values(teamData);
+    teamDataArr = teamDataArr.map(el => {
+        let totalPoints = 0;
+        for (const [key, value] of Object.entries(el)) {
+            if (!["team"].includes(key)) totalPoints += value as number;
+        }
+        return { points: totalPoints, ...el };
+    });
+    return teamDataArr.sort((a, b) => a.points < b.points ? 1 : -1);
+}
+
+
+export default function TotalPoints(props:TotalPointsProp) {
+    let year = props.year;
+    const headingAligned = props.headingAligned;
+
+    const [region, setRegion] = useState<Regions>("Nassau");
+    const [chartOrTable, setChartOrTable] = useState<"chart" | "table">("chart");
+
+    const { data: rawTpData, isFetching: isLoading, isError: errorLoading } = useQuery<RawTpEntry[]>({
+        queryKey: ['totalPoints', year, region],
+        queryFn: () => fetch(buildTpUrl(year, region)).then(res => res.json()),
+        enabled: Boolean(region),
+    });
+
+    const selectedRegionTpArr = useMemo(() => rawTpData ? transformTpData(rawTpData) : [], [rawTpData]);
+
+    const selectRegion = (newRegion: Regions) => {
+        if (!isLoading) setRegion(newRegion);
+    };
+
+    let content = (
+        <div className="my-2 py-3 px-2">
+            <div className="row">
+                <div className="col-12 col-md-3">
+                    <div className="d-flex flex-column align-items-center mb-1">
+                        {
+                            headingAligned ? 
+                                <div className="align-self-start"><p><span className="h4">Total Points</span></p></div> : 
+                                <div><p><span className="h4">Total Points</span></p></div>
+
+                        }
+
+                        <div className={`${region == "Nassau" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center w-100`} onClick={() => selectRegion("Nassau")}>Nassau</div>
+                        <div className={`${region == "Northern" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center w-100`} onClick={() => selectRegion("Northern")}>Northern</div>
+                        <div className={`${region == "Suffolk" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center w-100`} onClick={() => selectRegion("Suffolk")}>Suffolk</div>
+                        <div className={`${region == "Western" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center w-100`} onClick={() => selectRegion("Western")}>Western</div>
+                        <div className={`${region == "Junior" ? "circuit-selected" : "circuit-not-selected" } m-1 px-3 py-2 rounded text-center w-100`} onClick={() => selectRegion("Junior")}>Junior</div>
+
+                        {
+                            chartOrTable == 'chart' && 
+                                <div className="m-1 mt-5 px-3 pb-2 rounded text-center w-100 video-links btn btn-link" onClick={() => setChartOrTable('table')}>Table View</div>
+                        }
+                        {
+                            chartOrTable == 'table' &&
+                                <div className="m-1 mt-5 px-3 pb-2 rounded text-center w-100 video-links btn btn-link" onClick={() => setChartOrTable('chart')}>Chart View</div>
+                        }
+                    </div>                
+                </div>
+                <div className="col-12 col-md-9">
+                    { errorLoading ? 
+                        <div className="row">
+                            <div className="col-12 d-flex flex-column align-items-center mt-5">
+                                <div className="">Sorry, there was an error loading the total points.</div>
+                            </div>
+                        </div> : <></>
+                    }
+                    { isLoading ? 
+                        <div className="row">
+                            <div className="col-12 d-flex flex-column align-items-center mt-5">
+                                <div className="spinner-border text-secondary" role="status"></div>
+                            </div>
+                        </div> : <></>                    
+                    }
+                    { isLoading || errorLoading ?
+                        <></> : 
+                        chartOrTable == 'chart' ? 
+                            <div className="w-100 big8-bg shadow-sm rounded px-4 py-4 d-flex flex-column align-items-center">
+                                <div style={{ width: '100%', height: 500 }}>
+                                    {selectedRegionTpArr.length ? 
+                                        <Chart data={selectedRegionTpArr} year={year} region={region} />
+                                        : <div className="w-100 text-center mt-5">No total points reported.</div>                        
+                                    }
+                                </div>
+                                <div className="mt-4 font-x-small text-center"><i>Total points reflect runs saved in DB and may not match official results.</i></div>
+                            </div> : 
+                            selectedRegionTpArr.length == 0 ?
+                            <div className="d-flex justify-content-center p-5 m-5">No total points recorded</div> : 
+                            <div className="w-100 h-100 px-4 py-4 d-flex flex-column align-items-center">
+                                <div className="w-100 overflow-scroll">
+                                    <table className="table table-striped table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th className="fixed-col">Team</th>
+                                                <th>Points</th>
+                                                {
+                                                    region != 'Junior' && srContestArr.map(el => {
+                                                        return (
+                                                            <th className="text-nowrap">{el}</th>
+                                                        )
+                                                    })
+                                                }
+                                                {
+                                                    region == 'Junior' && JR_CONTEST_STR.split(",").map(el => {
+                                                        return (
+                                                            <th className="text-nowrap">{el}</th>
+                                                        )
+                                                    })
+                                                }
+                                            </tr>
+                                        </thead>
+                                        <tbody >
+                                            {
+                                                selectedRegionTpArr
+                                                    .map(
+                                                    (el) => {
+                                                    return (
+                                                        <tr>
+                                                            {/** @ts-expect-error not fixing */}
+                                                            <th className="text-nowrap fixed-col">{el.team}</th>
+                                                            {/** @ts-expect-error not fixing */}
+                                                            <td>{el.points}</td>
+                                                            {
+                                                                region != 'Junior' && srContestArr.map(contest => {
+                                                                    return (
+                                                                        // @ts-expect-error not fixing
+                                                                        <td>{el[contest] ? el[contest] : ""}</td>
+                                                                    )
+                                                                })
+                                                            }
+                                                            {
+                                                                region == 'Junior' && JR_CONTEST_STR.split(",").map(contest => {
+                                                                    return (
+                                                                        // @ts-expect-error not fixing
+                                                                        <td>{el[contest] ? el[contest] : ""}</td>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </tr>
+                                                    )
+                                                })
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                                        
+                            </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+    )
+    return content; 
+}
+
+//@ts-ignore
+const CustomTooltip = ({ active, payload, label }:props) => {    
+    const { width } = useWindowDimensions();
+    const smallScreen = width < 750; 
+
+    if (active && payload && payload.length) {
+        let totalPts = 0; 
+        payload.forEach((el:any) => {
+            totalPts += el.value; 
+        })
+      return (
+        <div className="custom-tooltip">
+            <div><b>Total: {totalPts}</b></div>
+            <br />
+            {
+                payload.map((el:any) => <div>{el.dataKey} - {el.value}</div>)
+            }
+            <br />
+            {
+                !smallScreen ? 
+                    <div><i>Click a bar section to view runs.</i></div> : <></>
+            }
+        </div>
+      );
+    }
+  
+    return null;
+  };
+
+interface ChartProps {
+    data: {}[], 
+    year: number, 
+    region: string
+}
+
+function Chart({data, year, region}:ChartProps){
+    const [barsNotDisplayed, setBarsNotDisplayed] = useState([])
+    const { width } = useWindowDimensions();
+    const smallScreen = width < 750; 
+
+    const toggleLegend = (event:{value:string}) => {
+        if(barsNotDisplayed.includes(event.value.trim())){
+            const newArr = barsNotDisplayed.filter(el => el != event.value.trim())
+            setBarsNotDisplayed(newArr)
+        } else {
+            setBarsNotDisplayed([...barsNotDisplayed, event.value.trim()])
+        }
+    }
+    const regionPtrStr:{[index:string]:string} = {
+        "Nassau": "nassauPoints=true", 
+        "Northern": "northernPoints=true", 
+        "Suffolk": "suffolkPoints=true", 
+        "Western": "westernPoints=true", 
+        "Junior": "juniorPoints=true"
+    }
+
+    const handleBarClick = (data:{team:string, tooltipPayload: {name:string}[]}) => {
+        if(!regionPtrStr[region]) return; 
+        if(smallScreen)return; 
+        const team = data.team; 
+        const contest = data.tooltipPayload[0].name; 
+        const paramString = `?years=${year}&teams=${team}&contests=${contest}&${regionPtrStr[region]}`
+        window.open(`/RunSearch${paramString}`, '_blank');        
+    }
+
+    return (
+        <ResponsiveContainer>
+          <BarChart
+            layout="vertical"
+            width={500}
+            height={500}
+            data={data}
+            margin={{
+              top: 20,
+              right: 20,
+              left: 100,
+              bottom: 5,
+            }}
+          >
+            <XAxis type="number"/>
+            <YAxis dataKey="team" type="category" tick={{ width: 200, fontSize:'9px' }}/>
+            <Tooltip content={<CustomTooltip />} />
+            <Legend 
+                wrapperStyle={{fontSize: "10px"}} 
+                onClick={toggleLegend} 
+                formatter={(value) => {
+                    return barsNotDisplayed.includes(value.trim()) ? 
+                    <span style={{opacity: "40%", cursor: 'pointer'}}>{value.trim()}</span> : 
+                    <span style={{cursor:'pointer'}}>{value}</span>
+                }}
+                />
+
+            {
+                region != "Junior" ? 
+                    <>
+                        {/* Extra space trick to keep text display, but hide bar.  Extra space is trimmed in handler */}
+                        <Bar dataKey={barsNotDisplayed.includes("Three Man Ladder") ? "Three Man Ladder " : "Three Man Ladder"}  stackId="a" fill="#91c5fd" radius={1}  onClick={handleBarClick} style={{cursor:'pointer'}}/>
+                        <Bar dataKey={barsNotDisplayed.includes("B Ladder") ? "B Ladder " : "B Ladder"} stackId="a" fill="#61acfd" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+                        <Bar dataKey={barsNotDisplayed.includes("C Ladder") ? "C Ladder " : "C Ladder"} stackId="a" fill="#3093fd" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+                        <Bar dataKey={barsNotDisplayed.includes("C Hose") ? "C Hose " : "C Hose"} stackId="a" fill="#0279fa" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+                        <Bar dataKey={barsNotDisplayed.includes("B Hose") ? "B Hose " : "B Hose"} stackId="a" fill="#0162ca" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+                        <Bar dataKey={barsNotDisplayed.includes("Efficiency") ? "Efficiency " : "Efficiency"} stackId="a" fill="#014a99" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+                        <Bar dataKey={barsNotDisplayed.includes("Motor Pump") ? "Motor Pump " : "Motor Pump"} stackId="a" fill="#013369" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+                        <Bar dataKey={barsNotDisplayed.includes("Buckets") ? "Buckets " : "Buckets"} stackId="a" fill="#001b38" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>                    
+                    </> : 
+                    <>
+                        <Bar dataKey={barsNotDisplayed.includes("Jr Division - Junior Ladder") ? "Jr Division - Junior Ladder " : "Jr Division - Junior Ladder"}  stackId="a" fill="#91c5fd" radius={1}  onClick={handleBarClick} style={{cursor:'pointer'}}/>
+                        <Bar dataKey={barsNotDisplayed.includes("Jr Division - Intermediate Ladder") ? "Jr Division - Intermediate Ladder " : "Jr Division - Intermediate Ladder"} stackId="a" fill="#61acfd" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+                        <Bar dataKey={barsNotDisplayed.includes("Jr Division - Individual Ladder") ? "Jr Division - Individual Ladder " : "Jr Division - Individual Ladder"} stackId="a" fill="#3093fd" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+                        <Bar dataKey={barsNotDisplayed.includes("Jr Division - Cart Ladder") ? "Jr Division - Cart Ladder " : "Jr Division - Cart Ladder"} stackId="a" fill="#0279fa" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+                        <Bar dataKey={barsNotDisplayed.includes("Jr Division - Junior Cart Hose") ? "Jr Division - Junior Cart Hose " : "Jr Division - Junior Cart Hose"} stackId="a" fill="#0162ca" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+                        <Bar dataKey={barsNotDisplayed.includes("Jr Division - Cart Hose") ? "Jr Division - Cart Hose " : "Jr Division - Cart Hose"} stackId="a" fill="#014a99" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+                        <Bar dataKey={barsNotDisplayed.includes("Jr Division - Cart Replacement") ? "Jr Division - Cart Replacement " : "Jr Division - Cart Replacement"} stackId="a" fill="#013369" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>
+                        <Bar dataKey={barsNotDisplayed.includes("Jr Division - Junior Eff. Replacement") ? "Jr Division - Junior Eff. Replacement " : "Jr Division - Junior Eff. Replacement"} stackId="a" fill="#001b38" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>                    
+                        <Bar dataKey={barsNotDisplayed.includes("Jr Division - Junior Wye") ? "Jr Division - Junior Wye " : "Jr Division - Junior Wye"} stackId="a" fill="#001b38" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>                    
+                        <Bar dataKey={barsNotDisplayed.includes("Jr Division - Wye") ? "Jr Division - Wye " : "Jr Division - Wye"} stackId="a" fill="#000b18" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>                    
+                        <Bar dataKey={barsNotDisplayed.includes("Jr Division - Efficiency") ? "Jr Division - Efficiency " : "Jr Division - Efficiency"} stackId="a" fill="#000008" radius={1} onClick={handleBarClick} style={{cursor:'pointer'}}/>                    
+                    </>
+            }
+          </BarChart>
+        </ResponsiveContainer>
+      );
+}
