@@ -456,39 +456,34 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                 </div>
                             </div>
 
-                            <hr />
-                            <div className="row g-3 mb-3">
-                                <div className="col-6 col-sm-3">
-                                    <div className="form-check">
-                                        <input className="form-check-input" type="checkbox" id="sanctioned" checked={tournInReview?.sanctioned} onChange={handleCheck} disabled={!isAdmin} />
-                                        <label className="form-check-label" htmlFor="sanctioned">Sanctioned</label>
+                            <hr className="my-3" />
+                            <div className="row g-3 mb-2">
+                                <div className="col-12 col-md-7">
+                                    <p className="small fw-semibold text-muted text-uppercase mb-2" style={{ letterSpacing: '0.05em' }}>Event Flags</p>
+                                    <div className="d-flex flex-wrap gap-3">
+                                        {[
+                                            { id: 'sanctioned',        label: 'Sanctioned' },
+                                            { id: 'cfp',               label: 'Counts for Points' },
+                                            { id: 'liveStreamPlanned', label: 'Live Stream Planned' },
+                                            { id: 'isParade',          label: 'Parade' },
+                                            { id: 'cancelled',         label: 'Cancelled' },
+                                        ].map(({ id, label }) => (
+                                            <div className="form-check form-switch mb-0" key={id}>
+                                                <input
+                                                    className="form-check-input"
+                                                    type="checkbox"
+                                                    role="switch"
+                                                    id={id}
+                                                    checked={(tournInReview as any)?.[id] ?? false}
+                                                    onChange={handleCheck}
+                                                    disabled={!isAdmin}
+                                                />
+                                                <label className="form-check-label" htmlFor={id}>{label}</label>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
-                                <div className="col-6 col-sm-3">
-                                    <div className="form-check">
-                                        <input className="form-check-input" type="checkbox" id="cfp" checked={tournInReview?.cfp} onChange={handleCheck} disabled={!isAdmin} />
-                                        <label className="form-check-label" htmlFor="cfp">Counts for Points</label>
-                                    </div>
-                                </div>
-                                <div className="col-6 col-sm-3">
-                                    <div className="form-check">
-                                        <input className="form-check-input" type="checkbox" id="liveStreamPlanned" checked={tournInReview?.liveStreamPlanned} onChange={handleCheck} disabled={!isAdmin} />
-                                        <label className="form-check-label" htmlFor="liveStreamPlanned">Live Stream Planned</label>
-                                    </div>
-                                </div>
-                                <div className="col-6 col-sm-3">
-                                    <div className="form-check">
-                                        <input className="form-check-input" type="checkbox" id="isParade" checked={tournInReview?.isParade} onChange={handleCheck} disabled={!isAdmin} />
-                                        <label className="form-check-label" htmlFor="isParade">Parade</label>
-                                    </div>
-                                </div>
-                                <div className="col-6 col-sm-3">
-                                    <div className="form-check">
-                                        <input className="form-check-input" type="checkbox" id="cancelled" checked={tournInReview?.cancelled} onChange={handleCheck} disabled={!isAdmin} />
-                                        <label className="form-check-label" htmlFor="cancelled">Cancelled</label>
-                                    </div>
-                                </div>
-                                <div className="col-6 col-sm-9 d-flex align-items-center">
+                                <div className="col-12 col-md-5">
                                     <TournVideos tournInReview={tournInReview} setTournInReview={setTournInReview}/>
                                 </div>
                             </div>

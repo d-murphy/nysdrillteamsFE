@@ -1,109 +1,92 @@
-import React from 'react'; 
+import React from 'react';
 import { Tournament } from "../../../types/types"
 
 interface EditScheduleAndTotalPointsProps {
-    isAdmin: boolean, 
-    tournInReview: Tournament, 
-    handleCheck: (e: React.ChangeEvent<HTMLInputElement>) => void, 
-    hasRuns: boolean
+    isAdmin: boolean;
+    tournInReview: Tournament;
+    handleCheck: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    hasRuns: boolean;
 }
 
-export default function EditScheduleAndTotalPoints(props:EditScheduleAndTotalPointsProps) {
-    const isAdmin = props.isAdmin; 
-    const tournInReview = props.tournInReview; 
-    const handleCheck = props.handleCheck
-    const hasRuns = props.hasRuns; 
+const POINTS_REGIONS = [
+    { id: 'nassauPoints',    label: 'Nassau' },
+    { id: 'northernPoints',  label: 'Northern' },
+    { id: 'suffolkPoints',   label: 'Suffolk' },
+    { id: 'westernPoints',   label: 'Western' },
+    { id: 'juniorPoints',    label: 'Junior' },
+    { id: 'nassauOfPoints',  label: 'Nassau OF' },
+    { id: 'suffolkOfPoints', label: 'Suffolk OF' },
+    { id: 'liOfPoints',      label: 'LI OF' },
+];
+
+const SCHEDULE_REGIONS = [
+    { id: 'nassauSchedule',   label: 'Nassau' },
+    { id: 'northernSchedule', label: 'Northern' },
+    { id: 'suffolkSchedule',  label: 'Suffolk' },
+    { id: 'westernSchedule',  label: 'Western' },
+    { id: 'juniorSchedule',   label: 'Junior' },
+    { id: 'liOfSchedule',     label: 'OF' },
+];
+
+export default function EditScheduleAndTotalPoints(props: EditScheduleAndTotalPointsProps) {
+    const { isAdmin, tournInReview, handleCheck, hasRuns } = props;
 
     return (
-        <>
-        <div className="row my-3 pt-2 border-top">
-            <div className="col d-flex flex-column align-items-center justify-content-between">
-                <div className="text-center">Nassau Points?</div>
-                <div>
-                    <input className="form-check-input" type="checkbox" id="nassauPoints" name="nassauPoints" checked={tournInReview?.nassauPoints} onChange={handleCheck} disabled={!isAdmin || hasRuns}></input>
+        <div className="row g-3 mt-1 border-top pt-3">
+            <div className="col-md-6">
+                <div className="card h-100">
+                    <div className="card-header py-2 d-flex align-items-center justify-content-between">
+                        <span className="fw-semibold small">Total Points Regions</span>
+                        {hasRuns && <span className="badge bg-warning-subtle text-warning-emphasis small">Locked — has runs</span>}
+                    </div>
+                    <div className="card-body py-2">
+                        <div className="d-flex flex-column gap-2">
+                            {POINTS_REGIONS.map(({ id, label }) => (
+                                <div className="form-check form-switch mb-0" key={id}>
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        role="switch"
+                                        id={id}
+                                        name={id}
+                                        checked={(tournInReview as any)?.[id] ?? false}
+                                        onChange={handleCheck}
+                                        disabled={!isAdmin || hasRuns}
+                                    />
+                                    <label className="form-check-label small" htmlFor={id}>{label}</label>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div className="col d-flex flex-column align-items-center justify-content-between">
-                <div className="text-center">Northern Points?</div>
-                <div>
-                    <input className="form-check-input" type="checkbox" id="northernPoints" name="northernPoints" checked={tournInReview?.northernPoints} onChange={handleCheck} disabled={!isAdmin || hasRuns}></input>
-                </div>
-            </div>
-            <div className="col d-flex flex-column align-items-center justify-content-between">
-                <div className="text-center">Suffolk Points?</div>
-                <div>
-                    <input className="form-check-input" type="checkbox" id="suffolkPoints" name="suffolkPoints" checked={tournInReview?.suffolkPoints} onChange={handleCheck} disabled={!isAdmin || hasRuns}></input>
-                </div>
-            </div>
-            <div className="col d-flex flex-column align-items-center justify-content-between">
-                <div className="text-center">Western Points?</div>
-                <div>
-                    <input className="form-check-input" type="checkbox" id="westernPoints" name="westernPoints" checked={tournInReview?.westernPoints} onChange={handleCheck} disabled={!isAdmin || hasRuns}></input>
-                </div>
-            </div>
-            <div className="col d-flex flex-column align-items-center justify-content-between">
-                <div className="text-center">Jr Points?</div>
-                <div>
-                    <input className="form-check-input" type="checkbox" id="juniorPoints" name="juniorPoints" checked={tournInReview?.juniorPoints} onChange={handleCheck} disabled={!isAdmin || hasRuns}></input>
-                </div>
-            </div>
-            <div className="col d-flex flex-column align-items-center justify-content-between">
-                <div className="text-center">Nassau OF Points?</div>
-                <div>
-                    <input className="form-check-input" type="checkbox" id="nassauOfPoints" name="nassauOfPoints" checked={tournInReview?.nassauOfPoints} onChange={handleCheck} disabled={!isAdmin || hasRuns}></input>
-                </div>
-            </div>
-            <div className="col d-flex flex-column align-items-center justify-content-between">
-                <div className="text-center">Suffolk OF Points?</div>
-                <div>
-                    <input className="form-check-input" type="checkbox" id="suffolkOfPoints" name="suffolkOfPoints" checked={tournInReview?.suffolkOfPoints} onChange={handleCheck} disabled={!isAdmin || hasRuns}></input>
-                </div>
-            </div>
-            <div className="col d-flex flex-column align-items-center justify-content-between">
-                <div className="text-center">LI OF Points?</div>
-                <div>
-                    <input className="form-check-input" type="checkbox" id="liOfPoints" name="liOfPoints" checked={tournInReview?.liOfPoints} onChange={handleCheck} disabled={!isAdmin || hasRuns}></input>
-                </div>
-            </div>
-        </div>
-        <div className="row my-3 pt-2 border-top">
-            <div className="col d-flex flex-column align-items-center justify-content-between">
-                <div className="text-center">Nassau Schedule?</div>
-                <div>
-                    <input className="form-check-input" type="checkbox" id="nassauSchedule" name="nassauSchedule" checked={tournInReview?.nassauSchedule} onChange={handleCheck} disabled={!isAdmin}></input>
-                </div>
-            </div>
-            <div className="col d-flex flex-column align-items-center justify-content-between">
-                <div className="text-center">Northern Schedule?</div>
-                <div>
-                    <input className="form-check-input" type="checkbox" id="northernSchedule" name="northernSchedule" checked={tournInReview?.northernSchedule} onChange={handleCheck} disabled={!isAdmin}></input>
-                </div>
-            </div>
-            <div className="col d-flex flex-column align-items-center justify-content-between">
-                <div className="text-center">Suffolk Schedule?</div>
-                <div>
-                    <input className="form-check-input" type="checkbox" id="suffolkSchedule" name="suffolkSchedule" checked={tournInReview?.suffolkSchedule} onChange={handleCheck} disabled={!isAdmin}></input>
-                </div>
-            </div>
-            <div className="col d-flex flex-column align-items-center justify-content-between">
-                <div className="text-center">Western Schedule?</div>
-                <div>
-                    <input className="form-check-input" type="checkbox" id="westernSchedule" name="westernSchedule" checked={tournInReview?.westernSchedule} onChange={handleCheck} disabled={!isAdmin}></input>
-                </div>
-            </div>
-            <div className="col d-flex flex-column align-items-center justify-content-between">
-                <div className="text-center">Jr Schedule?</div>
-                <div>
-                    <input className="form-check-input" type="checkbox" id="juniorSchedule" name="juniorSchedule" checked={tournInReview?.juniorSchedule} onChange={handleCheck} disabled={!isAdmin}></input>
-                </div>
-            </div>
-            <div className="col d-flex flex-column align-items-center justify-content-between">
-                <div className="text-center">OF Schedule?</div>
-                <div>
-                    <input className="form-check-input" type="checkbox" id="liOfSchedule" name="liOfSchedule" checked={tournInReview?.liOfSchedule} onChange={handleCheck} disabled={!isAdmin}></input>
+
+            <div className="col-md-6">
+                <div className="card h-100">
+                    <div className="card-header py-2">
+                        <span className="fw-semibold small">Schedule Regions</span>
+                    </div>
+                    <div className="card-body py-2">
+                        <div className="d-flex flex-column gap-2">
+                            {SCHEDULE_REGIONS.map(({ id, label }) => (
+                                <div className="form-check form-switch mb-0" key={id}>
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        role="switch"
+                                        id={id}
+                                        name={id}
+                                        checked={(tournInReview as any)?.[id] ?? false}
+                                        onChange={handleCheck}
+                                        disabled={!isAdmin}
+                                    />
+                                    <label className="form-check-label small" htmlFor={id}>{label}</label>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        </>
-    )
+    );
 }
