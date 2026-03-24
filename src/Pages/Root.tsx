@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect } from 'react'; 
+import { useEffect, Suspense } from 'react';
 import { Outlet, useLocation } from "react-router-dom";
 
 import Nav from '../shared/components/Nav';
@@ -27,7 +27,9 @@ export default function Root() {
             <ScrollToTop />
             <Nav />
             <div className="">
-                <Outlet />
+                <Suspense fallback={<div style={{ minHeight: '60vh' }} />}>
+                    <Outlet />
+                </Suspense>
             </div>
             <div className="flex-grow-1"></div>
             { !isFantasyGame && <Footer /> }
