@@ -16,9 +16,21 @@ module.exports = {
     historyApiFallback: true
   },
   output: {
-    filename: "bundle.js",
+    filename: "[name].js",
     path: path.resolve("dist"),
     publicPath: "/dist/",
+  },
+  optimization: {
+    splitChunks: {
+      chunks: "all",
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: "vendors",
+          chunks: "all",
+        },
+      },
+    },
   },
   module: {
     rules:[

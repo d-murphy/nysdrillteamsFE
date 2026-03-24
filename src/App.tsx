@@ -1,38 +1,38 @@
 import * as React from "react";
 import { LoginProvider } from "./utils/context";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
     createBrowserRouter,
     Link,
     RouterProvider,
-    useNavigate, 
+    useNavigate,
 } from "react-router-dom";
 
 import Root from "./Pages/Root";
-
 import Home from './Pages/Home';
-import Schedule from './features/schedule/Schedule';
-import Tournament from './features/tournament/Tournament';
-import Broadcast, { BroadcastInstructions } from "./Pages/Broadcast";
-import PastSeasons from "./features/schedule/PastSeasons";
-import PastSeason from "./features/schedule/PastSeason";
-import TopRuns from "./Pages/TopRuns";
-import Login from './Pages/Login';
-import AdminHome from "./features/admin/AdminHome";
-import About from "./Pages/About"
-import Search from "./features/search/Search";
-import TournamentHistory  from "./features/tournament/TournamentHistory";
-import CurrentYearTotalPoints from "./Pages/CurrentYearTotalPoints";
 import Image from "react-bootstrap/Image";
-import TeamSummary from "./features/team/TeamSummary";
-import TeamHistoryBase from "./features/team/TeamHistoryBase";
-import TeamHistory from "./features/team/TeamHistory";
-import Locations from "./Pages/Locations";
-import Projections from "./Pages/Simulation/Projections";
-import Simulation from "./Pages/Simulation";
-import ProjectionsHome from "./Pages/Simulation/ProjectionsHome";
-import FantasyHome from "./Pages/Simulation/FantasyHome";
-import FantasyNewGame from "./Pages/Simulation/FantasyNewGame";
+
+const Schedule = React.lazy(() => import('./features/schedule/Schedule'));
+const Tournament = React.lazy(() => import('./features/tournament/Tournament'));
+const Broadcast = React.lazy(() => import("./Pages/Broadcast"));
+const BroadcastInstructions = React.lazy(() => import("./Pages/Broadcast").then(m => ({ default: m.BroadcastInstructions })));
+const PastSeasons = React.lazy(() => import("./features/schedule/PastSeasons"));
+const PastSeason = React.lazy(() => import("./features/schedule/PastSeason"));
+const TopRuns = React.lazy(() => import("./Pages/TopRuns"));
+const Login = React.lazy(() => import('./Pages/Login'));
+const AdminHome = React.lazy(() => import("./features/admin/AdminHome"));
+const About = React.lazy(() => import("./Pages/About"));
+const Search = React.lazy(() => import("./features/search/Search"));
+const TournamentHistory = React.lazy(() => import("./features/tournament/TournamentHistory"));
+const CurrentYearTotalPoints = React.lazy(() => import("./Pages/CurrentYearTotalPoints"));
+const TeamSummary = React.lazy(() => import("./features/team/TeamSummary"));
+const TeamHistoryBase = React.lazy(() => import("./features/team/TeamHistoryBase"));
+const TeamHistory = React.lazy(() => import("./features/team/TeamHistory"));
+const Locations = React.lazy(() => import("./Pages/Locations"));
+const Projections = React.lazy(() => import("./Pages/Simulation/Projections"));
+const Simulation = React.lazy(() => import("./Pages/Simulation"));
+const ProjectionsHome = React.lazy(() => import("./Pages/Simulation/ProjectionsHome"));
+const FantasyHome = React.lazy(() => import("./Pages/Simulation/FantasyHome"));
 
 
 interface ErrorPageProps {
@@ -208,7 +208,9 @@ export default function App() {
     return (
         <QueryClientProvider client={queryClient}>
             <LoginProvider>
-                <RouterProvider router={router} />
+                <React.Suspense fallback={<div>&nbsp;</div>}>
+                    <RouterProvider router={router} />
+                </React.Suspense>
             </LoginProvider>
         </QueryClientProvider>
     );
