@@ -1,0 +1,552 @@
+// ============================================================
+// 1. Bootstrap variable overrides
+//    Must come BEFORE the Bootstrap import so !default picks them up
+// ============================================================
+
+// Brand colors
+$primary:   #013369;   // replaces btn-primary, bg-primary, text-primary, etc.
+$dark:      #001d3c;
+
+// Typography — Oswald is loaded via Google Fonts in index.html
+$font-family-base: "Oswald", sans-serif;
+
+// Body background
+$body-bg: #e9ecef;   // Bootstrap's $gray-200
+
+// ============================================================
+// 2. Bootstrap
+// ============================================================
+
+@import "bootstrap/scss/bootstrap";
+
+// ============================================================
+// 3. CSS custom properties
+//    Use SCSS interpolation so the values stay in sync with
+//    the SCSS variables above.
+// ============================================================
+
+:root {
+    --nav-bg:            #{$primary};
+    --nav-bg-dk:         #{$dark};
+    --nav-bg-10:         #{rgba($primary, 0.02)};
+    --nav-bg-50:         #{rgba($primary, 0.38)};
+    --button-blue:       hwb(210 25% 33%);
+    --button-blue-hover: hwb(210 19% 44%);
+    --total-points-bg:   hwb(210 66% 3%);
+    --footer-bg:         #3e3d47;
+}
+
+// ============================================================
+// 4. Page / Layout
+// ============================================================
+
+html, body, #root {
+    min-height: 100% !important;
+    overflow-x: hidden;
+}
+
+.min-screen-height { min-height: 100vh; }
+
+.content {
+    padding-bottom: 80px;
+}
+
+.footer {
+    background-color: var(--footer-bg);
+    color: white;
+}
+
+// ============================================================
+// 5. Navigation
+// ============================================================
+
+.nav-bg-color-dk { background-color: var(--nav-bg-dk); }
+
+.nav-bg-color,
+.schedule-entry-button,
+.track-name-bg-color,
+.login-button,
+.add-entry-button,
+.bg-searchpill-dark,
+.submit-search-button {
+    background-color: var(--nav-bg);
+}
+
+.hover-nav-font-change,
+.schedule-entry-button,
+.track-name-color,
+.login-button,
+.login-button:hover,
+.add-entry-button,
+.add-entry-button:hover,
+.submit-search-button {
+    color: white;
+}
+
+.schedule-entry-button:hover,
+.login-button:hover,
+.add-entry-button:hover,
+.submit-search-button:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+.dropdown-pos-top {
+    top: 62px;
+    z-index: 999;
+}
+
+.underline-hover {
+    border-bottom: 2px solid $primary;
+
+    &:hover {
+        border-bottom: 2px solid white;
+        color: white;
+        cursor: pointer;
+    }
+}
+
+.hover-nav-font-change:hover { color: $gray-500; }
+
+.header-logo {
+    max-width: 450px;
+    cursor: pointer;
+}
+
+.banner {
+    a, a:hover, a:visited { color: $gray-500; }
+}
+
+// ============================================================
+// 6. Links / icons used throughout
+// ============================================================
+
+.crud-links,
+.video-links,
+.map-location-links,
+.nav-dropdown-link {
+    text-decoration: none;
+    color: $primary;
+}
+
+.pointer { cursor: pointer; }
+.cursor-default { cursor: default; }
+
+// ============================================================
+// 7. Admin
+// ============================================================
+
+.content-box {
+    background-color: white;
+    border-radius: $border-radius;
+}
+
+// ============================================================
+// 8. Home
+// ============================================================
+
+.carousel-inner img {
+    margin: auto;
+}
+
+.live-stream-planned {
+    background-color: $primary;
+    padding: 5px;
+    border-radius: $border-radius;
+    color: white;
+    font-weight: bold;
+}
+
+.banner-bg { background-color: lightgoldenrodyellow; }
+
+.big8-bg, .champs-bg, .nav-dropdown { background-color: $gray-100; }
+
+.champs-bg, .leaderboard-bg {
+    min-height: 300px;
+    height: 100%;
+}
+
+// ============================================================
+// 9. Schedule
+// ============================================================
+
+.circuit-selected,
+.contest-selected,
+.fantasy-draft-btn,
+.fantasy-game-card {
+    background-color: var(--button-blue);
+    color: white;
+}
+
+.fantasy-draft-btn:hover { background-color: var(--button-blue-hover); }
+
+.circuit-not-selected:hover,
+.contest-not-selected:hover {
+    background-color: var(--button-blue-hover);
+    color: white;
+}
+
+.schedule-entry-tournament-track,
+.circuit-selected,
+.circuit-not-selected,
+.contest-selected,
+.contest-not-selected {
+    cursor: pointer;
+}
+
+.circuit-inactive { opacity: 0.3; }
+
+.track-info-icon { opacity: 0.8; }
+
+.filter-icon-bg,
+.filter-icon-bg:hover {
+    background-color: white;
+    color: $primary;
+    border-radius: 25px;
+}
+
+.filter-next {
+    border-radius: $border-radius;
+    padding: 5px;
+    text-decoration: none;
+    color: $primary;
+
+    &:hover {
+        color: $dark;
+        background-color: $gray-100;
+    }
+}
+
+.video-icon {
+    cursor: pointer;
+    min-width: 50px;
+    > a { color: $primary; }
+}
+
+.video-icon-nolink {
+    min-width: 50px;
+    color: $primary;
+}
+
+.pill {
+    background-color: var(--button-blue);
+    color: white;
+    font-weight: 400;
+    border-radius: $border-radius;
+    padding: 5px;
+}
+
+// ============================================================
+// 10. Tournament / scorecard
+// ============================================================
+
+.current-record  { color: gold; }
+.former-record   { color: goldenrod; }
+.trophyGold      { color: #a67c00; }
+
+.scorecard-type,
+.past-tourn-entry { cursor: pointer; }
+
+.scorecard-table-wrapper { overflow-x: scroll; }
+
+.scorecard-cell-lg  { min-width: 160px; }
+.scorecard-cell-md  { min-width: 120px; }
+.scorecard-cell-sm  { min-width: 40px; }
+
+.draft-grid-cell        { min-width: 160px; min-height: 100px; }
+.draft-grid-header-cell { min-width: 160px; min-height: 50px; }
+
+.table-results {
+    white-space: nowrap;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    border: 1px solid black;
+
+    td, th  { border: 1px solid black; }
+
+    thead th {
+        padding: 3px;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        width: 25vw;
+        background: white;
+    }
+
+    td {
+        background: #fff;
+        text-align: center;
+    }
+
+    tbody th {
+        font-weight: 100;
+        font-style: italic;
+        text-align: left;
+    }
+
+    thead th:first-child { position: sticky; left: 0; z-index: 2; }
+    tbody th             { position: sticky; left: 0; background: white; z-index: 1; }
+}
+
+// ============================================================
+// 11. Track
+// ============================================================
+
+.track-img-height {
+    min-height: 500px;
+    height: 100%;
+}
+
+.track-image-mx-ht { max-height: 600px; }
+
+// ============================================================
+// 12. Map / locations
+// ============================================================
+
+.map-height {
+    height: 100%;
+    min-height: 250px;
+}
+
+.map-selection-height      { min-height: 150px; }
+.map-selection-made-height { min-height: 500px; }
+
+// Google Maps UI suppression
+a[href^="http://maps.google.com/maps"]  { display: none !important; }
+a[href^="https://maps.google.com/maps"] { display: none !important; }
+
+.gmnoprint a, .gmnoprint span, .gm-style-cc { display: none; }
+.gmnoprint div { background: none !important; }
+.gm-style-iw-chr { display: none; }
+
+// ============================================================
+// 13. Run search
+// ============================================================
+
+.min-loading-height { min-height: 600px; }
+
+.search-select:not(:focus) option:checked      { background: $gray-200; }
+.search-select-blank:not(:focus) option:checked { background: white; }
+
+.custom-tooltip {
+    background-color: white;
+    color: black;
+    padding: 4px;
+    border-radius: $border-radius;
+    border: 1px solid black;
+    font-size: x-small;
+}
+
+// ============================================================
+// 14. Login
+// ============================================================
+
+.login-input {
+    padding: 12px 20px;
+    border: 2px solid $gray-500;
+    border-radius: $border-radius;
+
+    &:focus {
+        background-color: aliceblue;
+        border: 2px solid black;
+    }
+}
+
+// ============================================================
+// 15. Broadcast (live overlay — intentionally extreme sizing)
+// ============================================================
+
+.broadcast {
+    padding: 100px;
+    padding-top: 300px;
+    padding-bottom: 300px;
+    background-color: #00ff00;
+    font-family: 'Barlow Condensed', 'Open Sans', sans-serif;
+    font-weight: 900;
+    color: white;
+    font-variant: small-caps;
+    font-size: 100px;
+}
+
+// ============================================================
+// 16. Simulation animation
+// ============================================================
+
+.sim-anim-container {
+    width: 400px;
+    height: 40px;
+    border-bottom: 1px solid $gray-500;
+    min-width: 240px;
+}
+
+.sim-anim-runway,
+.sim-anim-scoring-zone {
+    width: 40%;
+    height: 100%;
+    background-color: $gray-200;
+}
+
+.sim-anim-runway { border-top-left-radius: $border-radius; }
+
+.sim-anim-team-range {
+    background: linear-gradient(to right, var(--nav-bg-10) 0%, var(--nav-bg-50) 50%, var(--nav-bg-10) 100%);
+}
+
+.sim-anim-good-run-time {
+    opacity: 0.1;
+    width: 0.5px;
+    height: 40px;
+    background-color: $primary;
+}
+
+.sim-anim-time {
+    animation: sim-anim-time-animation 2s ease-out 1 backwards;
+}
+
+@keyframes sim-anim-time-animation {
+    0%   { left: 0%; }
+    100% { transform: translateX(0); }
+}
+
+// ============================================================
+// 17. Scoreboard animations
+// ============================================================
+
+.scoreboard-container { overflow: hidden; }
+.scoreboard-item      { transition: transform 0.5s ease-out; }
+
+.scoreboard-new-item {
+    animation: scoreboard-slide-in 0.5s ease-out forwards;
+}
+
+.scoreboard-time-new {
+    animation: scoreboard-time-fade-in 0.8s ease-out 0.2s backwards;
+}
+
+@keyframes scoreboard-slide-in {
+    0%, 20% { transform: translateY(-100%); opacity: 0; }
+    80%, 100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scoreboard-time-fade-in {
+    0%   { opacity: 0; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+// ============================================================
+// 18. Color / text utilities (used in components)
+// ============================================================
+
+.grayText    { color: $gray-600; }
+.l-grayText  { color: $gray-500; }
+
+.bg-lightgray  { background-color: $gray-300; }
+.filter-bg     { background-color: $gray-200; }
+
+.break-spaces  { white-space: break-spaces; }
+
+.clear-search-button {
+    background-color: var(--button-blue);
+    color: white;
+
+    &:hover {
+        opacity: 0.8;
+        cursor: pointer;
+    }
+}
+
+// Font size utilities (legacy — prefer Bootstrap's .small / .fs-* going forward)
+.font-xx-small  { font-size: xx-small; }
+.font-x-small   { font-size: x-small; }
+.font-small     { font-size: small; }
+.font-medium    { font-size: medium; }
+.font-large     { font-size: large; }
+.font-x-large   { font-size: x-large; }
+.font-xx-large  { font-size: xx-large; }
+.font-xxx-large { font-size: xxx-large; }
+
+// Width utilities (legacy — prefer Bootstrap's w-* going forward)
+.width-100   { width: 100%; }
+.width-50    { width: 50%; }
+.width-60px  { width: 100px; }
+.width-15    { width: 40px; }
+.width-8     { width: 25px; }
+.w-80p       { width: 80px; }
+.w-50p       { width: 50px; }
+.fluid-width { max-height: 100%; width: auto; }
+.max-width-100 { max-width: 100%; }
+.max-width-50  { max-width: 50%; }
+
+// Height utilities (legacy — prefer Bootstrap's h-* or inline style going forward)
+.h-10 { height: 10%; }
+.h-15 { height: 15%; }
+.h-30 { height: 30%; }
+.h-40 { height: 40%; }
+.h-60 { height: 60%; }
+.h-70 { height: 70%; }
+.height-70  { height: 70px; }
+.height-30  { height: 30px; }
+.minheight-10 { min-height: 10px; }
+
+// ============================================================
+// 19. Misc component-specific widths / heights
+//     These are used in components and can't be replaced with
+//     Bootstrap utilities without touching each component.
+//     Clean up incrementally alongside component changes.
+// ============================================================
+
+.year-count-width,
+.admin-btn,
+.sim-scorecard   { min-width: 250px; }
+
+.fantasy-game-card-w {
+    width: 190px;
+    min-width: 190px;
+    max-width: 190px;
+}
+
+.image-wrap-sm { width: 50px;  height: 50px; }
+.image-wrap-md { width: 100px; height: 100px; }
+.image-wrap-lg { width: 150px; height: 150px; }
+.image-wrap-xl { width: 250px; height: 250px; }
+
+.scorecard-cell-lg { min-width: 160px; }
+.scorecard-cell-md { min-width: 120px; }
+.scorecard-cell-sm { min-width: 40px; }
+
+.dash-logo-width  { width: 120px; }
+.w-250            { width: 250px; }
+.w-160p           { width: 160px; }
+.minwidth-800     { min-width: 800px; }
+.min-screen-height { min-height: 100vh; }
+.some-height      { height: 400px; }
+.some-more-height { height: 500px; }
+.min-loading-height { min-height: 600px; }
+.minheight-180    { min-height: 180px; }
+.track-img-height { min-height: 500px; height: 100%; }
+
+// ============================================================
+// 20. Bootstrap component overrides
+// ============================================================
+
+// Accordion open state — use brand color instead of Bootstrap default blue
+.accordion-button:not(.collapsed) {
+    color: $primary !important;
+    background-color: $gray-100 !important;
+}
+
+#dropdown-town-search {
+    &::after { display: none; }
+    &:hover  { background-color: var(--button-blue-hover); }
+}
+
+.bouncing-growing {
+    animation: bounceAndGrow 2s ease-in-out infinite;
+}
+
+@keyframes bounceAndGrow {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%       { transform: translateY(-5px) scale(1.05); }
+}
