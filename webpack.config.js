@@ -5,7 +5,7 @@ require('dotenv').config();
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
 module.exports = {
-  entry: "./src/index.tsx",
+  entry: { bundle: "./src/index.tsx" },
   mode: "development",
   devServer: {
     hot: true,
