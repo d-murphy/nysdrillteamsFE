@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLoginContext } from "../utils/context";
 import { Team } from "../types/types"
 import { fetchPost, logUpdate } from "../utils/network"
@@ -12,7 +12,6 @@ declare var SERVICE_URL: string;
 
 interface AdminTeamsProps {
     teams: Team[];
-    updateTeams: Function;
 }
 
 let intialTeam:Team = {
@@ -32,12 +31,14 @@ export default function AdminTeams(props:AdminTeamsProps) {
     let [teamInReview, setTeamInReview] = useState<Team>(intialTeam)
     let [editOrCreate, setEditOrCreate] = useState("");
     const { sessionId, role, username  } = useLoginContext();
+    const queryClient = useQueryClient();
 
     const isAdmin = role === "admin";
     const isAdminOrScorekeeper = role === 'admin' || role === 'scorekeeper';
     const isFormComplete = teamInReview.hometown && teamInReview.nickname && teamInReview.circuit;
 
     const saveMutation = useMutation({
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['teams'] }),
         mutationFn: async () => {
             let url: string;
             let body: {teamId: string, fieldsToUpdate: {}} | Team;
@@ -53,7 +54,6 @@ export default function AdminTeams(props:AdminTeamsProps) {
             }
             await fetchPost(url, body, sessionId);
             logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `${editOrCreate} Team: ${teamInReview.fullName}`);
-            props.updateTeams();
         },
     });
 
@@ -61,8 +61,8 @@ export default function AdminTeams(props:AdminTeamsProps) {
         mutationFn: async () => {
             await fetchPost(`${SERVICE_URL}/teams/deleteTeam`, { teamId: teamInReview._id }, sessionId);
             logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Delete Team: ${teamInReview.fullName}`);
-            props.updateTeams();
         },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['teams'] }),
     });
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){

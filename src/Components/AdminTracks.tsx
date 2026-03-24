@@ -1,6 +1,6 @@
 import * as React from "react";
-import { useState, useEffect, useRef } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useState, useRef } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLoginContext } from "../utils/context";
 import { ImageDbEntry, Track } from "../types/types"
 import { fetchGet, fetchPost, fetchPostFile, logUpdate } from "../utils/network"
@@ -13,7 +13,6 @@ declare var SERVICE_URL: string;
 
 interface AdminTracksProps {
     tracks: Track[];
-    updateTracks: Function;
 }
 
 let initialTrack:Track = {
@@ -33,7 +32,6 @@ let initialTrack:Track = {
 export default function AdminTracks(props:AdminTracksProps) {
     const tracks = props.tracks;
     let [trackInReview, setTrackInReview] = useState<Track>({...initialTrack})
-    let [images, setImages] = useState<ImageDbEntry[]>([]);
 
     let [imageEditOrCreate, setImageEditOrCreate] = useState<"Edit" | "Create">("Create");
     let [imageInReview, setImageInReview] = useState<ImageDbEntry>(null);
@@ -44,9 +42,20 @@ export default function AdminTracks(props:AdminTracksProps) {
 
     let [editOrCreate, setEditOrCreate] = useState<"Edit" | "Create">("Create");
     const { sessionId, role, username  } = useLoginContext();
+    const queryClient = useQueryClient();
 
     const isAdmin = role === "admin";
     const isAdminOrScorekeeper = role === 'admin' || role === 'scorekeeper'
+
+    const imagesQuery = useQuery<ImageDbEntry[]>({
+        queryKey: ['trackImages', trackInReview.name],
+        queryFn: () => fetchGet(`${SERVICE_URL}/images/getImages?track=${trackInReview.name}`, sessionId)
+            .then(res => res.json())
+            .then(data => data.results),
+        enabled: Boolean(trackInReview.name),
+    });
+    const images = imagesQuery.data ?? [];
+
     const disableOnDupe = editOrCreate === "Create" && tracks.map(el => el.name.toLowerCase()).includes(trackInReview.name.toLowerCase());
     const disableImageOnDupe = imageEditOrCreate === "Create" && images.map(el => el.fileName.toLowerCase()).includes(imageName.toLowerCase());
     const isFormComplete = trackInReview.name && trackInReview.address && trackInReview.city;
@@ -68,16 +77,16 @@ export default function AdminTracks(props:AdminTracksProps) {
             }
             await fetchPost(url, body, sessionId);
             logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `${editOrCreate} Track: ${trackInReview.name}`);
-            props.updateTracks();
         },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tracks'] }),
     });
 
     const deleteTrackMutation = useMutation({
         mutationFn: async () => {
             await fetchPost(`${SERVICE_URL}/tracks/deleteTrack`, { trackId: trackInReview._id }, sessionId);
             logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Delete Track: ${trackInReview.name}`);
-            props.updateTracks();
         },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tracks'] }),
     });
 
     const uploadImageMutation = useMutation({
@@ -91,7 +100,9 @@ export default function AdminTracks(props:AdminTracksProps) {
             formData.append('track', trackInReview.name);
             await fetchPostFile(`${SERVICE_URL}/images/uploadImage`, formData, sessionId);
             logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Upload Image: ${trackInReview.name}-${imageFileName}`);
-            getTrackImages();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['trackImages', trackInReview.name] });
             clearImageForm();
         },
     });
@@ -104,7 +115,9 @@ export default function AdminTracks(props:AdminTracksProps) {
             };
             await fetchPost(`${SERVICE_URL}/images/updateImage`, body, sessionId);
             logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Image Update: ${imageInReview.fileName}`);
-            getTrackImages();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['trackImages', trackInReview.name] });
             clearImageForm();
         },
     });
@@ -113,8 +126,8 @@ export default function AdminTracks(props:AdminTracksProps) {
         mutationFn: async () => {
             await fetchPost(`${SERVICE_URL}/images/deleteImage`, { imageName: imageInReview?.fileName }, sessionId);
             logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Delete Image: ${imageInReview?.fileName}`);
-            getTrackImages();
         },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['trackImages', trackInReview.name] }),
     });
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){
@@ -141,14 +154,6 @@ export default function AdminTracks(props:AdminTracksProps) {
         })
     }
 
-    function getTrackImages(){
-        let url = `${SERVICE_URL}/images/getImages?track=${trackInReview.name}`
-        fetchGet(url, sessionId)
-        .then(res => res.json())
-        .then(data => { setImages(data.results); })
-        .catch(() => {})
-    }
-
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         //@ts-expect-error
@@ -172,12 +177,6 @@ export default function AdminTracks(props:AdminTracksProps) {
         deleteImageMutation.reset();
         if(clearImages) setImages([]);
     }
-
-    useEffect(() => {
-        if(trackInReview?.name){
-            getTrackImages();
-        }
-    }, [trackInReview])
 
     return (
         <div className="container">

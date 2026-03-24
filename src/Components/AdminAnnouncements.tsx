@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLoginContext } from "../utils/context";
 import { fetchPost, fetchGet } from "../utils/network"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,10 +13,19 @@ interface AdminAnnouncementsProps {}
 
 export default function AdminAnnouncements(props:AdminAnnouncementsProps) {
     let [announcements, setAnnoucements] = useState<string[]>([])
-    let [isLoading, setIsLoading] = useState(false);
     const { sessionId, role  } = useLoginContext();
+    const queryClient = useQueryClient();
 
     const isAdmin = role === "admin" || role === 'scorekeeper';
+
+    const { data: fetchedAnnouncements, isLoading } = useQuery<string[]>({
+        queryKey: ['announcements'],
+        queryFn: () => fetchGet(`${SERVICE_URL}/announcements/getAnnouncements`).then(res => res.json()),
+    });
+
+    useEffect(() => {
+        if (fetchedAnnouncements) setAnnoucements(fetchedAnnouncements);
+    }, [fetchedAnnouncements]);
 
     const submitMutation = useMutation({
         mutationFn: () => fetchPost(
@@ -24,6 +33,7 @@ export default function AdminAnnouncements(props:AdminAnnouncementsProps) {
             { announcements },
             sessionId
         ),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['announcements'] }),
     });
 
     function handleTextInput(e:React.ChangeEvent<HTMLTextAreaElement>){
@@ -47,21 +57,6 @@ export default function AdminAnnouncements(props:AdminAnnouncementsProps) {
         setAnnoucements([...announcements, '']);
         submitMutation.reset();
     }
-
-    function fetchAnnouncements(){
-        setIsLoading(true);
-        fetchGet(`${SERVICE_URL}/announcements/getAnnouncements`)
-        .then(data => data.json())
-        .then(data => {
-            setAnnoucements(data)
-            setIsLoading(false);
-        })
-        .catch(() => { setIsLoading(false); })
-    }
-
-    useEffect(() => {
-        fetchAnnouncements()
-    }, [])
 
     return (
         <div className="container">

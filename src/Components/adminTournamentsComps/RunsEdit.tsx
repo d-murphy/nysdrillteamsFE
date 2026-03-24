@@ -12,8 +12,7 @@ interface EditRunsProps {
     runsForTourn: Run[],
     runsEditContest: string,
     setRunsEditContest: React.Dispatch<React.SetStateAction<string>>,
-    isLoading: boolean,
-    getRunsForTourn: Function
+    isLoading: boolean
 }
 
 export default function RunsEdit(props:EditRunsProps) {
@@ -24,7 +23,6 @@ export default function RunsEdit(props:EditRunsProps) {
     const runsEditContest = props.runsEditContest;
     const setRunsEditContest = props.setRunsEditContest;
     const isLoading = props.isLoading;
-    const getRunsForTourn = props.getRunsForTourn;
 
     const emptyRun:Run = {
         team: '',
@@ -201,7 +199,6 @@ export default function RunsEdit(props:EditRunsProps) {
                                             runsEditContest={runsEditContest}
                                             runInReview={runInReview}
                                             setRunInReview={setRunInReview}
-                                            getRunsForTourn={getRunsForTourn}
                                             editOrInsertRun={editOrInsertRun}
                                             reqResult={reqResult}
                                             setReqResult={setReqResult}

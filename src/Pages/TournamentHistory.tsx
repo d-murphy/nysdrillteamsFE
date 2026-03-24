@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react'; 
-import { useParams, useNavigate } from 'react-router-dom'; 
+import React, { useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import getTournamentWinner from '../utils/getTournamentWinners';
 import { Run, Tournament } from '../types/types';
 import dateUtil from '../utils/dateUtils';
 import { niceTime } from '../utils/timeUtils';
 import {  WinnerIconNoHov } from '../Components/SizedImage';
 import { makeRunLuKey } from '../Components/StateWinners';
+import { useQuery } from '@tanstack/react-query';
 
-declare var SERVICE_URL: string; 
+declare var SERVICE_URL: string;
 
 interface TournamentHistoryProps {
 
@@ -16,73 +17,47 @@ interface TournamentHistoryProps {
 
 export default function TournamentHistory(props:TournamentHistoryProps){
     let params = useParams();
-    const name = params.name; 
+    const name = params.name;
 
-    const [loading, setLoading] = useState(true); 
-    const [runLoading, setRunLoading] = useState(true); 
-    const [error, setError] = useState(false); 
-    const [runError, setRunError] = useState(false); 
-    const [tourns, setTourns] = useState<Tournament[]>([]); 
-    const [runs, setRuns] = useState<Record<string, Run>>(null); 
-
-    useEffect(() => {
-        fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?tournaments=${name}`)
-        .then(data => data.json())
-        .then(data => {
-            data = data.filter((el: Tournament) => {
+    const { data: tourns = [], isLoading: loading, isError: error } = useQuery<Tournament[]>({
+        queryKey: ['tournamentHistory', name],
+        queryFn: () => fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?tournaments=${name}`)
+            .then(res => res.json())
+            .then((data: Tournament[]) => {
                 const curDate = new Date();
-                if(curDate.getMonth() >=8) {
-                    return Number(el.year)  <= new Date().getFullYear()
-                } else {
-                    return Number(el.year)  < new Date().getFullYear()
-                }
-            }).sort((a:Tournament, b:Tournament) => {
-                return a.year > b.year ? -1 : 1;
-            })
-            setTourns(data); 
-            setLoading(false); 
-        })
-        .catch(() => {
+                return data
+                    .filter(el => curDate.getMonth() >= 8 ?
+                        Number(el.year) <= new Date().getFullYear() :
+                        Number(el.year) < new Date().getFullYear())
+                    .sort((a, b) => a.year > b.year ? -1 : 1);
+            }),
+    });
 
-            setError(true); 
-        })
-    }, [])
+    const contestStr = useMemo(() => {
+        const contestSet = new Set<string>();
+        tourns.forEach(tourn => tourn.contests.forEach(contest => contestSet.add(contest.name)));
+        return Array.from(contestSet).join(",").replace("&", "%26");
+    }, [tourns]);
 
-    useEffect(() => {
-        if(!tourns.length) return; 
-
-        const contestSet = new Set(); 
-        tourns.forEach(tourn => {
-            tourn.contests.forEach(contest => {
-                contestSet.add(contest.name)
-            })
-        })
-        const contestArr = Array.from(contestSet); 
-
-        let url = `${SERVICE_URL}/runs/getFilteredRuns?`;
-        url += "tournaments=" + name.replace("&", "%26"); 
-        url += "&contests=" + contestArr.join(",").replace("&", "%26"); 
-        url += "&ranks=1"; 
-        url += "&limit=2000"
-        fetch(`${url}`)
-            .then(data => data.json())
-            .then(data => {
-                if(!data.length) return setError(true); 
-                const runData = data[0].data as Run[]
-
-                const runLu: Record<string, Run> = {}; 
-                runData.forEach(el => {
-                    const key = makeRunLuKey(el.contest, el.year.toString(), name); 
-                    runLu[key] = el; 
-                })
-
-                setRuns(runLu); 
-                setRunLoading(false); 
-            })
-            .catch(() => {
-                setRunError(true);
-            })
-    }, [tourns])
+    const { data: runs, isLoading: runLoading, isError: runError } = useQuery<Record<string, Run>>({
+        queryKey: ['tournamentHistoryRuns', name, contestStr],
+        queryFn: () => {
+            const url = `${SERVICE_URL}/runs/getFilteredRuns?tournaments=${name.replace("&", "%26")}&contests=${contestStr}&ranks=1&limit=2000`;
+            return fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.length) throw new Error("No runs found");
+                    const runData = data[0].data as Run[];
+                    const runLu: Record<string, Run> = {};
+                    runData.forEach(el => {
+                        const key = makeRunLuKey(el.contest, el.year.toString(), name);
+                        runLu[key] = el;
+                    });
+                    return runLu;
+                });
+        },
+        enabled: tourns.length > 0,
+    });
 
 
     if(error || runError) return <div className='p-3 m-3 w-100 text-center'>There was an error loading this info.  Please try again.</div>

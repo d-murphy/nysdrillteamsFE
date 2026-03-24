@@ -1,6 +1,6 @@
 import * as React from "react";
-import { useState, useEffect} from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLoginContext } from "../utils/context";
 import { fetchGet, fetchPost } from "../utils/network";
 import { User } from '../types/types'
@@ -14,14 +14,21 @@ declare var SERVICE_URL: string;
 interface AdminUsersProps {}
 
 export default function AdminUpdates(_props:AdminUsersProps) {
-    const [users, setUsers] = useState<User[]>([])
-    const [isError, setIsError] = useState(false);
     const [formValid, setFormValid] = useState(false);
     const [usernameMessage, setUsernameMessage] = useState<{error: boolean, message: string} | null>(null);
     const [userInReview, setUserInReview] = useState<{username:string, role:string, password?:string, _id?:string}>({username:'', role: '', password:''})
 
     const { sessionId, role  } = useLoginContext();
     const isAdmin = role === "admin";
+    const queryClient = useQueryClient();
+
+    const { data, isError } = useQuery<User[]>({
+        queryKey: ['users'],
+        queryFn: () => fetchGet(`${SERVICE_URL}/users/getUsers`, sessionId).then(res => res.json()),
+        enabled: Boolean(sessionId),
+    });
+
+    const users = data ?? [];
 
     const addUserMutation = useMutation({
         mutationFn: () => fetchPost(
@@ -29,7 +36,7 @@ export default function AdminUpdates(_props:AdminUsersProps) {
             { username: userInReview.username, password: userInReview.password, role: userInReview.role },
             sessionId
         ),
-        onSuccess: () => getUsers(),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
     });
 
     const deleteUserMutation = useMutation({
@@ -38,25 +45,8 @@ export default function AdminUpdates(_props:AdminUsersProps) {
             { userId: userInReview._id },
             sessionId
         ),
-        onSuccess: () => getUsers(),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
     });
-
-    async function getUsers(){
-        if(!sessionId) return
-        const url = `${SERVICE_URL}/users/getUsers`
-        fetchGet(url, sessionId)
-        .then(data => data.json())
-        .then(data => {
-            setUsers(data)
-        })
-        .catch(() => {
-            setIsError(true)
-        })
-    }
-
-    useEffect(() => {
-        getUsers()
-    }, [sessionId])
 
     function cleanNewUserModal(){
         setFormValid(false);

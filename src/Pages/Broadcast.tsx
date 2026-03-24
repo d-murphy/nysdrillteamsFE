@@ -1,61 +1,54 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { contestArr } from "../Components/adminTournamentsComps/ContestOptions";
 import { calculateTotalPoints } from "../Components/SortedView";
 
-import { Tournament, Run } from "../types/types"; 
+import { Tournament, Run } from "../types/types";
 import { niceTime } from "../utils/timeUtils";
 import { SizedImage } from "../Components/SizedImage";
 import getImgLocation from "../utils/imgLU";
+import { useQuery } from "@tanstack/react-query";
 
 declare var SERVICE_URL: string;
 
 
 export default function Broadcast() {
 
-    const [tournLoading, setTournLoading] = useState(true); 
-    const [runLoading, setRunLoading] = useState(true); 
-    const [errorLoading, setErrorLoading] = useState(false);
-    const [tournament, setTournament] = useState<Tournament>(); 
-    const [runs, setRuns] = useState<Run[]>([]); 
+    let params = useParams();
+    const showing = params?.showing?.toLowerCase();
+    const tournamentId = params.id;
+    const [searchParams, _] = useSearchParams();
+    const skipParam = searchParams.get('skip');
+    const limitParam = searchParams.get('limit');
+    const contestParam = searchParams.get('contest');
 
-    let contestOptions = [...contestArr, 'all'].map(el => el.toLowerCase()); 
+    const validShowing = !!(showing && ['all', 'last', 'next', 'top', 'next-icon', 'last-icon'].includes(showing));
+
+    const { data: tournament, isLoading: tournLoading, isError: tournError } = useQuery<Tournament>({
+        queryKey: ['tournament', tournamentId],
+        queryFn: () => fetch(`${SERVICE_URL}/tournaments/getTournament?tournamentId=${tournamentId}`)
+            .then(res => res.json())
+            .then(data => ({ ...data, date: new Date(data.date) })),
+        enabled: Boolean(tournamentId) && validShowing,
+    });
+
+    const { data: runs = [], isLoading: runLoading, isError: runError } = useQuery<Run[]>({
+        queryKey: ['runsForTournament', tournament?.id],
+        queryFn: () => fetch(`${SERVICE_URL}/runs/getRunsFromTournament?tournamentId=${tournament?.id}`)
+            .then(res => res.json()),
+        enabled: Boolean(tournament?.id),
+    });
+
+    let contestOptions = [...contestArr, 'all'].map(el => el.toLowerCase());
     contestOptions = contestOptions.filter(el => !['motor hose no. 2 target and barrel', 'jr division - junior eff. replacement', 'booster no. 1'].includes(el))
 
-    let params = useParams();
-
-    const showing = params?.showing.toLowerCase(); 
-    const tournamentId = params.id; 
-    const [searchParams, _] = useSearchParams(); 
-    const skipParam = searchParams.get('skip');  
-    const limitParam = searchParams.get('limit'); 
-    const contestParam = searchParams.get('contest'); 
-
-    if(!tournamentId || !showing || !['all', 'last', 'next', 'top', 'next-icon', 'last-icon'].includes(showing)) return (
+    if(!tournamentId || !validShowing) return (
         <div className="p-5">
             <BroadcastInstructions />
         </div>
     )
 
-    async function getTournAndRuns(){
-        let response = await fetch(`${SERVICE_URL}/tournaments/getTournament?tournamentId=${tournamentId}`); 
-        let data = await response.json(); 
-        data.date = new Date(data.date); 
-        setTournament(data); 
-        setTournLoading(false);
-        let response2 = await fetch(`${SERVICE_URL}/runs/getRunsFromTournament?tournamentId=${data.id}`)
-        let runs = await response2.json(); 
-        setRuns(runs)
-        setRunLoading(false); 
-    }
-
-    useEffect(() => {
-        getTournAndRuns().catch(() => {
-            setErrorLoading(true);
-        })
-    }, [tournamentId])
-
+    const errorLoading = tournError || runError;
 
     if(['next', 'top', 'next-icon'].includes(showing) && !contestOptions.includes(contestParam?.toLowerCase())) return (
         <div className="container">

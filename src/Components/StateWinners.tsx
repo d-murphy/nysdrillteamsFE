@@ -1,83 +1,60 @@
 
-import React, { useEffect, useState } from "react"
+import React, { useMemo } from "react"
 import { Run, Tournament } from "../types/types";
-import Placeholder from "react-bootstrap/Placeholder"; 
+import Placeholder from "react-bootstrap/Placeholder";
 import { TournHistoryEntry } from "../Pages/TournamentHistory";
+import { useQuery } from "@tanstack/react-query";
 
 interface StateWinnersProps {
     year: string
 }
 
-declare var SERVICE_URL: string; 
-const TOURN_NAMES = "New York State Championship,New York State OF Championship,New York State Jr. Championship"; 
+declare var SERVICE_URL: string;
+const TOURN_NAMES = "New York State Championship,New York State OF Championship,New York State Jr. Championship";
 
 export const makeRunLuKey = (contest: string, year:string, tournName: string) => {
-    return contest + year + tournName; 
+    return contest + year + tournName;
 }
 
 export default function StateWinners(props: StateWinnersProps) {
-    const [tourns, setTourns] = useState<Tournament[]>([])
-    const [loading, setLoading] = useState(true); 
-    const [error, setError] = useState(false); 
 
-    const [runs, setRuns] = useState<Record<string, Run>>(null); 
-    const [runsLoading, setRunsLoading] = useState(true); 
-    const [runError, setRunError] = useState(false); 
+    const { data: tourns = [], isLoading: loading, isError: error } = useQuery<Tournament[]>({
+        queryKey: ['stateWinners', props.year],
+        queryFn: () => fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?years=${props.year}&tournaments=${TOURN_NAMES}`)
+            .then(res => res.json())
+            .then((data: Tournament[]) => data.sort((a, b) => a.name < b.name ? -1 : 1)),
+    });
 
-    useEffect(() => {
-        fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?years=${props.year}&tournaments=${TOURN_NAMES}`)
-        .then(response => response.json())
-        .then(data => {
-            data.sort((a:Tournament, b:Tournament) => a.name < b.name ? -1 : 1)
-            setTourns(data); 
-            setLoading(false);
-        })
-        .catch(() => {
-            setError(true);
-        })
-    },[])
+    const contestStr = useMemo(() => {
+        const contestSet = new Set<string>();
+        tourns.forEach(tourn => tourn.contests.forEach(contest => contestSet.add(contest.name)));
+        return Array.from(contestSet).join(",").replace("&", "%26");
+    }, [tourns]);
 
-    useEffect(() => {
-        if(!tourns.length) return; 
+    const { data: runs, isLoading: runsLoading, isError: runError } = useQuery<Record<string, Run>>({
+        queryKey: ['stateWinnersRuns', props.year, contestStr],
+        queryFn: () => {
+            const url = `${SERVICE_URL}/runs/getFilteredRuns?tournaments=${TOURN_NAMES}&contests=${contestStr}&ranks=1&limit=2000`;
+            return fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.length) throw new Error("No runs found");
+                    const runData = data[0].data as Run[];
+                    const runLu: Record<string, Run> = {};
+                    runData.forEach(el => {
+                        const key = makeRunLuKey(el.contest, el.year.toString(), el.tournament);
+                        runLu[key] = el;
+                    });
+                    return runLu;
+                });
+        },
+        enabled: tourns.length > 0,
+    });
 
-        const contestSet = new Set(); 
-        tourns.forEach(tourn => {
-            tourn.contests.forEach(contest => {
-                contestSet.add(contest.name)
-            })
-        })
-        const contestArr = Array.from(contestSet); 
-
-        let url = `${SERVICE_URL}/runs/getFilteredRuns?`;
-        url += "tournaments=" + TOURN_NAMES; 
-        url += "&contests=" + contestArr.join(",").replace("&", "%26"); 
-        url += "&ranks=1"; 
-        url += "&limit=2000"
-        fetch(`${url}`)
-            .then(data => data.json())
-            .then(data => {
-                if(!data.length) return setError(true); 
-                const runData = data[0].data as Run[]
-
-                const runLu: Record<string, Run> = {}; 
-                runData.forEach(el => {
-                    const key = makeRunLuKey(el.contest, el.year.toString(), el.tournament); 
-                    runLu[key] = el; 
-                })
-
-                setRuns(runLu); 
-                setRunsLoading(false); 
-            })
-            .catch(() => {
-                setRunError(true);
-            })
-    }, [tourns])
-
-
-    const skeletonKeys = [0,1,2]; 
+    const skeletonKeys = [0,1,2];
 
     if(error || runError) return <></> // fail quietly
-    if(!loading &&  tourns.length === 0) return <></> // fail quietly
+    if(!loading && tourns.length === 0) return <></> // fail quietly
 
 
     const content = (loading || (tourns.length > 0 && runsLoading)) ?

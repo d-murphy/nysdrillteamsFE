@@ -1,55 +1,37 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useLoginContext } from "../utils/context";
-import AdminTeams  from "../Components/AdminTeams"; 
+import AdminTeams  from "../Components/AdminTeams";
 import AdminTracks from "../Components/AdminTracks";
 import { Team, Track } from "../types/types"
 import AdminTournaments from "../Components/AdminTournaments";
-import AdminUpdates from "../Components/AdminUpdates"; 
-import AdminAnnouncements from "../Components/AdminAnnouncements"; 
-import AdminUsers from '../Components/AdminUsers'; 
+import AdminUpdates from "../Components/AdminUpdates";
+import AdminAnnouncements from "../Components/AdminAnnouncements";
+import AdminUsers from '../Components/AdminUsers';
 
 declare var SERVICE_URL: string;
 
 export default function AdminHome() {
-    let navigate = useNavigate();
     let [view, setView] = useState("Updates")
-    let [teams, setTeams] = useState<Team[]>([])
-    let [tracks, setTracks] = useState<Track[]>([])
-    const { username, logout } = useLoginContext(); 
+    const { username, logout } = useLoginContext();
 
-    useEffect(() => {
-        getTeams()
-        getTracks(); 
-    }, [])
+    const teamsQuery = useQuery<Team[]>({
+        queryKey: ['teams'],
+        queryFn: () => fetch(`${SERVICE_URL}/teams/getTeams`).then(res => res.json()),
+    });
 
-    function getTeams(){
-        fetch(`${SERVICE_URL}/teams/getTeams`)
-        .then(response => response.json())
-        .then((data:Team[]) => {
-            data = data.sort((a:Team,b:Team) => !a.fullName ? -1 : !b.fullName ? 1 : a.fullName.toLowerCase() < b.fullName.toLowerCase() ? -1 : 1 )
-            setTeams(data)    
-        })
-        .catch(() => {
-            setView("ErrorMsg");
-        })
-    
-    }
+    const tracksQuery = useQuery<Track[]>({
+        queryKey: ['tracks'],
+        queryFn: () => fetch(`${SERVICE_URL}/tracks/getTracks`).then(res => res.json()),
+    });
 
-    function getTracks(){
-        fetch(`${SERVICE_URL}/tracks/getTracks`)
-        .then(response => response.json())
-        .then((data:Track[]) => {
-            data = data.sort((a:Track,b:Track) => a.name < b.name ? -1 : 1)
-            setTracks(data)    
-        })
-        .catch(() => {
-            setView("ErrorMsg");
-        })
-    }
-
-
+    const teams: Team[] = [...(teamsQuery.data ?? [])].sort((a, b) =>
+        !a.fullName ? -1 : !b.fullName ? 1 :
+        a.fullName.toLowerCase() < b.fullName.toLowerCase() ? -1 : 1
+    );
+    const tracks: Track[] = [...(tracksQuery.data ?? [])].sort((a, b) => a.name < b.name ? -1 : 1);
+    const isError = teamsQuery.isError || tracksQuery.isError;
 
     if(!username) return (
         <div className="container d-flex align-items-center justify-content-center p-5">
@@ -85,7 +67,7 @@ export default function AdminHome() {
 
                 <div className="row">
                     {
-                        view == "ErrorMsg" ? <></> : 
+                        isError ? <></> :
                             <div className=" d-flex flex-row justify-content-center align-items-center flex-wrap my-5">
                                 <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Updates")}}>
                                     Updates
@@ -115,13 +97,13 @@ export default function AdminHome() {
                     view == "Updates" ? <AdminUpdates /> : <></>
                 }
                 {
-                    view == "Teams" ? <AdminTeams teams={teams} updateTeams={getTeams}/> : <></>
+                    view == "Teams" ? <AdminTeams teams={teams} /> : <></>
                 }
                 {
-                    view == "Tracks" ? <AdminTracks tracks={tracks} updateTracks={getTracks}/> : <></>
+                    view == "Tracks" ? <AdminTracks tracks={tracks} /> : <></>
                 }
                 {
-                    view == "Tournaments" ? <AdminTournaments tracks={tracks} teams={teams}/> : <></>
+                    view == "Tournaments" ? <AdminTournaments tracks={tracks} teams={teams} /> : <></>
                 }
                 {
                     view == "Announcements" ? <AdminAnnouncements /> : <></>
@@ -130,11 +112,10 @@ export default function AdminHome() {
                     view == "Users" ? <AdminUsers /> : <></>
                 }
                 {
-                    view == "ErrorMsg" ? <div>Sorry, an error occurred.  Please try again later.</div> : <></>
+                    isError ? <div>Sorry, an error occurred.  Please try again later.</div> : <></>
                 }
             </div>
         </div>
 
     );
 }
-

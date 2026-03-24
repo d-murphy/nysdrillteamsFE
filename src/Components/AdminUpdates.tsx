@@ -1,7 +1,7 @@
 import * as React from "react";
-import { useState, useEffect} from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useLoginContext } from "../utils/context";
-import { fetchGet } from "../utils/network"; 
+import { fetchGet } from "../utils/network";
 import { Update } from '../types/types'
 import dateUtil from "../utils/dateUtils";
 
@@ -9,31 +9,16 @@ declare var SERVICE_URL: string;
 
 interface AdminUpdatesProps {}
 
-export default function AdminUpdates(props:AdminUpdatesProps) {
-    const [updates, setUpdates] = useState<Update[]>([])
-    const [loading, setLoading] = useState(false); 
-    const [isError, setIsError] = useState(false); 
-    const { sessionId  } = useLoginContext(); 
+export default function AdminUpdates(_props:AdminUpdatesProps) {
+    const { sessionId } = useLoginContext();
 
-    async function getUpdates(){
-        if(!sessionId) return 
-        const url = `${SERVICE_URL}/updates/getUpdates`
-        setLoading(true); 
-        fetchGet(url, sessionId)
-            .then(data => data.json())
-            .then(data => {
-                setUpdates(data)
-                setLoading(false)
-            })
-            .catch(() => {
-                setLoading(false);
-                setIsError(true);
-            })
-    }
+    const { data, isLoading, isError } = useQuery<Update[]>({
+        queryKey: ['updates'],
+        queryFn: () => fetchGet(`${SERVICE_URL}/updates/getUpdates`, sessionId).then(res => res.json()),
+        enabled: Boolean(sessionId),
+    });
 
-    useEffect(() => {
-        getUpdates()
-    }, [sessionId])
+    const updates = data ?? [];
 
     return (
         <div className="container">
@@ -41,8 +26,8 @@ export default function AdminUpdates(props:AdminUpdatesProps) {
                 <div>
                     <h4>Most recent updates are shown here:</h4>
                 </div>
-                {loading ? <div>Loading...</div> : 
-                 isError ? <div>An error occurred grabbing the updates.</div>: 
+                {isLoading ? <div>Loading...</div> :
+                 isError ? <div>An error occurred grabbing the updates.</div>:
                  <div>
                     {
                         updates.map(el => {

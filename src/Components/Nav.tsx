@@ -1,25 +1,24 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { fetchGet } from '../utils/network'; 
+import { fetchGet } from '../utils/network';
 import Image from "react-bootstrap/Image";
 import { Collapse } from "react-bootstrap";
+import { useQuery } from "@tanstack/react-query";
 
 
 declare var SERVICE_URL: string;
 
 export default function Nav() {
     let navigate = useNavigate();
-    const [announcements, setAnnoucements] = useState([]); 
-    const [dropdownOpen, setDropdownOpen] = useState(false); 
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     const [collapseOpen, setCollapseOpen] = useState(false);
 
-    useEffect(() => {
-        fetchGet(`${SERVICE_URL}/announcements/getAnnouncements`)
-            .then(data => data.json())
-            .then(data => setAnnoucements(data))
-            .catch(() => {})
-    }, [])
+    const { data } = useQuery<string[]>({
+        queryKey: ['announcements'],
+        queryFn: () => fetchGet(`${SERVICE_URL}/announcements/getAnnouncements`).then(res => res.json()),
+    });
+    const announcements = data ?? [];
     return (
         <div className="">
             <div className="banner text-center">

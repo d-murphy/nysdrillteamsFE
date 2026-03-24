@@ -1,43 +1,23 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 declare var SERVICE_URL: string;
 
 export default function PastSeasons() {
 
-    const [tournYrCts, setTournYearCts ] = useState<{_id: number, yearCount: number}[]>([]); 
-    const [loading, setLoading] = useState(true); 
-    const [errorLoading, setErrorLoading] = useState(false); 
+    const navigate = useNavigate();
 
-    const navigate = useNavigate();     
+    const { data, isLoading, isError } = useQuery<{_id: number, yearCount: number}[]>({
+        queryKey: ['tournamentCounts'],
+        queryFn: () => fetch(`${SERVICE_URL}/tournaments/getTournsCtByYear`).then(res => res.json()),
+    });
 
-    const fetchTournamentsCts = () => {
+    const yearFilter = new Date().getMonth() >= 8 ? new Date().getFullYear() : new Date().getFullYear() - 1;
+    const tournYrCts = (data ?? []).filter(el => el._id && el._id <= yearFilter);
 
-        const yearFilter = new Date().getMonth() >= 8 ? new Date().getFullYear() : new Date().getFullYear() - 1; 
-
-        fetch(`${SERVICE_URL}/tournaments/getTournsCtByYear`)
-        .then(response => response.json())
-        .then(data => {
-            data = data.filter((el: {_id: number, yearCount: number}) => {
-                return el._id && el._id <= yearFilter;  
-            })
-            setTournYearCts(data); 
-            setLoading(false);
-        })
-        .catch(() => {
-            setErrorLoading(true);
-        })
-    }
-
-
-
-    useEffect(() => {
-        fetchTournamentsCts(); 
-    }, []); 
-
-    let content; 
-    if(loading){
+    let content;
+    if(isLoading){
         content = (
             <div className="row">
                 <div className="col-12 d-flex flex-column align-items-center mt-5">
@@ -46,7 +26,7 @@ export default function PastSeasons() {
             </div>
         )
     }
-    if(errorLoading){
+    if(isError){
         content = (
             <div className="row">
                 <div className="col-12 d-flex flex-column align-items-center mt-5">
@@ -57,7 +37,7 @@ export default function PastSeasons() {
     }
 
 
-    if(!loading && !errorLoading){
+    if(!isLoading && !isError){
         content = (
             <div className="">
                 <div className="d-flex flex-wrap justify-content-center align-items-center mt-4 mb-3 px-5">

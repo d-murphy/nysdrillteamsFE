@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tournament, Team, Run } from "../../types/types"
 import dateUtil from '../../utils/dateUtils';
 import RunVideos from './RunVideos';
@@ -13,7 +13,6 @@ interface EditRunsFormProps {
     runsEditContest: string,
     runInReview: Run,
     setRunInReview: React.Dispatch<React.SetStateAction<Run>>,
-    getRunsForTourn: Function
     editOrInsertRun: 'edit' | 'insert',
     reqResult: {error: boolean, message:string} | null,
     setReqResult: React.Dispatch<React.SetStateAction<{error: boolean, message:string} | null>>,
@@ -27,8 +26,8 @@ export default function RunsEditForm(props:EditRunsFormProps) {
     const isAdmin = props.isAdmin;
     const runInReview = props.runInReview;
     const setRunInReview = props.setRunInReview;
-    const getRunsForTourn = props.getRunsForTourn;
     const tournInReview = props.tournInReview;
+    const queryClient = useQueryClient();
     const editOrInsertRun = props.editOrInsertRun;
     const reqResult = props.reqResult;
     const setReqResult = props.setReqResult;
@@ -51,7 +50,7 @@ export default function RunsEditForm(props:EditRunsFormProps) {
         onSuccess: () => {
             setReqResult({error: false, message: "Record saved successfully."});
             setRunInReview(null);
-            getRunsForTourn(tournInReview.id);
+            queryClient.invalidateQueries({ queryKey: ['runsForTournament', tournInReview.id] });
         },
         onError: () => {
             setReqResult({error: true, message: "An error occurred.  Can you try again?."});
@@ -67,7 +66,7 @@ export default function RunsEditForm(props:EditRunsFormProps) {
             setReqResult({error: false, message: "Record deleted successfully."});
             setRunInReview(null);
             setShowingDeleteWarning(false);
-            getRunsForTourn(tournInReview.id);
+            queryClient.invalidateQueries({ queryKey: ['runsForTournament', tournInReview.id] });
         },
         onError: () => {
             setShowingDeleteWarning(false);

@@ -1,7 +1,8 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import useWindowDimensions from "../utils/windowDimensions";
+import { useQuery } from "@tanstack/react-query";
 
 
 declare var SERVICE_URL: string;
@@ -11,94 +12,69 @@ interface TotalPointsProp {
     headingAligned: boolean
 }
 
-type Regions = "Nassau" | "Northern" | "Suffolk" | "Western" | "Junior"; 
+type Regions = "Nassau" | "Northern" | "Suffolk" | "Western" | "Junior";
 
-export const JR_CONTEST_STR = "Jr Division - Junior Ladder,Jr Division - Intermediate Ladder,Jr Division - Individual Ladder,Jr Division - Cart Ladder," + 
-    "Jr Division - Junior Cart Hose,Jr Division - Cart Hose,Jr Division - Cart Replacement,Jr Division - Junior Eff. Replacement,Jr Division - Wye," + 
+export const JR_CONTEST_STR = "Jr Division - Junior Ladder,Jr Division - Intermediate Ladder,Jr Division - Individual Ladder,Jr Division - Cart Ladder," +
+    "Jr Division - Junior Cart Hose,Jr Division - Cart Hose,Jr Division - Cart Replacement,Jr Division - Junior Eff. Replacement,Jr Division - Wye," +
     "Jr Division - Efficiency,Jr Division - Junior Wye"
 
 const srContestArr = [
-    "Three Man Ladder", 
-    "B Ladder", 
-    "C Ladder", 
-    "C Hose", 
-    "B Hose", 
+    "Three Man Ladder",
+    "B Ladder",
+    "C Ladder",
+    "C Hose",
+    "B Hose",
     "Efficiency",
     "Motor Pump",
     "Buckets"
 ]
 
+type RawTpEntry = {_id: {contest: string, team: string}, points: number};
+
+function buildTpUrl(year: number, region: Regions): string {
+    const base = `${SERVICE_URL}/runs/getTotalPoints?year=${year}&byContest=true&totalPointsFieldName=`;
+    const jrUrl = `${SERVICE_URL}/runs/getTotalPoints?year=${year}&byContest=true&totalPointsFieldName=Junior&contests=${JR_CONTEST_STR}`;
+    return region !== "Junior" ? `${base}${region}` : jrUrl;
+}
+
+function transformTpData(data: RawTpEntry[]): {}[] {
+    const teamData: {[index:string]: {[index:string]: number | string}} = {};
+    data.forEach(el => {
+        if (!teamData[el._id.team]) {
+            teamData[el._id.team] = {team: el._id.team};
+        }
+        teamData[el._id.team][el._id.contest] = el.points;
+    });
+    let teamDataArr = Object.values(teamData);
+    teamDataArr = teamDataArr.map(el => {
+        let totalPoints = 0;
+        for (const [key, value] of Object.entries(el)) {
+            if (!["team"].includes(key)) totalPoints += value as number;
+        }
+        return { points: totalPoints, ...el };
+    });
+    return teamDataArr.sort((a, b) => a.points < b.points ? 1 : -1);
+}
+
 
 export default function TotalPoints(props:TotalPointsProp) {
-    let year = props.year; 
-    const headingAligned = props.headingAligned; 
+    let year = props.year;
+    const headingAligned = props.headingAligned;
 
-    let url = `${SERVICE_URL}/runs/getTotalPoints?year=${year}&byContest=true&totalPointsFieldName=`; 
-    let jrUrl = `${SERVICE_URL}/runs/getTotalPoints?year=${year}&byContest=true&totalPointsFieldName=Junior&contests=${JR_CONTEST_STR}`
-
-    const regionData: {[index: string]: {}[]} = {}; 
-    const [region, setRegion] = useState<"" | Regions>(""); 
-    const [selectedRegionTpArr, setTpArr] = useState<{}[]>([]); 
-
-    const [isLoading, setIsLoading] = useState(false); 
-    const [errorLoading, setErrorLoading] = useState(false); 
-    const [noMoreClicks, setNoMoreClicks] = useState(false); 
+    const [region, setRegion] = useState<Regions>("Nassau");
     const [chartOrTable, setChartOrTable] = useState<"chart" | "table">("chart");
 
-    const fetchTotalPoints = (region:Regions) => {
-        let urlWithRegion = `${url}${region}`; 
-        let urlForFetch = region !== "Junior" ? urlWithRegion : jrUrl; 
-        fetch(urlForFetch)
-        .then(response => response.json())
-        .then(data => {
-            const teamData: {[index:string]: {[index:string]: number | string}} = {}; 
-            data.forEach((el: {_id: {contest: string, team: string}, points: number}) => {
-                if(!teamData[el._id.team]){
-                    teamData[el._id.team] = {team: el._id.team}; 
-                }
-                teamData[el._id.team][el._id.contest] = el.points; 
-            })
-            let teamDataArr = Object.values(teamData); 
-            teamDataArr = teamDataArr.map(el => {
-                let totalPoints = 0; 
-                for (const [key, value] of Object.entries(el)) {
-                    if(!["team"].includes(key)) totalPoints += value as number
-                }
-                return {
-                    points: totalPoints, 
-                    ...el
-                }
-            })
-            teamDataArr = teamDataArr.sort((a,b) => {
-                return a.points < b.points ? 1 : -1;
-            })
-            regionData[region] = teamDataArr; 
-            setTpArr(teamDataArr);
-            setNoMoreClicks(false); 
-            setIsLoading(false); 
-        })
-        .catch(() => {
-            setErrorLoading(true);
-            setIsLoading(false);
-        })
-    }
+    const { data: rawTpData, isFetching: isLoading, isError: errorLoading } = useQuery<RawTpEntry[]>({
+        queryKey: ['totalPoints', year, region],
+        queryFn: () => fetch(buildTpUrl(year, region)).then(res => res.json()),
+        enabled: Boolean(region),
+    });
 
-    const selectRegion = (region:Regions) => {
-        if(!noMoreClicks){
-            setRegion(region); 
-            if(regionData[region]){
-                setTpArr(regionData[region]);
-            } else {
-                setNoMoreClicks(true)
-                setIsLoading(true); 
-                fetchTotalPoints(region);     
-            }
-        }
-    }
+    const selectedRegionTpArr = useMemo(() => rawTpData ? transformTpData(rawTpData) : [], [rawTpData]);
 
-    useEffect(() => {
-        selectRegion('Nassau'); 
-    }, [])
+    const selectRegion = (newRegion: Regions) => {
+        if (!isLoading) setRegion(newRegion);
+    };
 
     let content = (
         <div className="my-2 py-3 px-2">

@@ -1,8 +1,7 @@
 import * as React from "react";
-import { useEffect, useState, SetStateAction } from "react";
-import dateUtil from "../utils/dateUtils"
 import { Run } from "../types/types"
 import TopRunsContest from "./TopRunsContest";
+import { useQuery } from "@tanstack/react-query";
 
 declare var SERVICE_URL: string;
 
@@ -10,61 +9,32 @@ interface TopRunsProp {
     teams?: string[]
     years?: number[]
     tracks?: string[]
-    loading: boolean
-    setLoading: React.Dispatch<SetStateAction<boolean>>
 }
 
 
 export default function RunSearch(props:TopRunsProp) {
-    let teams = props?.teams ? props.teams : []; 
-    let years = props?.years ? props.years : []; 
-    let tracks = props?.tracks ? props?.tracks : []; 
+    const teams = props?.teams ?? [];
+    const years = props?.years ?? [];
+    const tracks = props?.tracks ?? [];
 
-    let teamsParam = 'teams='
-    teamsParam += teams.map((el,ind) => {
-        return el + ((ind + 1 == teams.length) ? '' : ',')
-    })
-    let yearsParam = 'years='
-    yearsParam += years.map((el,ind) =>  {
-        return `${el}` + ((ind + 1 == years.length) ? '' : ',')
-    })
-    let tracksParam = 'tracks='
-    tracksParam += tracks.map((el,ind) =>  {
-        return el + ((ind + 1 == tracks.length) ? '' : ',')
-    })
+    let teamsParam = 'teams=' + teams.join(',');
+    let yearsParam = 'years=' + years.join(',');
+    let tracksParam = 'tracks=' + tracks.join(',');
 
-    let url = `${SERVICE_URL}/runs/getTopRuns?`; 
-    url += teams.length ? `${teamsParam}&` : ''; 
-    url += years.length ? `${yearsParam}&` : ''; 
-    url += tracks.length ? `${tracksParam}` : '';  
+    let url = `${SERVICE_URL}/runs/getTopRuns?`;
+    url += teams.length ? `${teamsParam}&` : '';
+    url += years.length ? `${yearsParam}&` : '';
+    url += tracks.length ? `${tracksParam}` : '';
 
-    const [topRuns, setTopsRuns] = useState<Run[][]>([]); 
-    const [errorLoading, setErrorLoading] = useState(false); 
+    const contestNames = ["Three Man Ladder", "B Ladder", "C Ladder", "C Hose", "B Hose", "Efficiency", "Motor Pump", "Buckets"];
 
-    const contestNames = ["Three Man Ladder", "B Ladder", "C Ladder", "C Hose", "B Hose", "Efficiency", "Motor Pump", "Buckets"];; 
+    const { data: topRuns = [], isLoading, isError: errorLoading } = useQuery<Run[][]>({
+        queryKey: ['topRuns', teams, years, tracks],
+        queryFn: () => fetch(url).then(res => res.json()),
+    });
 
-    const fetchTopRuns = () => {
-        fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            setTopsRuns(data); 
-            props.setLoading(false);
-        })
-        .catch(() => {
-            setErrorLoading(true);
-        })
-    }
-
-    useEffect(() => {
-        fetchTopRuns(); 
-    }, []); 
-
-    useEffect(() => {
-        fetchTopRuns(); 
-    }, [teams, tracks, years]); 
-
-    let content; 
-    if(props.loading){
+    let content;
+    if(isLoading){
         content = (
             <div className="row min-loading-height">
                 <div className="col-12 d-flex flex-column align-items-center mt-5">
@@ -83,8 +53,7 @@ export default function RunSearch(props:TopRunsProp) {
         )
     }
 
-
-    if(!errorLoading && !props.loading){
+    if(!errorLoading && !isLoading){
         content = (
             <div className="row">
                 {topRuns.map((el, ind) => {

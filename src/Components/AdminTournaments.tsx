@@ -1,6 +1,6 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLoginContext } from "../utils/context";
 import { Tournament, Track, Team, Run } from "../types/types"
 import { fetchPost, fetchGet, logUpdate } from "../utils/network"
@@ -71,21 +71,51 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     const currentYear = new Date().getFullYear();
     const tracks = props.tracks;
     const teams = props.teams;
+    let [yearInput, setYearInput] = useState(currentYear);
     let [year, setYear] = useState(currentYear);
-    let [tourns, setTourns] = useState<Tournament[]>([]);
     let [tournInReview, setTournInReview] = useState<Tournament>(initialTourn);
-    let [runsForTourn, setRunsForTourn] = useState<Run[]>([]);
-    let [runsLoading, setRunsLoading] = useState(false);
     let [editOrCreate, setEditOrCreate] = useState("");
-    let [isError, setIsError] = useState(false);
     let [runsEditContest, setRunsEditContest] = useState("");
-    let [tournamentNames, setTournamentNames] = useState([]);
     let [showNewTournName, setShowNewTournName] = useState(false);
-    let [hostNames, setHostNames] = useState([]);
     let [showNewHostName, setShowNewHostName] = useState(false);
     const { sessionId, role, username  } = useLoginContext();
+    const queryClient = useQueryClient();
     const isAdmin = role === "admin" || role === 'scorekeeper';
-    const hasRuns = Boolean(runsForTourn.length)
+
+    const tournsQuery = useQuery<Tournament[]>({
+        queryKey: ['tournaments', year],
+        queryFn: () => fetchGet(`${SERVICE_URL}/tournaments/getFilteredTournaments?years=${year}`)
+            .then(res => res.json())
+            .then((data: Tournament[]) => data.sort((a, b) => a.date < b.date ? -1 : 1)),
+    });
+
+    const tournamentNamesQuery = useQuery<{_id:string, nameCount:number}[]>({
+        queryKey: ['tournamentNames'],
+        queryFn: () => fetchGet(`${SERVICE_URL}/tournaments/getTournamentNames`)
+            .then(res => res.json())
+            .then((data: {_id:string, nameCount:number}[]) => data.filter(el => el._id)),
+    });
+
+    const hostNamesQuery = useQuery<{_id:string, nameCount:number}[]>({
+        queryKey: ['hostNames'],
+        queryFn: () => fetchGet(`${SERVICE_URL}/tournaments/getHostNames`)
+            .then(res => res.json())
+            .then((data: {_id:string, nameCount:number}[]) => data.filter(el => el._id)),
+    });
+
+    const runsQuery = useQuery<Run[]>({
+        queryKey: ['runsForTournament', tournInReview.id],
+        queryFn: () => fetch(`${SERVICE_URL}/runs/getRunsFromTournament?tournamentId=${tournInReview.id}`)
+            .then(res => res.json()),
+        enabled: Boolean(tournInReview.id),
+    });
+
+    const tourns: Tournament[] = tournsQuery.data ?? [];
+    const tournamentNames = tournamentNamesQuery.data ?? [];
+    const hostNames = hostNamesQuery.data ?? [];
+    const runsForTourn: Run[] = tournInReview.id ? (runsQuery.data ?? []) : [];
+    const isError = tournsQuery.isError;
+    const hasRuns = Boolean(runsForTourn.length);
 
     const saveTournMutation = useMutation({
         mutationFn: async () => {
@@ -103,7 +133,10 @@ export default function AdminTournaments(props:AdminTournamentProps) {
             }
             await fetchPost(url, body, sessionId);
             logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `${editOrCreate} Tournament: ${tournInReview.name} - ${dateUtil.getMMDDYYYY(tournInReview.date)}`);
-            getTournaments(year);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tournaments', year] });
+            queryClient.invalidateQueries({ queryKey: ['tournamentNames'] });
         },
     });
 
@@ -111,8 +144,8 @@ export default function AdminTournaments(props:AdminTournamentProps) {
         mutationFn: async () => {
             await fetchPost(`${SERVICE_URL}/tournaments/deleteTournament`, { tournamentId: tournInReview._id }, sessionId);
             logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Delete Tournament: ${tournInReview.name} - ${dateUtil.getMMDDYYYY(tournInReview.date)}`);
-            getTournaments(year);
         },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tournaments', year] }),
     });
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>){
@@ -140,7 +173,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
     }
 
     function handleYearChange(e:React.ChangeEvent<HTMLInputElement>){
-        setYear(parseInt(e.target.value))
+        setYearInput(parseInt(e.target.value))
     }
 
     function handleNameList(e:React.ChangeEvent<HTMLSelectElement>){
@@ -165,60 +198,6 @@ export default function AdminTournaments(props:AdminTournamentProps) {
 
     function loadTournament(tournament:Tournament){
         setTournInReview({ ...initialTourn, ...tournament })
-        setRunsForTourn([]);
-        getRunsForTourn(tournament.id);
-    }
-
-    function getTournaments(year:number){
-        fetchGet(`${SERVICE_URL}/tournaments/getFilteredTournaments?years=${year}`)
-        .then(response => response.json())
-        .then((data:Tournament[]) => {
-            data = data.sort((a:Tournament,b:Tournament) => a.date < b.date ? -1 : 1)
-            setTourns(data)
-        })
-        .catch(() => { setIsError(true) })
-    }
-
-    function getTournamentNames(){
-        fetchGet(`${SERVICE_URL}/tournaments/getTournamentNames`)
-        .then(response => response.json())
-        .then((data:{_id:string, nameCount:number}[]) => {
-            let keepThese = data.filter(el => el._id)
-            setTournamentNames(keepThese)
-        })
-        .catch(() => { setIsError(true) })
-    }
-
-    function getHostNames(){
-        fetchGet(`${SERVICE_URL}/tournaments/getHostNames`)
-        .then(response => response.json())
-        .then((data:{_id:string, nameCount:number}[]) => {
-            let keepThese = data.filter(el => el._id)
-            setHostNames(keepThese)
-        })
-        .catch(() => { setIsError(true) })
-    }
-
-    function changeYear(year:number){
-        setYear(year);
-        getTournaments(year);
-    }
-
-    useEffect(() => {
-        changeYear(new Date().getFullYear())
-        getTournamentNames()
-        getHostNames()
-    }, [])
-
-    function getRunsForTourn(tournId:number){
-        setRunsLoading(true);
-        fetch(`${SERVICE_URL}/runs/getRunsFromTournament?tournamentId=${tournId}`)
-            .then(response => response.json())
-            .then((data:Run[]) => {
-                setRunsForTourn(data);
-                setRunsLoading(false);
-            })
-            .catch(() => { setRunsLoading(false); })
     }
 
     function modalCleanup(){
@@ -226,7 +205,6 @@ export default function AdminTournaments(props:AdminTournamentProps) {
         deleteTournMutation.reset();
         setShowNewTournName(false);
         setShowNewHostName(false);
-        getTournamentNames();
     }
 
     return (
@@ -237,9 +215,9 @@ export default function AdminTournaments(props:AdminTournamentProps) {
 
                     <div className="d-flex justify-content-center">
                         <div className="d-flex flex-row align-items-center me-5">
-                            <button className="btn add-entry-button me-2" onClick={() => changeYear(year)}>Update Year</button>
+                            <button className="btn add-entry-button me-2" onClick={() => setYear(yearInput)}>Update Year</button>
                             <input className="p-1"
-                                value={year} onChange={handleYearChange} type="number" id="yearToDisplay" name="yearToDisplay" min="1900" max={new Date().getFullYear() + 1}/>
+                                value={yearInput} onChange={handleYearChange} type="number" id="yearToDisplay" name="yearToDisplay" min="1900" max={new Date().getFullYear() + 1}/>
                         </div>
                         <div
                             className="btn add-entry-button my-5 ms-5"
@@ -572,8 +550,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                 runsForTourn={runsForTourn}
                                 runsEditContest={runsEditContest}
                                 setRunsEditContest={setRunsEditContest}
-                                isLoading={runsLoading}
-                                getRunsForTourn={getRunsForTourn}
+                                isLoading={runsQuery.isLoading}
                                 />
                         </div>
                         <div className="modal-footer d-flex flex-column">

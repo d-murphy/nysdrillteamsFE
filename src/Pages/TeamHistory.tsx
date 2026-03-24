@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Run, TeamTournHistory } from "../types/types";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {  Cell, Scatter, ScatterChart, Tooltip, TooltipProps, XAxis, YAxis, ZAxis } from "recharts";
@@ -9,27 +9,31 @@ import useWindowDimensions from "../utils/windowDimensions";
 import { contestArr } from "../Components/adminTournamentsComps/ContestOptions";
 import { niceTime } from "../utils/timeUtils";
 import { TimeCellContents } from "../Components/Scorecard";
+import { useQuery } from "@tanstack/react-query";
 
 
 declare var SERVICE_URL: string;
 
-type opacityControl = "appearance" | "points" | "top5" | 'wins' | 'stateRecords' | 'video' ; 
+type opacityControl = "appearance" | "points" | "top5" | 'wins' | 'stateRecords' | 'video' ;
 
 
 export default function TeamHistory(){
     let params = useParams();
     const teamName = params.teamName
-    const [teamHistory, setTeamHistory] = useState<TeamTournHistory[]>([])
-    const [teamRecords, setTeamRecords] = useState<{_id: string, matched_doc: Run}[]>([]); 
-    const [loading, setLoading] = useState(true); 
-    const [trLoading, setTrLoading] = useState(true); 
-    const [isError, setError] = useState(false); 
-    const [opacityControl, setOpacityControl] = useState<opacityControl>("appearance"); 
+    const [opacityControl, setOpacityControl] = useState<opacityControl>("appearance");
 
-    useEffect(() => {
-        getTeamHistory(teamName, setTeamHistory, setError, setLoading); 
-        getTeamRecords(teamName, setTeamRecords, setError, setTrLoading); 
-    }, [])
+    const { data: teamHistory = [], isLoading: loading } = useQuery<TeamTournHistory[]>({
+        queryKey: ['teamHistory', teamName],
+        queryFn: () => fetch(`${SERVICE_URL}/histories/getHistory?teamname=${encodeURIComponent(teamName)}`)
+            .then(res => res.json())
+            .then(data => data.histories),
+    });
+
+    const { data: teamRecords = [], isLoading: trLoading } = useQuery<{_id: string, matched_doc: Run}[]>({
+        queryKey: ['teamRecords', teamName],
+        queryFn: () => fetch(`${SERVICE_URL}/runs/getTeamRecords?team=${encodeURIComponent(teamName)}`)
+            .then(res => res.json()),
+    });
 
     return (
         <div className="container">
@@ -364,32 +368,4 @@ function calcOpacity(item: TeamTournHistory, opacCtrl: opacityControl) {
 }
 
 
-function getTeamHistory(teamname:string, stateSetter:Function, errorSetter:Function, setLoading:Function){
-    setLoading(true)
-    stateSetter([])
-    fetch(`${SERVICE_URL}/histories/getHistory?teamname=${encodeURIComponent(teamname)}`)
-        .then(response => response.json())
-        .then(data => {
-            stateSetter(data.histories); 
-            setLoading(false); 
-        })
-        .catch(() => {
-            errorSetter(true)
-        })
-}
-
-function getTeamRecords(teamName: string, stateSetter:Function, errorSetter:Function, setLoading:Function){
-    setLoading(true)
-    stateSetter([])
-    fetch(`${SERVICE_URL}/runs/getTeamRecords?team=${encodeURIComponent(teamName)}`)
-        .then(response => response.json())
-        .then(data => {
-            stateSetter(data); 
-            setLoading(false); 
-        })
-        .catch(() => {
-            errorSetter(true)
-        })
-
-} 
 

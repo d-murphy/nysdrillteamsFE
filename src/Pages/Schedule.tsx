@@ -1,83 +1,59 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
-import { Tournament } from "../types/types"; 
-import ScheduleEntry from "../Components/ScheduleEntry"; 
+import { useState, useMemo } from "react";
+import { Tournament } from "../types/types";
+import ScheduleEntry from "../Components/ScheduleEntry";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilter, faFlagUsa, faPersonRunning, faTruckPickup } from "@fortawesome/free-solid-svg-icons";
-import { Button } from "react-bootstrap";
+import { useQuery } from "@tanstack/react-query";
 
 declare var SERVICE_URL: string;
 
 interface ScheduleProp {
     year: number;
-    bgColorClass: string; 
+    bgColorClass: string;
 }
 
 
 export default function Schedule(props:ScheduleProp) {
 
-    const [tournaments, setTournaments] = useState<Tournament[]>([]); 
-    const [filteredRows, setFilteredRows ] = useState<Tournament[]>([]); 
-    const [region, setRegion ] = useState<string>(""); 
-    const [loading, setLoading] = useState(true); 
-    const [errorLoading, setErrorLoading] = useState(false); 
-    const [showFilters, setShowFilters] = useState(false); 
+    const [region, setRegion] = useState<string>("");
+    const [showFilters, setShowFilters] = useState(false);
 
-    const fetchTournaments = () => {
-        fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?years=${props.year}`)
-        .then(response => response.json())
-        .then(data => {
-            data = data.sort((a:Tournament,b:Tournament) => new Date(a.date) < new Date(b.date) ? -1 : 1)
-            data = data.map((el:Tournament) => {
-                return {
-                    ...el, 
-                    date: new Date(el.date)
-                }
-            })
-            setTournaments(data); 
-            setFilteredRows(data); 
-            setLoading(false);
-        })
-        .catch(() => {
-            setErrorLoading(true);
-        })
-    }
+    const { data, isLoading, isError } = useQuery<Tournament[]>({
+        queryKey: ['tournaments', props.year],
+        queryFn: () => fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?years=${props.year}`).then(res => res.json()),
+    });
 
-    function filterTournaments(){
-        if(!region) setFilteredRows(tournaments); 
-        else {
-            let result = tournaments.filter((el:Tournament) => {
-                const isMotorized = el.nassauSchedule || el.northernSchedule || el.suffolkSchedule || el.westernSchedule; 
-                const drillClass = el.isParade ? "Parade" : 
-                    isMotorized ? 'Motorized' : 
-                    el.liOfSchedule ? 'Old Fashioned' : 
-                    el.juniorSchedule ? 'Junior' : ""
-                return drillClass === region; 
-            })
-            setFilteredRows(result);     
-        }
-    }
+    const tournaments = useMemo(() =>
+        (data ?? [])
+            .map((el: Tournament) => ({ ...el, date: new Date(el.date) }))
+            .sort((a: Tournament, b: Tournament) => a.date < b.date ? -1 : 1),
+        [data]
+    );
 
-    const showOf = tournaments.some(el => el.liOfSchedule)
-    const showJunior = tournaments.some(el => el.juniorSchedule); 
-    const showParade = tournaments.some(el => el.isParade)
+    const filteredRows = useMemo(() => {
+        if (!region) return tournaments;
+        return tournaments.filter((el: Tournament) => {
+            const isMotorized = el.nassauSchedule || el.northernSchedule || el.suffolkSchedule || el.westernSchedule;
+            const drillClass = el.isParade ? "Parade" :
+                isMotorized ? 'Motorized' :
+                el.liOfSchedule ? 'Old Fashioned' :
+                el.juniorSchedule ? 'Junior' : "";
+            return drillClass === region;
+        });
+    }, [tournaments, region]);
+
+    const showOf = tournaments.some(el => el.liOfSchedule);
+    const showJunior = tournaments.some(el => el.juniorSchedule);
+    const showParade = tournaments.some(el => el.isParade);
 
     const handleSelection = (newRegion: string) => {
-        if(region === newRegion) setRegion(""); 
-        else setRegion(newRegion); 
+        if(region === newRegion) setRegion("");
+        else setRegion(newRegion);
     }
 
-    useEffect(() => {
-        fetchTournaments(); 
-    }, []); 
-
-    useEffect(() => {
-        filterTournaments(); 
-    }, [region]); 
-
-
-    let content; 
-    if(loading){
+    let content;
+    if(isLoading){
         content = (
             <div className="row">
                 <div className="col-12 d-flex flex-column align-items-center mt-5">
@@ -86,7 +62,7 @@ export default function Schedule(props:ScheduleProp) {
             </div>
         )
     }
-    if(errorLoading){
+    if(isError){
         content = (
             <div className="row">
                 <div className="col-12 d-flex flex-column align-items-center mt-5">
@@ -97,7 +73,7 @@ export default function Schedule(props:ScheduleProp) {
     }
 
 
-    if(!loading && !errorLoading){
+    if(!isLoading && !isError){
         content = (
             <div className="d-flex flex-column align-items-end pt-2">
                 {

@@ -1,40 +1,42 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Team } from "../types/types";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 
 declare var SERVICE_URL: string;
 
 
 export default function TeamHistoryBase(){
-    const [teams, setTeams] = useState<Team[]>([]);
-    const [loading, setLoading] = useState(true); 
-    const [error, setError] = useState(false); 
+    const { data, isLoading: loading, isError: error } = useQuery<Team[]>({
+        queryKey: ['teams'],
+        queryFn: () => fetch(`${SERVICE_URL}/teams/getTeams`).then(res => res.json()),
+    });
 
-    useEffect(() => {
-        getTeams(setTeams, setError, setLoading)
-    }, [])
+    const teams = (data ?? [])
+        .filter(el => el.fullName)
+        .sort((a, b) => a.fullName?.trim()?.toLowerCase() < b.fullName?.trim()?.toLowerCase() ? -1 : 1);
 
     const groups = teams.reduce((accum: Record<string, Team[]>, el: Team) => {
-        if(!el.display) return accum; 
+        if(!el.display) return accum;
         if(!accum[el.circuit]){
             accum[el.circuit] = [el]
         } else {
             accum[el.circuit].push(el)
         }
-        return accum; 
+        return accum;
     }, {})
 
     const sortOrder: Record<string, number> = {
-        'nassau': 1, 
-        'northern': 2, 
-        'suffolk': 3, 
-        'western': 4, 
-        'juniors': 5, 
+        'nassau': 1,
+        'northern': 2,
+        'suffolk': 3,
+        'western': 4,
+        'juniors': 5,
         'old fashioned': 6
     }
 
-    if(loading) return <></>; 
+    if(loading) return <></>;
     if(error) return <>An error occurred please try again.</>
     return (
         <div className="container">
@@ -59,27 +61,11 @@ export default function TeamHistoryBase(){
                                         )
                                     })
                                 }
-                            </div>    
+                            </div>
                         )
                     })
                 }
             </div>
         </div>
     )
-}
-
-function getTeams(stateSetter:Function, errorSetter:Function, setLoading:Function){
-    setLoading(true)
-    fetch(`${SERVICE_URL}/teams/getTeams`)
-        .then(response => response.json())
-        .then(data => {
-            data = data
-                .filter((el:Team) => el.fullName)
-                .sort((a: Team,b: Team) => a.fullName?.trim()?.toLowerCase() < b.fullName?.trim()?.toLowerCase() ? -1 : 1)
-            stateSetter(data); 
-            setLoading(false); 
-        })
-        .catch(() => {
-            errorSetter(true)
-        })
 }

@@ -1,12 +1,12 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
-import { Tournament } from "../types/types"; 
+import { Tournament } from "../types/types";
 import dateUtil from "../utils/dateUtils"
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faVideo } from '@fortawesome/free-solid-svg-icons'; 
-import Tooltip from "react-bootstrap/Tooltip"; 
-import OverlayTrigger from "react-bootstrap/OverlayTrigger"; 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faVideo } from '@fortawesome/free-solid-svg-icons';
+import Tooltip from "react-bootstrap/Tooltip";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 
 declare var SERVICE_URL: string;
@@ -18,43 +18,21 @@ interface ScheduleProp {
 
 export default function Schedule(props:ScheduleProp) {
 
-    const [tournaments, setTournaments] = useState<Tournament[]>([]); 
-    const [loading, setLoading] = useState(true); 
-    const [errorLoading, setErrorLoading] = useState(false); 
     const navigate = useNavigate();
 
-    const fetchTournaments = () => {
-        fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?years=${props.year}`)
-        .then(response => response.json())
-        .then(data => {
-            data = data.map((el:Tournament) => {
-                return {
-                    ...el, 
-                    date: new Date(el.date)
-                }
-            })
-
-            setTournaments(data); 
-            setLoading(false);
-        })
-        .catch(() => {
-            setErrorLoading(true);
-        })
-    }
-
-    useEffect(() => {
-        fetchTournaments(); 
-    }, []); 
+    const { data, isLoading, isError } = useQuery<Tournament[]>({
+        queryKey: ['tournaments', props.year],
+        queryFn: () => fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?years=${props.year}`).then(res => res.json()),
+    });
+    const tournaments = data ?? [];
 
     const upcommingTournaments = tournaments
-        .filter((el:Tournament) => {
-            return new Date(el.date) > new Date()
-        })
-        .sort((a:Tournament,b:Tournament) => a.date < b.date ? -1 : 1)
-        .filter((el:Tournament, ind:number) => {return ind < 5})
+        .filter((el:Tournament) => new Date(el.date) > new Date())
+        .sort((a:Tournament, b:Tournament) => new Date(a.date) < new Date(b.date) ? -1 : 1)
+        .filter((_el:Tournament, ind:number) => ind < 5);
 
-    let content; 
-    if(loading){
+    let content;
+    if(isLoading){
         content = (
             <div className="row">
                 <div className="col-12 d-flex flex-column align-items-center mt-5">
@@ -63,7 +41,7 @@ export default function Schedule(props:ScheduleProp) {
             </div>
         )
     }
-    if(errorLoading){
+    if(isError){
         content = (
             <div className="row">
                 <div className="col-12 d-flex flex-column align-items-center mt-5">
@@ -74,7 +52,7 @@ export default function Schedule(props:ScheduleProp) {
     }
 
 
-    if(!loading && !errorLoading){
+    if(!isLoading && !isError){
         content = (
             <div className="">
             {upcommingTournaments.length ? 

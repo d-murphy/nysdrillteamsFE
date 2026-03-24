@@ -1,12 +1,11 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
-import dateUtil from "../utils/dateUtils"
 import { Run } from "../types/types"
 import Big8Contest from "../Components/Big8Contest"
 import Big8ContestLoading from "./Big8ContestLoading";
 import { faList } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 interface Big8Prop {
     year?: number;
@@ -16,33 +15,18 @@ declare var SERVICE_URL: string;
 
 export default function Big8(props:Big8Prop) {
 
-    let big8Year = props.year ? props.year : new Date() < new Date(`6/15/${new Date().getFullYear()}`) ? new Date().getFullYear() -1  : new Date().getFullYear();  
-
-    const [big8, setBig8] = useState<{_id:string, matched_doc:Run}[]>([]); 
-    const [errorLoading, setErrorLoading] = useState(false); 
-    const [isLoading, setIsLoading] = useState(true); 
+    let big8Year = props.year ? props.year : new Date() < new Date(`6/15/${new Date().getFullYear()}`) ? new Date().getFullYear() -1  : new Date().getFullYear();
 
     const navigate = useNavigate();
 
-    const fetchBig8 = () => {
-        fetch(`${SERVICE_URL}/runs/getBig8?year=${big8Year}`)
-        .then(response => response.json())
-        .then(data => {
-           setBig8(data); 
-           setIsLoading(false); 
-        })
-        .catch(() => {
-            setErrorLoading(true);
-            setIsLoading(false);
-        })
-    }
+    const { data, isLoading, isError } = useQuery<{_id: string, matched_doc: Run}[]>({
+        queryKey: ['big8', big8Year],
+        queryFn: () => fetch(`${SERVICE_URL}/runs/getBig8?year=${big8Year}`).then(res => res.json()),
+    });
+    const big8 = data ?? [];
 
-    useEffect(() => {
-        fetchBig8(); 
-    }, []); 
-
-    let content; 
-    if(errorLoading) return <div></div>
+    let content;
+    if(isError) return <div></div>
 
     if(!isLoading){
         content = (

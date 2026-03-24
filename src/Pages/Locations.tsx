@@ -1,90 +1,47 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { ImageDbEntry, Tournament, Track } from '../types/types';
-import { Wrapper, Status } from "@googlemaps/react-wrapper"; 
+import { Wrapper, Status } from "@googlemaps/react-wrapper";
 import { Form, Modal, Placeholder } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark } from "@fortawesome/free-solid-svg-icons"; 
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Bar, BarChart, Label, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 
 
 declare var SERVICE_URL: string;
-declare var MAPS_API_KEY: string; 
+declare var MAPS_API_KEY: string;
 
 export default function Locations(){
     const params = useParams();
     const navigate = useNavigate();
 
-    const trackSelected = params.location
-    const [loading, setLoading] = useState(true); 
-    const [tracks, setTracks] = useState<Track[]>([]);
-    const [errorLoading, setErrorLoading] = useState(false);
-
-    const [trackImages, setTrackImages] = useState<ImageDbEntry[]>([])
-    const [trackTourns, setTrackTourns] = useState<Tournament[]>([]);
+    const trackSelected = params.location;
 
     const setTrackSelected = (track: string) => {
         navigate(`/Locations/${encodeURIComponent(track)}`)
     }
 
-    const fetchTracks = () => {
-        setLoading(true); 
+    const { data: rawTracks, isLoading: loading, isError: errorLoading } = useQuery<Track[]>({
+        queryKey: ['tracks'],
+        queryFn: () => fetch(`${SERVICE_URL}/tracks/getTracks`).then(res => res.json()),
+    });
+    const tracks = useMemo(() => (rawTracks ?? []).filter(el => el.display), [rawTracks]);
 
-        // fetch(`${SERVICE_URL}/tracks/getTracks`)
-        fetch(`${SERVICE_URL}/tracks/getTracks`)
-        .then(response => response.json())
-        .then(data => {
-            data = data.filter((el: Track) => {
-                return el.display;  
-            })
-            setTracks(data); 
-            setLoading(false);
-        })
-        .catch(() => {
-            setLoading(false); 
-            setErrorLoading(true); 
-        })
-    }
+    const { data: trackImages = [] } = useQuery<ImageDbEntry[]>({
+        queryKey: ['trackImages', trackSelected],
+        queryFn: () => fetch(`${SERVICE_URL}/images/getImages?track=${trackSelected}`)
+            .then(res => res.json())
+            .then(data => data.results),
+        enabled: Boolean(trackSelected),
+    });
 
-    function getTrackImages(){
-        if(!trackSelected) return;
-        let url = `${SERVICE_URL}/images/getImages?track=${trackSelected}`
-        fetch(url)
-        .then(res => res.json())
-        .then(data => {
-            setTrackImages(data.results);
-        })
-        .catch(() => {
-        })
-    }
-
-    function getTrackTourns(){
-        if(!trackSelected) return;
-        let url = `${SERVICE_URL}/tournaments/getFilteredTournaments?tracks=${trackSelected}`
-        fetch(url)
-        .then(res => res.json())
-        .then(data => {
-            setTrackTourns(data);
-        })
-        .catch(() => {
-        })
-    
-    }
-
-    useEffect(() => {
-        if(trackSelected){
-            getTrackImages(); 
-            getTrackTourns(); 
-        } else {
-            setTrackImages([]);
-            setTrackTourns([]);
-        }
-    }, [trackSelected])
-
-
-    useEffect(() => {
-        fetchTracks(); 
-    }, []);
+    const { data: trackTourns = [] } = useQuery<Tournament[]>({
+        queryKey: ['trackTournaments', trackSelected],
+        queryFn: () => fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?tracks=${trackSelected}`)
+            .then(res => res.json()),
+        enabled: Boolean(trackSelected),
+    });
 
     const selectedTrackInfo = tracks.find(el => el.name === trackSelected);
 
