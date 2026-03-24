@@ -11,6 +11,7 @@ import {
 import Root from "./Pages/Root";
 import Home from './Pages/Home';
 import Image from "react-bootstrap/Image";
+import ErrorBoundary from "./shared/components/ErrorBoundary";
 
 const Schedule = React.lazy(() => import('./features/schedule/Schedule'));
 const Tournament = React.lazy(() => import('./features/tournament/Tournament'));
@@ -117,9 +118,9 @@ const router = createBrowserRouter([
                 element: <Search />
             },
             {
-                path: "/AdminHome", 
-                element: <AdminHome />
-            }, 
+                path: "/AdminHome",
+                element: <ErrorBoundary><AdminHome /></ErrorBoundary>
+            },
             {
                 path: "/Login", 
                 element: <Login />
@@ -206,12 +207,14 @@ const queryClient = new QueryClient({
 export default function App() {
 
     return (
-        <QueryClientProvider client={queryClient}>
-            <LoginProvider>
-                <React.Suspense fallback={<div>&nbsp;</div>}>
-                    <RouterProvider router={router} />
-                </React.Suspense>
-            </LoginProvider>
-        </QueryClientProvider>
+        <ErrorBoundary>
+            <QueryClientProvider client={queryClient}>
+                <LoginProvider>
+                    <React.Suspense fallback={<div>&nbsp;</div>}>
+                        <RouterProvider router={router} />
+                    </React.Suspense>
+                </LoginProvider>
+            </QueryClientProvider>
+        </ErrorBoundary>
     );
 }
