@@ -140,7 +140,7 @@ export default function AdminUpdates(_props:AdminUsersProps) {
                                     <h5 className="modal-title" id="newUserModalLabel">Create New User</h5>
                                     <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <div className="modal-body">
+                                <div className="modal-body px-4">
                                     <div className="mb-3 row align-items-center">
                                         <label htmlFor="username" className="col-4 col-form-label fw-semibold text-end">Username</label>
                                         <div className="col-8">
@@ -209,7 +209,7 @@ export default function AdminUpdates(_props:AdminUsersProps) {
                                     <h5 className="modal-title" id="deleteUserModalLabel">Delete User?</h5>
                                     <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <div className="modal-body">
+                                <div className="modal-body px-4">
                                     <p>Are you sure you want to delete <strong>{userInReview.username}</strong>?</p>
                                     <p className="text-muted small"><i>Any DB changes made by the user are unaffected.</i></p>
                                 </div>

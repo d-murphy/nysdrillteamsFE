@@ -297,7 +297,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             <h5 className="modal-title" id="editTournModalLabel">{editOrCreate === "Edit" ? "Edit Tournament" : "Add Tournament"}</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div className="modal-body">
+                        <div className="modal-body px-4">
                             {editOrCreate === "Edit" && (
                                 <p className="text-center text-muted small fst-italic mb-1">
                                     {tournInReview?.afterMigrate ? "Created after 2022 migration." : "Migrated from previous site."}
@@ -523,7 +523,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             <h5 className="modal-title" id="deleteTournModalLabel">Delete Tournament?</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div className="modal-body">
+                        <div className="modal-body px-4">
                             {deleteTournMutation.isSuccess || deleteTournMutation.isError ? null :
                              deleteTournMutation.isPending ? <p>Processing...</p> :
                              runsForTourn.length ?
@@ -556,7 +556,7 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             <h5 className="modal-title" id="editRunsModalLabel">Edit Runs — {tournInReview.name}</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div className="modal-body">
+                        <div className="modal-body px-4">
                             <RunsEdit
                                 isAdmin={isAdmin}
                                 tournInReview={tournInReview}

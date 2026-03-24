@@ -130,7 +130,7 @@ export default function AdminTracks(props:AdminTracksProps) {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['trackImages', trackInReview.name] }),
     });
 
-    function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){
+    function handleTextInput(e:React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>){
         setTrackInReview({ ...trackInReview, [e.target.id]: e.target.value })
     }
 
@@ -249,7 +249,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                             <h5 className="modal-title" id="trackModalLabel">{editOrCreate === "Edit" ? "Edit Track" : "Add Track"}</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div className="modal-body">
+                        <div className="modal-body px-4">
                             {editOrCreate === "Edit" && (
                                 <p className="text-center text-muted small fst-italic mb-3">
                                     {trackInReview?.afterMigrate ? "Created after 2022 migration." : "Migrated from previous site."}
@@ -295,16 +295,16 @@ export default function AdminTracks(props:AdminTracksProps) {
                                     />
                                 </div>
                             </div>
-                            <div className="mb-3 row align-items-center">
+                            <div className="mb-3 row align-items-start">
                                 <label htmlFor="notes" className="col-4 col-form-label fw-semibold text-end">Notes</label>
                                 <div className="col-8">
-                                    <input
+                                    <textarea
                                         id="notes"
                                         onChange={(e) => handleTextInput(e)}
                                         value={trackInReview.notes}
                                         className="form-control form-control-sm"
+                                        rows={3}
                                         disabled={!isAdminOrScorekeeper}
-                                        autoComplete="off"
                                     />
                                 </div>
                             </div>
@@ -384,14 +384,14 @@ export default function AdminTracks(props:AdminTracksProps) {
                             <hr />
                             <div className="row g-3 mb-3">
                                 <div className="col-6">
-                                    <div className="form-check d-flex align-items-center gap-2">
-                                        <input className="form-check-input" type="checkbox" id="active" name="active" checked={trackInReview?.active} onChange={handleCheck} disabled={!isAdminOrScorekeeper} />
+                                    <div className="form-check form-switch mb-0">
+                                        <input className="form-check-input" type="checkbox" role="switch" id="active" name="active" checked={trackInReview?.active} onChange={handleCheck} disabled={!isAdminOrScorekeeper} />
                                         <label className="form-check-label fw-semibold" htmlFor="active">Active</label>
                                     </div>
                                 </div>
                                 <div className="col-6">
-                                    <div className="form-check d-flex align-items-center gap-2">
-                                        <input className="form-check-input" type="checkbox" id="display" name="display" checked={trackInReview?.display} onChange={handleCheck} disabled={!isAdminOrScorekeeper} />
+                                    <div className="form-check form-switch mb-0">
+                                        <input className="form-check-input" type="checkbox" role="switch" id="display" name="display" checked={trackInReview?.display} onChange={handleCheck} disabled={!isAdminOrScorekeeper} />
                                         <label className="form-check-label fw-semibold" htmlFor="display">Show in Lists</label>
                                     </div>
                                 </div>
@@ -466,7 +466,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                             <h5 className="modal-title" id="deleteTrackModalLabel">Delete Track?</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div className="modal-body">
+                        <div className="modal-body px-4">
                             <p>Are you sure you want to remove <strong>{trackInReview.name}</strong>?</p>
                             <p className="text-muted small">This removes the track from future lists, but previously saved tournaments and runs will still reference it.</p>
                             <p className="text-muted small fst-italic">It's probably not a good idea to delete it if it's been added to tournaments.</p>
@@ -492,7 +492,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <form onSubmit={handleSubmit}>
-                            <div className="modal-body">
+                            <div className="modal-body px-4">
                                 <p className="text-muted small mb-3">Image for: <strong>{trackInReview?.name || "—"}</strong></p>
 
                                 {imageEditOrCreate !== 'Edit' && (
@@ -589,7 +589,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                             <h5 className="modal-title" id="deleteImageModalLabel">Delete Image?</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div className="modal-body">
+                        <div className="modal-body px-4">
                             <p>Are you sure you want to remove <strong>{imageInReview?.fileName}</strong>?</p>
                         </div>
                         <div className="modal-footer flex-column align-items-stretch gap-2">

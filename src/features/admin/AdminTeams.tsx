@@ -172,7 +172,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
                             <h5 className="modal-title" id="editTeamModalLabel">{editOrCreate === "Edit" ? "Edit Team" : "Add Team"}</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div className="modal-body">
+                        <div className="modal-body px-4">
                             {editOrCreate === "Edit" && (
                                 <p className="text-center text-muted small fst-italic mb-3">
                                     {teamInReview?.afterMigrate ? "Created after 2022 migration." : "Migrated from previous site."}
@@ -268,14 +268,14 @@ export default function AdminTeams(props:AdminTeamsProps) {
                             <hr />
                             <div className="row g-3">
                                 <div className="col-6">
-                                    <div className="form-check d-flex align-items-center gap-2">
-                                        <input className="form-check-input" type="checkbox" id="active" name="active" checked={teamInReview?.active} onChange={handleCheck} />
+                                    <div className="form-check form-switch mb-0">
+                                        <input className="form-check-input" type="checkbox" role="switch" id="active" name="active" checked={teamInReview?.active} onChange={handleCheck} />
                                         <label className="form-check-label fw-semibold" htmlFor="active">Active</label>
                                     </div>
                                 </div>
                                 <div className="col-6">
-                                    <div className="form-check d-flex align-items-center gap-2">
-                                        <input className="form-check-input" type="checkbox" id="display" name="display" checked={teamInReview?.display} onChange={handleCheck} />
+                                    <div className="form-check form-switch mb-0">
+                                        <input className="form-check-input" type="checkbox" role="switch" id="display" name="display" checked={teamInReview?.display} onChange={handleCheck} />
                                         <label className="form-check-label fw-semibold" htmlFor="display">Show in Lists</label>
                                     </div>
                                 </div>
@@ -301,7 +301,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
                             <h5 className="modal-title" id="deleteTeamModalLabel">Delete Team?</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div className="modal-body">
+                        <div className="modal-body px-4">
                             <p>Are you sure you want to remove <strong>{teamInReview.fullName}</strong>?</p>
                             <p className="text-muted small">This removes the team from future lists, but previously saved tournaments and runs will still reference them.</p>
                             <p className="text-muted small fst-italic">It's probably not a good idea to delete them if they've been added to tournaments.</p>

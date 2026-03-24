@@ -14,259 +14,251 @@ interface EditRunsFormProps {
     runInReview: Run,
     setRunInReview: React.Dispatch<React.SetStateAction<Run>>,
     editOrInsertRun: 'edit' | 'insert',
-    reqResult: {error: boolean, message:string} | null,
-    setReqResult: React.Dispatch<React.SetStateAction<{error: boolean, message:string} | null>>,
+    reqResult: { error: boolean, message: string } | null,
+    setReqResult: React.Dispatch<React.SetStateAction<{ error: boolean, message: string } | null>>,
     showingDeleteWarning: boolean,
     setShowingDeleteWarning: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 declare var SERVICE_URL: string;
 
-export default function RunsEditForm(props:EditRunsFormProps) {
-    const isAdmin = props.isAdmin;
-    const runInReview = props.runInReview;
-    const setRunInReview = props.setRunInReview;
-    const tournInReview = props.tournInReview;
+const POINTS_FLAGS = [
+    { id: 'nassauPoints', label: 'Nassau Points' },
+    { id: 'northernPoints', label: 'Northern Points' },
+    { id: 'suffolkPoints', label: 'Suffolk Points' },
+    { id: 'westernPoints', label: 'Western Points' },
+    { id: 'juniorPoints', label: 'Jr Points' },
+    { id: 'nassauOfPoints', label: 'Nassau OF Points' },
+    { id: 'suffolkOfPoints', label: 'Suffolk OF Points' },
+    { id: 'liOfPoints', label: 'LI OF Points' },
+    { id: 'sanctioned', label: 'Sanctioned' },
+];
+
+export default function RunsEditForm(props: EditRunsFormProps) {
+    const { isAdmin, runInReview, setRunInReview, tournInReview } = props;
+    const { editOrInsertRun, reqResult, setReqResult, showingDeleteWarning, setShowingDeleteWarning } = props;
     const queryClient = useQueryClient();
-    const editOrInsertRun = props.editOrInsertRun;
-    const reqResult = props.reqResult;
-    const setReqResult = props.setReqResult;
-    const showingDeleteWarning = props.showingDeleteWarning;
-    const setShowingDeleteWarning = props.setShowingDeleteWarning;
     const { sessionId, username } = useLoginContext();
 
     const saveMutation = useMutation({
         mutationFn: async () => {
             if (editOrInsertRun === 'insert') {
-                await fetchPost(`${SERVICE_URL}/runs/insertRun`, {runsData: runInReview}, sessionId);
+                await fetchPost(`${SERVICE_URL}/runs/insertRun`, { runsData: runInReview }, sessionId);
                 logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Inserted Run: ${dateUtil.getMMDDYYYY(runInReview.date)} - ${runInReview.tournament} - ${runInReview.contest} - ${runInReview.team} - ${runInReview.time}`);
             } else {
-                let runId = runInReview._id;
-                let {_id: _, ...runData} = runInReview;
-                await fetchPost(`${SERVICE_URL}/runs/updateRun`, {runId, fieldsToUpdate: runData}, sessionId);
+                const runId = runInReview._id;
+                const { _id: _, ...runData } = runInReview;
+                await fetchPost(`${SERVICE_URL}/runs/updateRun`, { runId, fieldsToUpdate: runData }, sessionId);
                 logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Updated Run: ${dateUtil.getMMDDYYYY(runInReview.date)} - ${runInReview.tournament} - ${runInReview.contest} - ${runInReview.team} - ${runInReview.time}`);
             }
         },
         onSuccess: () => {
-            setReqResult({error: false, message: "Record saved successfully."});
+            setReqResult({ error: false, message: "Record saved successfully." });
             setRunInReview(null);
             queryClient.invalidateQueries({ queryKey: ['runsForTournament', tournInReview.id] });
         },
         onError: () => {
-            setReqResult({error: true, message: "An error occurred.  Can you try again?."});
+            setReqResult({ error: true, message: "An error occurred. Can you try again?" });
         },
     });
 
     const deleteMutation = useMutation({
         mutationFn: async () => {
-            await fetchPost(`${SERVICE_URL}/runs/deleteRun`, {runId: runInReview._id}, sessionId);
+            await fetchPost(`${SERVICE_URL}/runs/deleteRun`, { runId: runInReview._id }, sessionId);
             logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Deleted Run: ${dateUtil.getMMDDYYYY(runInReview.date)} - ${runInReview.tournament} - ${runInReview.contest} - ${runInReview.team} - ${runInReview.time}`);
         },
         onSuccess: () => {
-            setReqResult({error: false, message: "Record deleted successfully."});
+            setReqResult({ error: false, message: "Record deleted successfully." });
             setRunInReview(null);
             setShowingDeleteWarning(false);
             queryClient.invalidateQueries({ queryKey: ['runsForTournament', tournInReview.id] });
         },
         onError: () => {
             setShowingDeleteWarning(false);
-            setReqResult({error: true, message: "An error occurred.  Can you try again?."});
+            setReqResult({ error: true, message: "An error occurred. Can you try again?" });
         },
     });
 
-    function handleTextInput(e:React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>){
-        setRunInReview({ ...runInReview, [e.target.id]: e.target.value })
+    function handleTextInput(e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) {
+        setRunInReview({ ...runInReview, [e.target.id]: e.target.value });
     }
 
-    function handleTimeChange(e:React.ChangeEvent<HTMLInputElement>){
-        setRunInReview({ ...runInReview, time: e.target.value, timeNum: parseFloat(e.target.value) })
+    function handleTimeChange(e: React.ChangeEvent<HTMLInputElement>) {
+        setRunInReview({ ...runInReview, time: e.target.value, timeNum: parseFloat(e.target.value) });
     }
 
-    function handlePointsChange(e:React.ChangeEvent<HTMLInputElement>, pointsOrTotalPointsOveride: 'points' | 'totalPointsOverride'){
-        setRunInReview({ ...runInReview, [pointsOrTotalPointsOveride]: parseFloat(e.target.value) })
+    function handlePointsChange(e: React.ChangeEvent<HTMLInputElement>, field: 'points' | 'totalPointsOverride') {
+        setRunInReview({ ...runInReview, [field]: parseFloat(e.target.value) });
     }
 
-    function handleCheck(e:React.ChangeEvent<HTMLInputElement>){
-        setRunInReview({ ...runInReview, [e.target.id]: e.target.checked })
+    function handleCheck(e: React.ChangeEvent<HTMLInputElement>) {
+        setRunInReview({ ...runInReview, [e.target.id]: e.target.checked });
     }
 
-    function handleSelect(e:React.ChangeEvent<HTMLSelectElement>){
-        setRunInReview({ ...runInReview, [e.target.id]: e.target.value })
+    function handleSelect(e: React.ChangeEvent<HTMLSelectElement>) {
+        setRunInReview({ ...runInReview, [e.target.id]: e.target.value });
     }
 
-    function tryDelete(){
-        if(!showingDeleteWarning) {
+    function tryDelete() {
+        if (!showingDeleteWarning) {
             setShowingDeleteWarning(true);
             return;
         }
         deleteMutation.mutate();
     }
 
+    if (reqResult) {
+        return (
+            <div className={`text-center py-5 ${reqResult.error ? "text-danger" : "text-success"}`}>
+                {reqResult.message}
+            </div>
+        );
+    }
+
+    if (!runInReview) {
+        return <div className="text-muted text-center py-5 small fst-italic">Select a team from the list to edit or add a run.</div>;
+    }
+
     return (
-        reqResult ? <div className={`my-5 ${reqResult.error ? "text-danger" : "text-success"}`}>
-                {reqResult.message ? <div>{reqResult.message}</div> : <></>}
-            </div> :
-        !runInReview ? <div className='my-5'>Select a Run</div> :
-        <div className=''>
-            <div className="row my-3 width-100">
-                <div className="col-2 text-center">Team</div>
-                <div className="col-4 text-center px-4">{runInReview.team}</div>
-                <div className="col-2 text-center">Time*</div>
-                <div className="col-4 text-center px-4">
+        <div className="w-100">
+            {/* Info summary */}
+            <div className="card bg-light mb-3">
+                <div className="card-body py-2 px-3">
+                    <div className="row g-1 small">
+                        <div className="col-6"><span className="text-muted">Team:</span> <strong>{runInReview.team}</strong></div>
+                        <div className="col-6"><span className="text-muted">Tournament:</span> {runInReview.tournament}</div>
+                        <div className="col-6"><span className="text-muted">Track:</span> {runInReview.track}</div>
+                        <div className="col-6"><span className="text-muted">Date:</span> {dateUtil.getMMDDYYYY(runInReview.date)}</div>
+                        <div className="col-6"><span className="text-muted">Running Position:</span> {runInReview.runningPosition ?? '—'}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="mb-3 row align-items-center">
+                <label htmlFor="time" className="col-4 col-form-label fw-semibold text-end small">Time*</label>
+                <div className="col-8">
                     <input
                         id="time"
                         value={runInReview.time}
-                        className="text-center width-100 p-1"
+                        className="form-control form-control-sm"
                         disabled={!isAdmin}
                         autoComplete="off"
-                        onChange={(e) => handleTimeChange(e)}></input>
+                        onChange={handleTimeChange}
+                    />
                 </div>
             </div>
-            <div className='row my-3 width-100'>
-                <div className="col-2 text-center">Tournament</div>
-                <div className="col-4 text-center px-4">{runInReview.tournament}</div>
-                <div className="col-2 text-center">Track</div>
-                <div className="col-4 text-center px-4">{runInReview.track}</div>
-            </div>
-            <div className='row my-3 width-100'>
-                <div className="col-2 text-center">Running Position</div>
-                <div className="col-4 text-center px-4">{runInReview.runningPosition}</div>
-                <div className="col-2 text-center">Date</div>
-                <div className="col-4 text-center px-4">{dateUtil.getMMDDYYYY(runInReview.date)}</div>
-            </div>
-            <div className="row my-1 width-100">
-                <div className="col-2 text-center">Place</div>
-                <div className="col-4 text-center px-4">
-                    <select id="rank" onChange={(e) => handleSelect(e)} className="width-100 text-center p-1 " value={runInReview.rank} disabled={!isAdmin}>
-                        <option value={""}>Did not place / In Progress</option>
-                        <option value={"1"}>1st Place</option>
-                        <option value={"2"}>2nd Place</option>
-                        <option value={"3"}>3rd Place</option>
-                        <option value={"4"}>4th Place</option>
-                        <option value={"5"}>5th Place</option>
+            <div className="mb-3 row align-items-center">
+                <label htmlFor="rank" className="col-4 col-form-label fw-semibold text-end small">Place</label>
+                <div className="col-8">
+                    <select id="rank" onChange={handleSelect} className="form-select form-select-sm" value={runInReview.rank} disabled={!isAdmin}>
+                        <option value="">Did not place / In Progress</option>
+                        <option value="1">1st Place</option>
+                        <option value="2">2nd Place</option>
+                        <option value="3">3rd Place</option>
+                        <option value="4">4th Place</option>
+                        <option value="5">5th Place</option>
                     </select>
                 </div>
-                <div className="col-2 text-center">Points</div>
-                <div className="col-4 text-center px-4">
+            </div>
+            <div className="mb-3 row align-items-center">
+                <label htmlFor="points" className="col-4 col-form-label fw-semibold text-end small">Points</label>
+                <div className="col-8">
                     <input
                         id="points"
                         value={runInReview.points ? runInReview.points : ''}
-                        className="text-center width-100 p-1"
+                        className="form-control form-control-sm"
+                        type="number"
+                        step=".01"
                         disabled={!isAdmin}
-                        autoComplete="off" type="number" step=".01"
-                        onChange={(e) => handlePointsChange(e, 'points')}></input>
+                        autoComplete="off"
+                        onChange={(e) => handlePointsChange(e, 'points')}
+                    />
                 </div>
             </div>
 
-            <div className="row mb-1 mt-5 width-100">
-                <div className="col-6 text-center font-small">
-                    <i>Use a different point value in the area total points calculation.  Generally for Northern / Western only to award total points excluding visiting teams.  Blank in most cases.</i>
+            <hr className="my-2" />
+            <div className="row g-3 mb-3">
+                <div className="col-6">
+                    <div className="form-check form-switch mb-0">
+                        <input className="form-check-input" type="checkbox" role="switch" id="stateRecord" name="stateRecord" checked={runInReview?.stateRecord} onChange={handleCheck} disabled={!isAdmin} />
+                        <label className="form-check-label small" htmlFor="stateRecord">State Record</label>
+                    </div>
                 </div>
-                <div className="col-2 text-center">Area Total Points Override</div>
-                <div className="col-4 text-center px-4">
-                    <input
-                        id="totalPointsOverride"
-                        value={runInReview.totalPointsOverride || runInReview.totalPointsOverride === 0 ? runInReview.totalPointsOverride : ''}
-                        className="text-center width-100 p-1"
-                        disabled={!isAdmin}
-                        autoComplete="off" type="number" step=".01"
-                        onChange={(e) => handlePointsChange(e, 'totalPointsOverride')}></input>
+                <div className="col-6">
+                    <div className="form-check form-switch mb-0">
+                        <input className="form-check-input" type="checkbox" role="switch" id="currentStateRecord" name="currentStateRecord" checked={runInReview?.currentStateRecord} onChange={handleCheck} disabled={!isAdmin} />
+                        <label className="form-check-label small" htmlFor="currentStateRecord">Current State Record</label>
+                    </div>
                 </div>
             </div>
 
-            <div className="row my-3 width-100 border-top pt-2 mx-1">
-                <div className="col-6 ">
-                    <div className='mx-3 text-center'>State Record</div>
-                    <div className='text-center width-100'>
-                        <input className="form-check-input " type="checkbox" id="stateRecord" name="stateRecord" checked={runInReview?.stateRecord} onChange={handleCheck} disabled={!isAdmin}></input>
-                    </div>
-                </div>
-                <div className="col-6 ">
-                    <div className='mx-3 text-center'>Current State Record</div>
-                    <div className='text-center width-100'>
-                        <input className="form-check-input" type="checkbox" id="currentStateRecord" name="currentStateRecord" checked={runInReview?.currentStateRecord} onChange={handleCheck} disabled={!isAdmin}></input>
-                    </div>
-                </div>
-            </div>
-            <div className="row my-1 width-100 border-top pt-4 mx-1">
-                <div className="col-2 d-flex align-items-center justify-content-center text-center">Recordkeeping Notes</div>
-                <div className="col-4 d-flex align-items-center justify-content-center ">
-                    <textarea className='width-100' id="notes" name="notes" onChange={handleTextInput} value={runInReview.notes}/>
-                </div>
-                <RunVideos runInReview={runInReview} setRunInReview={setRunInReview}/>
-            </div>
-            <div className='row d-flex justify-content-center align-items-center mt-5'>
-                {showingDeleteWarning ? <>Are you sure you want to delete?</> : <></>}
-            </div>
-            <div className="row mt-5 mb-2 width-100">
-                <div className='d-flex justify-content-center align-items-center'>
-                    <button type="button" className="btn btn-success mx-2" disabled={!runInReview.time || saveMutation.isPending} onClick={() => saveMutation.mutate()}>Save</button>
-                    <button type="button" className="btn btn-danger mx-2" disabled={!isAdmin || deleteMutation.isPending} onClick={tryDelete}>{!showingDeleteWarning ? 'Delete Run' : 'Yes, please delete.'}</button>
+            <div className="mb-3 row align-items-start">
+                <label htmlFor="notes" className="col-4 col-form-label fw-semibold text-end small">Notes</label>
+                <div className="col-8">
+                    <textarea
+                        id="notes"
+                        name="notes"
+                        className="form-control form-control-sm"
+                        rows={2}
+                        onChange={handleTextInput}
+                        value={runInReview.notes}
+                    />
                 </div>
             </div>
 
-            <div className='row pt-1 mt-3 mx-1 border-top'>
-                <div className='mt-2 text-center'><b>Advanced Settings</b></div>
-                <div className='text-center'><i>The following fields are pre-populated based on selections made in tournament page.  You should NOT need to make changes in this section, but you can if necessary.</i></div>
-                <br/><br/><br/>
-                <div className='text-center'><i>This is showing total points for the RUN, not the TOURNAMENT.</i></div>
+            <RunVideos runInReview={runInReview} setRunInReview={setRunInReview} />
+
+            <div className="d-flex justify-content-between align-items-center mt-3">
+                <div className="d-flex align-items-center gap-2">
+                    {showingDeleteWarning && <span className="text-danger small">Are you sure?</span>}
+                    <button type="button" className="btn btn-danger btn-sm" disabled={!isAdmin || deleteMutation.isPending} onClick={tryDelete}>
+                        {!showingDeleteWarning ? 'Delete Run' : 'Yes, Delete'}
+                    </button>
+                </div>
+                <button type="button" className="btn btn-success btn-sm" disabled={!runInReview.time || saveMutation.isPending} onClick={() => saveMutation.mutate()}>Save</button>
             </div>
-            <div className="row my-1 width-100">
-                <div className="col d-flex flex-column align-items-center justify-content-between mt-3">
-                    <div className="text-center">Nassau Points?</div>
-                    <div>
-                        <input className="form-check-input" type="checkbox" id="nassauPoints" name="nassauPoints" checked={runInReview.nassauPoints} onChange={handleCheck} disabled={!isAdmin}></input>
+
+            <details className="mt-3 border rounded p-3">
+                <summary className="fw-semibold small text-muted" style={{ cursor: 'pointer' }}>Advanced Settings</summary>
+                <div className="mt-2 small text-muted fst-italic mb-3">
+                    Pre-populated from tournament settings. Only change if necessary. These show total points for the <strong>run</strong>, not the tournament.
+                </div>
+                <div className="mb-3 row align-items-start">
+                    <label htmlFor="totalPointsOverride" className="col-5 col-form-label fw-semibold text-end small">Area Total Points Override</label>
+                    <div className="col-7">
+                        <input
+                            id="totalPointsOverride"
+                            value={runInReview.totalPointsOverride || runInReview.totalPointsOverride === 0 ? runInReview.totalPointsOverride : ''}
+                            className="form-control form-control-sm"
+                            type="number"
+                            step=".01"
+                            disabled={!isAdmin}
+                            autoComplete="off"
+                            onChange={(e) => handlePointsChange(e, 'totalPointsOverride')}
+                        />
+                        <div className="form-text small">For Northern/Western only — excludes visiting teams. Leave blank in most cases.</div>
                     </div>
                 </div>
-                <div className="col d-flex flex-column align-items-center justify-content-between mt-3">
-                    <div className="text-center">Northern Points?</div>
-                    <div>
-                        <input className="form-check-input" type="checkbox" id="northernPoints" name="northernPoints" checked={runInReview.northernPoints} onChange={handleCheck} disabled={!isAdmin}></input>
-                    </div>
+                <div className="row g-2">
+                    {POINTS_FLAGS.map(({ id, label }) => (
+                        <div key={id} className="col-6">
+                            <div className="form-check form-switch mb-0">
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    role="switch"
+                                    id={id}
+                                    name={id}
+                                    checked={(runInReview as any)[id]}
+                                    onChange={handleCheck}
+                                    disabled={!isAdmin}
+                                />
+                                <label className="form-check-label small" htmlFor={id}>{label}</label>
+                            </div>
+                        </div>
+                    ))}
                 </div>
-                <div className="col d-flex flex-column align-items-center justify-content-between mt-3">
-                    <div className="text-center">Suffolk Points?</div>
-                    <div>
-                        <input className="form-check-input" type="checkbox" id="suffolkPoints" name="suffolkPoints" checked={runInReview.suffolkPoints} onChange={handleCheck} disabled={!isAdmin}></input>
-                    </div>
-                </div>
-                <div className="col d-flex flex-column align-items-center justify-content-between mt-3">
-                    <div className="text-center">Western Points?</div>
-                    <div>
-                        <input className="form-check-input" type="checkbox" id="westernPoints" name="westernPoints" checked={runInReview.westernPoints} onChange={handleCheck} disabled={!isAdmin}></input>
-                    </div>
-                </div>
-                <div className="col d-flex flex-column align-items-center justify-content-between mt-3">
-                    <div className="text-center">Jr Points?</div>
-                    <div>
-                        <input className="form-check-input" type="checkbox" id="juniorPoints" name="juniorPoints" checked={runInReview.juniorPoints} onChange={handleCheck} disabled={!isAdmin}></input>
-                    </div>
-                </div>
-                <div className="col d-flex flex-column align-items-center justify-content-between mt-3">
-                    <div className="text-center">Nassau OF Points?</div>
-                    <div>
-                        <input className="form-check-input" type="checkbox" id="nassauOfPoints" name="nassauOfPoints" checked={runInReview.nassauOfPoints} onChange={handleCheck} disabled={!isAdmin}></input>
-                    </div>
-                </div>
-                <div className="col d-flex flex-column align-items-center justify-content-between mt-3">
-                    <div className="text-center">Suffolk OF Points?</div>
-                    <div>
-                        <input className="form-check-input" type="checkbox" id="suffolkOfPoints" name="suffolkOfPoints" checked={runInReview.suffolkOfPoints} onChange={handleCheck} disabled={!isAdmin}></input>
-                    </div>
-                </div>
-                <div className="col d-flex flex-column align-items-center justify-content-between mt-3">
-                    <div className="text-center">LI OF Points?</div>
-                    <div>
-                        <input className="form-check-input" type="checkbox" id="liOfPoints" name="liOfPoints" checked={runInReview.liOfPoints} onChange={handleCheck} disabled={!isAdmin}></input>
-                    </div>
-                </div>
-                <div className="col d-flex flex-column align-items-center justify-content-between mt-3">
-                    <div className="text-center">Sanctioned?</div>
-                    <div>
-                        <input className="form-check-input" type="checkbox" id="sanctioned" name="sanctioned" checked={runInReview.sanctioned} onChange={handleCheck} disabled={!isAdmin}></input>
-                    </div>
-                </div>
-            </div>
+            </details>
         </div>
-    )
+    );
 }
