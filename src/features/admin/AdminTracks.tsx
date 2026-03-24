@@ -175,7 +175,7 @@ export default function AdminTracks(props:AdminTracksProps) {
         uploadImageMutation.reset();
         updateImageMutation.reset();
         deleteImageMutation.reset();
-        if(clearImages) setImages([]);
+        if(clearImages) imagesQuery.refetch();
     }
 
     return (
@@ -443,11 +443,11 @@ export default function AdminTracks(props:AdminTracksProps) {
                         </div>
                         <div className="text-center my-3">
                             <MutationStatus isSuccess={saveTrackMutation.isSuccess} isError={saveTrackMutation.isError} errorMessage="An error occurred. Make sure all required fields are complete or try again later." />
-                            {disableOnDupe && <span className="text-danger">Name already in use.</span>}
+                            {disableOnDupe && !saveTrackMutation.isSuccess && <span className="text-danger">Name already in use.</span>}
                         </div>
                         <div className="">
                             <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || saveTrackMutation.isPending || disableOnDupe || !isFormComplete} onClick={() => saveTrackMutation.mutate()}>Save changes</button>
+                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || saveTrackMutation.isPending || (!saveTrackMutation.isSuccess && disableOnDupe) || !isFormComplete} onClick={() => saveTrackMutation.mutate()}>Save changes</button>
                         </div>
                     </div>
                     </div>
