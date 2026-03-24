@@ -156,7 +156,7 @@ function TimeLeft({ draftPicks, game, currentDraftPick }: TimeLeftProps) {
 
     return (
         <div className="px-4 py-2">
-            <Badge className="p-2 font-large w-160p" bg={ secondsLeft < 10 ? "danger" : "primary"} >It's your pick! <span className="ms-2">{secondsLeft}</span></Badge>
+            <Badge className="p-2 fs-5 w-160p" bg={ secondsLeft < 10 ? "danger" : "primary"} >It's your pick! <span className="ms-2">{secondsLeft}</span></Badge>
         </div>
     );
 }
@@ -592,7 +592,7 @@ function DraftGrid({ users, draftPicks }: { users: string[], draftPicks: Fantasy
 
 
     return (
-        <div className="max-width-100 overflow-auto">
+        <div className="max-w-100 overflow-auto">
             <div className="w-100 d-flex " key={"user-" + "draft-grid-row"}>
                 {
                     users.map(user => {
@@ -603,7 +603,7 @@ function DraftGrid({ users, draftPicks }: { users: string[], draftPicks: Fantasy
 
 
                         return (
-                            <div className="font-small l-grayText draft-grid-header-cell col d-flex flex-column justify-content-between align-items-center py-2 text-center">
+                            <div className="small l-text-muted draft-grid-header-cell col d-flex flex-column justify-content-between align-items-center py-2 text-center">
                                 {isAuto ? <FontAwesomeIcon icon={faRobot} /> : <FontAwesomeIcon icon={faUser} />}
         <div>
                                     {
@@ -655,7 +655,7 @@ function DraftGridCell({ draftPicks, colCt, rowInd, colInd }: { draftPicks: Fant
     if(!draftPick) return (
         <div className={`draft-grid-cell ${isCurrentPick ? "bg-primary" : rowIsEven ? "bg-lightgray" : "bg-light"} w-100`}>
             <div className="d-flex flex-row align-items-center justify-content-end w-100 p-2">
-                <div className="font-small l-grayText m-1">{draftPickDisplayNum}</div>
+                <div className="small l-text-muted m-1">{draftPickDisplayNum}</div>
             </div>
         </div>
     );
@@ -669,16 +669,16 @@ function DraftGridCell({ draftPicks, colCt, rowInd, colInd }: { draftPicks: Fant
         <div className={`draft-grid-cell ${rowIsEven ? "bg-lightgray" : "bg-light"} col`}>
             <div className="d-flex flex-column align-items-start justify-content-start h-100 p-2">
                 <div className="d-flex flex-row align-items-center justify-content-start w-100">
-                    <div className="font-medium text-nowrap text-truncate">{team}</div>
+                    <div className="text-nowrap text-truncate">{team}</div>
                     <div className="flex-grow-1"></div>
-                    <div className="font-small l-grayText m-1">{draftPickDisplayNum}</div>
+                    <div className="small l-text-muted m-1">{draftPickDisplayNum}</div>
                 </div>
-                <div className="font-small">{year} - {contest}</div>
+                <div className="small">{year} - {contest}</div>
                 <div className="flex-grow-1"></div>
                 {
                     rowIsEven ? 
-                        <FontAwesomeIcon icon={faArrowRight} className="ms-1 grayText" /> :
-                        <FontAwesomeIcon icon={faArrowLeft} className="ms-1 grayText" />
+                        <FontAwesomeIcon icon={faArrowRight} className="ms-1 text-muted" /> :
+                        <FontAwesomeIcon icon={faArrowLeft} className="ms-1 text-muted" />
                 }
             </div>
         </div>

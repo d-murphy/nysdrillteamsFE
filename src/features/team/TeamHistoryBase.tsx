@@ -41,7 +41,7 @@ export default function TeamHistoryBase(){
     return (
         <div className="container">
             <div className="w-100 d-flex flex-column align-items-center justify-content-center">
-                <div className="text-center font-x-large mt-2"><b>Team Histories</b></div>
+                <div className="text-center fs-4 mt-2"><b>Team Histories</b></div>
                 <div className="pt-2 pb-3">Select a team to view the team's history.</div>
             </div>
             <div className="row bg-white rounded shadow-sm mx-1">

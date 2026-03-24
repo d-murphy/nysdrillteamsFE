@@ -57,18 +57,18 @@ export default function TournamentHeader(props:TournamentProp) {
             <div className="row ">
                 <div className="col-12 text-center my-2"><h3>{tournament.name}</h3></div>
                 <div className="col-12">
-                    <div className="d-flex justify-content-center align-items-center font-medium pb-2">
+                    <div className="d-flex justify-content-center align-items-center pb-2">
                         <div className=" text-uppercase px-2 text-center"><b>{dateUtil.getDay(tournament?.date.getDay())}</b></div>
                         <div className=" px-2 text-center"><b>{new Date(tournament.date).toLocaleDateString()}</b></div>
                         <div className=" px-2 text-center"><b>{dateUtil.getTime(tournament.startTime)}</b></div>
                     </div>
                 </div>
                 <div className="col-12">
-                    <div className="row my-2 font-medium">
+                    <div className="row my-2">
                         <div className="col-4 px-2 text-center">
                             <span className="pointer px-2" onClick={()=>navigate(`/locations/${encodeURIComponent(tournament.track)}`)}>
                                 Location: {tournament.track}
-                                <FontAwesomeIcon className="ps-2 crud-links font-x-large" icon={faLocationDot} />
+                                <FontAwesomeIcon className="ps-2 crud-links fs-4" icon={faLocationDot} />
                             </span>
                         </div>
 
@@ -112,11 +112,11 @@ export default function TournamentHeader(props:TournamentProp) {
                                             })
                                         }  
                                     </div>
-                                    <div className="text-wrap h6 grayText text-start">
+                                    <div className="text-wrap h6 text-muted text-start">
                                         {tournament?.top5 && Object.keys(tournament?.top5).length && tournament.top5[0].points + " points"}
                                     </div>
                                 </div>
-                                <div className="d-flex flex-row justify-content-center grayText font-small pt-1 pb-3 text-center">
+                                <div className="d-flex flex-row justify-content-center text-muted small pt-1 pb-3 text-center">
                                     {secondStr && <div className="mx-2">{secondStr}</div>}
                                     {thirdStr && <div className="mx-2">{thirdStr}</div>}
                                     {fourthStr && <div className="mx-2">{fourthStr}</div>}
@@ -127,7 +127,7 @@ export default function TournamentHeader(props:TournamentProp) {
                 }
 
                 <div className="col-12 mb-2">
-                    <div className="d-flex justify-content-center align-items-center my-2 font-small video-links">                        
+                    <div className="d-flex justify-content-center align-items-center my-2 small video-links">                        
                         {
                             tournament?.urls?.length > 0 && 
                                 <div className="px-3">{urlList}</div>
@@ -138,7 +138,7 @@ export default function TournamentHeader(props:TournamentProp) {
                 {
                     !tournament?.notes ? <></> : 
                     <div className="col-12">
-                        <div className="d-flex justify-content-center align-items-center mb-2 font-small">
+                        <div className="d-flex justify-content-center align-items-center mb-2 small">
                             Note: {tournament.notes}
                         </div>
                     </div>
@@ -151,7 +151,7 @@ export default function TournamentHeader(props:TournamentProp) {
 function printUrlWithIcon(tournament:Tournament){
     if(tournament.urls && tournament.urls.length) {
         return tournament?.urls.map((el, index) => { 
-            return <div className="font-small" key={index}>
+            return <div className="small" key={index}>
                 { index == 0 ? 
                     <a className="video-links px-1" href={`${el}`} target="_blank">Watch the Drill <FontAwesomeIcon className="ms-2" icon={faSquareYoutube} /></a> : 
                     <a className="video-links px-1" href={`${el}`} target="_blank"><FontAwesomeIcon icon={faSquareYoutube} /></a>
@@ -178,7 +178,7 @@ function EntryForm(props: EntryFromProps){
           overlay={renderTooltip}
         >
             <a href={props.url} target="_blank">
-                <FontAwesomeIcon icon={faTicket} className="crud-links font-x-large" />
+                <FontAwesomeIcon icon={faTicket} className="crud-links fs-4" />
             </a>
         </OverlayTrigger>
       );

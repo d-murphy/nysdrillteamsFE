@@ -273,13 +273,13 @@ function TableCell({ size, draftPick, simulationRun, points, runningTotal }: Tab
             <div className="d-flex flex-column align-items-start">
                 <div className="d-flex justify-content-between w-100">
                     {simulationRun ? (
-                        <div className="font-medium">{niceTime(simulationRun.toString())}</div>
+                        <div className="">{niceTime(simulationRun.toString())}</div>
                     ) : (
                         <div className="text-muted">{BLANK_STR}</div>
                     )}
-                    <div className="font-small" >{pointsDisp} / {rtDisp}</div>
+                    <div className="small" >{pointsDisp} / {rtDisp}</div>
                 </div>
-                <div className="font-small text-muted">{year} {team}</div>
+                <div className="small text-muted">{year} {team}</div>
             </div>
         </td>
     );

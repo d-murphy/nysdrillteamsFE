@@ -82,33 +82,33 @@ export default function Schedule(props:ScheduleProp) {
                             <FontAwesomeIcon icon={faFilter} size="lg" className="mx-2"/> 
                         </button> : 
 
-                        <div className="width-50 d-flex flex-column justify-content-center align-content-end bg-light rounded shadow-sm py-2">
+                        <div className="w-50 d-flex flex-column justify-content-center align-content-end bg-light rounded shadow-sm py-2">
                             <div className="d-flex justify-content-end mb-2">
                             </div>
                             <div className="d-flex justify-content-end align-items-center mx-1 flex-wrap">
-                                <div className="font-large p-2 m-1">Filter Events</div>
+                                <div className="fs-5 p-2 m-1">Filter Events</div>
                                 <div className="flex-grow-1" />
-                                <div className={`${region === "Motorized" ? "circuit-selected" : "circuit-not-selected" } font-small p-2 m-1 rounded`} onClick={() => handleSelection("Motorized")}>
+                                <div className={`${region === "Motorized" ? "circuit-selected" : "circuit-not-selected" } small p-2 m-1 rounded`} onClick={() => handleSelection("Motorized")}>
                                     <FontAwesomeIcon icon={faTruckPickup} className="me-1" size="sm"/>
                                     Motorized
                                 </div>
                                 {
                                     showOf &&
-                                        <div className={`${region === "Old Fashioned" ? "circuit-selected" : "circuit-not-selected" } font-small mx-1 my-1 px-2 py-2 rounded`} onClick={() => handleSelection("Old Fashioned")}>
+                                        <div className={`${region === "Old Fashioned" ? "circuit-selected" : "circuit-not-selected" } small mx-1 my-1 px-2 py-2 rounded`} onClick={() => handleSelection("Old Fashioned")}>
                                             <FontAwesomeIcon icon={faPersonRunning} className="me-1" size="sm"/>
                                             Old Fashioned
                                         </div>
                                 }
                                 {
                                     showJunior &&
-                                        <div className={`${region === "Junior" ? "circuit-selected" : "circuit-not-selected" } font-small mx-1 my-1 px-2 py-2 rounded`} onClick={() => handleSelection("Junior")}>
+                                        <div className={`${region === "Junior" ? "circuit-selected" : "circuit-not-selected" } small mx-1 my-1 px-2 py-2 rounded`} onClick={() => handleSelection("Junior")}>
                                             <FontAwesomeIcon icon={faPersonRunning} className="me-1" size="xs"/>
                                             Junior
                                         </div>
                                 }
                                 {
                                     showParade &&
-                                        <div className={`${region === "Parade" ? "circuit-selected" : "circuit-not-selected" } font-small mx-1 my-1 px-3 py-2 rounded`} onClick={() => handleSelection("Parade")}>
+                                        <div className={`${region === "Parade" ? "circuit-selected" : "circuit-not-selected" } small mx-1 my-1 px-3 py-2 rounded`} onClick={() => handleSelection("Parade")}>
                                             <FontAwesomeIcon icon={faFlagUsa} className="me-1" size="sm"/>
                                             Parade
                                         </div>    

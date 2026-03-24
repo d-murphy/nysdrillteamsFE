@@ -70,8 +70,8 @@ function FantasyGameSignup({ game: gameData, loading: liveUpdateLoading, error: 
             <div className="d-flex flex-column">
                 <div className="d-flex flex-row align-items-start justify-content-between w-100">
                     <div className="d-flex flex-column flex-grow-1">
-                        <div className="font-large">{gameData?.name}</div>
-                        <div className="font-small text-secondary">Game Created - waiting for players {spotsAvailableMsg}</div>
+                        <div className="fs-5">{gameData?.name}</div>
+                        <div className="small text-secondary">Game Created - waiting for players {spotsAvailableMsg}</div>
                         <div className="mt-4">
                             Current Teams: 
                         </div>

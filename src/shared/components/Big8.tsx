@@ -46,7 +46,7 @@ export default function Big8(props:Big8Prop) {
                     <div className="d-flex flex-column align-items-end">
                         <div className="pointer" onClick={() => {navigate("/topRuns?year=" + big8Year)}}>
                             See the Top 10 for {big8Year}
-                            <FontAwesomeIcon className="crud-links font-large ms-2" icon={faList}/>
+                            <FontAwesomeIcon className="crud-links fs-5 ms-2" icon={faList}/>
                         </div>
                     </div>
                 </div>

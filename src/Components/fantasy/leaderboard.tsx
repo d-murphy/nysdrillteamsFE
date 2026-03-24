@@ -11,7 +11,7 @@ export default function Leaderboard() {
 
     return (
         <div className="p-4 bg-white rounded shadow-sm d-flex flex-column align-items-center justify-content-start leaderboard-bg" key={"leaderboard"}>
-            <div className="text-center font-large w-100"><b>Most Games Played</b></div>
+            <div className="text-center fs-5 w-100"><b>Most Games Played</b></div>
             <div className="mt-3 w-100">
                 {(isLoading || isLoadingTeamNames) && <div className="spinner-border text-secondary" role="status"></div>}
                 {(isError || isLoadingTeamNames) && <div className="text-danger">Error loading leaderboard</div>}

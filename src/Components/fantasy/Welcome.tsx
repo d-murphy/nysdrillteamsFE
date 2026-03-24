@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 export default function Welcome() {
     return (
         <div className="p-4 bg-white rounded shadow-sm d-flex flex-column align-items-start justify-content-center h-100">
-            <p className="text-center font-x-large mx-auto"><b>Welcome to the Fantasy Racing League!</b></p>
+            <p className="text-center fs-4 mx-auto"><b>Welcome to the Fantasy Racing League!</b></p>
             <p className="text-start">
                 Looking to test your racing IQ?  Draft your favorite teams and run simulated drills to see how they stack up.  
                 Join an open game or create your own to get started.  Play solo or with friends. Login to get started.
@@ -101,7 +101,7 @@ function ActiveGames() {
                                         {game.name}
                                 </div>
                             )) : 
-                            <div className="font-medium text-start grayText">No active drafts</div>
+                            <div className="text-start text-muted">No active drafts</div>
                         }
                     </div>
                 )
@@ -152,7 +152,7 @@ function CurrentOpenGames() {
                         {
                             data?.length !== 0 ? <></> : 
                                 !auth.isAuthenticated ? 
-                                    <div className="font-large text-center grayText">No open games - login to start your own!</div> 
+                                    <div className="fs-5 text-center text-muted">No open games - login to start your own!</div> 
                                     : <></>
                         }
                         {
@@ -161,7 +161,7 @@ function CurrentOpenGames() {
                         { 
                             auth.isAuthenticated &&
                                 <div key={"new-game"}
-                                    className='d-flex flex-column align-items-center justify-content-center p-3 rounded pointer fantasy-game-card-w text-wrap fantasy-game-card font-large text-center' 
+                                    className='d-flex flex-column align-items-center justify-content-center p-3 rounded pointer fantasy-game-card-w text-wrap fantasy-game-card fs-5 text-center' 
                                     onClick={() => navigate("newgame")}
                                 >
                                     {
@@ -199,9 +199,9 @@ function GameDisplay({ game }: GameDisplayProps) {
             className='d-flex flex-column p-3 bg-lightgray rounded pointer fantasy-game-card-w text-wrap' 
             onClick={clickHandler}
         >
-            <div className="font-large">{game.name}</div>
+            <div className="fs-5">{game.name}</div>
             <div className="flex-grow-1"/>
-            <div className='grayText font-small mt-1'>{game.users.length} spots, {game.users.filter(user => user.startsWith("autodraft")).length} available</div>
+            <div className='text-muted small mt-1'>{game.users.length} spots, {game.users.filter(user => user.startsWith("autodraft")).length} available</div>
         </div>
     );
 }

@@ -94,35 +94,35 @@ export default function TournamentHistory(props:TournamentHistoryProps){
 
     return (
         <div className='container'>
-            <div className="text-center w-100 font-x-large my-3"><b>Tournament History: {name}</b></div>
+            <div className="text-center w-100 fs-4 my-3"><b>Tournament History: {name}</b></div>
             <div className='row shadow-sm rounded py-4 bg-white mx-1'>
                 <div className="d-block d-md-none col-12 my-4">
                     <div className=' d-flex flex-column justify-content-center text-center h-100'>
-                        <div className="font-xx-large">{tournCt}</div>
+                        <div className="fs-2">{tournCt}</div>
                         <div>Recorded Events</div>
                     </div>
                 </div>
                 <div className="d-none d-md-block col-md-4 border-end border-secondary my-3">
                     <div className=' d-flex flex-column justify-content-center text-center h-100'>
-                        <div className="font-xx-large">{tournCt}</div>
+                        <div className="fs-2">{tournCt}</div>
                         <div>Recorded Events</div>
                     </div>
                 </div>
                 <div className="d-block d-md-none col-12 my-4">
                     <div className=' d-flex flex-column justify-content  text-center h-100'>
-                        <div className="font-xx-large">{winnerCountsArr.length}</div>
+                        <div className="fs-2">{winnerCountsArr.length}</div>
                         <div># of Winners</div>
                     </div>
                 </div>
                 <div className="d-none d-md-block col-md-4 border-end border-secondary my-3">
                     <div className=' d-flex flex-column justify-content-center text-center h-100'>
-                        <div className="font-xx-large">{winnerCountsArr.length}</div>
+                        <div className="fs-2">{winnerCountsArr.length}</div>
                         <div># of Winners</div>
                     </div>
                 </div>
                 <div className="d-block d-md-none col-12 my-4">
                     <div className=' d-flex flex-column justify-content-center text-center h-100'>
-                        <div className='font-small grayText'>Most Wins</div>
+                        <div className='small text-muted'>Most Wins</div>
                         <div>
                         {
                             topWinners.map(el => <div>{`${el.team} (${el.wins})`}</div>)
@@ -132,7 +132,7 @@ export default function TournamentHistory(props:TournamentHistoryProps){
                 </div>
                 <div className="d-none d-md-block col-md-4 my-3 px-4">
                     <div className=' d-flex flex-column justify-center text-center'>
-                        <div className='font-small grayText'>Most Wins</div>
+                        <div className='small text-muted'>Most Wins</div>
                         <div>
                             {
                                 topWinners.map(el => <div>{`${el.team} (${el.wins})`}</div>)
@@ -183,14 +183,14 @@ export function TournHistoryEntry ({tourn, runLu, showName = false} : TournHisto
             onClick={() => {navigate(`/Tournament/${tourn.id}`)}}>
             <div className='col-12 col-md-3'>
                 <div className="d-flex flex-row justify-content-between flex-wrap">
-                    <div className='h-100 d-flex justify-content-start align-items-start flex-column ps-1 py-2 max-width-50'>
-                        <div className='font-x-large'>                        
+                    <div className='h-100 d-flex justify-content-start align-items-start flex-column ps-1 py-2 max-w-50'>
+                        <div className='fs-4'>                        
                             <b>{titleBlock}</b>
                         </div>
-                        <div className="font-small text-left grayText">
+                        <div className="small text-left text-muted">
                             {`${dateUtil.getMMDD(tourn.date)}${tourn.track && tourn.track !== 'null' ? ` @ ${tourn.track}` : ""}`}
                         </div>
-                        <div className="font-small text-left grayText">
+                        <div className="small text-left text-muted">
                             {tourn.host ? `Host: ${tourn.host}` : ""}
                         </div>
                     </div>
@@ -211,22 +211,22 @@ export function TournHistoryEntry ({tourn, runLu, showName = false} : TournHisto
             <div className='col-12 col-md-4'>
                 <div className='h-100 d-flex flex-column justify-content-start align-items-start text-left ps-1 py-2'>
                     {winnerStr ? <div className='font-x-small'>{`1st Place`}</div> : <></> }
-                    <div className='font-large' ><b>{winnerStr}</b></div>
+                    <div className='fs-5' ><b>{winnerStr}</b></div>
                     {   
                         secondStr ? 
-                            <div className="font-xx-small grayText">2nd Place: {secondStr}</div> : <></>
+                            <div className="font-xx-small text-muted">2nd Place: {secondStr}</div> : <></>
                     }
                     {   
                         thirdStr ? 
-                            <div className="font-xx-small grayText">3rd Place: {thirdStr}</div> : <></>
+                            <div className="font-xx-small text-muted">3rd Place: {thirdStr}</div> : <></>
                     }
                     {   
                         fourthStr ? 
-                            <div className="font-xx-small grayText">4th Place: {fourthStr}</div> : <></>
+                            <div className="font-xx-small text-muted">4th Place: {fourthStr}</div> : <></>
                     }
                     {   
                         fifthStr ? 
-                            <div className="font-xx-small grayText">5th Place: {fifthStr}</div> : <></>
+                            <div className="font-xx-small text-muted">5th Place: {fifthStr}</div> : <></>
                     }
 
                 </div>
@@ -242,7 +242,7 @@ export function TournHistoryEntry ({tourn, runLu, showName = false} : TournHisto
                                 if(!run) return <></>;
                                 return (
                                     <div className="font-x-small col-4 d-flex flex-column mb-1">
-                                        <div className="grayText font-xx-small">{run.contest}</div>
+                                        <div className="text-muted font-xx-small">{run.contest}</div>
                                         <div className="">{niceTime(run.time)}</div>
                                     </div>
                                 )

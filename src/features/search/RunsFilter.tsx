@@ -195,7 +195,7 @@ export default function RunsFilter(props:RunsFilterProp) {
 
     return (
         <div className="mx-2">
-            <div className="text-center w-100 font-x-large mt-2"><b>Run Search</b></div>
+            <div className="text-center w-100 fs-4 mt-2"><b>Run Search</b></div>
             {
             !filterValsLoaded ? 
                 <div className="row mt-1 mb-5">
@@ -372,11 +372,11 @@ export default function RunsFilter(props:RunsFilterProp) {
                         </div>
                         <div className="col-12 col-lg-4">
                             <div className="d-flex flex-column justify-content-center align-items-center mb-3">
-                                <button type="button" onClick={handleSubmit} disabled={disableSubmit()} className="btn submit-search-button font-medium" >Submit Run Search</button>
+                                <button type="button" onClick={handleSubmit} disabled={disableSubmit()} className="btn submit-search-button" >Submit Run Search</button>
                                 {
                                     disableSubmit() ? 
-                                        <div className="font-small mt-3"><i>Please make a selection.</i></div> : 
-                                        <button type="button" onClick={clearFilters} className="btn clear-search-button font-small mt-4" >Clear Filters</button>
+                                        <div className="small mt-3"><i>Please make a selection.</i></div> : 
+                                        <button type="button" onClick={clearFilters} className="btn clear-search-button small mt-4" >Clear Filters</button>
                                     }
                                 
                             </div>

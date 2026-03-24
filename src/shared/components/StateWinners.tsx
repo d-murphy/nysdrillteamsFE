@@ -110,10 +110,10 @@ interface StateWinnerSqProps {
 //                 <div className="text-wrap h5" >
 //                     <span>{tourn.name.replace("New York State", "NYS")}</span>
 //                 </div>
-//                 <div className="text-wrap h6 grayText text-start mb-2" >
+//                 <div className="text-wrap h6 text-muted text-start mb-2" >
 //                     <span>{tourn.date ? dateUtil.getMMDDYYYY(new Date(tourn.date)) : ""}</span>
-//                     <span className="ps-1 grayText font-small">{tourn.track ? "@ " + tourn.track : ""}</span>
-//                     <span className="ps-1 grayText font-small">{(tourn.host && tourn.track && tourn.track !== tourn.host) ? "hosted by " + tourn.host : ""}</span>
+//                     <span className="ps-1 text-muted small">{tourn.track ? "@ " + tourn.track : ""}</span>
+//                     <span className="ps-1 text-muted small">{(tourn.host && tourn.track && tourn.track !== tourn.host) ? "hosted by " + tourn.host : ""}</span>
 //                 </div>
 //                 <div className="flex-grow-1" />
 //                 <div className="d-flex flex-row justify-content-center align-items-center align-self-center flex-wrap">
@@ -134,11 +134,11 @@ interface StateWinnerSqProps {
 //                                 })
 //                             }  
 //                         </div>
-//                         <div className="text-wrap h6 grayText text-start">
+//                         <div className="text-wrap h6 text-muted text-start">
 //                             {tourn?.top5 && Object.keys(tourn?.top5).length && tourn.top5[0].points + " points"}
 //                         </div>
 //                     </div>
-//                     <div className="d-flex flex-column align-items-end grayText font-xx-small pt-3">
+//                     <div className="d-flex flex-column align-items-end text-muted font-xx-small pt-3">
 //                         <div className="flex-grow-1"></div>
 //                         <div>{secondStr}</div>
 //                         <div>{thirdStr}</div>

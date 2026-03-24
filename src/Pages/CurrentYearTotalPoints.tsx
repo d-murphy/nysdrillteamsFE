@@ -11,7 +11,7 @@ export default function CurrentYearTotalPoints() {
 
     return (
         <div className="container">
-            <div className="text-center w-100 font-x-large m-2"><b>Total Points for {year}</b></div>
+            <div className="text-center w-100 fs-4 m-2"><b>Total Points for {year}</b></div>
             <div className="bg-lightgray rounded shadow-sm min-loading-height mb-2">
                 <TotalPoints year={year} headingAligned={false}/>
             </div>

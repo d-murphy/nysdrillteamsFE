@@ -38,7 +38,7 @@ export default function FantasyNewGame() {
     return (
 
         <div className="p-5 bg-white rounded shadow-sm">
-            <div className="text-center w-100 font-x-large mt-2"><b>New Game</b></div>
+            <div className="text-center w-100 fs-4 mt-2"><b>New Game</b></div>
             <div className="w-100 d-flex justify-content-end">
                 <button data-type="button" className="btn filter-icon-bg d-flex justify-content-center align-items-center me-1" onClick={() => navigate("/Simulation/Fantasy")}>
                     <FontAwesomeIcon icon={faArrowLeft} size="lg" className="m-2"/> 

@@ -132,7 +132,7 @@ export default function RunFilterResults(props:RunFilterResultsProps) {
                                 </div>
                                 <div className="d-block d-xl-none col-12">
                                     <div className="d-flex justify-content-center align-items-center h-100">
-                                        <span className="font-large"><b>{niceTime(run.time)}</b></span>
+                                        <span className="fs-5"><b>{niceTime(run.time)}</b></span>
                                         {   
                                             run.urls.length ? 
                                                 <div className="pointer mx-2">
@@ -160,7 +160,7 @@ export default function RunFilterResults(props:RunFilterResultsProps) {
                                             {
                                                 run?.nassauPoints || run?.suffolkPoints || run?.northernPoints || run?.westernPoints ||
                                                 run?.nassauOfPoints || run?.suffolkOfPoints || run?.liOfPoints || run?.juniorPoints ?
-                                                <div className="d-lg-none d-block font-small">Points Drill:</div> : <></>
+                                                <div className="d-lg-none d-block small">Points Drill:</div> : <></>
 
                                             }
 

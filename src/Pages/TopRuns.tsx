@@ -16,7 +16,7 @@ export default function RunSearch() {
 
     return (
         <div className="container">
-            <div className="text-center w-100 font-x-large m-2"><b>{`Top 10 Runs in Each Contest - ${year? year : "All Time"}`}</b></div>
+            <div className="text-center w-100 fs-4 m-2"><b>{`Top 10 Runs in Each Contest - ${year? year : "All Time"}`}</b></div>
             <div className="w-100 d-flex justify-content-end">
                 <button data-type="button" className="btn filter-icon-bg d-flex justify-content-center align-items-center me-1" onClick={() => navigate("/RunSearch")}>
                             <FontAwesomeIcon icon={faFilter} size="lg" className="m-2"/>

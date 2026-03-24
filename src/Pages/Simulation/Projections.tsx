@@ -62,7 +62,7 @@ export default function Projections(){
 
     return (
         <div className="container">
-            <div className="text-center font-x-large my-3"><b>{`${year} State Tournament Projections`}</b></div>
+            <div className="text-center fs-4 my-3"><b>{`${year} State Tournament Projections`}</b></div>
             <div className="w-100 bg-white rounded shadow-sm">
                 <div className="overflow-auto pb-3">
                     {

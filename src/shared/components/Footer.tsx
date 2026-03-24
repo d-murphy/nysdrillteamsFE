@@ -13,7 +13,7 @@ export default function Footer(){
                 <div className="row">
                     <div className="col-12 col-md-4 text-center text-white">
                         <div className="w-100 h-100 d-flex flex-column align-items-center justify-content-center pt-4 pb-3">
-                            <div className="mb-2 font-small">
+                            <div className="mb-2 small">
                                 Created By: <a className="text-white" href="https://x.com/Dan__Murph">Dan Murphy</a> 
                             </div>
                             <div className="dash-logo-width">

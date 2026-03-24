@@ -78,7 +78,7 @@ export default function TeamSummary(){
     return (
         <div className="container">
             <div className="mx-2">
-                <div className="text-center w-100 font-x-large mt-2"><b>Team Season Summaries</b></div>
+                <div className="text-center w-100 fs-4 mt-2"><b>Team Season Summaries</b></div>
                 <Filters teams={teams} teamSelected={teamSelected} 
                     updateParam={updateParam} years={years}  
                     yearSelected={yearSelected}  
@@ -198,7 +198,7 @@ function Summary({runs, similarTeams, similarTeamsLoading, finishes}: SummaryPro
                                                     delay={{ show: 250, hide: 400 }}
                                                     overlay={SimilarTeamsInfoTooltip}
                                                 >
-                                                    <div className="font-small ms-3">
+                                                    <div className="small ms-3">
                                                         <FontAwesomeIcon icon={faCircleInfo}/>
                                                     </div>
                                                 </OverlayTrigger>
@@ -206,7 +206,7 @@ function Summary({runs, similarTeams, similarTeamsLoading, finishes}: SummaryPro
                                             {
                                                 similarTeams.map((el, ind) => {
                                                     return (
-                                                        <div key={ind} className='font-small'>
+                                                        <div key={ind} className='small'>
                                                             <Link className="video-links " to={`/TeamSummaries?team=${el.otherTeam}&year=${el.otherYear}`}>{el.otherYear} - {el.otherTeam}</Link>                                                                
                                                         </div>
                                                     )
@@ -430,7 +430,7 @@ function Filters({teams, teamSelected, updateParam, years, yearSelected, setRuns
                                 {
                                     teamSelected ? 
                                         loading ? <></> : <div className='text-center'>There's no run data for this team.</div> : 
-                                        <div className='font-small filter-bg h-100 w-100 rounded d-flex justify-content-center align-items-center'>
+                                        <div className='small filter-bg h-100 w-100 rounded d-flex justify-content-center align-items-center'>
                                             Select a team to view active years.
                                         </div>
                                 }
@@ -452,7 +452,7 @@ function Filters({teams, teamSelected, updateParam, years, yearSelected, setRuns
                                     {
                                         teamSelected ? 
                                             loading ? <></> : <div className='text-center'><i>There's no run data for this team.</i></div> : 
-                                            <div className='font-small filter-bg h-100 w-100 rounded d-flex justify-content-center align-items-center'>
+                                            <div className='small filter-bg h-100 w-100 rounded d-flex justify-content-center align-items-center'>
                                                 Select a team to view active years.
                                             </div>
                                     }

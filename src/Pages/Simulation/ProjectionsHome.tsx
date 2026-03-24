@@ -11,7 +11,7 @@ export default function ProjectionsHome() {
 
     return (
         <div className='container'>
-            <div className="text-center w-100 font-x-large my-3"><b>State Tournament Projections</b></div>
+            <div className="text-center w-100 fs-4 my-3"><b>State Tournament Projections</b></div>
             <div className='row shadow-sm rounded py-4 bg-white mx-1'>
                 <div className="px-4 w-100">
 

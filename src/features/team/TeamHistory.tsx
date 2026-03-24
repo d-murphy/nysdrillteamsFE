@@ -37,7 +37,7 @@ export default function TeamHistory(){
 
     return (
         <div className="container">
-            <div className="text-center font-x-large mt-2"><b>{`${teamName} Tournament History`}</b></div>
+            <div className="text-center fs-4 mt-2"><b>{`${teamName} Tournament History`}</b></div>
             <div className="d-flex justify-content-end pt-2 pb-1">
                 <div>
                     <Form.Select aria-label="Select Year" value={opacityControl} onChange={(e) => setOpacityControl(e.target.value as opacityControl)}>
@@ -55,14 +55,14 @@ export default function TeamHistory(){
                 <div className="overflow-auto pb-3">
                     {
                         loading ? 
-                            <div className="width-100 some-height"></div> : 
+                            <div className="w-100 some-height"></div> : 
                             <Chart teamHistory={teamHistory} opacityControl={opacityControl} />
                     }
                 </div>
             </div>
             <div className="row g-2 mt-1 mb-4">
                 <div className="col-12">
-                    <div className="bg-white width-100 minheight-80 rounded shadow-sm">
+                    <div className="bg-white w-100 minheight-80 rounded shadow-sm">
                         {
                             loading ? 
                                 <SummaryInfoLoading /> : 
@@ -71,7 +71,7 @@ export default function TeamHistory(){
                     </div>
                 </div>
                 <div className="col-12">
-                    <div className="bg-white width-100 rounded shadow-sm overflow-auto">
+                    <div className="bg-white w-100 rounded shadow-sm overflow-auto">
                         <div className="minwidth-800">
                             {
                                 trLoading ? 

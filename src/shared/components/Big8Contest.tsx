@@ -32,7 +32,7 @@ export default function Big8Contest(props:Big8ContestProp) {
                     <div className="text-center text-nowrap text-truncate h5 w-100">{run?.contest ? run.contest == 'Three Man Ladder' ? '3 Man Ladder' : run.contest : ''}</div>
                     <div className="d-flex flex-column align-items-center justify-content-center">
                             <SizedImage imageSrc={getImgLocation(run?.team || "")} size="md"/> 
-                        <div className="font-small">
+                        <div className="small">
                             {run?.team ? `${run.team}` : ""}
                         </div>
                     </div>

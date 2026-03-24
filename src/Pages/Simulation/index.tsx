@@ -10,7 +10,7 @@ export default function Simulation() {
 
     return (
         <div className='container'>
-            <div className="text-center w-100 font-x-large my-3"><b>For a little fun...</b></div>
+            <div className="text-center w-100 fs-4 my-3"><b>For a little fun...</b></div>
             <div className='row shadow-sm rounded py-4 bg-white mx-1'>
                 <div className="px-3 w-100">
                     <p>This section of the site asks "what if..."  What if we could re-run that state tournament?  What if we could have the all-time greats in one contest?  

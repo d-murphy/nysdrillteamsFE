@@ -59,7 +59,7 @@ export default function Locations(){
 
     return (
         <div className="container mb-2">
-            <div className="text-center font-x-large my-2"><b>Track Locations</b></div>
+            <div className="text-center fs-4 my-2"><b>Track Locations</b></div>
             <StateHandler loading={loading} error={errorLoading} trackSelected={trackSelected}>
                 <div className="">
                     <div className="row g-0">
@@ -121,7 +121,7 @@ function TournamentHistory({tourns}: TournamentHistoryProps){
                                 <div className='d-inline-block m-1 p-2 bg-light rounded pointer' 
                                     onClick={() => navigate(`/Tournament/${el.id}`)}>
                                     <div>{el.name}</div>
-                                    <div className='grayText'>{new Date(el.date).toLocaleDateString()}</div>
+                                    <div className='text-muted'>{new Date(el.date).toLocaleDateString()}</div>
                                 </div>
                             )})
                     }
@@ -178,7 +178,7 @@ function TrackImages({trackImages, trackSelected}: TrackImagesProps){
             </Modal.Header>
             <Modal.Body>
                 <div className='w-100 d-flex justify-content-center'>
-                    <img src={showImage} alt="track-image" className="track-image-mx-ht max-width-100" />
+                    <img src={showImage} alt="track-image" className="track-image-mx-ht max-w-100" />
                 </div>
                 {
                     imageObj?.imageCaption ? 
@@ -457,25 +457,25 @@ function TrackInfo({track, trackImages, setTrackSelected, trackTourns}: TrackInf
             <div className="d-flex justify-content-between">
                 <div className='h4 mb-4'>{track.name}</div>
                 <div>
-                    <FontAwesomeIcon className='font-x-large pointer' icon={faXmark} onClick={() => setTrackSelected("")} />
+                    <FontAwesomeIcon className='fs-4 pointer' icon={faXmark} onClick={() => setTrackSelected("")} />
                 </div>
             </div>
             <div className='my-2 h6'>{track.address}{track.address && track.city ? ", " : ""}{track.city}</div>
-            <div className="font-small">
+            <div className="small">
                 {
                     track.archHeightFt && track.archHeightFt !== 999 && 
                     track.archHeightInches && track.archHeightInches !== 999 ?
-                        <span className='grayText'>Arch Height: {track.archHeightFt}'{track.archHeightInches}"</span> : <></>
+                        <span className='text-muted'>Arch Height: {track.archHeightFt}'{track.archHeightInches}"</span> : <></>
                 }
                 {
                     track.archHeightFt && track.archHeightFt !== 999 && 
                     track.archHeightInches && track.archHeightInches !== 999 && 
                     track.distanceToHydrant && track.distanceToHydrant !== 999 ? 
-                        <span className='grayText px-1'>|</span> : ""
+                        <span className='text-muted px-1'>|</span> : ""
                 }
                 {
                     track.distanceToHydrant && track.distanceToHydrant !== 999 ?
-                        <span className='grayText'>Arch Distance to Hydrant: {track.distanceToHydrant} feet</span> : <></>
+                        <span className='text-muted'>Arch Distance to Hydrant: {track.distanceToHydrant} feet</span> : <></>
                 }
             </div>
             {
@@ -484,7 +484,7 @@ function TrackInfo({track, trackImages, setTrackSelected, trackTourns}: TrackInf
             }
             {
                 track.notes ?
-                    <div className='my-2 font-small'>{track.notes}</div> : <></>
+                    <div className='my-2 small'>{track.notes}</div> : <></>
             }
             {
                 !track.active ?

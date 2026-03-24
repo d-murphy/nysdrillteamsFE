@@ -65,7 +65,7 @@ export default function EditTop5(props:EditTop5Props) {
                         <div className="row mt-1">
                             <div className="col-11 d-flex justify-content-center align-items-center ">
                                 <div className="col-5 px-2">
-                                    <select onChange={(e) => selectChangeInTop5(e, index, 'teamName')} className="width-100 text-center " value={top5member.teamName} disabled={!isAdmin}>
+                                    <select onChange={(e) => selectChangeInTop5(e, index, 'teamName')} className="w-100 text-center " value={top5member.teamName} disabled={!isAdmin}>
                                         <option value={null}></option>
                                         {
                                             finishingPositionTeams.map(el => {
@@ -75,7 +75,7 @@ export default function EditTop5(props:EditTop5Props) {
                                     </select>
                                 </div>
                                 <div className="col-5 px-2">
-                                    <select onChange={(e) => selectChangeInTop5(e, index, 'finishingPosition')} className="width-100 text-center" value={top5member.finishingPosition} disabled={!isAdmin}>
+                                    <select onChange={(e) => selectChangeInTop5(e, index, 'finishingPosition')} className="w-100 text-center" value={top5member.finishingPosition} disabled={!isAdmin}>
                                         <option value={null}></option>
                                         <option value={"1st Place"}>1st Place</option>
                                         <option value={"2nd Place"}>2nd Place</option>

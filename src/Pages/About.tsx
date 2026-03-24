@@ -90,8 +90,8 @@ export const Social = function({clearBackground}:SocialProps ){
         "bg-white rounded py-2 w-100 shadow-sm";
 
     const socialClasses = clearBackground ?
-        "pointer p-2 font-medium text-white" :
-        "pointer p-2 font-x-large crud-links"; 
+        "pointer p-2 text-white" :
+        "pointer p-2 fs-4 crud-links"; 
 
     return (
         <div className={wrapperClasses}>

@@ -111,7 +111,7 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
     let totalPointsBuffer: JSX.Element[] = []; 
     totalPointsBuffer.push(
         <div className="row ">
-            <div className="col-12 text-center font-x-large mt-4 mb-2">
+            <div className="col-12 text-center fs-4 mt-4 mb-2">
                 Total Points
             </div>
         </div>
@@ -121,7 +121,7 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
             totalPointsBuffer.push(
                 <div className="row py-4 border bg-light rounded my-1 mx-4">
                     <div className="col-12 col-sm-2">
-                        <div className="font-large d-flex justify-content-center align-items-center p-3 h-100">
+                        <div className="fs-5 d-flex justify-content-center align-items-center p-3 h-100">
                             {el.finish ? el.finish : ''}
                         </div>
                     </div>
@@ -131,8 +131,8 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
                                 <div className="">
                                     <SizedImage imageSrc={getImgLocation(el.team)} size="sm"/>
                                 </div>
-                                <div className="font-large ms-2 text-nowrap text-truncate">{`${el.team}`}</div>
-                                <div className="ms-2 font-small text-secondary">
+                                <div className="fs-5 ms-2 text-nowrap text-truncate">{`${el.team}`}</div>
+                                <div className="ms-2 small text-secondary">
                                     {el.runningPos ? <span className="">{`#${less100 ? el.runningPos-100 : el.runningPos}`}</span> : <></>}
                                 </div>
                             </div>
@@ -145,7 +145,7 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
                                         <div className="col-6 col-lg-3">
                                             <div className="d-flex flex-column justify-content-center align-items-center">
                                                 <div className="text-secondary font-x-small text-nowrap text-truncate text-center w-100">{contest.name}</div>
-                                                <div className="font-small text-center">
+                                                <div className="small text-center">
                                                     {
                                                         runsLU[key]?.urls.length ? 
                                                             <span className="me-2">
@@ -171,9 +171,9 @@ function generateTotalPointsTable(totalPoints: calculatingTotalPoints[], runsLU:
                             }
                         </div>
                     </div>
-                    <div className="col-12 col-sm-2 font-large p-2  d-flex flex-column justify-content-center align-items-center">
+                    <div className="col-12 col-sm-2 fs-5 p-2  d-flex flex-column justify-content-center align-items-center">
                         <span >{el?.points ? el.points : ''}</span>
-                        <span className=" font-small ">{ el?.points ? el?.points > 1 ? "Points" : "Point" : ''}</span>
+                        <span className=" small ">{ el?.points ? el?.points > 1 ? "Points" : "Point" : ''}</span>
                     </div>
                 </div>
             )    
@@ -208,7 +208,7 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
 
     let contestBuffer = []; 
     contestBuffer.push(
-        <div className="col-12 text-center font-x-large mt-4 mb-2">
+        <div className="col-12 text-center fs-4 mt-4 mb-2">
             Contest Results
         </div>
     )
@@ -225,21 +225,21 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
         runsToShow.length ? 
             <div className="border bg-light rounded pt-2 pb-3">
                 <div className="row py-3">
-                    <div className="col-6 font-x-large text-center text-nowrap text-truncate">Team</div>
-                    <div className="col-3 font-x-large text-center text-nowrap text-truncate">Time</div>
-                    <div className="col-3 font-x-large text-center text-nowrap text-truncate">Pts</div>
+                    <div className="col-6 fs-4 text-center text-nowrap text-truncate">Team</div>
+                    <div className="col-3 fs-4 text-center text-nowrap text-truncate">Time</div>
+                    <div className="col-3 fs-4 text-center text-nowrap text-truncate">Pts</div>
                 </div>
 
                 {runsToShow.map(run => {
                     return (
                         <div className="row pb-1">
                             <div className="col-6">
-                                <div className="text-left mx-1 font-large text-nowrap text-truncate">
+                                <div className="text-left mx-1 fs-5 text-nowrap text-truncate">
                                 {`${run.team}`}
-                                {run.runningPosition ? <span className="ms-2 font-medium text-secondary">{`#${less100 ? run.runningPosition - 100 : run.runningPosition}`}</span>  : <></>} 
+                                {run.runningPosition ? <span className="ms-2 text-secondary">{`#${less100 ? run.runningPosition - 100 : run.runningPosition}`}</span>  : <></>} 
                                 </div>
                             </div>
-                            <div className="col-3 font-large d-flex justify-content-center">
+                            <div className="col-3 fs-5 d-flex justify-content-center">
                                     <div className="text-center mx-1">
                                         <span className="me-2">
                                             {
@@ -254,7 +254,7 @@ function generateContestSection(tournament:Tournament, runs:Run[], contestSelect
                                     </div>
                             </div>
                             <div className="col-3">
-                                <div className="text-center font-large">
+                                <div className="text-center fs-5">
                                     {run?.points ? run.points : "" }
                                     { run?.totalPointsOverride ? 
                                         <TotalPointsOverrideMsg value={run.totalPointsOverride} /> : <></>    

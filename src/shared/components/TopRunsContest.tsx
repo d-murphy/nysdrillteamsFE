@@ -30,7 +30,7 @@ export default function TopRunsContest(props:TopRunsContestProp) {
                     return (
                         <div className="row border-top py-2">
                             <div className="col-3 d-flex align-items-center justify-content-center">
-                                <div className="font-x-large mx-1"><b>{niceTime(el.timeNum)}</b></div>
+                                <div className="fs-4 mx-1"><b>{niceTime(el.timeNum)}</b></div>
                             </div>
                             <div className="col-2">
                                 <div className="h-100 d-flex justify-content-center align-items-center">

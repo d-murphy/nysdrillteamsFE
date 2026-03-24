@@ -147,7 +147,7 @@ function EditTeamNameForm({ setEditingTeamName }: EditTeamNameFormProps) {
                 )
             )}
 
-            <div className="d-flex flex-column align-items-start justify-content-start gap-2 font-small text-muted px-1 mt-2">
+            <div className="d-flex flex-column align-items-start justify-content-start gap-2 small text-muted px-1 mt-2">
                 { teamNameSuggestions && teamNameSuggestions.length > 0 && 
                     <div className="d-flex flex-row align-items-end justify-content-start gap-2">
                         <div>A few suggestions:</div>
@@ -186,7 +186,7 @@ function EmailDisplay() {
 
     return (
         <div className="d-flex flex-column align-items-start justify-content-center">
-            <div className="font-small text-muted">Email</div>
+            <div className="small text-muted">Email</div>
             <div><b>{auth.user?.profile.email}</b></div>
         </div>
     )
@@ -203,12 +203,12 @@ function TeamNameDisplay({ setEditingTeamName }: TeamNameDisplayProps){
     return (
         <div className="d-flex flex-column align-items-start justify-content-center w-100">
             <div className="d-flex align-items-end justify-content-start gap-2">
-                <div className="font-small text-muted">Team Name</div>
+                <div className="small text-muted">Team Name</div>
                 <Button className="py-0 px-1 pointer" variant="icon" onClick={() => setEditingTeamName(true)}><FontAwesomeIcon icon={faEdit} /></Button>
             </div>
             {
                 isLoadingTeamNames ? 
-                    <Placeholder animation="glow" className="p-0 text-center d-block width-50 mt-1">
+                    <Placeholder animation="glow" className="p-0 text-center d-block w-50 mt-1">
                         <Placeholder xs={12} className="rounded" size="lg" bg="secondary"/>
                     </Placeholder>
                     : 

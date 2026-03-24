@@ -66,7 +66,7 @@ export default function FantasyHome() {
     return (
         <AuthProvider {...cognitoAuthConfig}>
             <div className="container">
-                <div className="text-center font-x-large my-2"><b>{header}</b></div>
+                <div className="text-center fs-4 my-2"><b>{header}</b></div>
                 <LoginWrapper >
                     {content}
                 </LoginWrapper>
@@ -81,7 +81,7 @@ export function TempLandingPage() {
 
     return (
         <div className="d-flex flex-column align-items-center justify-content-center w-100 bg-white rounded shadow-sm p-5 gap-4">
-            <div className="text-center font-x-large">Welcome to the Fantasy Racing League!</div>
+            <div className="text-center fs-4">Welcome to the Fantasy Racing League!</div>
             <div className="text-center">We're still putting finishing touches on the league.  Create an account to get updates as we get closer to launch.  We'll be rolling out access for everyone soon.</div>
         </div>
     )

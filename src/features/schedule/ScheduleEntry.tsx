@@ -47,11 +47,11 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
 
                 <div className="d-block col-12">
                     <div className="d-flex flex-md-row flex-column align-items-center justify-content-center justify-content-md-start py-3 px-4 border-bottom">
-                        <div className="text-uppercase font-large text-center text-md-left"><b>{tournament.name}</b></div>
-                        <div className="mx-2 font-large d-none d-md-block">&#8226;</div>
-                        <div className="font-medium text-uppercase ">{dateUtil.getDay(tournament?.date.getDay()).substring(0,3)}</div>
-                        <div className="ms-md-2 font-medium text-center">{new Date(tournament.date).toLocaleDateString('en-US', dtOpts)}</div>
-                        <div className="ms-md-2 font-medium text-center">{dateUtils.getTime(tournament.startTime)}</div>
+                        <div className="text-uppercase fs-5 text-center text-md-left"><b>{tournament.name}</b></div>
+                        <div className="mx-2 fs-5 d-none d-md-block">&#8226;</div>
+                        <div className="text-uppercase ">{dateUtil.getDay(tournament?.date.getDay()).substring(0,3)}</div>
+                        <div className="ms-md-2 text-center">{new Date(tournament.date).toLocaleDateString('en-US', dtOpts)}</div>
+                        <div className="ms-md-2 text-center">{dateUtils.getTime(tournament.startTime)}</div>
                         <div className="flex-grow-1"></div>
                         {
                             tournament.urls.length ?  
@@ -62,7 +62,7 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
                                     </a>
                                 </span> : 
                                 tournament.liveStreamPlanned ? 
-                                    <div className="schedule-entry-link text-center font-medium ">Live Stream Planned!</div> :  
+                                    <div className="schedule-entry-link text-center ">Live Stream Planned!</div> :  
                                     <div></div>
                         }
 
@@ -72,7 +72,7 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
                     <div className="d-flex flex-column justify-content-center">
                         <div className="d-flex flex-row justify-content-between align-start pb-2 pt-3 px-4">
                             <div className="d-flex flex-column justify-content-start">
-                                <div className="grayText d-flex flex-row justify-content-start align-items-center">
+                                <div className="text-muted d-flex flex-row justify-content-start align-items-center">
                                     {
                                         drillClass &&
                                         <>
@@ -103,7 +103,7 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
                                     {
                                         tournament?.cancelled ? <div className="mb-3 text-center"><i>This event was cancelled.</i></div> : 
                                         tournament?.isParade ? <></> : 
-                                            <div className="pointer schedule-entry-button  font-medium px-3 py-2 mb-3 rounded text-center" onClick={() => navigate(`/Tournament/${tournament.id}`)}>View Scorecard</div>
+                                            <div className="pointer schedule-entry-button  px-3 py-2 mb-3 rounded text-center" onClick={() => navigate(`/Tournament/${tournament.id}`)}>View Scorecard</div>
                                     }
                                 </div>
                                 <div className="d-flex flex-row mb-3 d-md-block d-none text-right">
@@ -128,7 +128,7 @@ export default function ScheduleEntry(props:ScheduleEntryProp) {
                             {
                                 tournament?.cancelled ? <div className="mb-3 text-center"><i>This event was cancelled.</i></div> : 
                                 tournament?.isParade ? <></> : 
-                                    <div className="pointer schedule-entry-button width-50 font-medium px-3 py-2 mb-3 rounded text-center" onClick={() => navigate(`/Tournament/${tournament.id}`)}>View Scorecard</div>
+                                    <div className="pointer schedule-entry-button w-50 px-3 py-2 mb-3 rounded text-center" onClick={() => navigate(`/Tournament/${tournament.id}`)}>View Scorecard</div>
                             }
                         </div>
                     </div>
@@ -160,7 +160,7 @@ function CountyIcon(mainprops:CountyIconProps){
           overlay={renderTooltip}
         >
             <div 
-                className={`mx-1 font-small badge bg-secondary cursor-default ${mainprops.active ? "" : "circuit-inactive"} `}
+                className={`mx-1 small badge bg-secondary cursor-default ${mainprops.active ? "" : "circuit-inactive"} `}
             >{mainprops.label}</div>
         </OverlayTrigger>
       );

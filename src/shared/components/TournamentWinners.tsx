@@ -54,7 +54,7 @@ export default function TournamentWinners(props:TournamentWinnersProp) {
         })
         if(tournaments.length){
             content = (
-                <div className="font-small d-flex flex-row">
+                <div className="small d-flex flex-row">
                     {list.length ? <div className="mx-2 text-center"><b>Past Winners:</b> </div> : <div/> }
                     {list}
                 </div>

@@ -436,13 +436,12 @@ a[href^="https://maps.google.com/maps"] { display: none !important; }
 }
 
 // ============================================================
-// 18. Color / text utilities (used in components)
+// 18. Color / background utilities (no Bootstrap equivalent)
 // ============================================================
 
-.grayText    { color: $gray-600; }
-.l-grayText  { color: $gray-500; }
-
+// $gray-300 background — used in several components, no Bootstrap utility matches
 .bg-lightgray  { background-color: $gray-300; }
+// $gray-200 background (= $body-bg) — used as filter panel background
 .filter-bg     { background-color: $gray-200; }
 
 .break-spaces  { white-space: break-spaces; }
@@ -457,38 +456,16 @@ a[href^="https://maps.google.com/maps"] { display: none !important; }
     }
 }
 
-// Font size utilities (legacy — prefer Bootstrap's .small / .fs-* going forward)
-.font-xx-small  { font-size: xx-small; }
-.font-x-small   { font-size: x-small; }
-.font-small     { font-size: small; }
-.font-medium    { font-size: medium; }
-.font-large     { font-size: large; }
-.font-x-large   { font-size: x-large; }
-.font-xx-large  { font-size: xx-large; }
-.font-xxx-large { font-size: xxx-large; }
+// Sub-small font sizes — no Bootstrap equivalent, defined in rem for consistency
+.font-xx-small  { font-size: 0.6rem; }
+.font-x-small   { font-size: 0.7rem; }
+// font-xxx-large: used only in Broadcast (live overlay), intentionally large
+.font-xxx-large { font-size: 4rem; }
 
-// Width utilities (legacy — prefer Bootstrap's w-* going forward)
-.width-100   { width: 100%; }
-.width-50    { width: 50%; }
-.width-60px  { width: 100px; }
-.width-15    { width: 40px; }
-.width-8     { width: 25px; }
+// Specific pixel widths with no Bootstrap equivalent
 .w-80p       { width: 80px; }
-.w-50p       { width: 50px; }
 .fluid-width { max-height: 100%; width: auto; }
-.max-width-100 { max-width: 100%; }
 .max-width-50  { max-width: 50%; }
-
-// Height utilities (legacy — prefer Bootstrap's h-* or inline style going forward)
-.h-10 { height: 10%; }
-.h-15 { height: 15%; }
-.h-30 { height: 30%; }
-.h-40 { height: 40%; }
-.h-60 { height: 60%; }
-.h-70 { height: 70%; }
-.height-70  { height: 70px; }
-.height-30  { height: 30px; }
-.minheight-10 { min-height: 10px; }
 
 // ============================================================
 // 19. Misc component-specific widths / heights
@@ -512,20 +489,12 @@ a[href^="https://maps.google.com/maps"] { display: none !important; }
 .image-wrap-lg { width: 150px; height: 150px; }
 .image-wrap-xl { width: 250px; height: 250px; }
 
-.scorecard-cell-lg { min-width: 160px; }
-.scorecard-cell-md { min-width: 120px; }
-.scorecard-cell-sm { min-width: 40px; }
-
 .dash-logo-width  { width: 120px; }
 .w-250            { width: 250px; }
 .w-160p           { width: 160px; }
 .minwidth-800     { min-width: 800px; }
-.min-screen-height { min-height: 100vh; }
 .some-height      { height: 400px; }
-.some-more-height { height: 500px; }
 .min-loading-height { min-height: 600px; }
-.minheight-180    { min-height: 180px; }
-.track-img-height { min-height: 500px; height: 100%; }
 
 // ============================================================
 // 20. Bootstrap component overrides
