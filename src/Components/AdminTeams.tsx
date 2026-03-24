@@ -1,150 +1,113 @@
 import * as React from "react";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { useLoginContext } from "../utils/context";
 import { Team } from "../types/types"
 import { fetchPost, logUpdate } from "../utils/network"
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faPenToSquare, faTrash, faEyeSlash, faA } from "@fortawesome/free-solid-svg-icons"; 
-
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPenToSquare, faTrash, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import MutationStatus from "./MutationStatus";
 
 declare var SERVICE_URL: string;
 
 interface AdminTeamsProps {
     teams: Team[];
-    updateTeams: Function; 
+    updateTeams: Function;
 }
 
 let intialTeam:Team = {
-    _id: '', 
-    fullName: '', 
-    region: '', 
-    hometown: '', 
-    nickname: '', 
-    circuit: '', 
-    twitter: '', 
-    instagram: '', 
+    _id: '',
+    fullName: '',
+    region: '',
+    hometown: '',
+    nickname: '',
+    circuit: '',
+    twitter: '',
+    instagram: '',
     tiktok: ''
 }
 
 export default function AdminTeams(props:AdminTeamsProps) {
-    const teams = props.teams; 
+    const teams = props.teams;
     let [teamInReview, setTeamInReview] = useState<Team>(intialTeam)
-    let [editOrCreate, setEditOrCreate] = useState(""); 
-    let [reqSubmitted, setReqSubmitted] = useState(false); 
-    let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
-    const { sessionId, role, username  } = useLoginContext(); 
+    let [editOrCreate, setEditOrCreate] = useState("");
+    const { sessionId, role, username  } = useLoginContext();
 
-    const isAdmin = role === "admin"; 
-    const isAdminOrScorekeeper = role === 'admin' || role === 'scorekeeper'; 
+    const isAdmin = role === "admin";
+    const isAdminOrScorekeeper = role === 'admin' || role === 'scorekeeper';
     const isFormComplete = teamInReview.hometown && teamInReview.nickname && teamInReview.circuit;
 
+    const saveMutation = useMutation({
+        mutationFn: async () => {
+            let url: string;
+            let body: {teamId: string, fieldsToUpdate: {}} | Team;
+            if(editOrCreate == "Edit"){
+                url = `${SERVICE_URL}/teams/updateTeam`
+                let fieldsToUpdate = {...teamInReview}
+                delete fieldsToUpdate._id;
+                body = { teamId: teamInReview._id, fieldsToUpdate }
+            } else {
+                url = `${SERVICE_URL}/teams/insertTeam`
+                body = { ...teamInReview, afterMigrate: true }
+                delete body._id;
+            }
+            await fetchPost(url, body, sessionId);
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `${editOrCreate} Team: ${teamInReview.fullName}`);
+            props.updateTeams();
+        },
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: async () => {
+            await fetchPost(`${SERVICE_URL}/teams/deleteTeam`, { teamId: teamInReview._id }, sessionId);
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Delete Team: ${teamInReview.fullName}`);
+            props.updateTeams();
+        },
+    });
+
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){
-        setTeamInReview({
-            ...teamInReview, 
-            [e.target.id]: e.target.value
-        })
+        setTeamInReview({ ...teamInReview, [e.target.id]: e.target.value })
     }
 
     function handleNameChange(e:React.ChangeEvent<HTMLInputElement>){
-        let newFullName = e.target.id == 'hometown' ? `${e.target.value} ${teamInReview.nickname}` : `${teamInReview.hometown} ${e.target.value}`
-        setTeamInReview({
-            ...teamInReview, 
-            fullName: newFullName,
-            [e.target.id]: e.target.value,
-        })
+        let newFullName = e.target.id == 'hometown'
+            ? `${e.target.value} ${teamInReview.nickname}`
+            : `${teamInReview.hometown} ${e.target.value}`
+        setTeamInReview({ ...teamInReview, fullName: newFullName, [e.target.id]: e.target.value })
     }
 
     function handleSelect(e:React.ChangeEvent<HTMLSelectElement>){
-        setTeamInReview({
-            ...teamInReview, 
-            [e.target.id]: e.target.value
-        })
+        setTeamInReview({ ...teamInReview, [e.target.id]: e.target.value })
     }
 
     function handleCheck(e:React.ChangeEvent<HTMLInputElement>){
-        setTeamInReview({
-            ...teamInReview, 
-            [e.target.id]: e.target.checked
-        })
+        setTeamInReview({ ...teamInReview, [e.target.id]: e.target.checked })
     }
 
     function loadTeam(team:Team){
-        setTeamInReview({
-            ...intialTeam, 
-            ...team
-        })
+        setTeamInReview({ ...intialTeam, ...team })
     }
-    
-    let regionsSet = new Set(teams.map(el => el.region)); 
-    let regions = Array.from(regionsSet).sort()
-
-    let circuitSet = new Set(teams.map(el => el.circuit)); 
-    let circuits = Array.from(circuitSet).sort()
-
-    async function insertOrUpdate(){
-        setReqSubmitted(true); 
-        let url:string, body:{teamId: string, fieldsToUpdate: {}} | Team ; 
-        if(editOrCreate == "Edit"){
-            url = `${SERVICE_URL}/teams/updateTeam`
-            let fieldsToUpdate = {...teamInReview}
-            delete fieldsToUpdate._id; 
-            body = {
-                teamId: teamInReview._id, 
-                fieldsToUpdate: fieldsToUpdate
-            }
-        } else {
-            url = `${SERVICE_URL}/teams/insertTeam`
-            body = {
-                ...teamInReview, 
-                afterMigrate: true
-            }
-            delete body._id; 
-        }
-        try {
-            await fetchPost(url, body, sessionId)
-            setReqResult({error: false, message: "Update successful."}); 
-            let updateMsg = `${editOrCreate} Team: ${teamInReview.fullName}`
-            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
-            props.updateTeams(); 
-        } catch (e){
-            setReqResult({error: true, message: "An error occurred.  Make sure all required fields are complete or try again later."}); 
-            setReqSubmitted(false); 
-        }
-    }
-
-    async function deleteTeam(){
-        setReqSubmitted(true); 
-        let body = {teamId: teamInReview._id}; 
-        let url = `${SERVICE_URL}/teams/deleteTeam`
-        try {
-            await fetchPost(url, body, sessionId)
-            let updateMsg = `Delete Team: ${teamInReview.fullName}`
-            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
-            setReqResult({error: false, message: "Update successful."}); 
-            props.updateTeams(); 
-        } catch (e){
-            setReqResult({error: true, message: "An error occurred. Try again later."}); 
-            setReqSubmitted(false); 
-        }
-    }
-
-
 
     function modalCleanup(){
-        setReqResult({error:false, message: ""}); 
-        setReqSubmitted(false); 
+        saveMutation.reset();
+        deleteMutation.reset();
     }
+
+    let regionsSet = new Set(teams.map(el => el.region));
+    let regions = Array.from(regionsSet).sort()
+
+    let circuitSet = new Set(teams.map(el => el.circuit));
+    let circuits = Array.from(circuitSet).sort()
 
     return (
         <div className="container">
             <div className="d-flex flex-column align-items-center justify-content-center">
-                <div 
-                    className="btn add-entry-button my-5" 
-                    data-bs-toggle="modal" 
+                <div
+                    className="btn add-entry-button my-5"
+                    data-bs-toggle="modal"
                     data-bs-target="#editTeamModal"
                     onClick={()=>{
-                        setEditOrCreate("Create"); 
+                        setEditOrCreate("Create");
                         setTeamInReview({...intialTeam})
                     }}>Add New Team
                 </div>
@@ -155,14 +118,14 @@ export default function AdminTeams(props:AdminTeamsProps) {
                             return (
                                 <div className='row w-100 my-1'>
                                     <div className="col-8">
-                                        <div 
+                                        <div
                                             className="pointer d-flex justify-content-start align-items-center font-large ms-5"
-                                            data-bs-toggle="modal" 
+                                            data-bs-toggle="modal"
                                             data-bs-target="#editTeamModal"
                                             onClick={()=>{
-                                                setEditOrCreate("Edit"); 
-                                                modalCleanup(); 
-                                                loadTeam(team); 
+                                                setEditOrCreate("Edit");
+                                                modalCleanup();
+                                                loadTeam(team);
                                             }}>
                                             <div>{team.fullName} - {team.circuit}</div>
                                             <div>{team.active && <div className="font-x-small grayText ms-3">Active</div>}</div>
@@ -171,22 +134,22 @@ export default function AdminTeams(props:AdminTeamsProps) {
                                     </div>
                                     <div className="col-4 d-flex align-items-center justify-content-between">
                                         <div className="pointer ps-5 d-flex align-items-center justify-content-center"
-                                            data-bs-toggle="modal" 
+                                            data-bs-toggle="modal"
                                             data-bs-target="#editTeamModal"
                                             onClick={()=>{
-                                                setEditOrCreate("Edit"); 
-                                                modalCleanup(); 
-                                                loadTeam(team); 
+                                                setEditOrCreate("Edit");
+                                                modalCleanup();
+                                                loadTeam(team);
                                             }}
                                             ><FontAwesomeIcon className="crud-links font-x-large" icon={faPenToSquare} />
                                         </div>
-                                        {team.afterMigrate ? 
+                                        {team.afterMigrate ?
                                             <div className="pointer pe-5 d-flex align-items-center justify-content-center"
-                                                data-bs-toggle="modal" 
+                                                data-bs-toggle="modal"
                                                 data-bs-target="#deleteTeamModal"
                                                 onClick={()=>{
-                                                    modalCleanup(); 
-                                                    loadTeam(team); 
+                                                    modalCleanup();
+                                                    loadTeam(team);
                                                 }}
                                                 ><FontAwesomeIcon className="crud-links font-x-large" icon={faTrash}/>
                                             </div> : <div></div>}
@@ -195,7 +158,6 @@ export default function AdminTeams(props:AdminTeamsProps) {
                             )
                         })
                     }
-
                 </div>
             </div>
 
@@ -208,7 +170,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
                     </div>
                     <div className="modal-body">
                         <div className="d-flex justify-content-center mb-3">
-                            {editOrCreate == "Edit" ? 
+                            {editOrCreate == "Edit" ?
                                 <i>
                                     {teamInReview?.afterMigrate ? "Created after 2022 migration." : "Migrated from previous site."}
                                 </i> : <></>
@@ -217,11 +179,11 @@ export default function AdminTeams(props:AdminTeamsProps) {
                         <div className="row my-1">
                             <div className="col-4 text-center">Town*</div>
                             <div className="col-8 text-center px-4">
-                                <input 
-                                    onChange={(e) => handleNameChange(e)} 
-                                    id="hometown" 
-                                    value={teamInReview.hometown} 
-                                    className="text-center width-100" 
+                                <input
+                                    onChange={(e) => handleNameChange(e)}
+                                    id="hometown"
+                                    value={teamInReview.hometown}
+                                    className="text-center width-100"
                                     disabled={editOrCreate == "Edit" && !teamInReview?.afterMigrate}
                                     autoComplete="off"></input>
                             </div>
@@ -229,11 +191,11 @@ export default function AdminTeams(props:AdminTeamsProps) {
                         <div className="row my-1">
                             <div className="col-4 text-center">Nickname*</div>
                             <div className="col-8 text-center px-4" >
-                                <input 
-                                    onChange={(e) => handleNameChange(e)} 
-                                    id="nickname" 
-                                    value={teamInReview.nickname} 
-                                    className="text-center width-100" 
+                                <input
+                                    onChange={(e) => handleNameChange(e)}
+                                    id="nickname"
+                                    value={teamInReview.nickname}
+                                    className="text-center width-100"
                                     disabled={editOrCreate == "Edit" && !teamInReview?.afterMigrate}
                                     autoComplete="off"></input>
                             </div>
@@ -241,10 +203,10 @@ export default function AdminTeams(props:AdminTeamsProps) {
                         <div className="row my-1">
                             <div className="col-4 text-center">Fullname*</div>
                             <div className="col-8 text-center px-4">
-                                <input 
-                                    id="fullName" 
-                                    value={teamInReview.fullName} 
-                                    disabled={true} 
+                                <input
+                                    id="fullName"
+                                    value={teamInReview.fullName}
+                                    disabled={true}
                                     className="text-center width-100"
                                     autoComplete="off"></input>
                             </div>
@@ -253,9 +215,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
                             <div className="col-4 text-center">Region</div>
                             <div className="col-8 text-center px-4">
                                 <select onChange={handleSelect} id="region" name="region" className="width-100 text-center" value={teamInReview.region} disabled={editOrCreate == "Edit" && !teamInReview?.afterMigrate}>
-                                    {regions.map(el => {
-                                        return <option value={el}>{el}</option>
-                                    })}
+                                    {regions.map(el => <option value={el}>{el}</option>)}
                                 </select>
                             </div>
                         </div>
@@ -263,9 +223,7 @@ export default function AdminTeams(props:AdminTeamsProps) {
                             <div className="col-4 text-center">Circuit*</div>
                             <div className="col-8 text-center px-4">
                                 <select onChange={handleSelect} id="circuit" name="circuit" className="width-100 text-center" value={teamInReview.circuit} disabled={editOrCreate == "Edit" && !teamInReview?.afterMigrate}>
-                                    {circuits.map(el => {
-                                        return <option value={el}>{el}</option>
-                                    })}
+                                    {circuits.map(el => <option value={el}>{el}</option>)}
                                 </select>
                             </div>
                         </div>
@@ -304,24 +262,19 @@ export default function AdminTeams(props:AdminTeamsProps) {
                     </div>
                     <div className="modal-footer d-flex flex-column">
                         <div className="text-center">
-                            {!isAdminOrScorekeeper ? <span>
-                                Only admin or scorekeepers can make changes here.
-                            </span> : <></>}
+                            {!isAdminOrScorekeeper ? <span>Only admin or scorekeepers can make changes here.</span> : <></>}
                         </div>
                         <div className="text-center my-3">
-                            {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
-                                {reqResult.message}
-                            </span> : <></>}
+                            <MutationStatus isSuccess={saveMutation.isSuccess} isError={saveMutation.isError} errorMessage="An error occurred. Make sure all required fields are complete or try again later." />
                         </div>
                         <div className="">
-                            <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted || !isFormComplete} onClick={insertOrUpdate}>Save changes</button>
+                            <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || saveMutation.isPending || !isFormComplete} onClick={() => saveMutation.mutate()}>Save changes</button>
                         </div>
                     </div>
                     </div>
                 </div>
             </div>
-
 
             <div className="modal fade" id="deleteTeamModal" aria-labelledby="deleteModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-l">
@@ -337,18 +290,14 @@ export default function AdminTeams(props:AdminTeamsProps) {
                         </div>
                         <div className="modal-footer d-flex flex-column">
                             <div className="text-center">
-                                {!isAdmin ? <span>
-                                    Only admin and scorekeepers can make changes here.
-                                </span> : <></>}
+                                {!isAdmin ? <span>Only admin and scorekeepers can make changes here.</span> : <></>}
                             </div>
                             <div className="text-center my-3">
-                                {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
-                                    {reqResult.message}
-                                </span> : <></>}
+                                <MutationStatus isSuccess={deleteMutation.isSuccess} isError={deleteMutation.isError} />
                             </div>
                             <div className="">
-                                <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                                <button type="button" className="btn btn-warning mx-2" disabled={!isAdmin || reqSubmitted} onClick={deleteTeam}>Delete</button>
+                                <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal">Close</button>
+                                <button type="button" className="btn btn-warning mx-2" disabled={!isAdmin || deleteMutation.isPending} onClick={() => deleteMutation.mutate()}>Delete</button>
                             </div>
                         </div>
                     </div>

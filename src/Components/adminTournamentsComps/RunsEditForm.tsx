@@ -1,140 +1,125 @@
-import React, {useState} from 'react'; 
+import React from 'react';
+import { useMutation } from "@tanstack/react-query";
 import { Tournament, Team, Run } from "../../types/types"
 import dateUtil from '../../utils/dateUtils';
-import RunVideos from './RunVideos'; 
-import { fetchPost, logUpdate } from "../../utils/network"; 
+import RunVideos from './RunVideos';
+import { fetchPost, logUpdate } from "../../utils/network";
 import { useLoginContext } from "../../utils/context";
 
 interface EditRunsFormProps {
-    isAdmin: boolean, 
-    tournInReview: Tournament, 
-    teams: Team[], 
-    runsEditContest: string, 
-    runInReview: Run, 
-    setRunInReview: React.Dispatch<React.SetStateAction<Run>>, 
+    isAdmin: boolean,
+    tournInReview: Tournament,
+    teams: Team[],
+    runsEditContest: string,
+    runInReview: Run,
+    setRunInReview: React.Dispatch<React.SetStateAction<Run>>,
     getRunsForTourn: Function
-    editOrInsertRun: 'edit' | 'insert', 
-    reqResult: {error: boolean, message:string} | null, 
-    setReqResult: React.Dispatch<React.SetStateAction<{error: boolean, message:string} | null>>, 
-    setReqSubmitted:  React.Dispatch<React.SetStateAction<boolean>>, 
-    showingDeleteWarning: boolean, 
+    editOrInsertRun: 'edit' | 'insert',
+    reqResult: {error: boolean, message:string} | null,
+    setReqResult: React.Dispatch<React.SetStateAction<{error: boolean, message:string} | null>>,
+    showingDeleteWarning: boolean,
     setShowingDeleteWarning: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 declare var SERVICE_URL: string;
 
 export default function RunsEditForm(props:EditRunsFormProps) {
-    const isAdmin = props.isAdmin; 
-    const runInReview = props.runInReview; 
-    const setRunInReview = props.setRunInReview; 
-    const getRunsForTourn = props.getRunsForTourn; 
-    const tournInReview = props.tournInReview; 
-    const editOrInsertRun = props.editOrInsertRun; 
-    const reqResult = props.reqResult; 
-    const setReqResult = props.setReqResult; 
-    const setReqSubmitted = props.setReqSubmitted; 
-    const showingDeleteWarning = props.showingDeleteWarning; 
-    const setShowingDeleteWarning = props.setShowingDeleteWarning; 
-    const { sessionId, username } = useLoginContext(); 
+    const isAdmin = props.isAdmin;
+    const runInReview = props.runInReview;
+    const setRunInReview = props.setRunInReview;
+    const getRunsForTourn = props.getRunsForTourn;
+    const tournInReview = props.tournInReview;
+    const editOrInsertRun = props.editOrInsertRun;
+    const reqResult = props.reqResult;
+    const setReqResult = props.setReqResult;
+    const showingDeleteWarning = props.showingDeleteWarning;
+    const setShowingDeleteWarning = props.setShowingDeleteWarning;
+    const { sessionId, username } = useLoginContext();
+
+    const saveMutation = useMutation({
+        mutationFn: async () => {
+            if (editOrInsertRun === 'insert') {
+                await fetchPost(`${SERVICE_URL}/runs/insertRun`, {runsData: runInReview}, sessionId);
+                logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Inserted Run: ${dateUtil.getMMDDYYYY(runInReview.date)} - ${runInReview.tournament} - ${runInReview.contest} - ${runInReview.team} - ${runInReview.time}`);
+            } else {
+                let runId = runInReview._id;
+                let {_id: _, ...runData} = runInReview;
+                await fetchPost(`${SERVICE_URL}/runs/updateRun`, {runId, fieldsToUpdate: runData}, sessionId);
+                logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Updated Run: ${dateUtil.getMMDDYYYY(runInReview.date)} - ${runInReview.tournament} - ${runInReview.contest} - ${runInReview.team} - ${runInReview.time}`);
+            }
+        },
+        onSuccess: () => {
+            setReqResult({error: false, message: "Record saved successfully."});
+            setRunInReview(null);
+            getRunsForTourn(tournInReview.id);
+        },
+        onError: () => {
+            setReqResult({error: true, message: "An error occurred.  Can you try again?."});
+        },
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: async () => {
+            await fetchPost(`${SERVICE_URL}/runs/deleteRun`, {runId: runInReview._id}, sessionId);
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Deleted Run: ${dateUtil.getMMDDYYYY(runInReview.date)} - ${runInReview.tournament} - ${runInReview.contest} - ${runInReview.team} - ${runInReview.time}`);
+        },
+        onSuccess: () => {
+            setReqResult({error: false, message: "Record deleted successfully."});
+            setRunInReview(null);
+            setShowingDeleteWarning(false);
+            getRunsForTourn(tournInReview.id);
+        },
+        onError: () => {
+            setShowingDeleteWarning(false);
+            setReqResult({error: true, message: "An error occurred.  Can you try again?."});
+        },
+    });
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>){
-        setRunInReview({
-            ...runInReview, 
-            [e.target.id]: e.target.value
-        })
+        setRunInReview({ ...runInReview, [e.target.id]: e.target.value })
     }
 
     function handleTimeChange(e:React.ChangeEvent<HTMLInputElement>){
-        setRunInReview({
-            ...runInReview, 
-            time: e.target.value, 
-            timeNum: parseFloat(e.target.value)
-        })
+        setRunInReview({ ...runInReview, time: e.target.value, timeNum: parseFloat(e.target.value) })
     }
 
     function handlePointsChange(e:React.ChangeEvent<HTMLInputElement>, pointsOrTotalPointsOveride: 'points' | 'totalPointsOverride'){
-        setRunInReview({
-            ...runInReview, 
-            [pointsOrTotalPointsOveride]: parseFloat(e.target.value)
-        })
+        setRunInReview({ ...runInReview, [pointsOrTotalPointsOveride]: parseFloat(e.target.value) })
     }
 
     function handleCheck(e:React.ChangeEvent<HTMLInputElement>){
-        setRunInReview({
-            ...runInReview, 
-            [e.target.id]: e.target.checked
-        })
+        setRunInReview({ ...runInReview, [e.target.id]: e.target.checked })
     }
 
     function handleSelect(e:React.ChangeEvent<HTMLSelectElement>){
-        setRunInReview({
-            ...runInReview, 
-            [e.target.id]: e.target.value
-        })
+        setRunInReview({ ...runInReview, [e.target.id]: e.target.value })
     }
 
-    async function tryDelete(){
+    function tryDelete(){
         if(!showingDeleteWarning) {
-            setShowingDeleteWarning(true); // first display confirm message to user
-            return; 
-        } 
-        try {
-            setReqSubmitted(true); 
-            await fetchPost(`${SERVICE_URL}/runs/deleteRun`, {runId: runInReview._id}, sessionId)
-            let updateMsg = `Deleted Run: ${dateUtil.getMMDDYYYY(runInReview.date)} - ${runInReview.tournament} - ${runInReview.contest} - ${runInReview.team} - ${runInReview.time}`
-            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
-            setReqResult({error: false, message: "Record deleted successfully."}); 
-            setRunInReview(null); 
-            setReqSubmitted(false); 
-            getRunsForTourn(tournInReview.id) 
-        } catch {
-            setReqSubmitted(false); 
-            setReqResult({error: true, message: "An error occurred.  Can you try again?."}); 
+            setShowingDeleteWarning(true);
+            return;
         }
-        setShowingDeleteWarning(false);
-    }
-
-    async function trySave(){
-        try {
-            setReqSubmitted(true); 
-            if(editOrInsertRun==='insert'){
-                await fetchPost(`${SERVICE_URL}/runs/insertRun`, {runsData: runInReview}, sessionId)
-                let updateMsg = `Inserted Run: ${dateUtil.getMMDDYYYY(runInReview.date)} - ${runInReview.tournament} - ${runInReview.contest} - ${runInReview.team} - ${runInReview.time}`
-                logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)    
-            } else {
-                let runId = runInReview._id; 
-                let {_id: _, ...runData} = runInReview;
-                await fetchPost(`${SERVICE_URL}/runs/updateRun`, {runId: runId,  fieldsToUpdate: runData}, sessionId)
-                let updateMsg = `Updated Run: ${dateUtil.getMMDDYYYY(runInReview.date)} - ${runInReview.tournament} - ${runInReview.contest} - ${runInReview.team} - ${runInReview.time}`
-                logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)    
-            }
-            setReqResult({error: false, message: "Record saved successfully."}); 
-            setReqSubmitted(false); 
-            getRunsForTourn(tournInReview.id)
-            setRunInReview(null); 
-        } catch {
-            setReqSubmitted(false); 
-            setReqResult({error: true, message: "An error occurred.  Can you try again?."}); 
-        }
+        deleteMutation.mutate();
     }
 
     return (
         reqResult ? <div className={`my-5 ${reqResult.error ? "text-danger" : "text-success"}`}>
                 {reqResult.message ? <div>{reqResult.message}</div> : <></>}
-            </div> : 
-        !runInReview ? <div className='my-5'>Select a Run</div> : 
+            </div> :
+        !runInReview ? <div className='my-5'>Select a Run</div> :
         <div className=''>
             <div className="row my-3 width-100">
                 <div className="col-2 text-center">Team</div>
                 <div className="col-4 text-center px-4">{runInReview.team}</div>
                 <div className="col-2 text-center">Time*</div>
                 <div className="col-4 text-center px-4">
-                    <input 
-                        id="time" 
-                        value={runInReview.time} 
-                        className="text-center width-100 p-1" 
+                    <input
+                        id="time"
+                        value={runInReview.time}
+                        className="text-center width-100 p-1"
                         disabled={!isAdmin}
-                        autoComplete="off" 
+                        autoComplete="off"
                         onChange={(e) => handleTimeChange(e)}></input>
                 </div>
             </div>
@@ -164,10 +149,10 @@ export default function RunsEditForm(props:EditRunsFormProps) {
                 </div>
                 <div className="col-2 text-center">Points</div>
                 <div className="col-4 text-center px-4">
-                    <input 
-                        id="points" 
-                        value={runInReview.points ? runInReview.points : ''} 
-                        className="text-center width-100 p-1" 
+                    <input
+                        id="points"
+                        value={runInReview.points ? runInReview.points : ''}
+                        className="text-center width-100 p-1"
                         disabled={!isAdmin}
                         autoComplete="off" type="number" step=".01"
                         onChange={(e) => handlePointsChange(e, 'points')}></input>
@@ -180,17 +165,15 @@ export default function RunsEditForm(props:EditRunsFormProps) {
                 </div>
                 <div className="col-2 text-center">Area Total Points Override</div>
                 <div className="col-4 text-center px-4">
-                    <input 
-                        id="totalPointsOverride" 
-                        value={runInReview.totalPointsOverride || runInReview.totalPointsOverride === 0 ? runInReview.totalPointsOverride : ''} 
-                        className="text-center width-100 p-1" 
+                    <input
+                        id="totalPointsOverride"
+                        value={runInReview.totalPointsOverride || runInReview.totalPointsOverride === 0 ? runInReview.totalPointsOverride : ''}
+                        className="text-center width-100 p-1"
                         disabled={!isAdmin}
                         autoComplete="off" type="number" step=".01"
                         onChange={(e) => handlePointsChange(e, 'totalPointsOverride')}></input>
                 </div>
             </div>
-
-
 
             <div className="row my-3 width-100 border-top pt-2 mx-1">
                 <div className="col-6 ">
@@ -218,8 +201,8 @@ export default function RunsEditForm(props:EditRunsFormProps) {
             </div>
             <div className="row mt-5 mb-2 width-100">
                 <div className='d-flex justify-content-center align-items-center'>
-                    <button type="button" className="btn btn-success mx-2" disabled={!runInReview.time} onClick={trySave}>Save</button>
-                    <button type="button" className="btn btn-danger mx-2"  disabled={!isAdmin} onClick={tryDelete} >{!showingDeleteWarning ? 'Delete Run' : 'Yes, please delete.'}</button>
+                    <button type="button" className="btn btn-success mx-2" disabled={!runInReview.time || saveMutation.isPending} onClick={() => saveMutation.mutate()}>Save</button>
+                    <button type="button" className="btn btn-danger mx-2" disabled={!isAdmin || deleteMutation.isPending} onClick={tryDelete}>{!showingDeleteWarning ? 'Delete Run' : 'Yes, please delete.'}</button>
                 </div>
             </div>
 

@@ -1,35 +1,37 @@
 import * as React from "react";
 import { useState, useEffect, useRef } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { useLoginContext } from "../utils/context";
 import { ImageDbEntry, Track } from "../types/types"
 import { fetchGet, fetchPost, fetchPostFile, logUpdate } from "../utils/network"
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faEdit, faEyeSlash, faPenToSquare, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"; 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faEyeSlash, faPenToSquare, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import MutationStatus from "./MutationStatus";
 
 
 declare var SERVICE_URL: string;
 
 interface AdminTracksProps {
     tracks: Track[];
-    updateTracks: Function; 
+    updateTracks: Function;
 }
 
 let initialTrack:Track = {
-    _id: '', 
-    id: null, 
-    name: '', 
-    address: '', 
-    city: '', 
-    notes: '', 
-    archHeightFt: null, 
-    archHeightInches: null, 
-    distanceToHydrant: null, 
+    _id: '',
+    id: null,
+    name: '',
+    address: '',
+    city: '',
+    notes: '',
+    archHeightFt: null,
+    archHeightInches: null,
+    distanceToHydrant: null,
     longitude: null,
     latitude: null
 }
 
 export default function AdminTracks(props:AdminTracksProps) {
-    const tracks = props.tracks; 
+    const tracks = props.tracks;
     let [trackInReview, setTrackInReview] = useState<Track>({...initialTrack})
     let [images, setImages] = useState<ImageDbEntry[]>([]);
 
@@ -40,173 +42,118 @@ export default function AdminTracks(props:AdminTracksProps) {
     let [imageCaption, setImageCaption] = useState("");
     let [imageSortOrder, setImageSortOrder] = useState(0);
 
-    let [editOrCreate, setEditOrCreate] = useState<"Edit" | "Create">("Create"); 
-    let [reqSubmitted, setReqSubmitted] = useState(false); 
-    let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
-    const { sessionId, role, username  } = useLoginContext(); 
+    let [editOrCreate, setEditOrCreate] = useState<"Edit" | "Create">("Create");
+    const { sessionId, role, username  } = useLoginContext();
 
-    const isAdmin = role === "admin"; 
+    const isAdmin = role === "admin";
     const isAdminOrScorekeeper = role === 'admin' || role === 'scorekeeper'
-    const disableOnDupe = editOrCreate === "Create" && tracks.map(el => el.name.toLowerCase()).includes(trackInReview.name.toLowerCase()); 
+    const disableOnDupe = editOrCreate === "Create" && tracks.map(el => el.name.toLowerCase()).includes(trackInReview.name.toLowerCase());
     const disableImageOnDupe = imageEditOrCreate === "Create" && images.map(el => el.fileName.toLowerCase()).includes(imageName.toLowerCase());
     const isFormComplete = trackInReview.name && trackInReview.address && trackInReview.city;
-    const imageFormRef = useRef<HTMLInputElement>(null); 
+    const imageFormRef = useRef<HTMLInputElement>(null);
+
+    const saveTrackMutation = useMutation({
+        mutationFn: async () => {
+            let url: string;
+            let body: {trackId: string, fieldsToUpdate: {}} | Track;
+            if (editOrCreate === "Edit") {
+                url = `${SERVICE_URL}/tracks/updateTrack`
+                let fieldsToUpdate = {...trackInReview}
+                delete fieldsToUpdate._id;
+                body = { trackId: trackInReview._id, fieldsToUpdate }
+            } else {
+                url = `${SERVICE_URL}/tracks/insertTrack`
+                body = { ...trackInReview, afterMigrate: true }
+                delete body._id;
+            }
+            await fetchPost(url, body, sessionId);
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `${editOrCreate} Track: ${trackInReview.name}`);
+            props.updateTracks();
+        },
+    });
+
+    const deleteTrackMutation = useMutation({
+        mutationFn: async () => {
+            await fetchPost(`${SERVICE_URL}/tracks/deleteTrack`, { trackId: trackInReview._id }, sessionId);
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Delete Track: ${trackInReview.name}`);
+            props.updateTracks();
+        },
+    });
+
+    const uploadImageMutation = useMutation({
+        mutationFn: async (file: File) => {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('fileName', imageFileName);
+            formData.append('imageName', imageName);
+            formData.append('imageCaption', imageCaption);
+            formData.append('sortOrder', imageSortOrder.toString());
+            formData.append('track', trackInReview.name);
+            await fetchPostFile(`${SERVICE_URL}/images/uploadImage`, formData, sessionId);
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Upload Image: ${trackInReview.name}-${imageFileName}`);
+            getTrackImages();
+            clearImageForm();
+        },
+    });
+
+    const updateImageMutation = useMutation({
+        mutationFn: async () => {
+            const body = {
+                fileName: imageInReview.fileName, sortOrder: imageSortOrder,
+                imageName: imageName, imageCaption: imageCaption
+            };
+            await fetchPost(`${SERVICE_URL}/images/updateImage`, body, sessionId);
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Image Update: ${imageInReview.fileName}`);
+            getTrackImages();
+            clearImageForm();
+        },
+    });
+
+    const deleteImageMutation = useMutation({
+        mutationFn: async () => {
+            await fetchPost(`${SERVICE_URL}/images/deleteImage`, { imageName: imageInReview?.fileName }, sessionId);
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Delete Image: ${imageInReview?.fileName}`);
+            getTrackImages();
+        },
+    });
 
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement>){
-        setTrackInReview({
-            ...trackInReview, 
-            [e.target.id]: e.target.value
-        })
+        setTrackInReview({ ...trackInReview, [e.target.id]: e.target.value })
     }
 
     function handleCheck(e:React.ChangeEvent<HTMLInputElement>){
-        setTrackInReview({
-            ...trackInReview, 
-            [e.target.id]: e.target.checked
-        })
+        setTrackInReview({ ...trackInReview, [e.target.id]: e.target.checked })
     }
 
     function handleSelect(e:React.ChangeEvent<HTMLSelectElement>){
-        setTrackInReview({
-            ...trackInReview, 
-            [e.target.id]: e.target.value
-        })
+        setTrackInReview({ ...trackInReview, [e.target.id]: e.target.value })
     }
-
-
 
     function loadTrack(track:Track){
         setTrackInReview({
-            ...track, 
+            ...track,
             longitude: track.longitude || "",
             latitude: track.latitude || "",
             archHeightFt: track.archHeightFt || null,
             archHeightInches: track.archHeightInches || null,
-            distanceToHydrant: track.distanceToHydrant || null, 
+            distanceToHydrant: track.distanceToHydrant || null,
             notes: track.notes || "",
         })
-    }
-
-    async function insertOrUpdate(){
-        setReqSubmitted(true); 
-        let url:string, body:{trackId: string, fieldsToUpdate: {}} | Track ; 
-        if(editOrCreate == "Edit"){
-            url = `${SERVICE_URL}/tracks/updateTrack`
-            let fieldsToUpdate = {...trackInReview}
-            delete fieldsToUpdate._id; 
-            body = {
-                trackId: trackInReview._id, 
-                fieldsToUpdate: fieldsToUpdate
-            }
-        } else {
-            url = `${SERVICE_URL}/tracks/insertTrack`
-            body = {
-                ...trackInReview, 
-                afterMigrate: true
-            }
-            delete body._id; 
-        }
-        try {
-            await fetchPost(url, body, sessionId)
-            let updateMsg = `${editOrCreate} Track: ${trackInReview.name}`
-            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
-            setReqResult({error: false, message: "Update successful."}); 
-            props.updateTracks(); 
-        } catch (e){
-            setReqResult({error: true, message: "An error occurred.  Make sure all required fields are complete or try again later."}); 
-            setReqSubmitted(false); 
-        }
-    }
-
-    async function deleteTrack(){
-        setReqSubmitted(true); 
-        let body = {trackId: trackInReview._id}; 
-        let url = `${SERVICE_URL}/tracks/deleteTrack`
-        try {
-            await fetchPost(url, body, sessionId)
-            let updateMsg = `Delete Track: ${trackInReview.name}`
-            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
-            setReqResult({error: false, message: "Update successful."}); 
-            props.updateTracks(); 
-        } catch (e){
-            setReqResult({error: true, message: "An error occurred. Try again later."}); 
-            setReqSubmitted(false); 
-        }
-    }
-
-    async function deleteImage(){
-        setReqSubmitted(true); 
-        let body = {imageName: imageInReview?.fileName}; 
-        let url = `${SERVICE_URL}/images/deleteImage`
-        try {
-            await fetchPost(url, body, sessionId)
-            let updateMsg = `Delete Image: ${imageInReview?.fileName}`
-            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
-            setReqResult({error: false, message: "Update successful."}); 
-            getTrackImages(); 
-        } catch (e){
-            setReqResult({error: true, message: "An error occurred. Try again later."}); 
-            setReqSubmitted(false); 
-        }
     }
 
     function getTrackImages(){
         let url = `${SERVICE_URL}/images/getImages?track=${trackInReview.name}`
         fetchGet(url, sessionId)
         .then(res => res.json())
-        .then(data => {
-            setImages(data.results);
-        })
+        .then(data => { setImages(data.results); })
         .catch(() => {})
     }
 
-    const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         //@ts-expect-error
-        const file = e.target[0].files[0]; 
-
-        setReqSubmitted(true); 
-
-        let url = `${SERVICE_URL}/images/uploadImage`
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('fileName', imageFileName);
-        formData.append('imageName', imageName);
-        formData.append('imageCaption', imageCaption);
-        formData.append('sortOrder', imageSortOrder.toString());
-        formData.append('track', trackInReview.name);
-        try {
-            await fetchPostFile(url, formData, sessionId)
-            let updateMsg = `Upload Image: ${imageInReview.track}-${imageInReview.fileName}`
-            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
-            setReqResult({error: false, message: "Update successful."}); 
-            getTrackImages(); 
-            clearImageForm(); 
-        } catch (e){
-            setReqResult({error: true, message: "An error occurred.  Make sure all required fields are complete or try again later."}); 
-            setReqSubmitted(false); 
-        }
-
-    
-    }
-
-    async function updateImage(){
-        let url = `${SERVICE_URL}/images/updateImage`
-        let body = {
-            fileName: imageInReview.fileName, sortOrder: imageSortOrder, 
-            imageName: imageName, imageCaption: imageCaption
-        }
-        try {
-            await fetchPost(url, body, sessionId)
-            let updateMsg = `Image Update: ${imageInReview.fileName}`
-            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
-            setReqResult({error: false, message: "Update successful."}); 
-            getTrackImages(); 
-            clearImageForm(); 
-        } catch (e){
-            setReqResult({error: true, message: "An error occurred.  Make sure all required fields are complete or try again later."}); 
-            setReqSubmitted(false); 
-        }
+        const file = e.target[0].files[0];
+        uploadImageMutation.mutate(file);
     }
 
     function clearImageForm(){
@@ -214,18 +161,21 @@ export default function AdminTracks(props:AdminTracksProps) {
         setImageName("");
         setImageSortOrder(0);
         setImageCaption("");
-        setImageFileName(""); 
+        setImageFileName("");
     }
 
     function modalCleanup(clearImages: boolean = false){
-        setReqResult({error:false, message: ""}); 
-        setReqSubmitted(false); 
+        saveTrackMutation.reset();
+        deleteTrackMutation.reset();
+        uploadImageMutation.reset();
+        updateImageMutation.reset();
+        deleteImageMutation.reset();
         if(clearImages) setImages([]);
     }
 
     useEffect(() => {
         if(trackInReview?.name){
-            getTrackImages(); 
+            getTrackImages();
         }
     }, [trackInReview])
 
@@ -233,14 +183,14 @@ export default function AdminTracks(props:AdminTracksProps) {
         <div className="container">
             <div className="d-flex flex-column align-items-center justify-content-center">
 
-                <div 
-                    className="btn add-entry-button my-5" 
-                    data-bs-toggle="modal" 
+                <div
+                    className="btn add-entry-button my-5"
+                    data-bs-toggle="modal"
                     data-bs-target="#editTrackModal"
                     onClick={()=>{
-                        modalCleanup(true); 
-                        setEditOrCreate("Create"); 
-                        loadTrack({...initialTrack}); 
+                        modalCleanup(true);
+                        setEditOrCreate("Create");
+                        loadTrack({...initialTrack});
                     }}>Add New Track
                 </div>
 
@@ -248,42 +198,41 @@ export default function AdminTracks(props:AdminTracksProps) {
                     {
                         tracks?.map((track, ind) => {
                             return (
-                                <div className="row my-1">
+                                <div className="row my-1" key={ind}>
                                     <div className="col-8">
                                         <div className="test-start d-flex justify-content-start align-items-center ">
                                             <div className="pointer font-large ms-5"
-                                            data-bs-toggle="modal" 
+                                            data-bs-toggle="modal"
                                             data-bs-target="#editTrackModal"
                                             onClick={()=>{
-                                                setEditOrCreate("Edit"); 
-                                                modalCleanup(true); 
-                                                loadTrack(track); 
+                                                setEditOrCreate("Edit");
+                                                modalCleanup(true);
+                                                loadTrack(track);
                                             }}
                                             >{track.name}</div>
                                             <div>{track.active && <div className="font-x-small grayText ms-3">Active</div>}</div>
                                             <div>{!track.display && <FontAwesomeIcon className="crud-links font-xs-small ms-3" icon={faEyeSlash} />}</div>
-                                            <div>{(!track?.latitude || !track?.longitude) && <div className="font-x-small grayText ms-3">No Lon/Lat</div>}</div>                                            
-
+                                            <div>{(!track?.latitude || !track?.longitude) && <div className="font-x-small grayText ms-3">No Lon/Lat</div>}</div>
                                         </div>
                                     </div>
                                     <div className="col-4">
                                         <div className="test-center d-flex justify-content-between align-items-center">
                                             <div className="pointer ps-5"
-                                            data-bs-toggle="modal" 
+                                            data-bs-toggle="modal"
                                             data-bs-target="#editTrackModal"
                                             onClick={()=>{
-                                                setEditOrCreate("Edit"); 
-                                                modalCleanup(); 
-                                                loadTrack(track); 
+                                                setEditOrCreate("Edit");
+                                                modalCleanup();
+                                                loadTrack(track);
                                             }}
                                             ><FontAwesomeIcon className="crud-links font-x-large" icon={faPenToSquare} /></div>
-                                            {track.afterMigrate ? 
+                                            {track.afterMigrate ?
                                                 <div className="pointer pe-5"
-                                                    data-bs-toggle="modal" 
+                                                    data-bs-toggle="modal"
                                                     data-bs-target="#deleteTrackModal"
                                                     onClick={()=>{
-                                                        modalCleanup(); 
-                                                        loadTrack(track); 
+                                                        modalCleanup();
+                                                        loadTrack(track);
                                                     }}
                                                     ><FontAwesomeIcon className="crud-links font-x-large" icon={faTrash}/>
                                                 </div> : <></>}
@@ -305,7 +254,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                     </div>
                     <div className="modal-body">
                         <div className="d-flex justify-content-center mb-3">
-                            {editOrCreate == "Edit" ? 
+                            {editOrCreate == "Edit" ?
                                 <i>
                                     {trackInReview?.afterMigrate ? "Created after 2022 migration." : "Migrated from previous site."}
                                 </i> : <></>
@@ -314,11 +263,11 @@ export default function AdminTracks(props:AdminTracksProps) {
                         <div className="row my-1">
                             <div className="col-4 text-center">Name*</div>
                             <div className="col-8 text-center px-4">
-                                <input 
-                                    onChange={(e) => handleTextInput(e)} 
-                                    id="name" 
-                                    value={trackInReview.name} 
-                                    className="text-center width-100" 
+                                <input
+                                    onChange={(e) => handleTextInput(e)}
+                                    id="name"
+                                    value={trackInReview.name}
+                                    className="text-center width-100"
                                     disabled={editOrCreate === 'Edit' && !isAdmin}
                                     autoComplete="off"></input>
                             </div>
@@ -326,11 +275,11 @@ export default function AdminTracks(props:AdminTracksProps) {
                         <div className="row my-1">
                             <div className="col-4 text-center">Address*</div>
                             <div className="col-8 text-center px-4" >
-                                <input 
-                                    onChange={(e) => handleTextInput(e)} 
-                                    id="address" 
-                                    value={trackInReview.address} 
-                                    className="text-center width-100" 
+                                <input
+                                    onChange={(e) => handleTextInput(e)}
+                                    id="address"
+                                    value={trackInReview.address}
+                                    className="text-center width-100"
                                     disabled={!isAdminOrScorekeeper}
                                     autoComplete="off"></input>
                             </div>
@@ -338,11 +287,11 @@ export default function AdminTracks(props:AdminTracksProps) {
                         <div className="row my-1">
                             <div className="col-4 text-center">City*</div>
                             <div className="col-8 text-center px-4">
-                                <input 
-                                    onChange={(e) => handleTextInput(e)} 
-                                    id="city" 
-                                    value={trackInReview.city} 
-                                    disabled={!isAdminOrScorekeeper} 
+                                <input
+                                    onChange={(e) => handleTextInput(e)}
+                                    id="city"
+                                    value={trackInReview.city}
+                                    disabled={!isAdminOrScorekeeper}
                                     className="text-center width-100"
                                     autoComplete="off"></input>
                             </div>
@@ -350,11 +299,11 @@ export default function AdminTracks(props:AdminTracksProps) {
                         <div className="row my-1">
                             <div className="col-4 text-center">Notes</div>
                             <div className="col-8 text-center px-4">
-                                <input 
-                                    onChange={(e) => handleTextInput(e)} 
-                                    id="notes" 
-                                    value={trackInReview.notes} 
-                                    disabled={!isAdminOrScorekeeper} 
+                                <input
+                                    onChange={(e) => handleTextInput(e)}
+                                    id="notes"
+                                    value={trackInReview.notes}
+                                    disabled={!isAdminOrScorekeeper}
                                     className="text-center width-100"
                                     autoComplete="off"></input>
                             </div>
@@ -370,7 +319,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                                 </select>
                                 <select onChange={handleSelect} id="archHeightInches" name="archHeightInches" className="width-50 text-center" value={trackInReview.archHeightInches} disabled={!isAdminOrScorekeeper}>
                                     <option value={null}></option>
-                                    {Array(12).fill(undefined).map((x,i) => i).map(el => {
+                                    {Array(12).fill(undefined).map((_,i) => i).map(el => {
                                         return (<option value={el}>{el}</option>)
                                     })}
                                 </select>
@@ -387,15 +336,14 @@ export default function AdminTracks(props:AdminTracksProps) {
                             </div>
                         </div>
 
-
                         <div className="row my-1">
                             <div className="col-4 text-center">Longitude</div>
                             <div className="col-8 text-center px-4">
-                                <input 
-                                    onChange={(e) => handleTextInput(e)} 
-                                    id="longitude" 
-                                    value={trackInReview?.longitude} 
-                                    disabled={!isAdminOrScorekeeper} 
+                                <input
+                                    onChange={(e) => handleTextInput(e)}
+                                    id="longitude"
+                                    value={trackInReview?.longitude}
+                                    disabled={!isAdminOrScorekeeper}
                                     className="text-center width-100"
                                     autoComplete="off"></input>
                             </div>
@@ -404,17 +352,15 @@ export default function AdminTracks(props:AdminTracksProps) {
                         <div className="row my-1">
                             <div className="col-4 text-center">Latitude</div>
                             <div className="col-8 text-center px-4">
-                                <input 
-                                    onChange={(e) => handleTextInput(e)} 
-                                    id="latitude" 
-                                    value={trackInReview?.latitude} 
-                                    disabled={!isAdminOrScorekeeper} 
+                                <input
+                                    onChange={(e) => handleTextInput(e)}
+                                    id="latitude"
+                                    value={trackInReview?.latitude}
+                                    disabled={!isAdminOrScorekeeper}
                                     className="text-center width-100"
                                     autoComplete="off"></input>
                             </div>
                         </div>
-
-
 
                         <div className="row mb-1 mt-3">
                             <div className="col-6 d-flex flex-column align-items-center justify-content-end text-center">
@@ -434,10 +380,10 @@ export default function AdminTracks(props:AdminTracksProps) {
                         <div className="row mb-1 mt-3">
                             <div className="d-flex w-100 justify-content-center">
                                 <div className="col d-flex justify-content-center align-items-center my-2"
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#addImageModal"                                    
-                                    >                                                            
-                                    Add Image<FontAwesomeIcon className="mx-2 pointer" icon={faPlus} 
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#addImageModal"
+                                    >
+                                    Add Image<FontAwesomeIcon className="mx-2 pointer" icon={faPlus}
                                         onClick={() => {
                                             setImageEditOrCreate("Create");
                                             clearImageForm()
@@ -447,7 +393,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                             <div className="d-flex w-100 align-items-center justify-content-start flex-wrap">
                                 {
                                     images
-                                        .sort((a,b) => { 
+                                        .sort((a,b) => {
                                             return a.sortOrder < b.sortOrder ? -1 : 1
                                         })
                                         .map(el => {
@@ -456,25 +402,28 @@ export default function AdminTracks(props:AdminTracksProps) {
                                                 <img src={el.thumbnailUrl} alt={el?.fileName || ''} className=" m-2" />
                                                 <div className="d-flex justify-content-center align-items-center mb-2">
                                                     <div className="pointer px-2 pt-1"
-                                                        data-bs-toggle="modal" 
+                                                        data-bs-toggle="modal"
                                                         data-bs-target="#deleteImageModal"
                                                         onClick={()=>{
+                                                            deleteImageMutation.reset();
                                                             clearImageForm()
-                                                            setImageInReview(el); 
+                                                            setImageInReview(el);
                                                         }}
                                                         ><FontAwesomeIcon className="crud-links font-x-large" icon={faTrash}/>
                                                     </div>
                                                     <div className="pointer px-2 pt-1"
-                                                        data-bs-toggle="modal" 
+                                                        data-bs-toggle="modal"
                                                         data-bs-target="#addImageModal"
                                                         onClick={()=>{
+                                                            uploadImageMutation.reset();
+                                                            updateImageMutation.reset();
                                                             clearImageForm()
-                                                            setImageEditOrCreate("Edit"); 
-                                                            setImageSortOrder(el.sortOrder); 
+                                                            setImageEditOrCreate("Edit");
+                                                            setImageSortOrder(el.sortOrder);
                                                             setImageName(el.imageName || "");
                                                             setImageCaption(el.imageCaption || "");
                                                             setImageFileName(el.fileName);
-                                                            setImageInReview(el); 
+                                                            setImageInReview(el);
                                                         }}
                                                         ><FontAwesomeIcon className="crud-links font-x-large" icon={faEdit}/>
                                                     </div>
@@ -482,8 +431,6 @@ export default function AdminTracks(props:AdminTracksProps) {
                                             </div>
                                         )})
                                 }
-
-
                             </div>
                         </div>
 
@@ -496,16 +443,12 @@ export default function AdminTracks(props:AdminTracksProps) {
                             </span> : <></>}
                         </div>
                         <div className="text-center my-3">
-                            {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
-                                {reqResult.message}
-                            </span> : <></>}
-                        </div>
-                        <div className="text-center my-3">
+                            <MutationStatus isSuccess={saveTrackMutation.isSuccess} isError={saveTrackMutation.isError} errorMessage="An error occurred. Make sure all required fields are complete or try again later." />
                             {disableOnDupe && <span className="text-danger">Name already in use.</span>}
                         </div>
                         <div className="">
                             <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted || disableOnDupe || !isFormComplete} onClick={insertOrUpdate}>Save changes</button>
+                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || saveTrackMutation.isPending || disableOnDupe || !isFormComplete} onClick={() => saveTrackMutation.mutate()}>Save changes</button>
                         </div>
                     </div>
                     </div>
@@ -531,13 +474,11 @@ export default function AdminTracks(props:AdminTracksProps) {
                                 </span> : <></>}
                             </div>
                             <div className="text-center my-3">
-                                {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
-                                    {reqResult.message}
-                                </span> : <></>}
+                                <MutationStatus isSuccess={deleteTrackMutation.isSuccess} isError={deleteTrackMutation.isError} />
                             </div>
                             <div className="">
                                 <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                                <button type="button" className="btn btn-warning mx-2" disabled={!isAdmin || reqSubmitted} onClick={deleteTrack}>Delete</button>
+                                <button type="button" className="btn btn-warning mx-2" disabled={!isAdmin || deleteTrackMutation.isPending} onClick={() => deleteTrackMutation.mutate()}>Delete</button>
                             </div>
                         </div>
                     </div>
@@ -555,7 +496,7 @@ export default function AdminTracks(props:AdminTracksProps) {
                         <div className="modal-body">
                             <p>Upload an image for {trackInReview?.name || ""}.</p>
                                 {
-                                    imageEditOrCreate === 'Edit' ? <></> : 
+                                    imageEditOrCreate === 'Edit' ? <></> :
                                     <div className="row my-1">
                                         <div className="col-4 text-center"></div>
                                         <div className="col-8 text-center px-4">
@@ -567,13 +508,13 @@ export default function AdminTracks(props:AdminTracksProps) {
                                     <div className="col-4 text-center">File Name</div>
                                     <div className="col-8 text-center px-4">
                                         {
-                                            imageEditOrCreate === 'Edit' ? 
-                                                imageInReview?.fileName : 
-                                                <input 
-                                                onChange={(e) => setImageFileName(e.target.value)} 
-                                                id="imageFileName" 
-                                                value={imageFileName} 
-                                                disabled={!isAdminOrScorekeeper} 
+                                            imageEditOrCreate === 'Edit' ?
+                                                imageInReview?.fileName :
+                                                <input
+                                                onChange={(e) => setImageFileName(e.target.value)}
+                                                id="imageFileName"
+                                                value={imageFileName}
+                                                disabled={!isAdminOrScorekeeper}
                                                 className="text-center width-100"
                                                 autoComplete="off"></input>
                                         }
@@ -583,11 +524,11 @@ export default function AdminTracks(props:AdminTracksProps) {
                                 <div className="row my-1">
                                     <div className="col-4 text-center">Image Name</div>
                                     <div className="col-8 text-center px-4">
-                                        <input 
-                                        onChange={(e) => setImageName(e.target.value)} 
-                                        id="imageName" 
-                                        value={imageName} 
-                                        disabled={!isAdminOrScorekeeper} 
+                                        <input
+                                        onChange={(e) => setImageName(e.target.value)}
+                                        id="imageName"
+                                        value={imageName}
+                                        disabled={!isAdminOrScorekeeper}
                                         className="text-center width-100"
                                         autoComplete="off"></input>
                                     </div>
@@ -596,26 +537,25 @@ export default function AdminTracks(props:AdminTracksProps) {
                                 <div className="row my-1">
                                     <div className="col-4 text-center">Image Caption</div>
                                     <div className="col-8 text-center px-4">
-                                        <input 
-                                        onChange={(e) => setImageCaption(e.target.value)} 
-                                        id="imageCaption" 
-                                        value={imageCaption} 
-                                        disabled={!isAdminOrScorekeeper} 
+                                        <input
+                                        onChange={(e) => setImageCaption(e.target.value)}
+                                        id="imageCaption"
+                                        value={imageCaption}
+                                        disabled={!isAdminOrScorekeeper}
                                         className="text-center width-100"
                                         autoComplete="off"></input>
                                     </div>
                                 </div>
 
-
                                 <div className="row my-1">
                                     <div className="col-4 text-center">Image Sort Value</div>
                                     <div className="col-8 text-center px-4">
-                                        <input 
+                                        <input
                                             type="number"
-                                            onChange={(e) => setImageSortOrder(parseInt(e.target.value))} 
-                                            id="sortOrder" 
-                                            value={imageSortOrder} 
-                                            disabled={!isAdminOrScorekeeper} 
+                                            onChange={(e) => setImageSortOrder(parseInt(e.target.value))}
+                                            id="sortOrder"
+                                            value={imageSortOrder}
+                                            disabled={!isAdminOrScorekeeper}
                                             className="text-center width-100"
                                             autoComplete="off"></input>
                                     </div>
@@ -628,20 +568,20 @@ export default function AdminTracks(props:AdminTracksProps) {
                                 </span> : <></>}
                             </div>
                             <div className="text-center my-3">
-                                {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
-                                    {reqResult.message}
-                                </span> : <></>}
-                            </div>
-                            <div className="text-center my-3">
+                                <MutationStatus
+                                    isSuccess={imageEditOrCreate === 'Edit' ? updateImageMutation.isSuccess : uploadImageMutation.isSuccess}
+                                    isError={imageEditOrCreate === 'Edit' ? updateImageMutation.isError : uploadImageMutation.isError}
+                                    errorMessage="An error occurred. Make sure all required fields are complete or try again later."
+                                />
                                 {disableImageOnDupe && <span className="text-danger">Name already in use.</span>}
                             </div>
 
                             <div className="">
                                 <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
                                 {
-                                    imageEditOrCreate === 'Edit' ? 
-                                        <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted} onClick={updateImage}>Update Image</button> :
-                                        <button type="submit" className="btn btn-success mx-2" disabled={!isAdminOrScorekeeper || reqSubmitted || disableImageOnDupe} >Add Image</button>
+                                    imageEditOrCreate === 'Edit' ?
+                                        <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || updateImageMutation.isPending} onClick={() => updateImageMutation.mutate()}>Update Image</button> :
+                                        <button type="submit" className="btn btn-success mx-2" disabled={!isAdminOrScorekeeper || uploadImageMutation.isPending || disableImageOnDupe} >Add Image</button>
                                 }
                             </div>
                         </div>
@@ -650,9 +590,6 @@ export default function AdminTracks(props:AdminTracksProps) {
                     </div>
                 </div>
             </div>
-
-
-
 
             <div className="modal fade" id="deleteImageModal" aria-labelledby="deleteModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-l">
@@ -671,20 +608,16 @@ export default function AdminTracks(props:AdminTracksProps) {
                                 </span> : <></>}
                             </div>
                             <div className="text-center my-3">
-                                {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
-                                    {reqResult.message}
-                                </span> : <></>}
+                                <MutationStatus isSuccess={deleteImageMutation.isSuccess} isError={deleteImageMutation.isError} successMessage="Deletion successful." />
                             </div>
                             <div className="">
                                 <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                                <button type="button" className="btn btn-warning mx-2" disabled={!isAdmin || reqSubmitted} onClick={deleteImage}>Delete</button>
+                                <button type="button" className="btn btn-warning mx-2" disabled={!isAdmin || deleteImageMutation.isPending} onClick={() => deleteImageMutation.mutate()}>Delete</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-
 
         </div>
     )

@@ -1,51 +1,53 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { useLoginContext } from "../utils/context";
 import { Tournament, Track, Team, Run } from "../types/types"
 import { fetchPost, fetchGet, logUpdate } from "../utils/network"
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faPenToSquare, faTrash, faPersonRunning } from "@fortawesome/free-solid-svg-icons"; 
-import dateUtil from '../utils/dateUtils'; 
-import EditTop5 from "./adminTournamentsComps/EditTop5"; 
-import EditRunningOrder from "./adminTournamentsComps/EditRunningOrder"; 
-import EditContests from "./adminTournamentsComps/EditContests"; 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPenToSquare, faTrash, faPersonRunning } from "@fortawesome/free-solid-svg-icons";
+import dateUtil from '../utils/dateUtils';
+import EditTop5 from "./adminTournamentsComps/EditTop5";
+import EditRunningOrder from "./adminTournamentsComps/EditRunningOrder";
+import EditContests from "./adminTournamentsComps/EditContests";
 import EditScheduleAndTotalPoints from "./adminTournamentsComps/EditScheduleAndTotalPoints"
-import TournVideos from "./adminTournamentsComps/TournVideos"; 
-import RunsEdit from "./adminTournamentsComps/RunsEdit"; 
+import TournVideos from "./adminTournamentsComps/TournVideos";
+import RunsEdit from "./adminTournamentsComps/RunsEdit";
+import MutationStatus from "./MutationStatus";
 
 interface AdminTournamentProps {
     tracks: Track[];
-    teams: Team[]; 
+    teams: Team[];
 }
 
 declare var SERVICE_URL: string;
 
 let initialTourn:Tournament = {
-    _id: '', 
-    id: null, 
-    name: '', 
-    year: null, 
-    date: new Date(), 
-    startTime: null, 
-    nassauPoints: false, 
-    suffolkPoints: false, 
-    westernPoints: false, 
-    northernPoints: false, 
-    suffolkOfPoints: false, 
-    nassauOfPoints: false, 
-    liOfPoints: false, 
+    _id: '',
+    id: null,
+    name: '',
+    year: null,
+    date: new Date(),
+    startTime: null,
+    nassauPoints: false,
+    suffolkPoints: false,
+    westernPoints: false,
+    northernPoints: false,
+    suffolkOfPoints: false,
+    nassauOfPoints: false,
+    liOfPoints: false,
     juniorPoints: false,
-    nassauSchedule: false, 
-    suffolkSchedule: false, 
-    westernSchedule: false, 
-    northernSchedule: false, 
-    liOfSchedule: false, 
+    nassauSchedule: false,
+    suffolkSchedule: false,
+    westernSchedule: false,
+    northernSchedule: false,
+    liOfSchedule: false,
     juniorSchedule: false,
     track: '',
     runningOrder: {},
-    sanctioned: false, 
-    cfp: false, 
-    top5: [],  
+    sanctioned: false,
+    cfp: false,
+    top5: [],
     contests: [
         {name:"Three Man Ladder", cfp:true, sanction:true},
         {name:"B Ladder", cfp:true, sanction:true},
@@ -56,70 +58,85 @@ let initialTourn:Tournament = {
         {name:"Motor Pump", cfp:true, sanction:true},
         {name:"Buckets", cfp:true, sanction:true}
     ],
-    liveStreamPlanned: false, 
-    urls: [], 
-    waterTime: '', 
-    notes: '', 
-    urlToEntryForm: '', 
-    host: '', 
+    liveStreamPlanned: false,
+    urls: [],
+    waterTime: '',
+    notes: '',
+    urlToEntryForm: '',
+    host: '',
     isParade: false
 }
 
 export default function AdminTournaments(props:AdminTournamentProps) {
-    const currentYear = new Date().getFullYear(); 
-    const tracks = props.tracks; 
-    const teams = props.teams; 
-    let [year, setYear] = useState(currentYear); 
-    let [tourns, setTourns] = useState<Tournament[]>([]); 
-    let [tournInReview, setTournInReview] = useState<Tournament>(initialTourn); 
-    let [runsForTourn, setRunsForTourn] = useState<Run[]>([]); 
-    let [editOrCreate, setEditOrCreate] = useState(""); 
-    let [isError, setIsError] = useState(false); 
-    let [reqSubmitted, setReqSubmitted] = useState(false); 
-    let [reqResult, setReqResult] = useState<{error: boolean, message:string}>({error:false, message:""}); 
-    let [runsEditContest, setRunsEditContest] = useState(""); 
-    let [tournamentNames, setTournamentNames] = useState([]); 
-    let [showNewTournName, setShowNewTournName] = useState(false); 
-    let [hostNames, setHostNames] = useState([]); 
-    let [showNewHostName, setShowNewHostName] = useState(false); 
-    const { sessionId, role, username  } = useLoginContext(); 
-    const isAdmin = role === "admin" || role === 'scorekeeper'; 
+    const currentYear = new Date().getFullYear();
+    const tracks = props.tracks;
+    const teams = props.teams;
+    let [year, setYear] = useState(currentYear);
+    let [tourns, setTourns] = useState<Tournament[]>([]);
+    let [tournInReview, setTournInReview] = useState<Tournament>(initialTourn);
+    let [runsForTourn, setRunsForTourn] = useState<Run[]>([]);
+    let [runsLoading, setRunsLoading] = useState(false);
+    let [editOrCreate, setEditOrCreate] = useState("");
+    let [isError, setIsError] = useState(false);
+    let [runsEditContest, setRunsEditContest] = useState("");
+    let [tournamentNames, setTournamentNames] = useState([]);
+    let [showNewTournName, setShowNewTournName] = useState(false);
+    let [hostNames, setHostNames] = useState([]);
+    let [showNewHostName, setShowNewHostName] = useState(false);
+    const { sessionId, role, username  } = useLoginContext();
+    const isAdmin = role === "admin" || role === 'scorekeeper';
     const hasRuns = Boolean(runsForTourn.length)
 
+    const saveTournMutation = useMutation({
+        mutationFn: async () => {
+            let url: string;
+            let body: {tournamentId: string, fieldsToUpdate: {}} | Tournament;
+            if (editOrCreate === "Edit") {
+                url = `${SERVICE_URL}/tournaments/updateTournament`
+                let fieldsToUpdate = {...tournInReview}
+                delete fieldsToUpdate._id;
+                body = { tournamentId: tournInReview._id, fieldsToUpdate }
+            } else {
+                url = `${SERVICE_URL}/tournaments/insertTournament`
+                body = { ...tournInReview, afterMigrate: true }
+                delete body._id;
+            }
+            await fetchPost(url, body, sessionId);
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `${editOrCreate} Tournament: ${tournInReview.name} - ${dateUtil.getMMDDYYYY(tournInReview.date)}`);
+            getTournaments(year);
+        },
+    });
+
+    const deleteTournMutation = useMutation({
+        mutationFn: async () => {
+            await fetchPost(`${SERVICE_URL}/tournaments/deleteTournament`, { tournamentId: tournInReview._id }, sessionId);
+            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, `Delete Tournament: ${tournInReview.name} - ${dateUtil.getMMDDYYYY(tournInReview.date)}`);
+            getTournaments(year);
+        },
+    });
+
     function handleTextInput(e:React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>){
-        setTournInReview({
-            ...tournInReview, 
-            [e.target.id]: e.target.value
-        })
+        setTournInReview({ ...tournInReview, [e.target.id]: e.target.value })
     }
 
     function handleDateInput(e:React.ChangeEvent<HTMLInputElement>){
         setTournInReview({
-            ...tournInReview, 
-            year: new Date(`${e.target.value} 12:00:00`).getFullYear(), 
+            ...tournInReview,
+            year: new Date(`${e.target.value} 12:00:00`).getFullYear(),
             [e.target.id]: new Date(`${e.target.value} 12:00:00`)
         })
     }
 
     function handleTimeInput(e:React.ChangeEvent<HTMLInputElement>){
-        setTournInReview({
-            ...tournInReview, 
-            [e.target.id]: new Date(`2022-01-01 ${e.target.value}`)
-        })
+        setTournInReview({ ...tournInReview, [e.target.id]: new Date(`2022-01-01 ${e.target.value}`) })
     }
 
     function handleCheck(e:React.ChangeEvent<HTMLInputElement>){
-        setTournInReview({
-            ...tournInReview, 
-            [e.target.id]: e.target.checked
-        })
+        setTournInReview({ ...tournInReview, [e.target.id]: e.target.checked })
     }
 
     function handleSelect(e:React.ChangeEvent<HTMLSelectElement>){
-        setTournInReview({
-            ...tournInReview, 
-            [e.target.id]: e.target.value
-        })
+        setTournInReview({ ...tournInReview, [e.target.id]: e.target.value })
     }
 
     function handleYearChange(e:React.ChangeEvent<HTMLInputElement>){
@@ -128,45 +145,28 @@ export default function AdminTournaments(props:AdminTournamentProps) {
 
     function handleNameList(e:React.ChangeEvent<HTMLSelectElement>){
         if(e.target.value == 'Name not listed') {
-            setTournInReview({
-                ...tournInReview, 
-                name: ''
-            })
+            setTournInReview({ ...tournInReview, name: '' })
             setShowNewTournName(true);
         }else{
             setShowNewTournName(false)
-            setTournInReview({
-                ...tournInReview, 
-                name: e.target.value
-            })
+            setTournInReview({ ...tournInReview, name: e.target.value })
         }
     }
 
     function handleHostList(e:React.ChangeEvent<HTMLSelectElement>){
         if(e.target.value == 'Name not listed') {
-            setTournInReview({
-                ...tournInReview, 
-                host: ''
-            })
+            setTournInReview({ ...tournInReview, host: '' })
             setShowNewHostName(true);
         }else{
             setShowNewHostName(false)
-            setTournInReview({
-                ...tournInReview, 
-                host: e.target.value
-            })
+            setTournInReview({ ...tournInReview, host: e.target.value })
         }
     }
 
-
-
     function loadTournament(tournament:Tournament){
-        setTournInReview({
-            ...initialTourn, 
-            ...tournament
-        })
-        setRunsForTourn([]); 
-        getRunsForTourn(tournament.id); 
+        setTournInReview({ ...initialTourn, ...tournament })
+        setRunsForTourn([]);
+        getRunsForTourn(tournament.id);
     }
 
     function getTournaments(year:number){
@@ -174,11 +174,9 @@ export default function AdminTournaments(props:AdminTournamentProps) {
         .then(response => response.json())
         .then((data:Tournament[]) => {
             data = data.sort((a:Tournament,b:Tournament) => a.date < b.date ? -1 : 1)
-            setTourns(data)    
+            setTourns(data)
         })
-        .catch(() => {
-            setIsError(true)
-        })
+        .catch(() => { setIsError(true) })
     }
 
     function getTournamentNames(){
@@ -186,29 +184,24 @@ export default function AdminTournaments(props:AdminTournamentProps) {
         .then(response => response.json())
         .then((data:{_id:string, nameCount:number}[]) => {
             let keepThese = data.filter(el => el._id)
-            setTournamentNames(keepThese)    
+            setTournamentNames(keepThese)
         })
-        .catch(() => {
-            setIsError(true)
-        })
+        .catch(() => { setIsError(true) })
     }
-
 
     function getHostNames(){
         fetchGet(`${SERVICE_URL}/tournaments/getHostNames`)
         .then(response => response.json())
         .then((data:{_id:string, nameCount:number}[]) => {
             let keepThese = data.filter(el => el._id)
-            setHostNames(keepThese)    
+            setHostNames(keepThese)
         })
-        .catch(() => {
-            setIsError(true)
-        })
+        .catch(() => { setIsError(true) })
     }
 
     function changeYear(year:number){
-        setYear(year); 
-        getTournaments(year); 
+        setYear(year);
+        getTournaments(year);
     }
 
     useEffect(() => {
@@ -217,77 +210,29 @@ export default function AdminTournaments(props:AdminTournamentProps) {
         getHostNames()
     }, [])
 
-
-    async function insertOrUpdate(){
-        setReqSubmitted(true); 
-        let url:string, body:{tournamentId: string, fieldsToUpdate: {}} | Tournament ; 
-        if(editOrCreate == "Edit"){
-            url = `${SERVICE_URL}/tournaments/updateTournament`
-            let fieldsToUpdate = {...tournInReview}
-            delete fieldsToUpdate._id; 
-            body = {
-                tournamentId: tournInReview._id, 
-                fieldsToUpdate: fieldsToUpdate
-            }
-        } else {
-            url = `${SERVICE_URL}/tournaments/insertTournament`
-            body = {
-                ...tournInReview, 
-                afterMigrate: true
-            }
-            delete body._id; 
-        }
-        try {
-            await fetchPost(url, body, sessionId)
-            let updateMsg = `${editOrCreate} Tournament: ${tournInReview.name} - ${dateUtil.getMMDDYYYY(tournInReview.date)}`
-            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
-            setReqResult({error: false, message: "Update successful."}); 
-            getTournaments(year); 
-        } catch (e){
-            setReqResult({error: true, message: "An error occurred. Try again later."});
-            setReqSubmitted(false);
-        }
-    }
-
-    async function deleteTourn(){
-        setReqSubmitted(true); 
-        let body = {tournamentId: tournInReview._id}; 
-        let url = `${SERVICE_URL}/tournaments/deleteTournament`
-        try {
-            await fetchPost(url, body, sessionId)
-            let updateMsg = `Delete Tournament: ${tournInReview.name} - ${dateUtil.getMMDDYYYY(tournInReview.date)}`
-            logUpdate(`${SERVICE_URL}/updates/insertUpdate`, sessionId, username, updateMsg)
-            setReqResult({error: false, message: "Update successful."}); 
-            setReqSubmitted(false); 
-            getTournaments(year); 
-        } catch (e){
-            setReqResult({error: true, message: "An error occurred. Try again later."});
-            setReqSubmitted(false);
-        }
-    }
-
     function getRunsForTourn(tournId:number){
-        setReqSubmitted(true);
+        setRunsLoading(true);
         fetch(`${SERVICE_URL}/runs/getRunsFromTournament?tournamentId=${tournId}`)
             .then(response => response.json())
             .then((data:Run[]) => {
-                setRunsForTourn(data); 
-                setReqSubmitted(false); 
+                setRunsForTourn(data);
+                setRunsLoading(false);
             })
+            .catch(() => { setRunsLoading(false); })
     }
 
     function modalCleanup(){
-        setReqResult({error:false, message: ""}); 
-        setReqSubmitted(false); 
-        setShowNewTournName(false); 
-        setShowNewHostName(false); 
-        getTournamentNames(); 
+        saveTournMutation.reset();
+        deleteTournMutation.reset();
+        setShowNewTournName(false);
+        setShowNewHostName(false);
+        getTournamentNames();
     }
 
     return (
         <div className="container">
             {
-                isError ? <div>An error occurred.  Please try another time.</div> : 
+                isError ? <div>An error occurred.  Please try another time.</div> :
                 <div className="d-flex flex-column align-items-center justify-content-center">
 
                     <div className="d-flex justify-content-center">
@@ -295,15 +240,15 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             <button className="btn add-entry-button me-2" onClick={() => changeYear(year)}>Update Year</button>
                             <input className="p-1"
                                 value={year} onChange={handleYearChange} type="number" id="yearToDisplay" name="yearToDisplay" min="1900" max={new Date().getFullYear() + 1}/>
-                        </div> 
-                        <div 
-                            className="btn add-entry-button my-5 ms-5" 
-                            data-bs-toggle="modal" 
+                        </div>
+                        <div
+                            className="btn add-entry-button my-5 ms-5"
+                            data-bs-toggle="modal"
                             data-bs-target="#editTournModal"
                             onClick={()=>{
-                                modalCleanup(); 
-                                setEditOrCreate("Create"); 
-                                loadTournament(initialTourn); 
+                                modalCleanup();
+                                setEditOrCreate("Create");
+                                loadTournament(initialTourn);
                             }}>Add New Tournament
                         </div>
 
@@ -321,34 +266,34 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                         <div className="col d-flex flew-row align-items-center justify-content-center">
                                             <div className="col-2"/>
                                             <div className="pointer col text-center"
-                                                data-bs-toggle="modal" 
+                                                data-bs-toggle="modal"
                                                 data-bs-target="#editTournModal"
                                                 onClick={()=>{
-                                                    setEditOrCreate("Edit"); 
-                                                    modalCleanup(); 
-                                                    loadTournament(tourn); 
+                                                    setEditOrCreate("Edit");
+                                                    modalCleanup();
+                                                    loadTournament(tourn);
                                                 }}
                                                 ><FontAwesomeIcon className="crud-links font-x-large" icon={faPenToSquare} />
                                             </div>
                                             {
-                                                tourn?.isParade ? <div className="col"></div> : 
+                                                tourn?.isParade ? <div className="col"></div> :
                                                 <div className="pointer col text-center"
-                                                    data-bs-toggle="modal" 
+                                                    data-bs-toggle="modal"
                                                     data-bs-target="#editRunsModal"
                                                     onClick={()=>{
-                                                        setRunsEditContest(""); 
-                                                        loadTournament(tourn); 
+                                                        setRunsEditContest("");
+                                                        loadTournament(tourn);
                                                     }}
                                                     ><FontAwesomeIcon className="crud-links font-x-large" icon={faPersonRunning} />
                                                 </div>
                                             }
-                                            {tourn.afterMigrate ? 
+                                            {tourn.afterMigrate ?
                                                 <div className="pointer col text-center"
-                                                    data-bs-toggle="modal" 
+                                                    data-bs-toggle="modal"
                                                     data-bs-target="#deleteTournModal"
                                                     onClick={()=>{
-                                                        modalCleanup(); 
-                                                        loadTournament(tourn); 
+                                                        deleteTournMutation.reset();
+                                                        loadTournament(tourn);
                                                     }}
                                                     ><FontAwesomeIcon className="crud-links font-x-large" icon={faTrash}/>
                                                 </div> : <div className="col-3 text-center">&nbsp;</div>}
@@ -372,16 +317,16 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                         </div>
                         <div className="modal-body">
                             <div className="d-flex justify-content-center mb-3">
-                                {editOrCreate == "Edit" ? 
+                                {editOrCreate == "Edit" ?
                                     <i>
                                         {tournInReview?.afterMigrate ? "Created after 2022 migration." : "Migrated from previous site."}
                                     </i> : <></>
                                 }
                             </div>
-                            {editOrCreate == 'Edit' ? 
+                            {editOrCreate == 'Edit' ?
                                 <div className="d-flex justify-content-center mb-3">
                                     There are {runsForTourn.length} runs attached to this event.  Some fields can not be changed when runs have been added.
-                                </div> : <></>                        
+                                </div> : <></>
                             }
 
                             <div className="row my-1">
@@ -398,14 +343,14 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                     </select> : <></>
                                     }
                                     {
-                                        showNewTournName ? <input 
-                                            onChange={(e) => handleTextInput(e)} 
-                                            id="name" 
-                                            value={tournInReview.name} 
-                                            className="text-center width-100" 
+                                        showNewTournName ? <input
+                                            onChange={(e) => handleTextInput(e)}
+                                            id="name"
+                                            value={tournInReview.name}
+                                            className="text-center width-100"
                                             disabled={!isAdmin || hasRuns}
                                             autoComplete="off"></input> : <></>
-                                    } 
+                                    }
                                 </div>
                             </div>
 
@@ -423,29 +368,28 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                     </select> : <></>
                                     }
                                     {
-                                        showNewHostName ? <input 
-                                            onChange={(e) => handleTextInput(e)} 
-                                            id="host" 
-                                            value={tournInReview.host} 
-                                            className="text-center width-100" 
+                                        showNewHostName ? <input
+                                            onChange={(e) => handleTextInput(e)}
+                                            id="host"
+                                            value={tournInReview.host}
+                                            className="text-center width-100"
                                             disabled={!isAdmin}
                                             autoComplete="off"></input> : <></>
-                                    } 
+                                    }
                                 </div>
                             </div>
-
 
                             <div className="row my-1">
                                 <div className="col-4 text-center">Date*</div>
                                 <div className="col-8 d-flex justify-content-around px-4" >
                                     <div>{dateUtil.getYYYYMMDD(tournInReview.date)}</div>
-                                    <input 
+                                    <input
                                         type='date'
-                                        onChange={(e) => handleDateInput(e)} 
-                                        id="date" 
-                                        value={dateUtil.getYYYYMMDD(tournInReview.date)} 
-                                        placeholder={dateUtil.getYYYYMMDD(tournInReview.date)} 
-                                        className="text-center width-8" 
+                                        onChange={(e) => handleDateInput(e)}
+                                        id="date"
+                                        value={dateUtil.getYYYYMMDD(tournInReview.date)}
+                                        placeholder={dateUtil.getYYYYMMDD(tournInReview.date)}
+                                        className="text-center width-8"
                                         disabled={!isAdmin || hasRuns}
                                         ></input>
                                 </div>
@@ -454,13 +398,13 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                 <div className="col-4 text-center">Time</div>
                                 <div className="col-8 d-flex justify-content-around px-4" >
                                     <div>{dateUtil.getTime(tournInReview.startTime)}</div>
-                                    <input 
+                                    <input
                                         type='time'
-                                        onChange={(e) => handleTimeInput(e)} 
-                                        id="startTime" 
-                                        value={dateUtil.getTimeForInput(tournInReview.startTime)} 
-                                        placeholder={dateUtil.getTimeForInput(tournInReview.startTime)} 
-                                        className="text-center width-15 pe-2" 
+                                        onChange={(e) => handleTimeInput(e)}
+                                        id="startTime"
+                                        value={dateUtil.getTimeForInput(tournInReview.startTime)}
+                                        placeholder={dateUtil.getTimeForInput(tournInReview.startTime)}
+                                        className="text-center width-15 pe-2"
                                         disabled={!isAdmin}
                                         ></input>
                                 </div>
@@ -479,11 +423,11 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             <div className="row my-1">
                                 <div className="col-4 text-center">Water Time</div>
                                 <div className="col-8 text-center px-4">
-                                    <input 
-                                            onChange={(e) => handleTextInput(e)} 
-                                            id="waterTime" 
-                                            value={tournInReview.waterTime} 
-                                            className="text-center width-100" 
+                                    <input
+                                            onChange={(e) => handleTextInput(e)}
+                                            id="waterTime"
+                                            value={tournInReview.waterTime}
+                                            className="text-center width-100"
                                             disabled={!isAdmin}
                                             autoComplete="off"></input>
                                 </div>
@@ -491,11 +435,11 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             <div className="row my-1">
                                 <div className="col-4 text-center">URL to Drill Entry Form</div>
                                 <div className="col-8 text-center px-4">
-                                    <input 
-                                            onChange={(e) => handleTextInput(e)} 
-                                            id="urlToEntryForm" 
-                                            value={tournInReview.urlToEntryForm} 
-                                            className="text-center width-100" 
+                                    <input
+                                            onChange={(e) => handleTextInput(e)}
+                                            id="urlToEntryForm"
+                                            value={tournInReview.urlToEntryForm}
+                                            className="text-center width-100"
                                             disabled={!isAdmin}
                                             autoComplete="off"></input>
                                 </div>
@@ -503,11 +447,11 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             <div className="row my-1">
                                 <div className="col-4 text-center">Notes About Drill</div>
                                 <div className="col-8 text-center px-4">
-                                    <textarea 
-                                            onChange={(e) => handleTextInput(e)} 
-                                            id="notes" 
-                                            value={tournInReview.notes} 
-                                            className="text-center width-100" 
+                                    <textarea
+                                            onChange={(e) => handleTextInput(e)}
+                                            id="notes"
+                                            value={tournInReview.notes}
+                                            className="text-center width-100"
                                             disabled={!isAdmin}
                                             autoComplete="off"></textarea>
                                 </div>
@@ -558,28 +502,21 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                 </div>
                             </div>
 
-
-
-
                             <EditScheduleAndTotalPoints isAdmin={isAdmin} tournInReview={tournInReview} handleCheck={handleCheck} hasRuns={hasRuns} />
                             <EditContests isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams}/>
                             <EditRunningOrder isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams} runsForTourn={runsForTourn}/>
                             <EditTop5 isAdmin={isAdmin} tournInReview={tournInReview} setTournInReview={setTournInReview} teams={teams}/>
 
-
-
                         </div>
                         <div className="modal-footer d-flex flex-column">
                             <div className="text-center my-3">
-                                {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
-                                    {reqResult.message}
-                                </span> : <></>}
+                                <MutationStatus isSuccess={saveTournMutation.isSuccess} isError={saveTournMutation.isError} />
                             </div>
                             <div className="">
                                 <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                                <button type="button" className="btn btn-primary mx-2" 
-                                    disabled={reqSubmitted || (!tournInReview.name || !tournInReview.date || !tournInReview.track) } 
-                                    onClick={insertOrUpdate}>Save changes</button>
+                                <button type="button" className="btn btn-primary mx-2"
+                                    disabled={saveTournMutation.isPending || (!tournInReview.name || !tournInReview.date || !tournInReview.track)}
+                                    onClick={() => saveTournMutation.mutate()}>Save changes</button>
                             </div>
                         </div>
                     </div>
@@ -595,11 +532,11 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            {reqResult.message ? "" : 
-                             reqSubmitted ? <p>Hang on - a request is processing.</p> : 
-                                runsForTourn.length ? 
-                                    <p>You can not delete tournaments which have runs attached.  This one has {runsForTourn.length}.</p> : 
-                                    <p>Are you sure you want to remove {tournInReview.name} on {dateUtil.getMMDDYYYY(tournInReview.date)}?</p>                        
+                            {(deleteTournMutation.isSuccess || deleteTournMutation.isError) ? "" :
+                             deleteTournMutation.isPending ? <p>Hang on - a request is processing.</p> :
+                                runsForTourn.length ?
+                                    <p>You can not delete tournaments which have runs attached.  This one has {runsForTourn.length}.</p> :
+                                    <p>Are you sure you want to remove {tournInReview.name} on {dateUtil.getMMDDYYYY(tournInReview.date)}?</p>
                             }
                         </div>
                         <div className="modal-footer d-flex flex-column">
@@ -609,13 +546,11 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                                 </span> : <></>}
                             </div>
                             <div className="text-center my-3">
-                                {reqResult.message ? <span className={reqResult.error ? 'text-danger' : 'text-success'}>
-                                    {reqResult.message}
-                                </span> : <></>}
+                                <MutationStatus isSuccess={deleteTournMutation.isSuccess} isError={deleteTournMutation.isError} successMessage="Deletion successful." />
                             </div>
                             <div className="">
                                 <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal" >Close</button>
-                                <button type="button" className="btn btn-warning mx-2" disabled={!isAdmin || reqSubmitted || reqResult.message.length>0 || runsForTourn.length>0} onClick={deleteTourn}>Delete</button>
+                                <button type="button" className="btn btn-warning mx-2" disabled={!isAdmin || deleteTournMutation.isPending || deleteTournMutation.isSuccess || runsForTourn.length > 0} onClick={() => deleteTournMutation.mutate()}>Delete</button>
                             </div>
                         </div>
                     </div>
@@ -630,15 +565,14 @@ export default function AdminTournaments(props:AdminTournamentProps) {
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            <RunsEdit 
-                                isAdmin={isAdmin} 
-                                tournInReview={tournInReview} 
+                            <RunsEdit
+                                isAdmin={isAdmin}
+                                tournInReview={tournInReview}
                                 teams={teams}
-                                runsForTourn={runsForTourn} 
-                                runsEditContest={runsEditContest} 
+                                runsForTourn={runsForTourn}
+                                runsEditContest={runsEditContest}
                                 setRunsEditContest={setRunsEditContest}
-                                reqSubmitted={reqSubmitted}
-                                setReqSubmitted={setReqSubmitted}
+                                isLoading={runsLoading}
                                 getRunsForTourn={getRunsForTourn}
                                 />
                         </div>
