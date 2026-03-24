@@ -100,210 +100,223 @@ export default function AdminTeams(props:AdminTeamsProps) {
     let circuits = Array.from(circuitSet).sort()
 
     return (
-        <div className="container">
-            <div className="d-flex flex-column align-items-center justify-content-center">
-                <div
-                    className="btn add-entry-button my-5"
+        <div>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                <h6 className="mb-0">Teams <span className="text-muted fw-normal small">({teams.length})</span></h6>
+                <button
+                    className="btn btn-success btn-sm"
                     data-bs-toggle="modal"
                     data-bs-target="#editTeamModal"
-                    onClick={()=>{
-                        setEditOrCreate("Create");
-                        setTeamInReview({...intialTeam})
-                    }}>Add New Team
-                </div>
-                <div className="bg-light w-100 mx-5 rounded py-4 mb-2">
-                    {
-                        teams.map((team, ind) => {
-                            if(!team.fullName) return <></>
+                    onClick={() => { setEditOrCreate("Create"); setTeamInReview({...intialTeam}); }}
+                >+ Add Team</button>
+            </div>
+
+            <div className="border rounded" style={{ maxHeight: '460px', overflowY: 'auto' }}>
+                <table className="table table-sm table-hover mb-0">
+                    <thead className="table-light sticky-top">
+                        <tr>
+                            <th>Team</th>
+                            <th style={{ width: '90px' }}>Circuit</th>
+                            <th style={{ width: '80px' }} className="text-center">Status</th>
+                            <th style={{ width: '80px' }} className="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {teams.map((team, ind) => {
+                            if(!team.fullName) return null;
                             return (
-                                <div className='row w-100 my-1'>
-                                    <div className="col-8">
-                                        <div
-                                            className="pointer d-flex justify-content-start align-items-center font-large ms-5"
+                                <tr key={ind}>
+                                    <td className="align-middle">
+                                        <span
+                                            className="pointer"
                                             data-bs-toggle="modal"
                                             data-bs-target="#editTeamModal"
-                                            onClick={()=>{
-                                                setEditOrCreate("Edit");
-                                                modalCleanup();
-                                                loadTeam(team);
-                                            }}>
-                                            <div>{team.fullName} - {team.circuit}</div>
-                                            <div>{team.active && <div className="font-x-small grayText ms-3">Active</div>}</div>
-                                            <div>{!team.display && <FontAwesomeIcon className="crud-links font-xs-small ms-3" icon={faEyeSlash} />}</div>
-                                        </div>
-                                    </div>
-                                    <div className="col-4 d-flex align-items-center justify-content-between">
-                                        <div className="pointer ps-5 d-flex align-items-center justify-content-center"
+                                            onClick={() => { setEditOrCreate("Edit"); modalCleanup(); loadTeam(team); }}
+                                        >{team.fullName}</span>
+                                    </td>
+                                    <td className="align-middle small text-muted">{team.circuit}</td>
+                                    <td className="align-middle text-center">
+                                        {team.active && <span className="badge bg-success-subtle text-success-emphasis">Active</span>}
+                                        {!team.display && <FontAwesomeIcon className="text-muted ms-1" icon={faEyeSlash} title="Hidden" />}
+                                    </td>
+                                    <td className="align-middle text-center">
+                                        <span
+                                            className="pointer me-2"
                                             data-bs-toggle="modal"
                                             data-bs-target="#editTeamModal"
-                                            onClick={()=>{
-                                                setEditOrCreate("Edit");
-                                                modalCleanup();
-                                                loadTeam(team);
-                                            }}
-                                            ><FontAwesomeIcon className="crud-links font-x-large" icon={faPenToSquare} />
-                                        </div>
-                                        {team.afterMigrate ?
-                                            <div className="pointer pe-5 d-flex align-items-center justify-content-center"
+                                            onClick={() => { setEditOrCreate("Edit"); modalCleanup(); loadTeam(team); }}
+                                            title="Edit"
+                                        ><FontAwesomeIcon className="crud-links" icon={faPenToSquare} /></span>
+                                        {team.afterMigrate && (
+                                            <span
+                                                className="pointer"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#deleteTeamModal"
-                                                onClick={()=>{
-                                                    modalCleanup();
-                                                    loadTeam(team);
-                                                }}
-                                                ><FontAwesomeIcon className="crud-links font-x-large" icon={faTrash}/>
-                                            </div> : <div></div>}
-                                    </div>
-                                </div>
-                            )
-                        })
-                    }
-                </div>
+                                                onClick={() => { modalCleanup(); loadTeam(team); }}
+                                                title="Delete"
+                                            ><FontAwesomeIcon className="crud-links" icon={faTrash}/></span>
+                                        )}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
             </div>
 
-            <div className="modal fade" id="editTeamModal" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-l">
-                    <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title" id="exampleModalLabel">{editOrCreate == "Edit" ? "Edit Team" : "Add Team"}</h5>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div className="modal-body">
-                        <div className="d-flex justify-content-center mb-3">
-                            {editOrCreate == "Edit" ?
-                                <i>
-                                    {teamInReview?.afterMigrate ? "Created after 2022 migration." : "Migrated from previous site."}
-                                </i> : <></>
-                            }
-                        </div>
-                        <div className="row my-1">
-                            <div className="col-4 text-center">Town*</div>
-                            <div className="col-8 text-center px-4">
-                                <input
-                                    onChange={(e) => handleNameChange(e)}
-                                    id="hometown"
-                                    value={teamInReview.hometown}
-                                    className="text-center width-100"
-                                    disabled={editOrCreate == "Edit" && !teamInReview?.afterMigrate}
-                                    autoComplete="off"></input>
-                            </div>
-                        </div>
-                        <div className="row my-1">
-                            <div className="col-4 text-center">Nickname*</div>
-                            <div className="col-8 text-center px-4" >
-                                <input
-                                    onChange={(e) => handleNameChange(e)}
-                                    id="nickname"
-                                    value={teamInReview.nickname}
-                                    className="text-center width-100"
-                                    disabled={editOrCreate == "Edit" && !teamInReview?.afterMigrate}
-                                    autoComplete="off"></input>
-                            </div>
-                        </div>
-                        <div className="row my-1">
-                            <div className="col-4 text-center">Fullname*</div>
-                            <div className="col-8 text-center px-4">
-                                <input
-                                    id="fullName"
-                                    value={teamInReview.fullName}
-                                    disabled={true}
-                                    className="text-center width-100"
-                                    autoComplete="off"></input>
-                            </div>
-                        </div>
-                        <div className="row my-1">
-                            <div className="col-4 text-center">Region</div>
-                            <div className="col-8 text-center px-4">
-                                <select onChange={handleSelect} id="region" name="region" className="width-100 text-center" value={teamInReview.region} disabled={editOrCreate == "Edit" && !teamInReview?.afterMigrate}>
-                                    {regions.map(el => <option value={el}>{el}</option>)}
-                                </select>
-                            </div>
-                        </div>
-                        <div className="row my-1">
-                            <div className="col-4 text-center">Circuit*</div>
-                            <div className="col-8 text-center px-4">
-                                <select onChange={handleSelect} id="circuit" name="circuit" className="width-100 text-center" value={teamInReview.circuit} disabled={editOrCreate == "Edit" && !teamInReview?.afterMigrate}>
-                                    {circuits.map(el => <option value={el}>{el}</option>)}
-                                </select>
-                            </div>
-                        </div>
-                        <div className="row my-1">
-                            <div className="col-4 text-center">Twitter Handle</div>
-                            <div className="col-8 text-center px-4">
-                            <input onChange={handleTextInput} id="twitter" value={teamInReview.twitter} className="text-center width-100" ></input>
-                            </div>
-                        </div>
-                        <div className="row my-1">
-                            <div className="col-4 text-center">Insta Handle</div>
-                            <div className="col-8 text-center px-4">
-                            <input onChange={handleTextInput} id="instagram" value={teamInReview.instagram} className="text-center width-100" ></input>
-                            </div>
-                        </div>
-                        <div className="row my-1">
-                            <div className="col-4 text-center">TikTok Handle</div>
-                            <div className="col-8 text-center px-4">
-                            <input onChange={handleTextInput} id="tiktok" value={teamInReview.tiktok} className="text-center width-100" ></input>
-                            </div>
-                        </div>
-                        <div className="row mb-1 mt-3">
-                            <div className="col-6 d-flex flex-column align-items-center justify-content-end text-center">
-                                <div>Active</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="active" name="active" checked={teamInReview?.active} onChange={handleCheck}></input>
-                                </div>
-                            </div>
-                            <div className="col-6 d-flex flex-column align-items-center justify-content-end text-center">
-                                <div>Display in Lists?</div>
-                                <div>
-                                    <input className="form-check-input" type="checkbox" id="display" name="display" checked={teamInReview?.display} onChange={handleCheck}></input>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="modal-footer d-flex flex-column">
-                        <div className="text-center">
-                            {!isAdminOrScorekeeper ? <span>Only admin or scorekeepers can make changes here.</span> : <></>}
-                        </div>
-                        <div className="text-center my-3">
-                            <MutationStatus isSuccess={saveMutation.isSuccess} isError={saveMutation.isError} errorMessage="An error occurred. Make sure all required fields are complete or try again later." />
-                        </div>
-                        <div className="">
-                            <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal">Close</button>
-                            <button type="button" className="btn btn-primary mx-2" disabled={!isAdminOrScorekeeper || saveMutation.isPending || !isFormComplete} onClick={() => saveMutation.mutate()}>Save changes</button>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="modal fade" id="deleteTeamModal" aria-labelledby="deleteModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-l">
+            {/* Edit / Create Modal */}
+            <div className="modal fade" id="editTeamModal" aria-labelledby="editTeamModalLabel" aria-hidden="true">
+                <div className="modal-dialog modal-lg modal-dialog-scrollable">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="exampleModalLabel">Delete Team?</h5>
+                            <h5 className="modal-title" id="editTeamModalLabel">{editOrCreate === "Edit" ? "Edit Team" : "Add Team"}</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            <p>Are you sure you want to remove {teamInReview.fullName}?</p>
-                            <p>This removes the team from future lists, but previously saved tournaments and runs will still show the team.</p>
-                            <p><i>It's probably not a good idea to delete them if they've been added to tournaments.</i></p>
+                            {editOrCreate === "Edit" && (
+                                <p className="text-center text-muted small fst-italic mb-3">
+                                    {teamInReview?.afterMigrate ? "Created after 2022 migration." : "Migrated from previous site."}
+                                </p>
+                            )}
+
+                            <div className="mb-3 row align-items-center">
+                                <label htmlFor="hometown" className="col-4 col-form-label fw-semibold text-end">Town*</label>
+                                <div className="col-8">
+                                    <input
+                                        id="hometown"
+                                        onChange={(e) => handleNameChange(e)}
+                                        value={teamInReview.hometown}
+                                        className="form-control form-control-sm"
+                                        disabled={editOrCreate === "Edit" && !teamInReview?.afterMigrate}
+                                        autoComplete="off"
+                                    />
+                                </div>
+                            </div>
+                            <div className="mb-3 row align-items-center">
+                                <label htmlFor="nickname" className="col-4 col-form-label fw-semibold text-end">Nickname*</label>
+                                <div className="col-8">
+                                    <input
+                                        id="nickname"
+                                        onChange={(e) => handleNameChange(e)}
+                                        value={teamInReview.nickname}
+                                        className="form-control form-control-sm"
+                                        disabled={editOrCreate === "Edit" && !teamInReview?.afterMigrate}
+                                        autoComplete="off"
+                                    />
+                                </div>
+                            </div>
+                            <div className="mb-3 row align-items-center">
+                                <label htmlFor="fullName" className="col-4 col-form-label fw-semibold text-end">Full Name</label>
+                                <div className="col-8">
+                                    <input
+                                        id="fullName"
+                                        value={teamInReview.fullName}
+                                        className="form-control form-control-sm bg-light"
+                                        disabled
+                                        autoComplete="off"
+                                    />
+                                    <div className="form-text">Auto-generated from Town + Nickname</div>
+                                </div>
+                            </div>
+                            <div className="mb-3 row align-items-center">
+                                <label htmlFor="region" className="col-4 col-form-label fw-semibold text-end">Region</label>
+                                <div className="col-8">
+                                    <select
+                                        id="region"
+                                        onChange={handleSelect}
+                                        className="form-select form-select-sm"
+                                        value={teamInReview.region}
+                                        disabled={editOrCreate === "Edit" && !teamInReview?.afterMigrate}
+                                    >
+                                        {regions.map(el => <option key={el} value={el}>{el}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="mb-3 row align-items-center">
+                                <label htmlFor="circuit" className="col-4 col-form-label fw-semibold text-end">Circuit*</label>
+                                <div className="col-8">
+                                    <select
+                                        id="circuit"
+                                        onChange={handleSelect}
+                                        className="form-select form-select-sm"
+                                        value={teamInReview.circuit}
+                                        disabled={editOrCreate === "Edit" && !teamInReview?.afterMigrate}
+                                    >
+                                        {circuits.map(el => <option key={el} value={el}>{el}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="mb-3 row align-items-center">
+                                <label htmlFor="twitter" className="col-4 col-form-label fw-semibold text-end">Twitter Handle</label>
+                                <div className="col-8">
+                                    <input id="twitter" onChange={handleTextInput} value={teamInReview.twitter} className="form-control form-control-sm" />
+                                </div>
+                            </div>
+                            <div className="mb-3 row align-items-center">
+                                <label htmlFor="instagram" className="col-4 col-form-label fw-semibold text-end">Instagram Handle</label>
+                                <div className="col-8">
+                                    <input id="instagram" onChange={handleTextInput} value={teamInReview.instagram} className="form-control form-control-sm" />
+                                </div>
+                            </div>
+                            <div className="mb-3 row align-items-center">
+                                <label htmlFor="tiktok" className="col-4 col-form-label fw-semibold text-end">TikTok Handle</label>
+                                <div className="col-8">
+                                    <input id="tiktok" onChange={handleTextInput} value={teamInReview.tiktok} className="form-control form-control-sm" />
+                                </div>
+                            </div>
+
+                            <hr />
+                            <div className="row g-3">
+                                <div className="col-6">
+                                    <div className="form-check d-flex align-items-center gap-2">
+                                        <input className="form-check-input" type="checkbox" id="active" name="active" checked={teamInReview?.active} onChange={handleCheck} />
+                                        <label className="form-check-label fw-semibold" htmlFor="active">Active</label>
+                                    </div>
+                                </div>
+                                <div className="col-6">
+                                    <div className="form-check d-flex align-items-center gap-2">
+                                        <input className="form-check-input" type="checkbox" id="display" name="display" checked={teamInReview?.display} onChange={handleCheck} />
+                                        <label className="form-check-label fw-semibold" htmlFor="display">Show in Lists</label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div className="modal-footer d-flex flex-column">
-                            <div className="text-center">
-                                {!isAdmin ? <span>Only admin and scorekeepers can make changes here.</span> : <></>}
-                            </div>
-                            <div className="text-center my-3">
-                                <MutationStatus isSuccess={deleteMutation.isSuccess} isError={deleteMutation.isError} />
-                            </div>
-                            <div className="">
-                                <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal">Close</button>
-                                <button type="button" className="btn btn-warning mx-2" disabled={!isAdmin || deleteMutation.isPending} onClick={() => deleteMutation.mutate()}>Delete</button>
+                        <div className="modal-footer flex-column align-items-stretch gap-2">
+                            {!isAdminOrScorekeeper && <div className="text-center small text-muted">Only admin or scorekeepers can make changes.</div>}
+                            <MutationStatus isSuccess={saveMutation.isSuccess} isError={saveMutation.isError} errorMessage="An error occurred. Make sure all required fields are complete or try again later." />
+                            <div className="d-flex justify-content-end gap-2">
+                                <button type="button" className="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                <button type="button" className="btn btn-primary btn-sm" disabled={!isAdminOrScorekeeper || saveMutation.isPending || !isFormComplete} onClick={() => saveMutation.mutate()}>Save</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            {/* Delete Modal */}
+            <div className="modal fade" id="deleteTeamModal" aria-labelledby="deleteTeamModalLabel" aria-hidden="true">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="deleteTeamModalLabel">Delete Team?</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+                            <p>Are you sure you want to remove <strong>{teamInReview.fullName}</strong>?</p>
+                            <p className="text-muted small">This removes the team from future lists, but previously saved tournaments and runs will still reference them.</p>
+                            <p className="text-muted small fst-italic">It's probably not a good idea to delete them if they've been added to tournaments.</p>
+                        </div>
+                        <div className="modal-footer flex-column align-items-stretch gap-2">
+                            {!isAdmin && <div className="text-center small text-muted">Only admin can make changes.</div>}
+                            <MutationStatus isSuccess={deleteMutation.isSuccess} isError={deleteMutation.isError} />
+                            <div className="d-flex justify-content-end gap-2">
+                                <button type="button" className="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                <button type="button" className="btn btn-warning btn-sm" disabled={!isAdmin || deleteMutation.isPending} onClick={() => deleteMutation.mutate()}>Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }

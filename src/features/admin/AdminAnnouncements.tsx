@@ -59,38 +59,53 @@ export default function AdminAnnouncements(props:AdminAnnouncementsProps) {
     }
 
     return (
-        <div className="container">
-            <div className="text-center">
-                <p className="pt-3">These inputs accept HTML so that you can link out to other places.  Here's an exampe.  Be careful here - stick to simple stuff like a tags like this example.  </p>
-                <p className="border m-4 p-4">{`We are streaming on <a href="http://youtube.com"  target="_blank">YouTube</a>`}</p>
+        <div>
+            <div className="alert alert-info small mb-3">
+                These inputs accept HTML so you can link to other pages. Example:&nbsp;
+                <code>{`We are streaming on <a href="http://youtube.com" target="_blank">YouTube</a>`}</code>
             </div>
-            {isLoading ? <div>Loading...</div> :
-                <div className="d-flex flex-column align-items-center justify-content-center">
-                {
-                    announcements.map((el, ind) => {
-                        return (
-                            <div className="d-flex align-items-center justify-content-center w-100">
+
+            {isLoading ? (
+                <div className="text-muted">Loading...</div>
+            ) : (
+                <>
+                    <div className="d-flex flex-column gap-2 mb-3">
+                        {announcements.map((el, ind) => (
+                            <div key={ind} className="d-flex align-items-center gap-2">
                                 <textarea
-                                    onChange={(e) => handleTextInput(e)}
                                     id={`announcementsArrInd-${ind}`}
+                                    onChange={(e) => handleTextInput(e)}
                                     value={el}
-                                    className="text-center width-100 my-2 py-3"
+                                    className="form-control form-control-sm"
+                                    rows={2}
                                     disabled={!isAdmin}
-                                    autoComplete="off"></textarea>
-                                <FontAwesomeIcon className="crud-links font-large px-2" icon={faTrash} onClick={() => removeElement(ind)} />
+                                    autoComplete="off"
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-outline-danger btn-sm flex-shrink-0"
+                                    onClick={() => removeElement(ind)}
+                                    title="Remove"
+                                >
+                                    <FontAwesomeIcon icon={faTrash} />
+                                </button>
                             </div>
-                        )
-                    })
-                }
-                <div className="text-center my-3">
-                    <MutationStatus isSuccess={submitMutation.isSuccess} isError={submitMutation.isError} />
-                </div>
-                <div>
-                    <button className="btn login-button mx-2" disabled={!isAdmin} onClick={() => addElement()}>Add New Announcement</button>
-                    <button className="btn login-button mx-2" disabled={!isAdmin || submitMutation.isPending} onClick={() => submitMutation.mutate()}>Submit Announcements</button>
-                </div>
-            </div>
-            }
+                        ))}
+                    </div>
+
+                    <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <MutationStatus isSuccess={submitMutation.isSuccess} isError={submitMutation.isError} />
+                        <div className="d-flex gap-2">
+                            <button className="btn btn-outline-secondary btn-sm" disabled={!isAdmin} onClick={() => addElement()}>
+                                + Add Announcement
+                            </button>
+                            <button className="btn btn-primary btn-sm" disabled={!isAdmin || submitMutation.isPending} onClick={() => submitMutation.mutate()}>
+                                Save All
+                            </button>
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
     )
 }

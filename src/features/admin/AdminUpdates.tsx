@@ -21,24 +21,32 @@ export default function AdminUpdates(_props:AdminUpdatesProps) {
     const updates = data ?? [];
 
     return (
-        <div className="container">
-            <div className="d-flex flex-column align-items-center justify-content-center">
-                <div>
-                    <h4>Most recent updates are shown here:</h4>
+        <div>
+            <h6 className="mb-3">Recent Updates</h6>
+            {isLoading && <div className="text-muted">Loading...</div>}
+            {isError  && <div className="text-danger">An error occurred loading updates.</div>}
+            {!isLoading && !isError && (
+                <div style={{ maxHeight: '480px', overflowY: 'auto' }}>
+                    <table className="table table-sm table-hover table-striped mb-0">
+                        <thead className="table-light sticky-top">
+                            <tr>
+                                <th style={{ width: '110px' }}>Date</th>
+                                <th style={{ width: '140px' }}>User</th>
+                                <th>Update</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {updates.map((el, ind) => (
+                                <tr key={ind}>
+                                    <td className="text-muted small">{dateUtil.getMMDDYYYY(el.date)}</td>
+                                    <td className="fw-semibold small">{el.user}</td>
+                                    <td className="small">{el.update}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
-                {isLoading ? <div>Loading...</div> :
-                 isError ? <div>An error occurred grabbing the updates.</div>:
-                 <div>
-                    {
-                        updates.map(el => {
-                            return (
-                                <div>{`${dateUtil.getMMDDYYYY(el.date)} - ${el.user} - ${el.update}`}</div>
-                            )
-                        })
-                    }
-                 </div>
-                }
-            </div>
+            )}
         </div>
     )
 }

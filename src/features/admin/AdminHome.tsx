@@ -12,8 +12,11 @@ import AdminUsers from './AdminUsers';
 
 declare var SERVICE_URL: string;
 
+const TABS = ['Updates', 'Teams', 'Tracks', 'Tournaments', 'Announcements', 'Users'] as const;
+type Tab = typeof TABS[number];
+
 export default function AdminHome() {
-    let [view, setView] = useState("Updates")
+    let [view, setView] = useState<Tab>("Updates")
     const { username, logout } = useLoginContext();
 
     const teamsQuery = useQuery<Team[]>({
@@ -42,80 +45,51 @@ export default function AdminHome() {
     return (
         <div className="container">
             <div className="content-box">
-                <div className="row mt-2">
-                    <div className="col-2 "></div>
-                    <div className="col-8 d-flex flex-column align-items-center justify-content-center">
-                        <h4 className="mt-3">Admin Home</h4>
-                        <h6 className="my-2">Welcome, {username}.  Thanks for helping with this project.</h6>
+                <div className="d-flex align-items-center justify-content-between px-3 pt-3 pb-2">
+                    <div>
+                        <h4 className="mb-0">Admin Home</h4>
+                        <small className="text-muted">Welcome, {username}. Thanks for helping with this project.</small>
                     </div>
-                    <div className="col-2 d-flex flex-column align-items-center justify-content-center">
-                        <button className="btn mx-2 my-2 py-2 login-button" onClick={() => logout()} >Log Out</button>
-                    </div>
+                    <button className="btn btn-outline-secondary btn-sm" onClick={() => logout()}>Log Out</button>
                 </div>
-                <div className="m-3">
-                    <p>A few things to keep in mind as you work with the site: </p>
-                    <ul>
-                        <li>This DB is becoming THE history for our game.  Let's take good care of it!  Please be professional as you make and edit entries.</li>
-                        <li>On the Updates tab, you'll see changes you and other users are making.  This offers an opportunity to review changes and should keep everyone honest.</li>
-                        <li>Of course even with these gaurdrails, you could still figure out ways to do dumb things.</li>
-                        <ul>
-                            <li>For instance, no one is checking the video links.  If you send people to something inappropriate, it'll just make us all look bad.  Don't do that and be careful.</li>
-                        </ul>
-                        <li>If you're not super comfortable with something, feel free to ask.</li>
+
+                <div className="px-3 pb-2">
+                    <details>
+                        <summary className="text-muted small" style={{ cursor: 'pointer' }}>Guidelines &amp; reminders</summary>
+                        <div className="mt-2 small">
+                            <ul className="mb-1">
+                                <li>This DB is becoming THE history for our game. Please be professional as you make and edit entries.</li>
+                                <li>On the Updates tab you'll see changes you and other users are making — this keeps everyone honest.</li>
+                                <li>No one is checking video links. Don't send people anywhere inappropriate.</li>
+                                <li>If you're not sure about something, feel free to ask.</li>
+                            </ul>
+                        </div>
+                    </details>
+                </div>
+
+                {!isError && (
+                    <ul className="nav nav-tabs px-3">
+                        {TABS.map(tab => (
+                            <li className="nav-item" key={tab}>
+                                <button
+                                    className={`nav-link${view === tab ? ' active' : ''}`}
+                                    onClick={() => setView(tab)}
+                                >{tab}</button>
+                            </li>
+                        ))}
                     </ul>
-                </div>
-
-                <div className="row">
-                    {
-                        isError ? <></> :
-                            <div className=" d-flex flex-row justify-content-center align-items-center flex-wrap my-5">
-                                <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Updates")}}>
-                                    Updates
-                                </button>
-                                <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Teams")}}>
-                                    Teams
-                                </button>
-                                <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Tracks")}}>
-                                    Tracks
-                                </button>
-                                <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Tournaments")}}>
-                                    Tournaments
-                                </button>
-                                <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Announcements")}}>
-                                    Announcements
-                                </button>
-                                <button className="btn btn-light mx-2 my-2 py-2 admin-btn" onClick={() => {setView("Users")}}>
-                                    Users
-                                </button>
-                            </div>
-                    }
-                </div>
-
+                )}
             </div>
-            <div className="content-box my-2 p-3 container">
-                {
-                    view == "Updates" ? <AdminUpdates /> : <></>
-                }
-                {
-                    view == "Teams" ? <AdminTeams teams={teams} /> : <></>
-                }
-                {
-                    view == "Tracks" ? <AdminTracks tracks={tracks} /> : <></>
-                }
-                {
-                    view == "Tournaments" ? <AdminTournaments tracks={tracks} teams={teams} /> : <></>
-                }
-                {
-                    view == "Announcements" ? <AdminAnnouncements /> : <></>
-                }
-                {
-                    view == "Users" ? <AdminUsers /> : <></>
-                }
-                {
-                    isError ? <div>Sorry, an error occurred.  Please try again later.</div> : <></>
-                }
+
+            <div className="content-box my-2 p-3">
+                {view === "Updates"       && <AdminUpdates />}
+                {view === "Teams"         && <AdminTeams teams={teams} />}
+                {view === "Tracks"        && <AdminTracks tracks={tracks} />}
+                {view === "Tournaments"   && <AdminTournaments tracks={tracks} teams={teams} />}
+                {view === "Announcements" && <AdminAnnouncements />}
+                {view === "Users"         && <AdminUsers />}
+                {isError && <div className="text-danger">Sorry, an error occurred. Please try again later.</div>}
             </div>
         </div>
-
     );
 }

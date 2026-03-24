@@ -78,159 +78,154 @@ export default function AdminUpdates(_props:AdminUsersProps) {
         addUserMutation.mutate();
     }
 
+    const roleBadgeClass = (r: string) =>
+        r === 'admin' ? 'bg-danger' : r === 'scorekeeper' ? 'bg-primary' : 'bg-secondary';
+
     return (
-        <div className="container">
-            { isError ?
-                <div className="row">
-                    <div className="col-12 d-flex flex-column align-items-center mt-5">
-                        <div className="">Sorry, there was an error loading users.</div>
-                    </div>
-                </div> : <></>
-            }
-            { !isError ?
+        <div>
+            {isError && (
+                <div className="alert alert-danger">Sorry, there was an error loading users.</div>
+            )}
+            {!isError && (
                 <>
-                    <div className="d-flex flex-column align-items-center justify-content-center">
-                        <div
-                            className="btn add-entry-button my-5"
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <h6 className="mb-0">Users</h6>
+                        <button
+                            className="btn btn-success btn-sm"
                             data-bs-toggle="modal"
                             data-bs-target="#newUserModal"
-                            onClick={() => cleanNewUserModal()}>Create User
-                        </div>
-
-                        <div className="w-100 mx-5 rounded bg-light py-4 mb-2">
-                            <div className="row my-1">
-                                <div className="col-5">
-                                    <div className="test-center d-flex justify-content-center align-items-center ">
-                                        <div className="font-large">Username</div>
-                                    </div>
-                                </div>
-                                <div className="col-5">
-                                    <div className="test-center d-flex justify-content-center align-items-center ">
-                                        <div className="font-large">Role</div>
-                                    </div>
-                                </div>
-                                <div className="col-2"></div>
-                            </div>
-                            {
-                                users.map((user, ind) => (
-                                    <div className="row my-1" key={ind}>
-                                        <div className="col-5">
-                                            <div className="test-center d-flex justify-content-center align-items-center ">
-                                                <div className="font-large">{user.username}</div>
-                                            </div>
-                                        </div>
-                                        <div className="col-5">
-                                            <div className="test-center d-flex justify-content-center align-items-center ">
-                                                <div className="font-large">{capFirst(user.role)}</div>
-                                            </div>
-                                        </div>
-                                        <div className="col-2">
-                                            {user.role != 'admin' ?
-                                                <div className="pointer px-3"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#deleteUserModal"
-                                                onClick={()=>{
-                                                    cleanDeleteModal();
-                                                    setUserInReview({...user});
-                                                }}
-                                                ><FontAwesomeIcon className="crud-links font-x-large" icon={faTrash}/>
-                                                </div> : <></>
-                                            }
-                                        </div>
-                                    </div>
-                                ))
-                            }
-                        </div>
+                            onClick={() => cleanNewUserModal()}
+                        >+ Create User</button>
                     </div>
 
+                    <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
+                        <table className="table table-sm table-hover mb-0">
+                            <thead className="table-light sticky-top">
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th style={{ width: '48px' }}></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {users.map((user, ind) => (
+                                    <tr key={ind}>
+                                        <td className="align-middle">{user.username}</td>
+                                        <td className="align-middle">
+                                            <span className={`badge ${roleBadgeClass(user.role)}`}>{capFirst(user.role)}</span>
+                                        </td>
+                                        <td className="align-middle text-center">
+                                            {user.role !== 'admin' && (
+                                                <span
+                                                    className="pointer"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#deleteUserModal"
+                                                    onClick={() => { cleanDeleteModal(); setUserInReview({...user}); }}
+                                                >
+                                                    <FontAwesomeIcon className="crud-links" icon={faTrash}/>
+                                                </span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* New User Modal */}
                     <div className="modal fade" id="newUserModal" aria-labelledby="newUserModalLabel" aria-hidden="true">
-                        <div className="modal-dialog modal-l">
+                        <div className="modal-dialog modal-lg">
                             <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title" id="newUserModalLabel">New User</h5>
-                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div className="modal-body">
-                                <div className="row my-1">
-                                    <div className="col-4 text-center">Username</div>
-                                    <div className="col-8 text-center px-4">
-                                        <input
-                                            onChange={(e) => handleUsernameChange(e)}
-                                            id="username"
-                                            value={userInReview.username}
-                                            className="text-center width-100"
-                                            disabled={!isAdmin}
-                                            autoComplete="off"></input>
+                                <div className="modal-header">
+                                    <h5 className="modal-title" id="newUserModalLabel">Create New User</h5>
+                                    <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div className="modal-body">
+                                    <div className="mb-3 row align-items-center">
+                                        <label htmlFor="username" className="col-4 col-form-label fw-semibold text-end">Username</label>
+                                        <div className="col-8">
+                                            <input
+                                                id="username"
+                                                onChange={(e) => handleUsernameChange(e)}
+                                                value={userInReview.username}
+                                                className="form-control form-control-sm"
+                                                disabled={!isAdmin}
+                                                autoComplete="off"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="mb-3 row align-items-center">
+                                        <label htmlFor="password" className="col-4 col-form-label fw-semibold text-end">Generated Password</label>
+                                        <div className="col-8">
+                                            <input
+                                                id="password"
+                                                value={userInReview.password}
+                                                className="form-control form-control-sm font-monospace"
+                                                disabled
+                                                autoComplete="off"
+                                            />
+                                            <div className="form-text">Share this with the new user. They can change it after logging in.</div>
+                                        </div>
+                                    </div>
+                                    <div className="mb-3 row align-items-center">
+                                        <label htmlFor="role" className="col-4 col-form-label fw-semibold text-end">Role</label>
+                                        <div className="col-8">
+                                            <select
+                                                id="role"
+                                                onChange={handleSelect}
+                                                className="form-select form-select-sm"
+                                                value={userInReview.role}
+                                                disabled={!isAdmin}
+                                            >
+                                                <option value=""></option>
+                                                <option value="scorekeeper">Scorekeeper</option>
+                                                <option value="video">Video Only</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="row my-1">
-                                    <div className="col-4 text-center">Password</div>
-                                    <div className="col-8 text-center px-4">
-                                        <input
-                                            id="password"
-                                            value={userInReview.password}
-                                            className="text-center width-100"
-                                            disabled={true}
-                                            autoComplete="off"></input>
-                                    </div>
-                                </div>
-                                <div className="row my-1">
-                                    <div className="col-4 text-center">Role</div>
-                                    <div className="col-8 text-center px-4">
-                                        <select onChange={handleSelect} id="role" name="role" className="width-100 text-center py-1" value={userInReview.role} disabled={!isAdmin}>
-                                            <option value={null}></option>
-                                            <option value={"scorekeeper"}>Scorekeeper</option>
-                                            <option value={"video"}>Video Only</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="modal-footer d-flex flex-column">
-                                <div className="text-center my-3">
+                                <div className="modal-footer flex-column align-items-stretch gap-2">
                                     {usernameMessage && (
-                                        <span className={usernameMessage.error ? 'text-danger' : 'text-success'}>
+                                        <div className={`text-center small ${usernameMessage.error ? 'text-danger' : 'text-success'}`}>
                                             {usernameMessage.message}
-                                        </span>
+                                        </div>
                                     )}
                                     <MutationStatus isSuccess={addUserMutation.isSuccess} isError={addUserMutation.isError} />
-                                    {!isAdmin ? <span>Only Admin can make changes.</span> : <></>}
+                                    {!isAdmin && <div className="text-center small text-muted">Only Admin can make changes.</div>}
+                                    <div className="d-flex justify-content-end gap-2">
+                                        <button type="button" className="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" className="btn btn-primary btn-sm" onClick={handleAddUser} disabled={!isAdmin || !formValid || addUserMutation.isPending}>Create User</button>
+                                    </div>
                                 </div>
-                                <div className="">
-                                    <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal">Close</button>
-                                    <button type="button" className="btn btn-primary mx-2" onClick={handleAddUser} disabled={!isAdmin || !formValid || addUserMutation.isPending}>Save changes</button>
-                                </div>
-                            </div>
                             </div>
                         </div>
                     </div>
 
+                    {/* Delete User Modal */}
                     <div className="modal fade" id="deleteUserModal" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
-                        <div className="modal-dialog modal-l">
+                        <div className="modal-dialog">
                             <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title" id="deleteUserModalLabel">Delete User?</h5>
-                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div className="modal-body">
-                                <p>Are you sure you want to delete {userInReview.username}?</p>
-                                <p><i>Any DB changes made by the user are unaffected.</i></p>
-                            </div>
-                            <div className="modal-footer d-flex flex-column">
-                                <div className="text-center my-3">
+                                <div className="modal-header">
+                                    <h5 className="modal-title" id="deleteUserModalLabel">Delete User?</h5>
+                                    <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div className="modal-body">
+                                    <p>Are you sure you want to delete <strong>{userInReview.username}</strong>?</p>
+                                    <p className="text-muted small"><i>Any DB changes made by the user are unaffected.</i></p>
+                                </div>
+                                <div className="modal-footer flex-column align-items-stretch gap-2">
                                     <MutationStatus isSuccess={deleteUserMutation.isSuccess} isError={deleteUserMutation.isError} successMessage="Deletion successful." />
-                                    {!isAdmin ? <span>Only Admin can make changes.</span> : <></>}
+                                    {!isAdmin && <div className="text-center small text-muted">Only Admin can make changes.</div>}
+                                    <div className="d-flex justify-content-end gap-2">
+                                        <button type="button" className="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" className="btn btn-warning btn-sm" onClick={() => deleteUserMutation.mutate()} disabled={!isAdmin || deleteUserMutation.isPending}>Delete</button>
+                                    </div>
                                 </div>
-                                <div className="">
-                                    <button type="button" className="btn btn-secondary mx-2" data-bs-dismiss="modal">Close</button>
-                                    <button type="button" className="btn btn-primary mx-2" onClick={() => deleteUserMutation.mutate()} disabled={!isAdmin || deleteUserMutation.isPending}>Delete</button>
-                                </div>
-                            </div>
                             </div>
                         </div>
                     </div>
-
-                </> : <></>
-            }
+                </>
+            )}
         </div>
     )
 }
