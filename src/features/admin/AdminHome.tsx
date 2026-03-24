@@ -60,8 +60,8 @@ export default function AdminHome() {
                             <ul className="mb-1">
                                 <li>This DB is becoming THE history for our game. Please be professional as you make and edit entries.</li>
                                 <li>On the Updates tab you'll see changes you and other users are making — this keeps everyone honest.</li>
-                                <li>No one is checking video links. Don't send people anywhere inappropriate.</li>
                                 <li>If you're not sure about something, feel free to ask.</li>
+                                <li>Its not said enough - but thanks for your help!</li>
                             </ul>
                         </div>
                     </details>
