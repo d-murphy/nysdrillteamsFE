@@ -7,15 +7,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useLocation, useNavigate } from "react-router-dom";
 import FantasyNewGame from "./FantasyNewGame";
 import FantasyGame from "./FantasyGame";
-import LandingPage from "../../Components/fantasy/LandingPage";
+import LandingPage from "../../features/fantasy/LandingPage";
 import MyTooltip from "../../shared/components/Tooltip";
-import FantasyProfile from "../../Components/fantasy/FantasyProfile";
+import FantasyProfile from "../../features/fantasy/FantasyProfile";
 import useAssureTeamName from "../../hooks/fantasy/useAssureTeamName";
 import { useSubmitAccessCode } from "../../hooks/fantasy/useSubmitAccessCode";
 import { Form } from "react-bootstrap";
 import Button from "../../shared/components/Button";
 import { useFantasyGame } from "../../hooks/fantasy/useFantasyGame";
-import { useGameUpdate } from "../../hooks/fantasy/useGameUpdate";
 
 
 export default function FantasyHome() {

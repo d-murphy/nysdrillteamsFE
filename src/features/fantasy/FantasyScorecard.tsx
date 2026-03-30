@@ -3,10 +3,10 @@ import { FantasyGame, FantasyDraftPick, TotalPointsWFinish, SimulationRun } from
 import { niceTime } from "../../utils/timeUtils";
 import { assignPoints } from "../../utils/fantasy/assignFinish";
 import useTeamNames from "../../hooks/fantasy/useTeamNames";
-import { Placeholder } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRobot, faUser } from "@fortawesome/free-solid-svg-icons";
+import { Placeholder, Tab, Tabs } from "react-bootstrap";
 import generateAutoDraftMap from "../../utils/fantasy/autoNames";
+import { DraftGrid } from "./FantasyGameDraft";
+import { FantasyPlayerKindIcon } from "./FantasyPlayerKindIcon";
 
 interface FantasyScorecardProps {
     game: FantasyGame;
@@ -73,9 +73,6 @@ export default function FantasyScorecard({ game, draftPicks, simulationRuns, tot
         ? totalPointsWFinish 
         : totalPointsWFinish?.filter(result => result.finish) ?? [];
 
-    const headers = generateHeaders();
-    const tableRows = generateRows(users, draftPicksLU, contestPointsLU, simulationRuns ?? []);
-
     return (
         <div>
             <ResultsList 
@@ -83,18 +80,19 @@ export default function FantasyScorecard({ game, draftPicks, simulationRuns, tot
                 showAllUsers={showAllUsers}
                 onToggle={() => setShowAllUsers(!showAllUsers)}
             />
-            <div className="scorecard-table-wrapper">            
-                <table className="my-4 table-results">
-                    <thead className="">
-                        <tr>
-                            {headers}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {tableRows}
-                    </tbody>
-                </table>
-            </div>
+            <Tabs defaultActiveKey="scorecard" id="fantasy-scorecard-tabs" className="mb-2">
+                <Tab eventKey="scorecard" title="Scorecard">
+                    <ScorecardTable
+                        users={users}
+                        draftPicksLU={draftPicksLU}
+                        contestPointsLU={contestPointsLU}
+                        simulationRuns={simulationRuns ?? []}
+                    />
+                </Tab>
+                <Tab eventKey="draft" title="Draft">
+                    <DraftGrid users={users} draftPicks={draftPicks} />
+                </Tab>
+            </Tabs>
         </div>
     );
 }
@@ -180,7 +178,12 @@ function generateRows(
                 rowBuffer.push(
                     <th key={`user-${userIndex}`} scope="col" className="scorecard-cell-md fixed-col p-2">
                         <div className="d-flex align-items-center">
-                            {isAuto ? <FontAwesomeIcon icon={faRobot} className="text-secondary" /> : <FontAwesomeIcon icon={faUser} className="text-secondary" />}
+                            <FantasyPlayerKindIcon
+                                isAutodraft={isAuto}
+                                className="text-secondary"
+                                userEmail={user}
+                                users={users}
+                            />
                             <div className="ms-2">
                                 {isLoadingTeamNames ? 
                                     <Placeholder animation="glow" className="p-0 text-center">
@@ -285,6 +288,33 @@ function TableCell({ size, draftPick, simulationRun, points, runningTotal }: Tab
     );
 }
 
+interface ScorecardTableProps {
+    users: string[];
+    draftPicksLU: { [key: string]: FantasyDraftPick };
+    contestPointsLU: { [key: string]: number };
+    simulationRuns: SimulationRun[];
+}
+
+function ScorecardTable({ users, draftPicksLU, contestPointsLU, simulationRuns }: ScorecardTableProps) {
+    const headers = generateHeaders();
+    const tableRows = generateRows(users, draftPicksLU, contestPointsLU, simulationRuns);
+
+    return (
+        <div className="scorecard-table-wrapper">            
+            <table className="my-4 table-results">
+                <thead className="">
+                    <tr>
+                        {headers}
+                    </tr>
+                </thead>
+                <tbody>
+                    {tableRows}
+                </tbody>
+            </table>
+        </div>
+    );
+}
+
 interface ResultsListProps {
     results: TotalPointsWFinish[];
     showAllUsers: boolean;
@@ -330,9 +360,12 @@ function ResultsList({ results, showAllUsers, onToggle }: ResultsListProps) {
                                     {result.finish || '--'}
                                 </div>
                                 <div className="d-flex align-items-center">
-                                    {
-                                        isAuto ? <FontAwesomeIcon icon={faRobot} className="text-secondary" /> : <FontAwesomeIcon icon={faUser} className="text-secondary" />
-                                    }
+                                    <FantasyPlayerKindIcon
+                                        isAutodraft={isAuto}
+                                        className="text-secondary"
+                                        userEmail={result.user}
+                                        users={users}
+                                    />
                                     <div className="ms-2">
                                         {isLoadingTeamNames ? 
                                             <Placeholder animation="glow" className="p-0 text-center">

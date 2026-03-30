@@ -4,9 +4,12 @@ import { getAuthHeaders } from "../../utils/fantasy/getAuthHeaders";
 
 declare var SERVICE_URL: string;
 
-interface EditTeamNameParams {
-    town: string; 
-    name: string; 
+export interface EditTeamNameParams {
+    town: string;
+    name: string;
+    /** Include only when changed from saved values (caller responsibility). */
+    insideColor?: string;
+    outsideColor?: string;
 }
 
 export function useEditTeamName(
@@ -22,11 +25,17 @@ export function useEditTeamName(
             if(!email){
                 throw new Error("Email not found");
             }        
-            const body = {
-                email, 
+            const body: Record<string, string> = {
+                email,
                 town: params.town,
                 name: params.name,
             };
+            if (params.insideColor !== undefined) {
+                body.insideColor = params.insideColor;
+            }
+            if (params.outsideColor !== undefined) {
+                body.outsideColor = params.outsideColor;
+            }
 
             const response = await fetch(`${SERVICE_URL}/fantasyNames/upsertFantasyTeamName`, {
                 method: 'POST',

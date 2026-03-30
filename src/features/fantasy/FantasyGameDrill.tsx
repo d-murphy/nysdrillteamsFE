@@ -5,10 +5,9 @@ import React, { useEffect, useState } from "react";
 import generateAutoDraftMap from "../../utils/fantasy/autoNames";
 import { niceTime } from "../../utils/timeUtils";
 import { SimTeamSummary } from "../../hooks/fantasy/useSimTeamSummaries";
-import { faPlay, faRobot, faUser } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Placeholder } from "react-bootstrap";
 import Button from "../../shared/components/Button";
+import { FantasyPlayerKindIcon } from "./FantasyPlayerKindIcon";
 
 
 
@@ -115,7 +114,8 @@ export default function FantasyGameDrill({game, draftPicks, runs, totalPointsWFi
                     {
                         game.users.map((team, index) => {
                             const email = team; 
-                            const teamName = teamNamesData.find(team => team.email === email)?.name || autoDraftMap.get(email); 
+                            const teamNameRow = teamNamesData.find((t) => t.email === email);
+                            const teamName = teamNameRow?.name || autoDraftMap.get(email); 
                             const draftPick = draftPicks.find(pick => pick.user === email && pick?.contestSummaryKey.split("|")[2] === contestToShow); 
                             const key = draftPick?.contestSummaryKey || ""; 
                             const summary = simTeamSummaries.find(summary => summary.key === key); 
@@ -133,6 +133,8 @@ export default function FantasyGameDrill({game, draftPicks, runs, totalPointsWFi
                                         isAnimating={userOnTheLine === team && isAnimation}
                                         isRunReveal={userOnTheLine === team && isRunReveal}
                                         isAutoDraft={team.startsWith('autodraft')}
+                                        userEmail={email}
+                                        users={humanUsers}
                                     />
                                 </div>
                             )
@@ -167,7 +169,7 @@ interface RightPanelContentProps {
     runsForScoreboard: { user: string; contestSummaryKey: string; time: number | string }[];
     usersForScoreboard: string[];
     runToDemo: number;
-    teamNamesData: { email: string; name: string }[];
+    teamNamesData: { email: string; name: string, town: string }[];
     autoDraftMap: Map<string, string>;
     timeIndexFinished: boolean;
     handleNextContest: () => void;
@@ -200,7 +202,11 @@ function RightPanelContent({ contestToShow, started, runsForScoreboard,
                     <Button className="my-4" onClick={handleNextContest} text="Next Contest" /> : 
                     <Button className="my-4" onClick={() => setAnimationComplete(true)} text="See Results" /> : 
                 started && <div className="text-nowrap my-4 pointer video-links" onClick={handleSkipAnimation}>Skip Animation</div>
-        }        
+        }
+        <div className="flex-grow-1" />
+        <div className="text-center my-4">
+            <a href="#" className="text-decoration-underline text-secondary" onClick={() => setAnimationComplete(true)}>Skip to Results</a>
+        </div>
         </>
     )
 }
@@ -217,9 +223,11 @@ interface LikelihoodChartProps {
     simRunTime: number | string;
     isAnimating: boolean
     isRunReveal: boolean
+    userEmail: string;
+    users: string[];
 }
 
-function LikelihoodChart({ started, simTeamSummary, teamName, contest, index, runToDemo, simRunTime, isAnimating, isRunReveal, isAutoDraft }: LikelihoodChartProps) {
+function LikelihoodChart({ started, simTeamSummary, teamName, contest, index, runToDemo, simRunTime, isAnimating, isRunReveal, isAutoDraft, userEmail, users }: LikelihoodChartProps) {
 
     const isTopTime = index === 0;     
     const goodRunTimes = !simTeamSummary?.goodRunTimes ? [] : 
@@ -251,7 +259,12 @@ function LikelihoodChart({ started, simTeamSummary, teamName, contest, index, ru
             <div className="d-none d-md-flex flex-column align-items-start justify-content-center">
                 <div className="d-flex align-items-center">
                     <div className="fw-bold text-nowrap ">{teamName}</div>
-                    <FontAwesomeIcon icon={isAutoDraft ? faRobot : faUser} className="ms-2 text-muted" />
+                    <FantasyPlayerKindIcon
+                        isAutodraft={isAutoDraft}
+                        className="ms-2 text-muted"
+                        userEmail={userEmail}
+                        users={users}
+                    />
 
                 </div>
                 <div className="text-muted text-nowrap">{year} {team} {contestChartRange[contest][2]}</div>
@@ -312,7 +325,7 @@ interface ScoreboardProps {
     runsForScoreboard: { user: string; contestSummaryKey: string; time: number | string }[];
     usersForScoreboard: string[];
     runToDemo: number;
-    teamNamesData: { email: string; name: string }[];
+    teamNamesData: { email: string; name: string, town: string }[];
     autoDraftMap: Map<string, string>;
 }
 
@@ -327,7 +340,9 @@ function Scoreboard({ runsForScoreboard, usersForScoreboard, runToDemo, teamName
             const user = el.user; 
             const key = el.contestSummaryKey; 
             const [team, year, contest] = key.split("|"); 
-            const teamName = teamNamesData.find(team => team.email === user)?.name || autoDraftMap.get(user); 
+
+            const teamNameInfo = teamNamesData.find(team => team.email === user); 
+            const teamName = teamNameInfo ? `${teamNameInfo.town} ${teamNameInfo.name}` : autoDraftMap.get(user); 
             const isNewItem = newestRunUser === user;
             return (
                 <div key={key} className={`px-2 d-flex flex-row justify-content-between gap-2 scoreboard-item ${isNewItem ? "scoreboard-new-item" : ""}`}>

@@ -1,14 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 
-type TeamName = {
-    email: string, 
-    town: string, 
-    name: string, 
-    codeUsed?: boolean
-}
+export type FantasyTeamName = {
+    email: string;
+    town: string;
+    name: string;
+    codeUsed?: boolean;
+    insideColor?: string;
+    outsideColor?: string;
+};
 
 export default function useTeamNames(emails: string[]) {
-    const { data, isLoading, error, refetch } = useQuery<TeamName[]>({
+    const { data, isLoading, error, refetch } = useQuery<FantasyTeamName[]>({
         queryKey: ['teamNames', emails],
         queryFn: () => getTeamNames(emails),
         enabled: emails.length > 0,

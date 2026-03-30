@@ -4,9 +4,10 @@ import { useAuth } from 'react-oidc-context';
 import { Button, Container, Form, Offcanvas, Placeholder } from 'react-bootstrap';
 import { useSimTeamSummaries } from '../../hooks/fantasy/useSimTeamSummaries';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faCheck, faClock,  faRobot, faSort, faSortDown, faUser, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faCheck, faClock, faSort, faSortDown, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useChangeGameStateMutation } from '../../hooks/fantasy/useChangeGameStateMutation';
 import { useMakePickMutation } from '../../hooks/fantasy/useMakePickMutation';
+import { FantasyPlayerKindIcon } from './FantasyPlayerKindIcon';
 import isMyPick from '../../utils/fantasy/isMyPick';
 import generateAutoDraftMap from '../../utils/fantasy/autoNames';
 import useTeamNames from '../../hooks/fantasy/useTeamNames';
@@ -37,11 +38,48 @@ const contests = [
 
 
 
+const TRAY_VH_MIN = 15;
+const TRAY_VH_MAX = 85;
+
 function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraftProps) {
     const [trayOpen, setTrayOpen] = useState(true);
     const { width } = useWindowDimensions();
     const isSmallScreen = width < 750;
     const [trayVh, setTrayVh] = useState(isSmallScreen ? 45 : 55);
+    const [isDraggingTray, setIsDraggingTray] = useState(false);
+    const trayDragRef = useRef<{ startY: number; startVh: number } | null>(null);
+
+    const onTrayDragPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        trayDragRef.current = { startY: e.clientY, startVh: trayVh };
+        setIsDraggingTray(true);
+        e.currentTarget.setPointerCapture(e.pointerId);
+    };
+
+    const onTrayDragPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+        if (!trayDragRef.current) return;
+        const { startY, startVh } = trayDragRef.current;
+        const deltaY = e.clientY - startY;
+        const deltaVh = -(deltaY / window.innerHeight) * 100;
+        const next = Math.min(TRAY_VH_MAX, Math.max(TRAY_VH_MIN, startVh + deltaVh));
+        setTrayVh(next);
+    };
+
+    const endTrayDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+        if (!trayDragRef.current) return;
+        trayDragRef.current = null;
+        setIsDraggingTray(false);
+        try {
+            e.currentTarget.releasePointerCapture(e.pointerId);
+        } catch {
+            /* capture already released */
+        }
+    };
+
+    const onTrayDragLostCapture = () => {
+        trayDragRef.current = null;
+        setIsDraggingTray(false);
+    };
 
     const auth = useAuth();
     const owner = game?.owner;
@@ -93,7 +131,36 @@ function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraft
                 <DraftGrid users={users}  draftPicks={draftPicks} />
 
                 <Offcanvas show={trayOpen} placement="bottom" scroll={true} backdrop={false}
-                    style={{ height: `${trayVh}vh`, transition: 'height 0.2s ease' }}>
+                    style={{
+                        height: `${trayVh}vh`,
+                        transition: isDraggingTray ? 'none' : 'height 0.2s ease',
+                    }}>
+
+                    <div
+                        role="separator"
+                        aria-orientation="horizontal"
+                        aria-valuemin={TRAY_VH_MIN}
+                        aria-valuemax={TRAY_VH_MAX}
+                        aria-valuenow={Math.round(trayVh)}
+                        aria-label="Drag to resize draft options panel"
+                        className="d-flex align-items-center justify-content-center flex-shrink-0 border-bottom border-secondary border-opacity-25"
+                        style={{
+                            touchAction: 'none',
+                            cursor: isDraggingTray ? 'grabbing' : 'grab',
+                            minHeight: 44,
+                        }}
+                        onPointerDown={onTrayDragPointerDown}
+                        onPointerMove={onTrayDragPointerMove}
+                        onPointerUp={endTrayDrag}
+                        onPointerCancel={endTrayDrag}
+                        onLostPointerCapture={onTrayDragLostCapture}
+                    >
+                        <span
+                            className="rounded-pill bg-secondary bg-opacity-50"
+                            style={{ width: 40, height: 5 }}
+                            aria-hidden
+                        />
+                    </div>
 
                     <Container>
                         <Offcanvas.Header>
@@ -102,10 +169,10 @@ function FantasyGameDraft({ game, draftPicks, loading, error }: FantasyGameDraft
                                 <TimeLeft draftPicks={draftPicks} game={game} currentDraftPick={currentDraftPick} key={currentDraftPick} />
                                 <div className="flex-grow-1" />
                                 <div className="d-flex flex-row gap-2">
-                                    <Button variant="outline-secondary" size="sm" onClick={() => setTrayVh(v => Math.max(v - 10, 15))}>
+                                    <Button variant="outline-secondary" size="sm" onClick={() => setTrayVh(v => Math.max(v - 10, TRAY_VH_MIN))}>
                                         <FontAwesomeIcon icon={faArrowDown} />
                                     </Button>
-                                    <Button variant="outline-secondary" size="sm" onClick={() => setTrayVh(v => Math.min(v + 10, 85))}>
+                                    <Button variant="outline-secondary" size="sm" onClick={() => setTrayVh(v => Math.min(v + 10, TRAY_VH_MAX))}>
                                         <FontAwesomeIcon icon={faArrowUp} />
                                     </Button>
                                 </div>
@@ -387,7 +454,7 @@ function DraftTable({ selectedContest, selectedSort, onSortChange, draftPicks, g
             ref={tableContainerRef}
             className="table-responsive" 
             style={{ 
-                maxHeight: '400px', 
+                maxHeight: '600px', 
                 overflowY: 'auto',
                 scrollBehavior: 'auto',  // Prevent smooth scrolling that might interfere
                 overflowAnchor: 'auto'   // CSS scroll anchoring to help maintain position
@@ -582,7 +649,7 @@ function TableBody({ teamSummaries, selectedContest,  previousPicksObj, isNoRepe
 
 
 
-function DraftGrid({ users, draftPicks }: { users: string[], draftPicks: FantasyDraftPick[] }) {
+export function DraftGrid({ users, draftPicks }: { users: string[], draftPicks: FantasyDraftPick[] }) {
 
     const colCt = users.length; 
     const rowCt = contests.length; 
@@ -604,7 +671,11 @@ function DraftGrid({ users, draftPicks }: { users: string[], draftPicks: Fantasy
 
                         return (
                             <div className="small l-text-muted draft-grid-header-cell col d-flex flex-column justify-content-between align-items-center py-2 text-center">
-                                {isAuto ? <FontAwesomeIcon icon={faRobot} /> : <FontAwesomeIcon icon={faUser} />}
+                                <FantasyPlayerKindIcon
+                                    isAutodraft={isAuto}
+                                    userEmail={user}
+                                    users={humanUsers}
+                                />
         <div>
                                     {
                                     isAuto ? 

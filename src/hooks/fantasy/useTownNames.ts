@@ -22,3 +22,19 @@ async function getTownNames(townSearch: string, limit: number) {
     const response = await fetch(url);
     return response.json()
 }
+
+export function useRandomTownName() {
+    const { data, isLoading, error, refetch } = useQuery<{town: string}>({
+        queryKey: ['randomTownName'],
+        queryFn: () => getRandomTownName(),
+        gcTime: 0,
+        staleTime: 0,
+    });
+    return { data, isLoading, error, refetch };
+}
+
+async function getRandomTownName() {
+    const url = `${SERVICE_URL}/fantasyNames/getRandomFantasyTeamTown`;
+    const response = await fetch(url);
+    return response.json()
+}

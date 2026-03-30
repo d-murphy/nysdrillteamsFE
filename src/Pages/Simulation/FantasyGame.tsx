@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import FantasyGameSignup from '../../Components/fantasy/FantasyGameSignup';
-import FantasyGameDraft from '../../Components/fantasy/FantasyGameDraft';
+import FantasyGameSignup from '../../features/fantasy/FantasyGameSignup';
+import FantasyGameDraft from '../../features/fantasy/FantasyGameDraft';
 import { useGameUpdate } from '../../hooks/fantasy/useGameUpdate';
-import FantasyGameResult from '../../Components/fantasy/FantasyGameResult';
-import FantasyGameDrill from '../../Components/fantasy/FantasyGameDrill';
+import FantasyGameResult from '../../features/fantasy/FantasyGameResult';
+import FantasyGameDrill from '../../features/fantasy/FantasyGameDrill';
 import { Button } from 'react-bootstrap';
 
 
