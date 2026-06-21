@@ -34,6 +34,8 @@ const Projections = React.lazy(() => import("./Pages/Simulation/Projections"));
 const Simulation = React.lazy(() => import("./Pages/Simulation"));
 const ProjectionsHome = React.lazy(() => import("./Pages/Simulation/ProjectionsHome"));
 const FantasyHome = React.lazy(() => import("./Pages/Simulation/FantasyHome"));
+const FortyForFortyStart = React.lazy(() => import("./Pages/Simulation/FortyForFortyStart"));
+const FortyForFortyEnd = React.lazy(() => import("./Pages/Simulation/FortyForFortyEnd"));
 
 
 interface ErrorPageProps {
@@ -174,23 +176,31 @@ const router = createBrowserRouter([
                 element: <FantasyHome />
             },
             {
-                path: "/Simulation/Fantasy/:pageToShow/:gameId", 
+                path: "/Simulation/Fantasy/:pageToShow/:gameId",
                 element: <FantasyHome />
+            },
+            {
+                path: "/Forty-for-Forty",
+                element: <FortyForFortyStart />
+            },
+            {
+                path: "/Forty-for-Forty/:id",
+                element: <FortyForFortyEnd />
             },
         ],
     },
     {
-        path: "/Broadcast", 
+        path: "/Broadcast",
         element: <BroadcastInstructions />
     },
     {
-        path: "/Broadcast/:id", 
+        path: "/Broadcast/:id",
         element: <BroadcastInstructions />
     },
     {
-        path: "/Broadcast/:id/:showing", 
+        path: "/Broadcast/:id/:showing",
         element: <Broadcast />
-    }
+    },
 ]);
   
 // Create a client

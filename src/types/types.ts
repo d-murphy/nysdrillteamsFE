@@ -234,3 +234,18 @@ export type SimulationRun = {
 }
 
 export type TotalPointsWFinish = {user: string, points: number, finish?: number};
+
+export type FortyForFortyGame = {
+    _id: string
+    gameId: string
+    user: string
+    simInd: number
+    contestSummaryKeys: string[]
+    totalPoints: number
+    contestPoints: number[]
+    finalTimes?: (number | string)[]
+    gameMode?: 'classic' | 'lifer'
+}
+
+
+
