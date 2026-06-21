@@ -26,7 +26,7 @@ export default function TopRunsContest(props:TopRunsContestProp) {
         <div className="col-12 col-lg-6">
             <div className="bg-white shadow-sm rounded text-center p-2 my-2 mx-1">
                 <h3 className="my-3">{contestName}</h3>
-                {runs.map(el => {
+                {runs.slice(0, 10).map(el => {
                     return (
                         <div className="row border-top py-2">
                             <div className="col-3 d-flex align-items-center justify-content-center">
