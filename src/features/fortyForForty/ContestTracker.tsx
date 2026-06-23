@@ -1,6 +1,6 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import getImgLocation from "../../utils/imgLU";
+import { SizedImage } from "../../shared/components/SizedImage";
 
 interface Pick {
     contest: string;
@@ -49,7 +49,9 @@ export function ContestTracker({ contests, picks, selectedContest, onSelectConte
                                     </div>
                                 )}
                             </div>
-                            {pick && <FontAwesomeIcon icon={faCheck} className="text-success" />}
+                            {pick && (
+                                <SizedImage imageSrc={getImgLocation(team)} size="sm" />
+                            )}
                         </div>
                     );
                 })}

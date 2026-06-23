@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "react-bootstrap";
+import { Button, OverlayTrigger, Popover } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faShareNodes } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faShareNodes, faCircleInfo } from "@fortawesome/free-solid-svg-icons";
 import { useFortyForFortyGame } from "../../hooks/fortyForForty/useFortyForFortyGame";
 import { useSimTeamSummariesKey } from "../../hooks/fantasy/useSimTeamSummariesKey";
+import { SimTeamSummary } from "../../hooks/fantasy/useSimTeamSummaries";
 import { ShareModal } from "../../features/fortyForForty/ShareModal";
+import { SizedImage } from "../../shared/components/SizedImage";
+import getImgLocation from "../../utils/imgLU";
 
 const CONTEST_ABBR: Record<string, string> = {
     "Three Man Ladder": "3ML",
@@ -25,9 +28,46 @@ type Grade = { label: string; title: string; color: string; isPerfect: boolean }
 function getGrade(points: number): Grade {
     if (points >= 40) return { label: 'S',  title: 'Perfect Team',   color: '#c9a000', isPerfect: true  };
     if (points >= 30) return { label: 'A',  title: 'Potential Dynasty',       color: '#198754', isPerfect: false };
-    if (points >= 20) return { label: 'B',  title: 'Solid Squad - Could be a Contender',  color: '#013369', isPerfect: false };
-    if (points >= 10) return { label: 'C',  title: 'Young Team - Keep it up',     color: '#fd7e14', isPerfect: false };
+    if (points >= 20) return { label: 'B',  title: 'Solid Squad',  color: '#20c997', isPerfect: false };
+    if (points >= 10) return { label: 'C',  title: 'Top 5 Contender',     color: '#fd7e14', isPerfect: false };
     return                   { label: 'D',  title: 'Just Here for the Beer', color: '#dc3545', isPerfect: false };
+}
+
+function RunInfoPopover({ summary, placement = 'left' }: { summary: SimTeamSummary; placement?: 'top' | 'right' | 'left' | 'bottom' }) {
+    const popover = (
+        <Popover>
+            <Popover.Body className="p-2">
+                <div className="d-flex gap-3 mb-2 pb-2 border-bottom">
+                    {[
+                        { label: 'SPD', value: (summary.speedRating  * 100).toFixed(0) },
+                        { label: 'CON', value: (summary.consistency  * 100).toFixed(0) },
+                        { label: 'OVR', value: (summary.overallScore * 100).toFixed(0) },
+                    ].map(({ label, value }) => (
+                        <div className="text-center" key={label}>
+                            <div className="fw-bold" style={{ fontSize: '0.95rem' }}>{value}</div>
+                            <div className="text-muted" style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
+                        </div>
+                    ))}
+                </div>
+                <div className="text-muted" style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Top Runs</div>
+                <div style={{ fontSize: '0.82rem', lineHeight: 1.6 }}>
+                    {[...summary.goodRunTimes].sort((a, b) => parseFloat(a) - parseFloat(b)).slice(0, 10).join(', ') || '—'}
+                </div>
+            </Popover.Body>
+        </Popover>
+    );
+
+    return (
+        <OverlayTrigger trigger={['hover', 'focus', 'click']} placement={placement} rootClose overlay={popover}>
+            <button
+                className="bg-transparent border-0 p-0 text-muted"
+                style={{ cursor: 'pointer', lineHeight: 1 }}
+                onClick={e => e.stopPropagation()}
+            >
+                <FontAwesomeIcon icon={faCircleInfo} style={{ fontSize: '0.9rem' }} />
+            </button>
+        </OverlayTrigger>
+    );
 }
 
 export default function FortyForFortyEnd() {
@@ -180,7 +220,7 @@ export default function FortyForFortyEnd() {
                     return (
                         <div
                             key={row.key}
-                            className="bg-white rounded shadow-sm d-flex align-items-center overflow-hidden"
+                            className="bg-white rounded shadow-md d-flex align-items-center overflow-hidden"
                         >
                             {/* Left accent bar */}
                             <div style={{ width: 5, backgroundColor: NAVY, alignSelf: 'stretch', flexShrink: 0 }} />
@@ -195,13 +235,26 @@ export default function FortyForFortyEnd() {
                                 </span>
                             </div>
 
+                            {/* Team image */}
+                            <div className="flex-shrink-0 ms-2">
+                                <SizedImage imageSrc={getImgLocation(row.team)} size="sm" />
+                            </div>
+
                             {/* Team info */}
                             <div className="flex-grow-1 px-3 py-3 min-w-0">
                                 <div className="fw-bold text-truncate">{row.team}</div>
-                                <div className="text-muted small">{row.contest} &middot; {row.year}</div>
+                                <div className="text-muted small d-flex align-items-center gap-1">
+                                    {row.contest} &middot; {row.year}
+                                    {/* Desktop: info icon inline next to year */}
+                                    {!isLoadingTeams && row.summary && (
+                                        <span className="d-none d-md-inline-flex ms-1">
+                                            <RunInfoPopover summary={row.summary} placement="right" />
+                                        </span>
+                                    )}
+                                </div>
 
                                 {/* Mobile-only: time + pts stacked below team name */}
-                                <div className="d-flex d-sm-none gap-3 mt-1">
+                                <div className="d-flex d-md-none gap-3 mt-1">
                                     {row.finalTime != null && (
                                         <div>
                                             <span className="fw-bold" style={{ fontSize: '0.9rem' }}>
@@ -219,9 +272,16 @@ export default function FortyForFortyEnd() {
                                 </div>
                             </div>
 
-                            {/* SPD / CON / OVR */}
+                            {/* Mobile: info icon as standalone flex item */}
                             {!isLoadingTeams && row.summary && (
-                                <div className="d-none d-sm-flex gap-3 px-3 flex-shrink-0">
+                                <span className="d-md-none flex-shrink-0 px-2">
+                                    <RunInfoPopover summary={row.summary} placement="left" />
+                                </span>
+                            )}
+
+                            {/* SPD / CON / OVR
+                            {!isLoadingTeams && row.summary && (
+                                <div className="d-none d-md-flex gap-3 px-3 flex-shrink-0">
                                     {[
                                         { label: 'SPD', value: (row.summary.speedRating  * 100).toFixed(0) },
                                         { label: 'CON', value: (row.summary.consistency  * 100).toFixed(0) },
@@ -233,11 +293,11 @@ export default function FortyForFortyEnd() {
                                         </div>
                                     ))}
                                 </div>
-                            )}
+                            )} */}
 
                             {/* Final time — desktop only */}
                             {row.finalTime != null && (
-                                <div className="d-none d-sm-block text-center border-start px-3 py-3 flex-shrink-0" style={{ minWidth: 80 }}>
+                                <div className="d-none d-md-block text-center border-start px-3 py-3 flex-shrink-0" style={{ minWidth: 80 }}>
                                     <div className="fw-bold" style={{ fontSize: '1.1rem' }}>
                                         {typeof row.finalTime === 'number' || !isNaN(Number(row.finalTime))
                                             ? Number(row.finalTime).toFixed(2)
@@ -248,7 +308,7 @@ export default function FortyForFortyEnd() {
                             )}
 
                             {/* Points — desktop only */}
-                            <div className="d-none d-sm-block text-center border-start px-3 py-3 flex-shrink-0" style={{ minWidth: 75 }}>
+                            <div className="d-none d-md-block text-center border-start px-3 py-3 flex-shrink-0" style={{ minWidth: 75 }}>
                                 <div className="fw-bold" style={{ fontSize: '1.1rem' }}>{row.points}</div>
                                 <div className="text-muted" style={{ fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>pts</div>
                             </div>
@@ -257,7 +317,7 @@ export default function FortyForFortyEnd() {
                 })}
 
                 {/* Total row */}
-                <div className="rounded d-flex align-items-center justify-content-between px-4 py-3 nav-bg-color text-white mt-1 shadow-sm">
+                <div className="rounded d-flex align-items-center justify-content-between px-4 py-3 nav-bg-color text-white mt-1 shadow-md">
                     <div className="fw-bold fs-6">Total</div>
                     <div className="fw-bold fs-5">{game.totalPoints} pts</div>
                 </div>

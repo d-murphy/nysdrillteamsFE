@@ -44,7 +44,7 @@ function ShareCard({ game, grade }: ShareCardProps) {
                             {game.totalPoints}
                         </span>
                         <span
-                            className="fw-bold"
+                            className="fw-bold text-center"
                             style={{ fontSize: '2rem', lineHeight: 1, color: grade.color }}
                         >
                             {grade.label}
@@ -85,9 +85,16 @@ function ShareCard({ game, grade }: ShareCardProps) {
 
             {/* Pick rows */}
             <div className="d-flex flex-column gap-1 mb-3">
-                {game.contestSummaryKeys.map((key) => {
+                {game.contestSummaryKeys.map((key, i) => {
                     const [team, year, contest] = key.split('|');
                     const abbr = CONTEST_ABBR[contest] ?? contest;
+                    const finalTime = game.finalTimes?.[i];
+                    const points = game.contestPoints[i];
+                    const displayTime = finalTime != null
+                        ? (typeof finalTime === 'number' || !isNaN(Number(finalTime))
+                            ? Number(finalTime).toFixed(2)
+                            : String(finalTime))
+                        : null;
                     return (
                         <div key={key} className="d-flex align-items-center gap-2">
                             <div
@@ -98,10 +105,22 @@ function ShareCard({ game, grade }: ShareCardProps) {
                                     {abbr}
                                 </span>
                             </div>
-                            <div>
+                            <div className="flex-grow-1">
                                 <div className="fw-bold" style={{ fontSize: '0.88rem' }}>{team}</div>
                                 <div style={{ fontSize: '0.72rem', color: '#8899aa' }}>
                                     {contest} &middot; {year}
+                                </div>
+                            </div>
+                            <div className="d-flex gap-2 flex-shrink-0 text-end">
+                                {displayTime != null && (
+                                    <div>
+                                        <div className="fw-bold" style={{ fontSize: '0.85rem' }}>{displayTime}</div>
+                                        <div style={{ fontSize: '0.58rem', color: '#8899aa', textTransform: 'uppercase', letterSpacing: '0.06em' }}>time</div>
+                                    </div>
+                                )}
+                                <div>
+                                    <div className="fw-bold" style={{ fontSize: '0.85rem' }}>{points}</div>
+                                    <div style={{ fontSize: '0.58rem', color: '#8899aa', textTransform: 'uppercase', letterSpacing: '0.06em' }}>pts</div>
                                 </div>
                             </div>
                         </div>

@@ -153,7 +153,7 @@ export function TeamPickTable({ selectedContest, year, hideStats, pickedKeys, de
                                             ))}
                                             {ts.goodRunTimes.length > 0 && (
                                                 <div className="text-muted" style={{ fontSize: '0.72rem' }}>
-                                                    · {ts.goodRunTimes.join(', ')}
+                                                    · {[...ts.goodRunTimes].sort((a, b) => parseFloat(a) - parseFloat(b)).join(', ')}
                                                 </div>
                                             )}
                                         </div>
@@ -179,7 +179,7 @@ export function TeamPickTable({ selectedContest, year, hideStats, pickedKeys, de
                                 {/* Top runs */}
                                 {!hideStats && (
                                     <div className="text-end flex-shrink-0 text-muted d-none d-md-block" style={{ width: TOP_RUNS_WIDTH, fontSize: '0.78rem', lineHeight: 1.4 }}>
-                                        {ts.goodRunTimes.join(', ')}
+                                        {[...ts.goodRunTimes].sort((a, b) => parseFloat(a) - parseFloat(b)).join(', ')}
                                     </div>
                                 )}
                             </div>
