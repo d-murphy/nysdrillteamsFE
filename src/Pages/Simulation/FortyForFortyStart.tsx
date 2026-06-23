@@ -123,9 +123,10 @@ export default function FortyForFortyStart() {
 
     // 'ready', 'animating', and 'picking' all share the outer layout so the right panel is always visible
     return (
-        <div className="container">
+        <div className="container py-3">
+            <div className="bg-white rounded shadow-sm">
             {/* Header */}
-            <div className="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between py-3 border-bottom gap-2">
+            <div className="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between py-3 px-3 border-bottom gap-2">
                 <div className="d-flex align-items-center gap-3">
                     {!isAnimating && phase !== 'ready' && (
                         <YearRoulette year={year} isAnimating={false} variant="pill" />
@@ -154,7 +155,7 @@ export default function FortyForFortyStart() {
                 {/* Left panel */}
                 <div className="col-12 col-lg-8 pe-lg-3 pt-3">
                     {phase === 'ready' ? (
-                        <div className="d-flex flex-column align-items-center justify-content-center py-4 py-lg-5" style={{ minHeight: '40vh' }}>
+                        <div className="d-flex flex-column align-items-center justify-content-center py-4 py-lg-5 px-3" style={{ minHeight: '40vh' }}>
                             <Button
                                 size="lg"
                                 className="fw-bold d-flex align-items-center gap-2 px-5 py-3"
@@ -183,7 +184,7 @@ export default function FortyForFortyStart() {
                         </div>
                     ) : (
                         <>
-                            <div className="mb-3">
+                            <div className="mb-3 ms-3">
                                 <ContestPicker
                                     contests={contests}
                                     selectedContest={selectedContest}
@@ -203,9 +204,9 @@ export default function FortyForFortyStart() {
                     )}
                 </div>
 
-                {/* Right panel — always visible */}
+                {/* Right panel */}
                 <div
-                    className="col-lg-4 d-none d-lg-block pt-3 ps-3"
+                    className="col-lg-4 d-none d-lg-block pt-3 px-3"
                     style={{ borderLeft: '1px solid #dee2e6' }}
                 >
                     <ContestTracker
@@ -219,7 +220,7 @@ export default function FortyForFortyStart() {
             </div>
 
             {/* Mobile tracker */}
-            <div className="d-lg-none mt-3 pt-3 border-top">
+            <div className="d-lg-none mt-3 border-top p-3">
                 <ContestTracker
                     contests={contests}
                     picks={picks}
@@ -227,6 +228,7 @@ export default function FortyForFortyStart() {
                     onSelectContest={(c) => !isAnimating && setSelectedContest(c)}
                     disabled={isAnimating}
                 />
+            </div>
             </div>
         </div>
     );

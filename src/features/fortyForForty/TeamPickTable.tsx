@@ -66,17 +66,43 @@ export function TeamPickTable({ selectedContest, year, hideStats, pickedKeys, de
         fontWeight: 600,
     };
 
+    const SORT_OPTIONS: { value: SortCol; label: string }[] = [
+        { value: 'teamName',    label: 'Team Name' },
+        { value: 'speedRating', label: 'Speed' },
+        { value: 'consistency', label: 'Consistency' },
+        { value: 'overallScore', label: 'Overall' },
+    ];
+
     return (
         <div>
             {/* Column headers */}
             <div className="d-flex align-items-center px-3 py-2 border-bottom border-top" style={headerStyle}>
+                {/* Desktop: clickable Team header */}
                 <div
-                    className="flex-grow-1"
+                    className="flex-grow-1 d-none d-md-block"
                     style={{ cursor: 'pointer' }}
                     onClick={() => setSelectedSort('teamName')}
                 >
                     Team {getSortIcon('teamName')}
                 </div>
+
+                {/* Mobile: Team label + sort dropdown */}
+                <div className="d-flex d-md-none align-items-center justify-content-between w-100">
+                    <span>Team</span>
+                    {!hideStats && (
+                        <select
+                            className="form-select form-select-sm"
+                            style={{ width: 'auto', fontSize: '0.7rem' }}
+                            value={selectedSort}
+                            onChange={e => setSelectedSort(e.target.value as SortCol)}
+                        >
+                            {SORT_OPTIONS.map(opt => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
+                        </select>
+                    )}
+                </div>
+
                 {!hideStats && STAT_COLS.map(({ label, col }) => (
                     <div
                         key={col}

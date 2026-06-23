@@ -28,8 +28,8 @@ type Grade = { label: string; title: string; color: string; isPerfect: boolean }
 function getGrade(points: number): Grade {
     if (points >= 40) return { label: 'S',  title: 'Perfect Team',   color: '#c9a000', isPerfect: true  };
     if (points >= 30) return { label: 'A',  title: 'Potential Dynasty',       color: '#198754', isPerfect: false };
-    if (points >= 20) return { label: 'B',  title: 'Solid Squad',  color: '#20c997', isPerfect: false };
-    if (points >= 10) return { label: 'C',  title: 'Top 5 Contender',     color: '#fd7e14', isPerfect: false };
+    if (points >= 20) return { label: 'B',  title: 'Could be a Contender',  color: '#20c997', isPerfect: false };
+    if (points >= 10) return { label: 'C',  title: 'Outside the Top 5',     color: '#fd7e14', isPerfect: false };
     return                   { label: 'D',  title: 'Just Here for the Beer', color: '#dc3545', isPerfect: false };
 }
 
@@ -241,7 +241,7 @@ export default function FortyForFortyEnd() {
                             </div>
 
                             {/* Team info */}
-                            <div className="flex-grow-1 px-3 py-3 min-w-0">
+                            <div className="flex-grow-1 px-3 py-3 min-w-0 overflow-hidden">
                                 <div className="fw-bold text-truncate">{row.team}</div>
                                 <div className="text-muted small d-flex align-items-center gap-1">
                                     {row.contest} &middot; {row.year}
@@ -278,22 +278,6 @@ export default function FortyForFortyEnd() {
                                     <RunInfoPopover summary={row.summary} placement="left" />
                                 </span>
                             )}
-
-                            {/* SPD / CON / OVR
-                            {!isLoadingTeams && row.summary && (
-                                <div className="d-none d-md-flex gap-3 px-3 flex-shrink-0">
-                                    {[
-                                        { label: 'SPD', value: (row.summary.speedRating  * 100).toFixed(0) },
-                                        { label: 'CON', value: (row.summary.consistency  * 100).toFixed(0) },
-                                        { label: 'OVR', value: (row.summary.overallScore * 100).toFixed(0) },
-                                    ].map(({ label, value }) => (
-                                        <div className="text-center" key={label}>
-                                            <div className="fw-bold" style={{ fontSize: '1rem' }}>{value}</div>
-                                            <div className="text-muted" style={{ fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )} */}
 
                             {/* Final time — desktop only */}
                             {row.finalTime != null && (
