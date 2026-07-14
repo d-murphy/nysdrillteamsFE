@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleInfo } from "@fortawesome/free-solid-svg-icons";
 
 import { BarChart, Bar, Label, XAxis, YAxis, ResponsiveContainer } from 'recharts';
-import { Accordion, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { TimeCellContents, TotalPointsOverrideMsg } from '../../features/tournament/Scorecard';
 import { niceTime } from '../../utils/timeUtils';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -70,23 +70,24 @@ export default function TeamSummary(){
     }, [teamSelected, yearSelected])
 
     if(error) return (
-        <div className="container bg-white p-3 text-center w-100 my-2">
-            Sorry, an error occurred.
+        <div className="container mb-3">
+            <div className="text-center w-100 fs-4 my-3"><b>Team Season Summaries</b></div>
+            <div className="bg-white rounded shadow-sm p-4 text-center text-muted">
+                Sorry, an error occurred.
+            </div>
         </div>
     )
 
     return (
-        <div className="container">
-            <div className="mx-2">
-                <div className="text-center w-100 fs-4 mt-2"><b>Team Season Summaries</b></div>
-                <Filters teams={teams} teamSelected={teamSelected} 
-                    updateParam={updateParam} years={years}  
-                    yearSelected={yearSelected}  
-                    getResults={getRuns} setRuns={setRuns} loading={loading} />
-                {runs.length ? 
-                    <Summary runs={runs} similarTeams={similarTeams} similarTeamsLoading={similarTeamsLoading} finishes={finishes}/> : <></> }
-                <Results runs={runs} loading={loading}/>
-            </div>
+        <div className="container mb-3">
+            <div className="text-center w-100 fs-4 my-3"><b>Team Season Summaries</b></div>
+            <Filters teams={teams} teamSelected={teamSelected} 
+                updateParam={updateParam} years={years}  
+                yearSelected={yearSelected}  
+                getResults={getRuns} setRuns={setRuns} loading={loading} />
+            {runs.length ? 
+                <Summary runs={runs} similarTeams={similarTeams} similarTeamsLoading={similarTeamsLoading} finishes={finishes}/> : <></> }
+            <Results runs={runs} loading={loading}/>
         </div>
     )
 }
@@ -131,94 +132,98 @@ function Summary({runs, similarTeams, similarTeamsLoading, finishes}: SummaryPro
     })
 
     return (
-        <div className="mt-3 bg-white rounded shadow-sm p-2">
-            <div className='row'>
-                <div className='col-12'>
-                    {finishes.length ? 
-                        <div className='p-2'>
-                            <Finishes finishes={finishes}/>    
-                        </div> : <></>
-                    }
+        <div className="team-seasons-panel bg-white rounded shadow-sm p-3 p-md-4 mb-3">
+            {finishes.length > 0 && (
+                <div className="team-seasons-finishes mb-3">
+                    <Finishes finishes={finishes}/>
                 </div>
-            </div>
-            <div className='row'>
-                <div className="col-12 col-lg-6">
-                    <div className="p-2 ">
-                        <div><b>Runs</b>: {runs.length}</div>
-                        <div><b>Points</b>: {pointsSum} ({areaPointsSum} area)</div>  
-                        <div className='mt-2'>
-                            {
-                                <div className="table-responsive">
-                                <table className="table table-sm w-100 other-tables ">
-                                    <thead>
-                                        <tr>
-                                            <th scope="row" className='bg-white px-0'>Best / Points in each Contest</th>
-                                            <td scope="row" className='text-end'><b>Time</b></td>
-                                            <td scope="row" className='text-end'><b>Pts (Area)</b></td>
+            )}
+
+            <div className="row g-3">
+                <div className="col-12 col-lg-7">
+                    <div className="team-seasons-kpis mb-3">
+                        <div className="team-seasons-kpi">
+                            <div className="team-seasons-kpi-label">Runs</div>
+                            <div className="team-seasons-kpi-value">{runs.length}</div>
+                        </div>
+                        <div className="team-seasons-kpi">
+                            <div className="team-seasons-kpi-label">Points</div>
+                            <div className="team-seasons-kpi-value">{pointsSum}</div>
+                            <div className="team-seasons-kpi-sub">{areaPointsSum} area</div>
+                        </div>
+                    </div>
+
+                    <div className="team-seasons-section-label mb-2">Best / points by contest</div>
+                    <div className="table-responsive">
+                        <table className="table table-sm w-100 other-tables mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col" className="bg-white">Contest</th>
+                                    <th scope="col" className="text-end">Best Time</th>
+                                    <th scope="col" className="text-end">Pts (Area)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {pointsArr.map((el, ind) =>
+                                    el.minTime === 0 ? null : (
+                                        <tr key={ind}>
+                                            <td>{el.contest}</td>
+                                            <td className="text-end">{niceTime(el.minTime)}</td>
+                                            <td className="text-end">
+                                                {el.points} ({el.areaPoints})
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {
-                                            pointsArr.map((el, ind) => {
-                                                return (
-                                                    el.minTime === 0 ? <></> : 
-                                                    <tr className='' key={ind}>
-                                                        <td>{el.contest}</td>
-                                                        <td className='text-end'>{niceTime(el.minTime)}</td>
-                                                        <td className='text-end'>{el.points} ({el.areaPoints})</td>
-                                                    </tr>
-                                                )
-                                            })
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-                            
-                            }
-                        </div>
+                                    )
+                                )}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div className="col-12 col-lg-6">
-                        <div className='p-5 h-100 d-flex align-items-center justify-content-center text-center'>
-                            {
-                                !similarTeams.length ? <></> : 
-                                pointsSum < 50 || runs.length <50 || statePts < 1 ? <></> : 
-                                    similarTeamsLoading ? 
-                                        <div className='w-100 h-100 filter-bg p-4 rounded d-flex flex-column align-items-center'>
-                                            <div><i>Searching for Similar Seasons</i></div>
-                                            <div className="spinner-border text-secondary mt-5" role="status">
-                                                <span className="visually-hidden">Loading...</span>
-                                            </div>                                        
-                                        </div> : 
-                                        <div className='filter-bg p-4 rounded w-100 '>
-                                            <div className='pb-2 d-flex flex-row align-items-center justify-content-center w-100'>
-                                                <b>Similar Seasons</b>
-                                                <OverlayTrigger
-                                                    placement="top"
-                                                    delay={{ show: 250, hide: 400 }}
-                                                    overlay={SimilarTeamsInfoTooltip}
-                                                >
-                                                    <div className="small ms-3">
-                                                        <FontAwesomeIcon icon={faCircleInfo}/>
-                                                    </div>
-                                                </OverlayTrigger>
-                                            </div>
-                                            {
-                                                similarTeams.map((el, ind) => {
-                                                    return (
-                                                        <div key={ind} className='small'>
-                                                            <Link className="video-links " to={`/TeamSummaries?team=${el.otherTeam}&year=${el.otherYear}`}>{el.otherYear} - {el.otherTeam}</Link>                                                                
-                                                        </div>
-                                                    )
-                                                })
-                                            }
-                                        </div>
-                            }
+
+                <div className="col-12 col-lg-5">
+                    {!similarTeams.length || pointsSum < 50 || runs.length < 50 || statePts < 1 ? (
+                        <div className="team-seasons-aside h-100 d-flex align-items-center justify-content-center text-center text-muted small p-3">
+                            Similar seasons appear once a season has enough scoring depth.
                         </div>
-                    </div>
+                    ) : similarTeamsLoading ? (
+                        <div className="team-seasons-aside h-100 d-flex flex-column align-items-center justify-content-center p-4">
+                            <div className="text-muted small mb-3">
+                                <i>Searching for similar seasons</i>
+                            </div>
+                            <div className="spinner-border text-secondary" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="team-seasons-aside h-100 p-3">
+                            <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
+                                <div className="team-seasons-section-label mb-0">Similar seasons</div>
+                                <OverlayTrigger
+                                    placement="top"
+                                    delay={{ show: 250, hide: 400 }}
+                                    overlay={SimilarTeamsInfoTooltip}
+                                >
+                                    <span className="text-muted small pointer">
+                                        <FontAwesomeIcon icon={faCircleInfo} />
+                                    </span>
+                                </OverlayTrigger>
+                            </div>
+                            <div className="d-flex flex-column gap-1 align-items-center">
+                                {similarTeams.map((el, ind) => (
+                                    <Link
+                                        key={ind}
+                                        className="video-links small"
+                                        to={`/TeamSummaries?team=${el.otherTeam}&year=${el.otherYear}`}
+                                    >
+                                        {el.otherYear} - {el.otherTeam}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
-
     )
 }
 
@@ -257,15 +262,15 @@ function Finishes({finishes} : FinishesProps){
 
     if(!finishes.length) return <></>
     return (
-            <div className=''>
-                {stateTourneyWinner ? <h6><b>NY State Champ!</b></h6> : <></>}
-                {stateTourneyTop5 ? <h6><b>Top 5 State Tournament!</b></h6> : <></>}
-                {stateOfTourneyWinner ? <h6><b>NY OF State Champ!</b></h6> : <></>}
-                {stateOfTop5 ? <h6><b>Top 5 OF State Tournament!</b></h6> : <></>}
-                {stateJrTourneyWinner ? <h6><b>NY Jr. State Champ!</b></h6> : <></>}
-                {stateJrTop5 ? <h6><b>Top 5 Jr. State Tournament!</b></h6> : <></>}
-                {tourneyWinsStr.length ? <div><b>Wins</b>: {tourneyWinsStr}</div> : <></>}
-                {top5Str.length ? <div><b>Top 5 Finishes</b>: {top5Str}</div> : <></>}
+            <div className='team-seasons-finish-list'>
+                {stateTourneyWinner ? <div className="team-seasons-finish-highlight">NY State Champ!</div> : <></>}
+                {stateTourneyTop5 ? <div className="team-seasons-finish-highlight">Top 5 State Tournament!</div> : <></>}
+                {stateOfTourneyWinner ? <div className="team-seasons-finish-highlight">NY OF State Champ!</div> : <></>}
+                {stateOfTop5 ? <div className="team-seasons-finish-highlight">Top 5 OF State Tournament!</div> : <></>}
+                {stateJrTourneyWinner ? <div className="team-seasons-finish-highlight">NY Jr. State Champ!</div> : <></>}
+                {stateJrTop5 ? <div className="team-seasons-finish-highlight">Top 5 Jr. State Tournament!</div> : <></>}
+                {tourneyWinsStr.length ? <div><span className="team-seasons-finish-label">Wins</span> {tourneyWinsStr}</div> : <></>}
+                {top5Str.length ? <div><span className="team-seasons-finish-label">Top 5 finishes</span> {top5Str}</div> : <></>}
             </div>
     )
 }
@@ -337,24 +342,28 @@ function Results({runs, loading}:ResultsProps){
         buffer.push(<tr>{...rowBuffer}</tr>)
     })
     if(loading) return <></>
-    if(!runs.length) return <div className='text-center my-3 bg-white rounded shadow-sm p-4'>Select a team and season to view season summary.</div>
+    if(!runs.length) return (
+        <div className="team-seasons-panel bg-white rounded shadow-sm p-4 text-center text-muted">
+            Select a team and season to view the season summary.
+        </div>
+    )
     return (
-        <div className="my-3 bg-white rounded shadow-sm p-2">
-
-            <div className="table-responsive m-2">
-                <table className="table table-sm w-auto other-tables ">
+        <div className="team-seasons-panel bg-white rounded shadow-sm p-3 p-md-4 mb-3">
+            <div className="team-seasons-section-label mb-2">Season matrix</div>
+            <div className="table-responsive">
+                <table className="table table-sm w-auto other-tables mb-0">
                     <thead>
                         <tr>
-                            <th scope="row" className='d-none d-md-block bg-white w-100 h-100'>Tournament</th>
-                            <td scope="row" className='d-block d-md-none'><b>Tournament</b></td>
+                            <th scope="col" className="d-none d-md-table-cell bg-white">Tournament</th>
+                            <th scope="col" className="d-md-none bg-white">Tournament</th>
                             <th scope="col" className="text-nowrap px-3">Tournament Pts</th>
                             {
                                 contests.map(contest => {
                                 return (
-                                <>
+                                <React.Fragment key={contest}>
                                     <th scope="col" className="text-nowrap px-5">{contest}</th>
                                     <th scope="col" className="text-nowrap px-3">Pts</th>
-                                </>
+                                </React.Fragment>
                                 )})
                             }
                         </tr>
@@ -364,7 +373,6 @@ function Results({runs, loading}:ResultsProps){
                     </tbody>
                 </table>
             </div>
-
         </div>
     )
 }
@@ -388,82 +396,62 @@ function Filters({teams, teamSelected, updateParam, years, yearSelected, setRuns
         updateParam('year', newVal)
     }
     return (
-        <div className="mt-3 bg-white rounded shadow-sm p-2">
-            <div className='row'>
-                {/* <div className='col-0 col-lg-2' /> */}
-                <div className="col-12 col-lg-6">
-                    <div className='d-flex flex-column h-100 justify-content-center pb-5'>
-                        <div className='p-1 w-100 text-center'>
-                            <b>Select a team</b>
-                        </div>
-                        <div className='p-1 w-100'>
-                            <Form.Select aria-label="Select Team" value={teamSelected} onChange={((e) => {
-                                    updateParam('team', e.target.value)
-                                    updateParam('year')
-                                })}>
-                                <option value=""></option>
-                                {teams.map(el => {
-                                    return <option key={el} value={el}>{el}</option>
-                                })}
-                            </Form.Select>
-                        </div>
-                        <div className='p-1 w-100 text-center'>
-                            <b>Select a season</b>
-                        </div>
-                        <div className='p-1'>
-                            <Form.Select aria-label="Select Year" value={yearSelected} onChange={(e) => handleSeasonChange(e.target.value)} disabled={!teamSelected}>
-                                <option value=''></option>
-                                {years.map(el => {
-                                    return <option  value={el.year}>{`${el.year} - ${el.numRuns} run${el.numRuns>1 ? "s" : ""}`}</option>
-                                })}
-                            </Form.Select>
-                        </div>
-                    </div>
-                </div>
-                {/* Large Screen */}
-                <div className='d-none d-lg-block col-lg-6'>
-                    <div className='w-100 text-center'><b>Years Active</b></div>
-                    <div style={{ width: '100%', height: 280 }} className='p-2'>
-                    {
-                        !years.length ? 
-                            <div className='p-3 h-100 d-flex align-items-center justify-content-center'>
-                                {
-                                    teamSelected ? 
-                                        loading ? <></> : <div className='text-center'>There's no run data for this team.</div> : 
-                                        <div className='small filter-bg h-100 w-100 rounded d-flex justify-content-center align-items-center'>
-                                            Select a team to view active years.
-                                        </div>
-                                }
-                            </div> 
-                            : <Chart data={years} />
-                    }
-                    </div>
-                </div>
-                {/* Small Screen */}
-                <div className='col-12 d-lg-none'>
-                    <Accordion defaultActiveKey="0">
-                        <Accordion.Item eventKey='0'>
-                            <Accordion.Header>Years Active</Accordion.Header>
-                            <Accordion.Body>
-                            <div style={{ width: '100%', height: 280 }}>
-                            {
-                                !years.length ? 
-                                    <div className='p-3 h-100 d-flex align-items-center justify-content-center'>
-                                    {
-                                        teamSelected ? 
-                                            loading ? <></> : <div className='text-center'><i>There's no run data for this team.</i></div> : 
-                                            <div className='small filter-bg h-100 w-100 rounded d-flex justify-content-center align-items-center'>
-                                                Select a team to view active years.
-                                            </div>
-                                    }
-                                    </div> 
-                                    : <Chart data={years} />
-                            }
-                            </div>
+        <div className="team-seasons-panel bg-white rounded shadow-sm p-3 p-md-4 mb-3">
+            <div className="row g-3">
+                <div className="col-12 col-lg-5">
+                    <div className="team-seasons-kicker">Find a season</div>
+                    <label className="form-label small mb-1">Team</label>
+                    <Form.Select
+                        aria-label="Select Team"
+                        value={teamSelected || ""}
+                        onChange={(e) => {
+                            updateParam("team", e.target.value);
+                            updateParam("year");
+                        }}
+                    >
+                        <option value=""></option>
+                        {teams.map((el) => (
+                            <option key={el} value={el}>
+                                {el}
+                            </option>
+                        ))}
+                    </Form.Select>
 
-                            </Accordion.Body>
-                        </Accordion.Item>
-                    </Accordion>
+                    <label className="form-label small mb-1 mt-3">Season</label>
+                    <Form.Select
+                        aria-label="Select Year"
+                        value={yearSelected || ""}
+                        onChange={(e) => handleSeasonChange(e.target.value)}
+                        disabled={!teamSelected}
+                    >
+                        <option value=""></option>
+                        {years.map((el) => (
+                            <option key={el.year} value={el.year}>
+                                {`${el.year} - ${el.numRuns} run${el.numRuns > 1 ? "s" : ""}`}
+                            </option>
+                        ))}
+                    </Form.Select>
+                </div>
+
+                <div className="col-12 col-lg-7">
+                    <div className="team-seasons-chart-wrap h-100">
+                        <div className="team-seasons-section-label text-center mb-2">
+                            Years active
+                        </div>
+                        <div style={{ width: "100%", height: 240 }} className="px-1">
+                            {!years.length ? (
+                                <div className="h-100 d-flex align-items-center justify-content-center text-muted small text-center p-3">
+                                    {teamSelected
+                                        ? loading
+                                            ? ""
+                                            : "There's no run data for this team."
+                                        : "Select a team to view active years."}
+                                </div>
+                            ) : (
+                                <Chart data={years} />
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -570,9 +558,7 @@ function Chart({data}:ChartProps){
             </XAxis>
             <YAxis dataKey="numRuns" type="number" label={{value: "Run Count", angle:-90, position: 'insideLeft'}}/>
             {
-                data.length === 1 ? 
-                <Bar dataKey={"numRuns"} fill="#546f8a" radius={2} maxBarSize={5} /> : 
-                <Bar dataKey={"numRuns"} fill="#546f8a" radius={2} maxBarSize={5} /> 
+                <Bar dataKey={"numRuns"} fill="#013369" radius={2} maxBarSize={5} /> 
             }
           </BarChart>
         </ResponsiveContainer>

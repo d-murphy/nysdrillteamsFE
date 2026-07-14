@@ -56,6 +56,93 @@ html, body, #root {
     color: white;
 }
 
+.footer-signature-mark {
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(white, 0.55);
+    margin-bottom: 0.2rem;
+}
+
+.footer-signature-name {
+    font-size: 1.45rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    line-height: 1.15;
+    margin-bottom: 0.55rem;
+}
+
+.footer-signature-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem 0.55rem;
+}
+
+@include media-breakpoint-up(md) {
+    .footer-signature-links {
+        justify-content: flex-start;
+    }
+}
+
+.footer-signature-link {
+    color: rgba(white, 0.85);
+    text-decoration: none;
+    font-size: 0.95rem;
+    border-bottom: 1px solid transparent;
+    transition: color 0.15s ease, border-color 0.15s ease;
+
+    &:hover,
+    &:focus {
+        color: white;
+        border-bottom-color: rgba(white, 0.55);
+    }
+}
+
+.footer-signature-sep {
+    color: rgba(white, 0.4);
+}
+
+.footer-follow-label {
+    color: rgba(white, 0.8);
+    font-size: 0.95rem;
+}
+
+.footer-site-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem 0.15rem;
+}
+
+@include media-breakpoint-up(md) {
+    .footer-site-links {
+        justify-content: flex-end;
+    }
+}
+
+.footer-site-link {
+    color: rgba(white, 0.85);
+    text-decoration: none;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.95rem;
+    transition: color 0.15s ease;
+
+    &:hover,
+    &:focus {
+        color: white;
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+    }
+}
+
+.footer-site-sep {
+    color: rgba(white, 0.35);
+    user-select: none;
+}
+
 // ============================================================
 // 5. Navigation
 // ============================================================
@@ -72,7 +159,6 @@ html, body, #root {
     background-color: var(--nav-bg);
 }
 
-.hover-nav-font-change,
 .schedule-entry-button,
 .track-name-color,
 .login-button,
@@ -91,23 +177,6 @@ html, body, #root {
     cursor: pointer;
 }
 
-.dropdown-pos-top {
-    top: 62px;
-    z-index: 999;
-}
-
-.underline-hover {
-    border-bottom: 2px solid $primary;
-
-    &:hover {
-        border-bottom: 2px solid white;
-        color: white;
-        cursor: pointer;
-    }
-}
-
-.hover-nav-font-change:hover { color: $gray-500; }
-
 .header-logo {
     max-width: 450px;
     cursor: pointer;
@@ -115,6 +184,244 @@ html, body, #root {
 
 .banner {
     a, a:hover, a:visited { color: $gray-500; }
+}
+
+.site-navbar {
+    .navbar-toggler {
+        border-color: rgba(white, 0.35);
+
+        &:focus {
+            box-shadow: 0 0 0 0.15rem rgba(white, 0.25);
+        }
+    }
+
+    .site-navbar-nav {
+        gap: 0.35rem;
+
+        .nav-link.nav-pill,
+        .nav-stats .nav-pill {
+            color: rgba(white, 0.88);
+            border: none;
+            background: transparent;
+            border-radius: 999px;
+            margin: 0.15rem 0;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            padding: 0.6rem 1rem;
+            line-height: 1.25;
+            transition: color 0.15s ease, background-color 0.15s ease;
+            text-decoration: none;
+
+            &:hover,
+            &:focus {
+                color: white;
+                background-color: rgba(white, 0.1);
+            }
+
+            &.active,
+            &.is-selected {
+                color: white;
+                background-color: rgba(white, 0.2);
+            }
+        }
+
+        // Kill Bootstrap's default active underline treatment on these pills
+        .nav-link.nav-pill.active {
+            border-bottom: none;
+        }
+    }
+
+    .nav-stats {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+
+        .nav-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            font: inherit;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .nav-stats-chevron {
+            font-size: 0.7rem;
+            opacity: 0.85;
+            transition: transform 0.18s ease;
+
+            &.is-rotated {
+                transform: rotate(180deg);
+            }
+        }
+
+        .nav-stats-panel {
+            display: none;
+        }
+
+        .nav-stats-panel.is-visible {
+            display: block;
+        }
+    }
+
+    // Desktop flyout panel
+    @include media-breakpoint-up(md) {
+        .nav-stats {
+            align-items: center;
+
+            .nav-pill {
+                width: auto;
+            }
+
+            .nav-stats-panel {
+                position: absolute;
+                top: calc(100% + 0.55rem);
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 1050;
+                width: min(28rem, calc(100vw - 2rem));
+                padding: 0.85rem;
+                border-radius: 0.75rem;
+                background: white;
+                box-shadow: 0 0.75rem 1.75rem rgba(0, 29, 60, 0.18);
+                display: none;
+
+                // Keep hover bridge open between trigger and panel
+                &::before {
+                    content: "";
+                    position: absolute;
+                    top: -0.65rem;
+                    left: 0;
+                    right: 0;
+                    height: 0.65rem;
+                }
+
+                &.is-visible {
+                    display: block;
+                    animation: nav-stats-in 0.14s ease-out;
+                }
+            }
+
+            .nav-stats-panel-label {
+                font-size: 0.7rem;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: $gray-600;
+                padding: 0.1rem 0.45rem 0.35rem;
+            }
+
+            .nav-stats-panel-label-secondary {
+                margin-top: 0.65rem;
+                padding-top: 0.65rem;
+                border-top: 1px solid rgba($dark, 0.1);
+            }
+
+            .nav-stats-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.1rem;
+            }
+
+            .nav-stats-item {
+                display: block;
+                padding: 0.35rem 0.75rem;
+                border-radius: 0.5rem;
+                color: $dark;
+                text-decoration: none;
+                transition: background-color 0.12s ease, color 0.12s ease;
+
+                &:hover,
+                &:focus {
+                    background-color: rgba($primary, 0.08);
+                    color: $primary;
+                }
+
+                &.is-active {
+                    background-color: rgba($primary, 0.12);
+                    color: $primary;
+                    font-weight: 500;
+                }
+            }
+        }
+    }
+
+    // Mobile: inline expandable list
+    @include media-breakpoint-down(md) {
+        .site-navbar-nav {
+            .nav-link.nav-pill,
+            .nav-stats .nav-pill {
+                justify-content: flex-start;
+                width: 100%;
+                border-radius: 0.5rem;
+            }
+        }
+
+        .nav-stats {
+            width: 100%;
+
+            .nav-stats-panel {
+                margin: 0.15rem 0 0.35rem;
+                padding: 0.35rem 0.35rem 0.5rem 0.85rem;
+                border-left: 2px solid rgba(white, 0.25);
+
+                &.is-visible {
+                    display: block;
+                }
+            }
+
+            .nav-stats-panel-label {
+                font-size: 0.7rem;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: rgba(white, 0.55);
+                padding: 0.35rem 0.75rem 0.2rem;
+            }
+
+            .nav-stats-panel-label-secondary {
+                margin-top: 0.35rem;
+                padding-top: 0.55rem;
+                border-top: 1px solid rgba(white, 0.2);
+            }
+
+            .nav-stats-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 0.1rem;
+            }
+
+            .nav-stats-item {
+                display: block;
+                padding: 0.35rem 0.75rem;
+                border-radius: 0.4rem;
+                color: rgba(white, 0.9);
+                text-decoration: none;
+
+                &:hover,
+                &:focus {
+                    background-color: rgba(white, 0.1);
+                    color: white;
+                }
+
+                &.is-active {
+                    background-color: rgba(white, 0.18);
+                    color: white;
+                }
+            }
+        }
+    }
+}
+
+@keyframes nav-stats-in {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 }
 
 // ============================================================
@@ -131,6 +438,15 @@ html, body, #root {
 
 .pointer { cursor: pointer; }
 .cursor-default { cursor: default; }
+
+.social-platform-card {
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+
+    &:hover {
+        box-shadow: 0 0.35rem 0.85rem rgba(0, 0, 0, 0.12) !important;
+        transform: translateY(-2px);
+    }
+}
 
 // ============================================================
 // 7. Admin
@@ -160,6 +476,110 @@ html, body, #root {
 .banner-bg { background-color: lightgoldenrodyellow; }
 
 .big8-bg, .champs-bg, .nav-dropdown { background-color: $gray-100; }
+
+.big8-panel-kicker {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: $gray-600;
+    margin-bottom: 0.2rem;
+}
+
+.big8-top10-link {
+    appearance: none;
+    border: none;
+    background: none;
+    color: $primary;
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 0;
+    cursor: pointer;
+
+    &:hover,
+    &:focus {
+        text-decoration: underline;
+        text-underline-offset: 0.15em;
+    }
+}
+
+.big8-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    height: 100%;
+    padding: 0.75rem 0.85rem;
+    border-radius: $border-radius;
+    background-color: $gray-100;
+    cursor: pointer;
+    transition: background-color 0.12s ease, box-shadow 0.12s ease;
+
+    &:hover,
+    &:focus-within {
+        background-color: darken($gray-100, 3%);
+
+        .big8-tile-meta {
+            opacity: 1;
+            max-height: 3rem;
+        }
+    }
+}
+
+.big8-tile-contest {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: $gray-700;
+    line-height: 1.2;
+}
+
+.big8-tile-time {
+    display: flex;
+    align-items: center;
+    font-size: 1.45rem;
+    font-weight: 600;
+    line-height: 1.1;
+    color: $dark;
+    font-variant-numeric: tabular-nums;
+}
+
+.big8-tile-team {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    margin-top: 0.15rem;
+}
+
+.big8-tile-team-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.2;
+    min-width: 0;
+}
+
+.big8-tile-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 0.35rem;
+    font-size: 0.68rem;
+    color: $gray-600;
+    opacity: 0.55;
+    max-height: 1.2rem;
+    overflow: hidden;
+    transition: opacity 0.15s ease, max-height 0.15s ease;
+}
+
+.big8-tile-meta-trail {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
 
 .champs-bg, .leaderboard-bg {
     min-height: 300px;
@@ -195,6 +615,420 @@ html, body, #root {
 }
 
 .circuit-inactive { opacity: 0.3; }
+
+.total-points-regions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.total-points-region {
+    appearance: none;
+    border: none;
+    border-radius: $border-radius;
+    background-color: $gray-100;
+    color: $dark;
+    font: inherit;
+    padding: 0.55rem 0.85rem;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.12s ease, color 0.12s ease;
+
+    &:hover:not(:disabled),
+    &:focus-visible:not(:disabled) {
+        background-color: var(--button-blue-hover);
+        color: white;
+    }
+
+    &.is-active {
+        background-color: var(--button-blue);
+        color: white;
+    }
+
+    &:disabled {
+        opacity: 0.65;
+        cursor: default;
+    }
+}
+
+.total-points-view-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.35rem;
+}
+
+.total-points-view-btn {
+    appearance: none;
+    border: 1px solid rgba($dark, 0.12);
+    border-radius: $border-radius;
+    background: white;
+    color: $primary;
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 0.45rem 0.6rem;
+    cursor: pointer;
+
+    &.is-active {
+        background-color: rgba($primary, 0.08);
+        border-color: rgba($primary, 0.25);
+        font-weight: 600;
+    }
+}
+
+.total-points-chart-wrap {
+    background-color: $gray-100;
+    border-radius: $border-radius;
+    padding: 1rem;
+}
+
+.total-points-table {
+    th.pointer {
+        user-select: none;
+
+        &:hover {
+            color: $primary;
+        }
+
+        &.is-sorted {
+            color: $primary;
+            background-color: rgba($primary, 0.06);
+        }
+    }
+}
+
+.team-seasons-kicker {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: $gray-600;
+    margin-bottom: 0.85rem;
+}
+
+.team-seasons-section-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: $dark;
+}
+
+.team-seasons-chart-wrap,
+.team-seasons-aside {
+    background-color: $gray-100;
+    border-radius: $border-radius;
+    min-height: 12rem;
+}
+
+.team-seasons-kpis {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.team-seasons-kpi {
+    min-width: 7rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: $border-radius;
+    background-color: $gray-100;
+}
+
+.team-seasons-kpi-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: $gray-600;
+}
+
+.team-seasons-kpi-value {
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.15;
+    color: $dark;
+}
+
+.team-seasons-kpi-sub {
+    font-size: 0.75rem;
+    color: $gray-600;
+}
+
+.team-seasons-finishes {
+    padding: 0.85rem 1rem;
+    border-radius: $border-radius;
+    background-color: rgba($primary, 0.05);
+    border: 1px solid rgba($primary, 0.12);
+}
+
+.team-seasons-finish-highlight {
+    font-weight: 600;
+    color: $primary;
+    margin-bottom: 0.2rem;
+}
+
+.team-seasons-finish-label {
+    font-weight: 600;
+    margin-right: 0.35rem;
+}
+
+.team-history-section-label,
+.team-history-circuit-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: $dark;
+}
+
+.team-history-team-link {
+    display: block;
+    line-height: 1.35;
+    padding: 0.15rem 0;
+}
+
+.team-history-highlight-select {
+    max-width: 14rem;
+}
+
+.team-history-chart-wrap {
+    border-radius: $border-radius;
+    background-color: $gray-100;
+    padding: 0.5rem 0.25rem;
+}
+
+.team-history-kpis {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.team-history-kpi {
+    min-width: 7rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: $border-radius;
+    background-color: $gray-100;
+}
+
+.team-history-kpi-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: $gray-600;
+}
+
+.team-history-kpi-value {
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.15;
+    color: $dark;
+}
+
+.team-history-kpi-sub {
+    font-size: 0.75rem;
+    color: $gray-600;
+}
+
+.upcoming-events-list {
+    border-top: 1px solid rgba($dark, 0.12);
+}
+
+.upcoming-event-row {
+    border-bottom: 1px solid rgba($dark, 0.12);
+}
+
+.upcoming-event-name {
+    appearance: none;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: $dark;
+    font: inherit;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.25;
+    cursor: pointer;
+
+    &:hover,
+    &:focus {
+        color: $primary;
+        text-decoration: underline;
+        text-underline-offset: 0.15em;
+    }
+}
+
+.upcoming-event-type {
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.upcoming-event-dot {
+    opacity: 0.55;
+}
+
+.upcoming-event-live {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: $primary;
+    white-space: nowrap;
+}
+
+.sponsor-banner-carousel {
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 2.5rem;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+    }
+
+    &:hover .carousel-control-prev,
+    &:hover .carousel-control-next {
+        opacity: 0.85;
+    }
+}
+
+.sponsor-banner-heading {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: $gray-600;
+}
+
+.sponsor-banner-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 1;
+    object-fit: contain;
+    background-color: white;
+}
+
+// Projections year page
+.proj-legend {
+    line-height: 1.45;
+}
+
+.proj-headline {
+    border: 1px solid rgba($dark, 0.1);
+    border-radius: $border-radius;
+    overflow: hidden;
+}
+
+.proj-headline-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: $gray-600;
+    padding: 0.65rem 0.85rem;
+    background-color: $gray-100;
+    border-bottom: 1px solid rgba($dark, 0.08);
+}
+
+.proj-headline-list {
+    max-height: 18rem;
+    overflow: auto;
+}
+
+.proj-headline-row {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr) 4.5rem 4.5rem minmax(8.5rem, 10rem);
+    gap: 0.5rem;
+    align-items: end;
+    padding: 0.45rem 0.85rem;
+    border-bottom: 1px solid rgba($dark, 0.06);
+    font-size: 0.9rem;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.proj-headline-rank {
+    color: $gray-600;
+    font-variant-numeric: tabular-nums;
+}
+
+.proj-headline-team {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.proj-headline-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+}
+
+.proj-headline-stat-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $gray-600;
+}
+
+.proj-headline-finish {
+    justify-self: end;
+    align-self: end;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.85rem;
+    line-height: 1.15;
+}
+
+.proj-matrix-heading {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: $dark;
+}
+
+.proj-table {
+    .proj-group-header {
+        background-color: $gray-100;
+        border-bottom: 1px solid rgba($dark, 0.12);
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        vertical-align: middle;
+        min-width: 9rem;
+    }
+
+    .proj-sub-header {
+        background-color: white;
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: $gray-700;
+        white-space: nowrap;
+        min-width: 4.25rem;
+        vertical-align: middle;
+    }
+
+    .proj-team-header {
+        min-width: 9rem;
+        z-index: 3;
+    }
+
+    .proj-pct {
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+.proj-actual {
+    background-color: rgba($primary, 0.14);
+    font-weight: 600;
+    color: $primary;
+}
 
 .track-info-icon { opacity: 0.8; }
 
@@ -304,6 +1138,150 @@ html, body, #root {
 // ============================================================
 // 12. Map / locations
 // ============================================================
+
+.locations-section-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: $dark;
+}
+
+.locations-map-panel {
+    min-height: 28rem;
+    height: 100%;
+}
+
+.locations-map {
+    width: 100%;
+    height: 100%;
+    min-height: 26rem;
+    border-radius: $border-radius;
+    overflow: hidden;
+}
+
+.locations-directory {
+    display: flex;
+    flex-direction: column;
+    min-height: 26rem;
+}
+
+.locations-track-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    max-height: 22rem;
+    overflow-y: auto;
+    margin: 0 -0.25rem;
+    padding: 0 0.25rem;
+}
+
+.locations-track-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+    width: 100%;
+    padding: 0.55rem 0.65rem;
+    border: 0;
+    border-radius: $border-radius;
+    background: transparent;
+    text-align: left;
+    transition: background-color 0.15s ease;
+
+    &:hover,
+    &:focus-visible {
+        background-color: $gray-100;
+        outline: none;
+    }
+}
+
+.locations-track-item-name {
+    font-weight: 600;
+    color: $dark;
+    line-height: 1.25;
+}
+
+.locations-track-item-meta {
+    font-size: 0.8rem;
+    color: $gray-600;
+}
+
+.locations-back-link {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: $primary;
+    font-size: 0.875rem;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.locations-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.locations-spec {
+    font-size: 0.75rem;
+    color: $gray-700;
+    background-color: $gray-100;
+    border-radius: $border-radius;
+    padding: 0.25rem 0.55rem;
+}
+
+.locations-meta-label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: $gray-600;
+    margin-bottom: 0.15rem;
+}
+
+.locations-tourn-scroll {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.35rem;
+}
+
+.locations-tourn-chip {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+    min-width: 9rem;
+    padding: 0.65rem 0.75rem;
+    border: 0;
+    border-radius: $border-radius;
+    background-color: $gray-100;
+    text-align: left;
+    transition: background-color 0.15s ease;
+
+    &:hover,
+    &:focus-visible {
+        background-color: darken($gray-100, 4%);
+        outline: none;
+    }
+}
+
+.locations-tourn-chip-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: $dark;
+    line-height: 1.2;
+}
+
+.locations-tourn-chip-date {
+    font-size: 0.75rem;
+    color: $gray-600;
+}
 
 .map-height {
     height: 100%;
@@ -489,7 +1467,6 @@ a[href^="https://maps.google.com/maps"] { display: none !important; }
 .image-wrap-lg { width: 150px; height: 150px; }
 .image-wrap-xl { width: 250px; height: 250px; }
 
-.dash-logo-width  { width: 120px; }
 .w-250            { width: 250px; }
 .w-160p           { width: 160px; }
 .minwidth-800     { min-width: 800px; }

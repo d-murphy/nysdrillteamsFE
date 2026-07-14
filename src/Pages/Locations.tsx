@@ -1,320 +1,590 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { ImageDbEntry, Tournament, Track } from '../types/types';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Run, Tournament, Track } from "../types/types";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
-import { Form, Modal, Placeholder } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
-import { Bar, BarChart, Label, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-
+import { Form, Placeholder } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+    faChevronLeft,
+    faLocationDot,
+    faArrowUpRightFromSquare,
+} from "@fortawesome/free-solid-svg-icons";
+import { Bar, BarChart, Label, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import dateUtil from "../utils/dateUtils";
+import { TimeCellContents } from "../features/tournament/Scorecard";
 
 declare var SERVICE_URL: string;
 declare var MAPS_API_KEY: string;
 
-export default function Locations(){
+const BIG8_CONTESTS = [
+    "Three Man Ladder",
+    "B Ladder",
+    "C Ladder",
+    "C Hose",
+    "B Hose",
+    "Efficiency",
+    "Motor Pump",
+    "Buckets",
+];
+
+export default function Locations() {
     const params = useParams();
     const navigate = useNavigate();
-
     const trackSelected = params.location;
 
     const setTrackSelected = (track: string) => {
-        navigate(`/Locations/${encodeURIComponent(track)}`)
-    }
+        if (!track) {
+            navigate("/Locations");
+            return;
+        }
+        navigate(`/Locations/${encodeURIComponent(track)}`);
+    };
 
-    const { data: rawTracks, isLoading: loading, isError: errorLoading } = useQuery<Track[]>({
-        queryKey: ['tracks'],
-        queryFn: () => fetch(`${SERVICE_URL}/tracks/getTracks`).then(res => res.json()),
+    const {
+        data: rawTracks,
+        isLoading: loading,
+        isError: errorLoading,
+    } = useQuery<Track[]>({
+        queryKey: ["tracks"],
+        queryFn: () =>
+            fetch(`${SERVICE_URL}/tracks/getTracks`).then((res) => res.json()),
     });
-    const tracks = useMemo(() => (rawTracks ?? []).filter(el => el.display), [rawTracks]);
 
-    const { data: trackImages = [] } = useQuery<ImageDbEntry[]>({
-        queryKey: ['trackImages', trackSelected],
-        queryFn: () => fetch(`${SERVICE_URL}/images/getImages?track=${trackSelected}`)
-            .then(res => res.json())
-            .then(data => data.results),
+    const tracks = useMemo(
+        () => (rawTracks ?? []).filter((el) => el.display),
+        [rawTracks]
+    );
+
+    const { data: trackTourns = [], isLoading: tournsLoading } = useQuery<
+        Tournament[]
+    >({
+        queryKey: ["trackTournaments", trackSelected],
+        queryFn: () =>
+            fetch(
+                `${SERVICE_URL}/tournaments/getFilteredTournaments?tracks=${encodeURIComponent(
+                    trackSelected
+                )}`
+            ).then((res) => res.json()),
         enabled: Boolean(trackSelected),
     });
 
-    const { data: trackTourns = [] } = useQuery<Tournament[]>({
-        queryKey: ['trackTournaments', trackSelected],
-        queryFn: () => fetch(`${SERVICE_URL}/tournaments/getFilteredTournaments?tracks=${trackSelected}`)
-            .then(res => res.json()),
+    const { data: topRunsByContest = [], isLoading: recordsLoading } = useQuery<
+        Run[][]
+    >({
+        queryKey: ["trackRecords", trackSelected],
+        queryFn: () =>
+            fetch(
+                `${SERVICE_URL}/runs/getTopRuns?tracks=${encodeURIComponent(
+                    trackSelected
+                )}`
+            ).then((res) => res.json()),
         enabled: Boolean(trackSelected),
     });
 
-    const selectedTrackInfo = tracks.find(el => el.name === trackSelected);
+    const trackRecords = useMemo(
+        () =>
+            topRunsByContest
+                .map((runs, ind) => runs?.[0])
+                .filter((run): run is Run => Boolean(run?.contest && run?.time)),
+        [topRunsByContest]
+    );
 
-    if(tracks.length && trackSelected && !selectedTrackInfo){
-        return <div className='container p-5 d-flex w-100 align-items-center flex-column'>
-            <div className='py-2'>
-                Sorry, we're missing info on this track.
+    const selectedTrackInfo = tracks.find((el) => el.name === trackSelected);
+
+    if (tracks.length && trackSelected && !selectedTrackInfo) {
+        return (
+            <div className="container mb-3">
+                <div className="text-center w-100 fs-4 my-3">
+                    <b>Track Locations</b>
+                </div>
+                <div className="bg-white rounded shadow-sm p-4 text-center">
+                    <div className="text-muted mb-3">
+                        Sorry, we're missing info on this track.
+                    </div>
+                    <Link to="/Locations" className="video-links">
+                        Back to all tracks
+                    </Link>
+                </div>
             </div>
-            <div className='py-2'>
-                <button className="btn btn-secondary" onClick={() => setTrackSelected("")}>Back to Tracks</button>
-            </div>
-        </div>
+        );
     }
-
 
     return (
-        <div className="container mb-2">
-            <div className="text-center fs-4 my-2"><b>Track Locations</b></div>
-            <StateHandler loading={loading} error={errorLoading} trackSelected={trackSelected}>
-                <div className="">
-                    <div className="row g-0">
-                        <div className="col-md-4 col-12">
-                            <div className='bg-white rounded mx-1 '>
-                                <SelectionSection 
-                                    trackSelected={trackSelected} setTrackSelected={setTrackSelected} 
-                                    tracks={tracks} trackImages={trackImages} trackTourns={trackTourns}/>
-                            </div>
-                        </div>
-                        <div className="col-md-8 col-12">
-                            <div className='mx-1 h-100 d-flex flex-column map-selection-made-height'>
-                                <div className='flex-grow-1'>
-                                    <LocationMapWrapper setTrackSelected={setTrackSelected}
-                                        tracks={tracks} selectedTrack={trackSelected} mapsApiKey={MAPS_API_KEY} />   
-                                </div>
-                                {
-                                    !trackImages.length ? <></> : 
-                                        <div className='w-100 bg-white rounded mt-1'>
-                                            <TrackImages trackImages={trackImages} trackSelected={trackSelected} />                    
-                                        </div>
+        <div className="container mb-3">
+            <div className="text-center w-100 fs-4 my-3">
+                <b>Track Locations</b>
+            </div>
+            <div className="text-center text-muted small mb-3">
+                Browse the map or pick a track to see details, history, and
+                records.
+            </div>
 
-                                }
-                            </div>
+            <StateHandler
+                loading={loading}
+                error={errorLoading}
+                trackSelected={trackSelected}
+            >
+                <div className="row g-3">
+                    <div className="col-12 col-lg-4">
+                        <div className="locations-panel bg-white rounded shadow-sm p-3 p-md-4 h-100">
+                            {trackSelected && selectedTrackInfo ? (
+                                <TrackInfo
+                                    track={selectedTrackInfo}
+                                    setTrackSelected={setTrackSelected}
+                                    trackTourns={trackTourns}
+                                    tournsLoading={tournsLoading}
+                                />
+                            ) : (
+                                <TrackDirectory
+                                    tracks={tracks}
+                                    setTrackSelected={setTrackSelected}
+                                />
+                            )}
                         </div>
                     </div>
-                    { trackSelected && trackTourns.length ? 
-                        <div className='row g-0 px-1 mt-2 pb-2'>
-                            <TournamentHistory tourns={trackTourns} />
-                        </div> : <></>                
-                    }
+                    <div className="col-12 col-lg-8">
+                        <div className="locations-panel bg-white rounded shadow-sm p-2 p-md-3 locations-map-panel">
+                            <LocationMapWrapper
+                                setTrackSelected={setTrackSelected}
+                                tracks={tracks}
+                                selectedTrack={trackSelected}
+                                mapsApiKey={MAPS_API_KEY}
+                            />
+                        </div>
+                    </div>
                 </div>
+
+                {trackSelected && (
+                    <>
+                        {(tournsLoading || trackTourns.length > 0) && (
+                            <div className="locations-panel bg-white rounded shadow-sm p-3 p-md-4 mt-3">
+                                {tournsLoading ? (
+                                    <PanelLoading />
+                                ) : (
+                                    <TournamentHistory tourns={trackTourns} />
+                                )}
+                            </div>
+                        )}
+
+                        <div className="locations-panel bg-white rounded shadow-sm p-3 p-md-4 mt-3 mb-2">
+                            {recordsLoading ? (
+                                <PanelLoading />
+                            ) : trackRecords.length ? (
+                                <TrackRecords records={trackRecords} />
+                            ) : (
+                                <>
+                                    <div className="locations-section-label mb-2">
+                                        Track records
+                                    </div>
+                                    <div className="text-muted small">
+                                        No Big 8 records found for this track.
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </>
+                )}
             </StateHandler>
         </div>
+    );
+}
 
-    )
+interface TrackDirectoryProps {
+    tracks: Track[];
+    setTrackSelected: (track: string) => void;
+}
+
+function TrackDirectory({ tracks, setTrackSelected }: TrackDirectoryProps) {
+    const [query, setQuery] = useState("");
+
+    const filtered = useMemo(() => {
+        const q = query.trim().toLowerCase();
+        return [...tracks]
+            .sort((a, b) => {
+                if (a.active && !b.active) return -1;
+                if (!a.active && b.active) return 1;
+                return a.name.localeCompare(b.name);
+            })
+            .filter((el) => {
+                if (!q) return true;
+                const haystack = `${el.name} ${el.city || ""} ${el.address || ""}`.toLowerCase();
+                return haystack.includes(q);
+            });
+    }, [tracks, query]);
+
+    return (
+        <div className="locations-directory">
+            <div className="locations-section-label mb-1">Find a track</div>
+            <div className="text-muted small mb-3">
+                Search the directory or click a marker on the map.
+            </div>
+            <Form.Control
+                type="search"
+                placeholder="Search by name or city"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="mb-3"
+                aria-label="Search tracks"
+            />
+            <div className="locations-track-list">
+                {filtered.length === 0 ? (
+                    <div className="text-muted small py-3 text-center">
+                        No tracks match that search.
+                    </div>
+                ) : (
+                    filtered.map((track) => (
+                        <button
+                            key={track.name}
+                            type="button"
+                            className="locations-track-item"
+                            onClick={() => setTrackSelected(track.name)}
+                        >
+                            <span className="locations-track-item-name">
+                                {track.name}
+                            </span>
+                            <span className="locations-track-item-meta">
+                                {track.city || "—"}
+                                {!track.active ? " · inactive" : ""}
+                            </span>
+                        </button>
+                    ))
+                )}
+            </div>
+        </div>
+    );
 }
 
 interface TournamentHistoryProps {
     tourns: Tournament[];
 }
 
-function TournamentHistory({tourns}: TournamentHistoryProps){
-    const sorted = tourns.sort((a,b) => {
-        return new Date(a.date).getTime() < new Date(b.date).getTime() ? 1 : -1
-    })
-    const navigate = useNavigate(); 
+function TournamentHistory({ tourns }: TournamentHistoryProps) {
+    const sorted = [...tourns].sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    const navigate = useNavigate();
 
+    return (
+        <>
+            <div className="locations-section-label mb-3">
+                Tournament history
+            </div>
+            <div className="locations-tourn-scroll">
+                {sorted.map((el) => (
+                    <button
+                        key={el.id}
+                        type="button"
+                        className="locations-tourn-chip"
+                        onClick={() => navigate(`/Tournament/${el.id}`)}
+                    >
+                        <span className="locations-tourn-chip-name">{el.name}</span>
+                        <span className="locations-tourn-chip-date">
+                            {new Date(el.date).toLocaleDateString()}
+                        </span>
+                    </button>
+                ))}
+            </div>
+        </>
+    );
+}
 
-    return(
-        <div className='w-100 bg-white rounded '>
-            <div className='h5 p-2'>Tournament History</div>
-            <div className=''>
-                <div className=" overflow-scroll text-nowrap pb-3">
-                    {
-                        sorted
-                            .map(el => {
+interface TrackRecordsProps {
+    records: Run[];
+}
+
+function TrackRecords({ records }: TrackRecordsProps) {
+    const navigate = useNavigate();
+
+    const sorted = [...records].sort((a, b) => {
+        const aIdx = BIG8_CONTESTS.indexOf(a.contest);
+        const bIdx = BIG8_CONTESTS.indexOf(b.contest);
+        return (aIdx === -1 ? 99 : aIdx) - (bIdx === -1 ? 99 : bIdx);
+    });
+
+    return (
+        <>
+            <div className="locations-section-label mb-3">Track records</div>
+            <div className="table-responsive">
+                <table className="table table-sm w-100 other-tables mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" className="bg-white">
+                                Tournament
+                            </th>
+                            <th scope="col" className="text-start">
+                                Team
+                            </th>
+                            <th scope="col" className="text-start">
+                                Contest
+                            </th>
+                            <th scope="col" className="text-end">
+                                Time
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {sorted.map((el) => {
+                            const dateDisplay = dateUtil.getMMDDYYYY(el.date);
+                            const tournDisplay = el.tournament || "";
+
                             return (
-                                <div className='d-inline-block m-1 p-2 bg-light rounded pointer' 
-                                    onClick={() => navigate(`/Tournament/${el.id}`)}>
-                                    <div>{el.name}</div>
-                                    <div className='text-muted'>{new Date(el.date).toLocaleDateString()}</div>
-                                </div>
-                            )})
-                    }
-                </div>
-            </div> 
-        </div>
-
-    )
-
+                                <tr key={`trackrecord-${el._id}`}>
+                                    <td
+                                        className="pointer"
+                                        onClick={() =>
+                                            navigate(`/Tournament/${el.tournamentId}`)
+                                        }
+                                    >
+                                        {dateDisplay && tournDisplay
+                                            ? `${dateDisplay} - ${tournDisplay}`
+                                            : dateDisplay || tournDisplay}
+                                    </td>
+                                    <td className="text-start">{el.team}</td>
+                                    <td className="text-start">{el.contest}</td>
+                                    <td className="text-end">
+                                        <TimeCellContents run={el} />
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+        </>
+    );
 }
 
-
-
-
-
-
-
-interface TrackImagesProps {
-    trackImages: ImageDbEntry[];
-    trackSelected: string;
-}
-
-function TrackImages({trackImages, trackSelected}: TrackImagesProps){
-    const [showImage, setShowImage] = useState("");
-    const imageObj = trackImages.find(el => el.url === showImage);
-
-    return (
-        <div className="w-100 overflow-scroll text-nowrap ">
-        {
-            trackImages
-                .sort((a,b) => { 
-                    return a.sortOrder < b.sortOrder ? -1 : 1
-                })
-                .map(el => {
-                return (
-                    <img 
-                        src={el.thumbnailUrl} alt={el?.fileName || ''} className=" m-2 d-inline-block pointer" 
-                        onClick={() => {setShowImage(el.url)}}
-                        />
-                )})
-        }
-
-        <Modal
-            size="xl"
-            show={!!showImage}
-            onHide={() => setShowImage("")}
-            aria-labelledby="image-modal"
-            centered
-        >
-            <Modal.Header closeButton>
-            <Modal.Title id="image-modal">
-                {trackSelected} {imageObj?.imageName ? ` - ${imageObj.imageName}` : ""}
-            </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <div className='w-100 d-flex justify-content-center'>
-                    <img src={showImage} alt="track-image" className="track-image-mx-ht max-w-100" />
-                </div>
-                {
-                    imageObj?.imageCaption ? 
-                        <div className='text-center mt-3 mb-1'>{imageObj?.imageCaption}</div> : <></>
-                }
-            </Modal.Body>
-        </Modal>
-
-        </div>
-
-    )
-
-}
-
-
-
-
-interface SelectionSectionProps {
-    trackSelected: string;
-    setTrackSelected: (track: string) => void;
-    tracks: Track[];
-    trackImages: ImageDbEntry[];
+interface TrackInfoProps {
+    track: Track;
+    setTrackSelected: (str: string) => void;
     trackTourns: Tournament[];
+    tournsLoading: boolean;
 }
 
+function TrackInfo({
+    track,
+    setTrackSelected,
+    trackTourns,
+    tournsLoading,
+}: TrackInfoProps) {
+    const stateTournYears = trackTourns
+        .filter((el) => el.name === "New York State Championship")
+        .map((el) => el.year)
+        .sort((a, b) => a - b);
 
-function SelectionSection({trackSelected, setTrackSelected, tracks, trackImages, trackTourns}: SelectionSectionProps){
+    const addressLine = [track.address, track.city].filter(Boolean).join(", ");
+    const directionsUrl =
+        track.latitude && track.longitude
+            ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+                  `${track.latitude},${track.longitude}`
+              )}`
+            : addressLine
+              ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+                    addressLine
+                )}`
+              : "";
+
+    const specs: string[] = [];
+    if (
+        track.archHeightFt &&
+        track.archHeightFt !== 999 &&
+        track.archHeightInches != null &&
+        track.archHeightInches !== 999
+    ) {
+        specs.push(`Arch ${track.archHeightFt}'${track.archHeightInches}"`);
+    }
+    if (track.distanceToHydrant && track.distanceToHydrant !== 999) {
+        specs.push(`${track.distanceToHydrant} ft to hydrant`);
+    }
+
     return (
-        <div className='p-1 w-100'>
-            <div className='px-2 h-100'>
-                {trackSelected ? 
-                    <TrackInfo 
-                        track={tracks.find(el => el.name === trackSelected) as Track}
-                        trackImages={trackImages}
-                        setTrackSelected={setTrackSelected}
-                        trackTourns={trackTourns}
-                        /> : 
-                    <div>
-                        <div className='ps-1 py-2'>Select a track or click a marker on the map:</div>
-                        <Form.Select aria-label="Select Track" value={trackSelected} onChange={((e) => {
-                                setTrackSelected(e.target.value)
-                            })}>
-                            <option value=""></option>
-                            {tracks.sort((a,b) => a.name < b.name ? -1 : 1).map(el => {
-                                return <option key={el.name} value={el.name}>{el.name}</option>
-                            })}
-                        </Form.Select>
-                        <div className='py-2' />                        
+        <div className="d-flex flex-column h-100">
+            <button
+                type="button"
+                className="locations-back-link mb-3 align-self-start"
+                onClick={() => setTrackSelected("")}
+            >
+                <FontAwesomeIcon icon={faChevronLeft} className="me-1" />
+                All tracks
+            </button>
+
+            <div className="d-flex align-items-start gap-2 mb-2">
+                <FontAwesomeIcon
+                    icon={faLocationDot}
+                    className="mt-1 text-muted"
+                />
+                <div>
+                    <h4 className="mb-1">{track.name}</h4>
+                    {addressLine ? (
+                        <div className="text-muted small">{addressLine}</div>
+                    ) : null}
+                </div>
+            </div>
+
+            {directionsUrl ? (
+                <a
+                    href={directionsUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="video-links small mb-3 d-inline-flex align-items-center gap-1"
+                >
+                    Get directions
+                    <FontAwesomeIcon icon={faArrowUpRightFromSquare} />
+                </a>
+            ) : null}
+
+            {specs.length > 0 && (
+                <div className="locations-specs mb-3">
+                    {specs.map((spec) => (
+                        <span key={spec} className="locations-spec">
+                            {spec}
+                        </span>
+                    ))}
+                </div>
+            )}
+
+            {!tournsLoading && stateTournYears.length > 0 && (
+                <div className="small mb-2">
+                    <span className="locations-meta-label">
+                        State tournaments hosted
+                    </span>
+                    <div>{stateTournYears.join(", ")}</div>
+                </div>
+            )}
+
+            {track.notes ? (
+                <div className="small text-muted mb-2">{track.notes}</div>
+            ) : null}
+
+            {!track.active ? (
+                <div className="small fst-italic mb-2">
+                    This track is no longer in active use.
+                </div>
+            ) : null}
+
+            {!track.latitude || !track.longitude ? (
+                <div className="small fst-italic mb-2">
+                    Map coordinates are missing for this track.
+                </div>
+            ) : null}
+
+            <div className="flex-grow-1" />
+
+            <div className="mt-3">
+                <div className="locations-section-label mb-2">Years active</div>
+                {tournsLoading ? (
+                    <Placeholder animation="glow">
+                        <Placeholder
+                            className="rounded w-100"
+                            style={{ height: 60 }}
+                            bg="secondary"
+                        />
+                    </Placeholder>
+                ) : trackTourns.length ? (
+                    <YearsActiveChart tournaments={trackTourns} />
+                ) : (
+                    <div className="text-muted small">
+                        No tournament years on file.
                     </div>
-                }
+                )}
             </div>
         </div>
-    )
+    );
 }
 
+function PanelLoading() {
+    return (
+        <div>
+            <Placeholder animation="glow" className="d-block mb-3">
+                <Placeholder xs={4} className="rounded" bg="secondary" />
+            </Placeholder>
+            <Placeholder animation="glow" className="d-block">
+                <Placeholder xs={12} className="rounded" bg="secondary" />
+            </Placeholder>
+        </div>
+    );
+}
 
 interface StateHandlerProps {
     loading: boolean;
-    trackSelected: string; 
+    trackSelected: string;
     error: boolean;
     children: React.ReactNode;
 }
 
-
-const StateHandler = function({loading, trackSelected,  error, children}: StateHandlerProps){
-
-    return (
-        <>
-        {
-            loading ? 
-                <div className="row g-0">
-                    <div className="col-md-4 col-12">
-                        {
-                            trackSelected ? 
-                                <div className='bg-white rounded px-2 pt-4 pb-2 me-1 map-selection-made-height'>
-                                    <div className="d-flex flex-column">
-                                        <div>
-                                            <Placeholder animation="glow" className="p-0 text-center mt-1">
-                                                <Placeholder className="rounded w-50 height-30" bg="secondary" />
-                                            </Placeholder>
-                                        </div>
-                                        <div className="mt-5">
-                                            <Placeholder animation="glow" className="p-0 text-center mt-1">
-                                                <Placeholder className="rounded w-100 minheight-180" bg="secondary" />
-                                            </Placeholder>
-                                        </div>
-                                    </div>
-                                </div> 
-                                : 
-                                <div className='bg-white rounded px-1 pt-4 pb-2 me-1'>
-                                    <Placeholder animation="glow" className="p-0 text-center my-3">
-                                        <Placeholder className="rounded w-100 height-30" bg="secondary" />
-                                    </Placeholder>
-                                </div>                            
-                        }
+function StateHandler({
+    loading,
+    trackSelected,
+    error,
+    children,
+}: StateHandlerProps) {
+    if (loading) {
+        return (
+            <div className="row g-3">
+                <div className="col-12 col-lg-4">
+                    <div className="locations-panel bg-white rounded shadow-sm p-3 p-md-4">
+                        {trackSelected ? (
+                            <div className="d-flex flex-column gap-3">
+                                <Placeholder animation="glow">
+                                    <Placeholder
+                                        className="rounded w-50 height-30"
+                                        bg="secondary"
+                                    />
+                                </Placeholder>
+                                <Placeholder animation="glow">
+                                    <Placeholder
+                                        className="rounded w-100 minheight-180"
+                                        bg="secondary"
+                                    />
+                                </Placeholder>
+                            </div>
+                        ) : (
+                            <Placeholder animation="glow">
+                                <Placeholder
+                                    className="rounded w-100 height-30"
+                                    bg="secondary"
+                                />
+                            </Placeholder>
+                        )}
                     </div>
-                    <MapLoadingBlock />
                 </div>
-            : 
-            error ? 
-                <div className='m-5 d-flex justify-content-center h5'>
-                    There was an error loading location data.  Please try again later. 
-                </div> :
-            children
-        }
-        </>
+                <div className="col-12 col-lg-8">
+                    <Placeholder animation="glow">
+                        <Placeholder
+                            className="w-100 rounded locations-map-panel"
+                            bg="secondary"
+                        />
+                    </Placeholder>
+                </div>
+            </div>
+        );
+    }
 
-    )
+    if (error) {
+        return (
+            <div className="bg-white rounded shadow-sm p-4 text-center text-muted">
+                There was an error loading location data. Please try again later.
+            </div>
+        );
+    }
+
+    return <>{children}</>;
 }
 
-const MapLoadingBlock = () => {
-    return (
-        <div className="col-md-8 col-12">
-            <Placeholder animation="glow" className="ms-1">
-                <Placeholder  className="w-100 map-selection-made-height"  bg="secondary"/>
-            </Placeholder>
-        </div>
-    )
-}
-
-const MapLoadingBlock2 = () => {
-    return (
-        <div className="col-12">
-            <Placeholder animation="glow" className="ms-1">
-                <Placeholder  className="w-100 map-selection-made-height"  bg="secondary"/>
-            </Placeholder>
-        </div>
-    )
-}
-
-
+const MapLoadingBlock = () => (
+    <Placeholder animation="glow" className="w-100">
+        <Placeholder
+            className="w-100 locations-map-panel rounded"
+            bg="secondary"
+        />
+    </Placeholder>
+);
 
 const otherMapStates = (status: Status) => {
-    if(status === Status.FAILURE) return <div>Failed to load map</div>
-    if(status === Status.LOADING) return <MapLoadingBlock2 />
-}
+    if (status === Status.FAILURE) return <div>Failed to load map</div>;
+    if (status === Status.LOADING) return <MapLoadingBlock />;
+};
 
 interface LocationMapWrapperProp {
     tracks: Track[];
@@ -323,15 +593,21 @@ interface LocationMapWrapperProp {
     setTrackSelected: (str: string) => void;
 }
 
-function LocationMapWrapper({tracks, selectedTrack, mapsApiKey, setTrackSelected}: LocationMapWrapperProp){
+function LocationMapWrapper({
+    tracks,
+    selectedTrack,
+    mapsApiKey,
+    setTrackSelected,
+}: LocationMapWrapperProp) {
     return (
-        <Wrapper 
-            apiKey={mapsApiKey}
-            render={otherMapStates}
-            >
-                <LocationMap tracks={tracks} selectedTrack={selectedTrack} setTrackSelected={setTrackSelected} />
+        <Wrapper apiKey={mapsApiKey} render={otherMapStates}>
+            <LocationMap
+                tracks={tracks}
+                selectedTrack={selectedTrack}
+                setTrackSelected={setTrackSelected}
+            />
         </Wrapper>
-    )
+    );
 }
 
 interface LocationMapProp {
@@ -340,212 +616,188 @@ interface LocationMapProp {
     setTrackSelected: (str: string) => void;
 }
 
-function LocationMap({tracks, selectedTrack, setTrackSelected}: LocationMapProp){
-    const ref = useRef<HTMLDivElement>(null); 
+function LocationMap({
+    tracks,
+    selectedTrack,
+    setTrackSelected,
+}: LocationMapProp) {
+    const ref = useRef<HTMLDivElement>(null);
     const [map, setMap] = useState<google.maps.Map>();
     const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
 
     const iconBase = {
-        path: "M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z", 
-        fillColor: "orange", 
-        fillOpacity: .8,
+        path: "M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z",
+        fillColor: "#546f8a",
+        fillOpacity: 0.8,
         strokeWeight: 0,
-        rotation: 0, 
-        scale: 8, 
-        anchor: new google.maps.Point(8, 8.5)
-    }
-    const normalIcon = { icon: {...iconBase, fillOpacity: .6}}; 
-    const activeIcon = { icon: {...iconBase, fillColor: "green"}}
+        rotation: 0,
+        scale: 8,
+        anchor: new google.maps.Point(8, 8.5),
+    };
+    const normalIcon = { icon: { ...iconBase, fillOpacity: 0.55 } };
+    const activeIcon = { icon: { ...iconBase, fillColor: "#013369" } };
+    const selectedIcon = {
+        icon: { ...iconBase, fillColor: "#c45c26", scale: 10 },
+    };
 
     useEffect(() => {
         const bounds = new google.maps.LatLngBounds();
-        const track = selectedTrack ? tracks.find(el => el?.name === selectedTrack) : undefined;
+        const track = selectedTrack
+            ? tracks.find((el) => el?.name === selectedTrack)
+            : undefined;
 
-        if(track && track.latitude && track.longitude) {
-            bounds.extend({lat: parseFloat(track.latitude), lng: parseFloat(track.longitude)});
+        if (track && track.latitude && track.longitude) {
+            bounds.extend({
+                lat: parseFloat(track.latitude),
+                lng: parseFloat(track.longitude),
+            });
         } else {
-            tracks.forEach(track => {
-                if(track.latitude && track.longitude){
-                    bounds.extend({lat: parseFloat(track.latitude), lng: parseFloat(track.longitude)});
+            tracks.forEach((t) => {
+                if (t.latitude && t.longitude) {
+                    bounds.extend({
+                        lat: parseFloat(t.latitude),
+                        lng: parseFloat(t.longitude),
+                    });
                 }
-            })    
+            });
         }
-    
-        if(ref.current && !map){
+
+        if (ref.current && !map) {
             const myMap = new google.maps.Map(ref.current, {
-                mapTypeControl: false, 
+                mapTypeControl: false,
                 streetViewControl: false,
-            }); 
+            });
             setMap(myMap);
-            if(track && track.latitude && track.longitude) {
-                myMap.setCenter({lat: parseFloat(track.latitude), lng: parseFloat(track.longitude)});
+            if (track && track.latitude && track.longitude) {
+                myMap.setCenter({
+                    lat: parseFloat(track.latitude),
+                    lng: parseFloat(track.longitude),
+                });
                 myMap.setZoom(15);
             } else {
-                myMap.fitBounds(bounds); 
+                myMap.fitBounds(bounds);
             }
-        } else if(map){
+        } else if (map) {
             map.fitBounds(bounds);
-            if(track && track.latitude && track.longitude) map.setZoom(15);
+            if (track && track.latitude && track.longitude) map.setZoom(15);
         }
-    }, [tracks, selectedTrack])
+    }, [tracks, selectedTrack]);
 
     useEffect(() => {
-        if(!map) return;
-        markers.forEach(marker => marker.setMap(null));
-        setMarkers([]); 
-        
+        if (!map) return;
+        markers.forEach((marker) => marker.setMap(null));
+        setMarkers([]);
+
         const newMarkerArr: google.maps.Marker[] = [];
         tracks
-            .sort((a,b) => a.active && !b.active ? 1 : -1)
-            .forEach(track => {
+            .sort((a, b) => (a.active && !b.active ? 1 : -1))
+            .forEach((track) => {
+                if (!track.latitude || !track.longitude) return;
 
-            const contentStr = track.address && track.city ? 
-                `<br/><div><b>${track.name}</b></div><div>${track.address}</div><div>${track.city}</div>` : 
-                `<br/><div><b>${track.name}</b></div>`
+                const contentStr =
+                    track.address && track.city
+                        ? `<br/><div><b>${track.name}</b></div><div>${track.address}</div><div>${track.city}</div>`
+                        : `<br/><div><b>${track.name}</b></div>`;
 
-            const infoWindow = new google.maps.InfoWindow({
-                content: contentStr, 
-                ariaLabel: `${track.name}-marker`
-            }); 
-            const iconChange = track.active ? activeIcon : normalIcon; 
-            const marker = new google.maps.Marker({
-                ...iconChange, 
-                position: {lat: parseFloat(track.latitude), lng: parseFloat(track.longitude)}, 
-                map: map,
+                const infoWindow = new google.maps.InfoWindow({
+                    content: contentStr,
+                    ariaLabel: `${track.name}-marker`,
+                });
+
+                const isSelected = selectedTrack === track.name;
+                const iconChange = isSelected
+                    ? selectedIcon
+                    : track.active
+                      ? activeIcon
+                      : normalIcon;
+
+                const marker = new google.maps.Marker({
+                    ...iconChange,
+                    position: {
+                        lat: parseFloat(track.latitude),
+                        lng: parseFloat(track.longitude),
+                    },
+                    map: map,
+                });
+                marker.addListener("mouseover", () => {
+                    infoWindow.open({ anchor: marker });
+                });
+                marker.addListener("mouseout", () => {
+                    infoWindow.close();
+                });
+                marker.addListener("click", () => {
+                    setTrackSelected(track.name);
+                });
+                newMarkerArr.push(marker);
             });
-            marker.addListener("mouseover", () => {
-                infoWindow.open({anchor: marker}); 
-            }); 
-            marker.addListener("mouseout", () => {
-                infoWindow.close();
-            })
-            marker.addListener("click", () => {
-                setTrackSelected(track.name);
-            })
-            newMarkerArr.push(marker);
-        })
         setMarkers([...newMarkerArr]);
-    }, [tracks, selectedTrack, map])
+    }, [tracks, selectedTrack, map]);
 
-    if(selectedTrack && !(tracks.find(el => el?.name === selectedTrack))){
-        return <div>Track is missing location data.</div>
+    if (selectedTrack && !tracks.find((el) => el?.name === selectedTrack)) {
+        return (
+            <div className="p-4 text-muted small">
+                Track is missing location data.
+            </div>
+        );
     }
 
-    return (
-        <div ref={ref} className="w-100 map-height" /> 
-    )
-}
-
-
-
-interface TrackInfo {
-    track: Track; 
-    trackImages: ImageDbEntry[];
-    setTrackSelected: (str: string) => void;
-    trackTourns: Tournament[];
-}
-
-function TrackInfo({track, trackImages, setTrackSelected, trackTourns}: TrackInfo){
-    const stateTournYears = trackTourns.filter(el => {
-        return el.name === "New York State Championship"
-    }).map(el => el.year).sort((a,b) => a < b ? -1 : 1);
-
-
-
-    return (
-        <div className='pt-3 d-flex flex-column h-100 map-selection-made-height'>
-            <div className="d-flex justify-content-between">
-                <div className='h4 mb-4'>{track.name}</div>
-                <div>
-                    <FontAwesomeIcon className='fs-4 pointer' icon={faXmark} onClick={() => setTrackSelected("")} />
-                </div>
-            </div>
-            <div className='my-2 h6'>{track.address}{track.address && track.city ? ", " : ""}{track.city}</div>
-            <div className="small">
-                {
-                    track.archHeightFt && track.archHeightFt !== 999 && 
-                    track.archHeightInches && track.archHeightInches !== 999 ?
-                        <span className='text-muted'>Arch Height: {track.archHeightFt}'{track.archHeightInches}"</span> : <></>
-                }
-                {
-                    track.archHeightFt && track.archHeightFt !== 999 && 
-                    track.archHeightInches && track.archHeightInches !== 999 && 
-                    track.distanceToHydrant && track.distanceToHydrant !== 999 ? 
-                        <span className='text-muted px-1'>|</span> : ""
-                }
-                {
-                    track.distanceToHydrant && track.distanceToHydrant !== 999 ?
-                        <span className='text-muted'>Arch Distance to Hydrant: {track.distanceToHydrant} feet</span> : <></>
-                }
-            </div>
-            {
-                stateTournYears.length ?
-                    <div className='my-2'>State Tournaments Hosted: {stateTournYears.join(", ")}</div> : <></>
-            }
-            {
-                track.notes ?
-                    <div className='my-2 small'>{track.notes}</div> : <></>
-            }
-            {
-                !track.active ?
-                    <div className='my-2'><i>This track is no longer in active use.</i></div> : <></>
-            }
-            {
-                !track.latitude || !track.longitude ?
-                    <div className='my-2'><i>Location information is missing for this track.</i></div> : <></>
-            }
-            <div className="flex-grow-1" />
-            <div className='my-2'>
-                <h6>Years Active</h6>
-                <YearsActiveChart tournaments={trackTourns} />
-            </div>
-        </div>
-    )
+    return <div ref={ref} className="w-100 locations-map" />;
 }
 
 interface YearsActiveChartProps {
     tournaments: Tournament[];
 }
 
-
-function YearsActiveChart({tournaments}: YearsActiveChartProps){
-    const counter = tournaments.reduce((accum: Record<number, number>, el) => {
-        if(!accum[el.year]){
-            accum[el.year] = 1; 
-        } 
-        return accum; 
-    }, {})
-    const data = Object.keys(counter).map(el => {
-        return {
-            year: parseInt(el), 
-            numTourns: counter[parseInt(el)]
-        }
-    })
+function YearsActiveChart({ tournaments }: YearsActiveChartProps) {
+    const counter = tournaments.reduce(
+        (accum: Record<number, number>, el) => {
+            if (!accum[el.year]) {
+                accum[el.year] = 1;
+            }
+            return accum;
+        },
+        {}
+    );
+    const data = Object.keys(counter).map((el) => ({
+        year: parseInt(el),
+        numTourns: counter[parseInt(el)],
+    }));
 
     return (
-        <div style={{ width: '100%', height: 60 }}>
-
+        <div style={{ width: "100%", height: 60 }}>
             <ResponsiveContainer>
                 <BarChart
-                layout="horizontal"
-                data={data}
-                margin={{
-                    top: 5,
-                    right: 5,
-                    left: 0,
-                    bottom: 10,
-                }}
+                    layout="horizontal"
+                    data={data}
+                    margin={{
+                        top: 5,
+                        right: 5,
+                        left: 0,
+                        bottom: 10,
+                    }}
                 >
-                    <XAxis dataKey="year" type="number" domain={[1945, new Date().getFullYear()+2]} 
-                        ticks={[1960, 1980,2000,2020]}>
+                    <XAxis
+                        dataKey="year"
+                        type="number"
+                        domain={[1945, new Date().getFullYear() + 2]}
+                        ticks={[1960, 1980, 2000, 2020]}
+                    >
                         <Label value="Year" position="bottom" offset={-5} />
                     </XAxis>
-                    <YAxis dataKey="numTourns" type="number" domain={[0,1]} hide />
-                    <Bar dataKey={"numTourns"} fill="#546f8a" radius={2} maxBarSize={5} /> 
+                    <YAxis
+                        dataKey="numTourns"
+                        type="number"
+                        domain={[0, 1]}
+                        hide
+                    />
+                    <Bar
+                        dataKey={"numTourns"}
+                        fill="#013369"
+                        radius={2}
+                        maxBarSize={5}
+                    />
                 </BarChart>
             </ResponsiveContainer>
         </div>
-
-    )
+    );
 }
-

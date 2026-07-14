@@ -1,181 +1,259 @@
 import * as React from "react";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { fetchGet } from '../../utils/network';
+import { useEffect, useRef, useState } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { fetchGet } from "../../utils/network";
+import Container from "react-bootstrap/Container";
 import Image from "react-bootstrap/Image";
-import { Collapse } from "react-bootstrap";
+import Nav from "react-bootstrap/Nav";
+import Navbar from "react-bootstrap/Navbar";
 import { useQuery } from "@tanstack/react-query";
-
 
 declare var SERVICE_URL: string;
 
-export default function Nav() {
-    let navigate = useNavigate();
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [collapseOpen, setCollapseOpen] = useState(false);
+const statsLinks = [
+    { label: "State Champions", to: "/TournamentHistory/New%20York%20State%20Championship" },
+    { label: "Total Points", to: "/TotalPoints" },
+    { label: "Top Runs", to: "/TopRuns" },
+    { label: "Team Histories", to: "/TeamHistory" },
+    { label: "Team Seasons", to: "/TeamSummaries" },
+    { label: "Run Search", to: "/RunSearch" },
+    { label: "Locations", to: "/Locations" },
+] as const;
+
+const funLinks = [
+    { label: "Forty for Forty", to: "/Forty-for-Forty" },
+    { label: "Projections", to: "/Simulation/Projections" },
+    // { label: "Fantasy Racing", to: "/Simulation/Fantasy" },
+] as const;
+
+const statsActivePrefixes = [
+    "/tournamenthistory",
+    "/totalpoints",
+    "/topruns",
+    "/teamhistory",
+    "/teamsummaries",
+    "/runsearch",
+    "/locations",
+    "/simulation",
+    "/forty-for-forty",
+];
+
+function isStatsRoute(pathname: string) {
+    const path = pathname.toLowerCase();
+    return statsActivePrefixes.some((prefix) => path.startsWith(prefix));
+}
+
+function isStatsLinkActive(pathname: string, to: string) {
+    const current = decodeURIComponent(pathname).toLowerCase().replace(/\/$/, "");
+    const target = decodeURIComponent(to).toLowerCase().replace(/\/$/, "");
+    return current === target || current.startsWith(`${target}/`);
+}
+
+interface StatsCentralMenuProps {
+    onNavigate: () => void;
+}
+
+function StatsCentralMenu({ onNavigate }: StatsCentralMenuProps) {
+    const location = useLocation();
+    const [open, setOpen] = useState(false);
+    const rootRef = useRef<HTMLDivElement>(null);
+    const closeTimer = useRef<number | null>(null);
+    const statsActive = isStatsRoute(location.pathname);
+
+    const clearCloseTimer = () => {
+        if (closeTimer.current != null) {
+            window.clearTimeout(closeTimer.current);
+            closeTimer.current = null;
+        }
+    };
+
+    const scheduleClose = () => {
+        clearCloseTimer();
+        closeTimer.current = window.setTimeout(() => setOpen(false), 160);
+    };
+
+    const openMenu = () => {
+        clearCloseTimer();
+        setOpen(true);
+    };
+
+    useEffect(() => {
+        const onDocClick = (event: MouseEvent) => {
+            if (!rootRef.current?.contains(event.target as Node)) {
+                setOpen(false);
+            }
+        };
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") setOpen(false);
+        };
+        document.addEventListener("mousedown", onDocClick);
+        document.addEventListener("keydown", onKeyDown);
+        return () => {
+            document.removeEventListener("mousedown", onDocClick);
+            document.removeEventListener("keydown", onKeyDown);
+            clearCloseTimer();
+        };
+    }, []);
+
+    useEffect(() => {
+        setOpen(false);
+    }, [location.pathname]);
+
+    return (
+        <div
+            ref={rootRef}
+            className={`nav-stats ${open ? "is-open" : ""} ${statsActive ? "is-active" : ""}`}
+            onMouseEnter={openMenu}
+            onMouseLeave={scheduleClose}
+        >
+            <button
+                type="button"
+                className={`nav-pill ${statsActive || open ? "is-selected" : ""}`}
+                aria-expanded={open}
+                aria-haspopup="menu"
+                aria-controls="stats-central-menu"
+                onClick={() => setOpen((prev) => !prev)}
+            >
+                Stats Central
+                <FontAwesomeIcon
+                    icon={faChevronDown}
+                    className={`nav-stats-chevron ${open ? "is-rotated" : ""}`}
+                />
+            </button>
+
+            <div
+                id="stats-central-menu"
+                className={`nav-stats-panel ${open ? "is-visible" : ""}`}
+                role="menu"
+                aria-label="Stats Central"
+                onMouseEnter={openMenu}
+                onMouseLeave={scheduleClose}
+            >
+                <div className="nav-stats-panel-label">Browse Official Stats</div>
+                <div className="nav-stats-grid">
+                    {statsLinks.map((link) => {
+                        const active = isStatsLinkActive(location.pathname, link.to);
+                        return (
+                            <Link
+                                key={link.to}
+                                to={link.to}
+                                role="menuitem"
+                                className={`nav-stats-item ${active ? "is-active" : ""}`}
+                                onClick={() => {
+                                    setOpen(false);
+                                    onNavigate();
+                                }}
+                            >
+                                {link.label}
+                            </Link>
+                        );
+                    })}
+                </div>
+
+                <div className="nav-stats-panel-label nav-stats-panel-label-secondary">
+                    Just for Fun
+                </div>
+                <div className="nav-stats-grid">
+                    {funLinks.map((link) => {
+                        const active = isStatsLinkActive(location.pathname, link.to);
+                        return (
+                            <Link
+                                key={link.to}
+                                to={link.to}
+                                role="menuitem"
+                                className={`nav-stats-item ${active ? "is-active" : ""}`}
+                                onClick={() => {
+                                    setOpen(false);
+                                    onNavigate();
+                                }}
+                            >
+                                {link.label}
+                            </Link>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default function SiteNav() {
+    const [expanded, setExpanded] = useState(false);
 
     const { data } = useQuery<string[]>({
-        queryKey: ['announcements'],
-        queryFn: () => fetchGet(`${SERVICE_URL}/announcements/getAnnouncements`).then(res => res.json()),
+        queryKey: ["announcements"],
+        queryFn: () => fetchGet(`${SERVICE_URL}/announcements/getAnnouncements`).then((res) => res.json()),
     });
     const announcements = data ?? [];
+
+    const closeNav = () => setExpanded(false);
+
     return (
-        <div className="">
-            <div className="banner text-center">
-                {
-                announcements.length ? <div className="d-flex justify-content-center p-3 banner-bg">
-                    <span><b dangerouslySetInnerHTML={{__html: announcements[0]}}></b></span>
-                </div> : <></>
-                }
-            </div>
-            <div className="nav-bg-color-dk" onClick={() => {setDropdownOpen(false); setCollapseOpen(false)}}>
-                <div className="container d-flex justify-content-start p-4 "
-                    onClick={() => navigate("/")}>
-                    <div className="header-logo">
-                        <Image fluid src="/static/img/logo_onetone.png" />                    
+        <header className="site-header">
+            {announcements.length > 0 && (
+                <div className="banner text-center">
+                    <div className="d-flex justify-content-center p-3 banner-bg">
+                        <span>
+                            <b dangerouslySetInnerHTML={{ __html: announcements[0] }} />
+                        </span>
                     </div>
                 </div>
+            )}
+
+            <div className="nav-bg-color-dk">
+                <Container className="py-3 py-md-4">
+                    <Link to="/" onClick={closeNav} className="d-inline-block" aria-label="Home">
+                        <div className="header-logo">
+                            <Image fluid src="/static/img/logo_onetone_nysfdracing.png" alt="NYS FD Racing" />
+                        </div>
+                    </Link>
+                </Container>
             </div>
 
-            {/* mobile nav */}
-            <nav className="nav-bg-color d-block d-md-none">
-                <nav className="navbar navbar-dark nav-bg-color" onClick={() => {setDropdownOpen(false); setCollapseOpen(!collapseOpen)}}>
-                    <div className="container-fluid">
-                        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
-                        <span className="navbar-toggler-icon"></span>
-                        </button>
-                    </div>
-                </nav>
+            <Navbar
+                expand="md"
+                variant="dark"
+                expanded={expanded}
+                onToggle={setExpanded}
+                className="site-navbar nav-bg-color py-0"
+            >
+                <Container>
+                    <Navbar.Toggle aria-controls="main-site-nav" className="ms-auto my-2" />
+                    <Navbar.Collapse id="main-site-nav">
+                        <Nav className="site-navbar-nav w-100 justify-content-md-evenly align-items-md-center py-2 py-md-0">
+                            <Nav.Link
+                                as={NavLink}
+                                to="/Schedule"
+                                onClick={closeNav}
+                                className="nav-pill"
+                            >
+                                Schedule / Results
+                            </Nav.Link>
+                            <Nav.Link
+                                as={NavLink}
+                                to="/PastSeasons"
+                                onClick={closeNav}
+                                className="nav-pill"
+                            >
+                                Past Seasons
+                            </Nav.Link>
 
-                <Collapse in={collapseOpen}>
-                    <div className="nav-bg-color px-4 pb-4">
+                            <StatsCentralMenu onNavigate={closeNav} />
 
-
-                        <div className="container hover-nav-font-change ">
-                            <div className="row">
-
-                                <div className="col-12 d-flex justify-content-center text-center" onClick={() => setDropdownOpen(false)}>
-                                    <div 
-                                        className=" underline-hover my-3 px-1 py-2"
-                                        onClick={() => {navigate("/Schedule"); setCollapseOpen(false)}}>Schedule / Results</div>                            
-                                </div>
-                                <div className="col-12 d-flex justify-content-center text-center " onClick={() => setDropdownOpen(false)}>
-                                    <div 
-                                        className="underline-hover my-3 px-1 py-2"
-                                        onClick={() => {navigate("/PastSeasons"); setCollapseOpen(false)}}>Past Seasons</div>
-                                </div>
-                                <div className="col-12 d-flex justify-content-center text-center position-relative">
-                                    <div 
-                                        className="underline-hover my-3 px-1 py-2"
-                                        onClick={() => setDropdownOpen(!dropdownOpen)}>
-                                            Stats Central
-                                    </div>
-                                    {
-                                        dropdownOpen ? 
-                                        <div className="position-absolute dropdown-pos-top start-25 bg-white border border-1 rounded py-2 px-4" onClick={() => setDropdownOpen(false)}>
-
-                                            <div className="mt-1">
-                                                <Link className="video-links" to="/TournamentHistory/New%20York%20State%20Championship" onClick={() => setCollapseOpen(false)}>State Champions</Link>
-                                            </div>
-                                            <div className="my-2 ">
-                                                <Link className="video-links " to="/TotalPoints" onClick={() => setCollapseOpen(false)}>Total Points</Link>
-                                            </div>
-                                            <div className="my-2 ">
-                                                <Link className="video-links" to="/TopRuns" onClick={() => setCollapseOpen(false)}>Top Runs</Link>
-                                            </div>
-                                            <div className="my-2">
-                                                <Link className="video-links " to="/TeamHistory" onClick={() => setCollapseOpen(false)}>Team Histories</Link>
-                                            </div>
-                                            <div className="my-2">
-                                                <Link className="video-links " to="/TeamSummaries" onClick={() => setCollapseOpen(false)}>Team Seasons</Link>
-                                            </div>
-                                            <div className="my-2 "> 
-                                                <Link className="video-links" to="/RunSearch" onClick={() => setCollapseOpen(false)}>Run Search</Link>
-                                            </div>
-                                            <div className="my-2">
-                                                <Link className="video-links " to="/Locations" onClick={() => setCollapseOpen(false)}>Locations</Link>
-                                            </div>
-                                        </div> : <></>
-                                    }
-
-                                </div>
-                                <div className="col-12 d-flex justify-content-center" onClick={() => setDropdownOpen(false)}>
-                                    <div 
-                                        className="text-center underline-hover my-3 px-1 py-2"
-                                        onClick={() => {navigate("/About"); setCollapseOpen(false)}}>About</div>
-                                </div>
-
-                            </div>
-                        </div>
-
-
-
-                    </div>
-                </Collapse>
-            </nav>
-
-
-            {/* desktop nav */}
-            <nav className="nav-bg-color d-md-block d-none">
-                <div className="container hover-nav-font-change "  >
-                    <div className="row">
-
-                        <div className="col-xl-2" onClick={() => setDropdownOpen(false)}></div>
-                        <div className="col-md-3 col-xl-2 d-flex justify-content-center text-center" onClick={() => setDropdownOpen(false)}>
-                            <div 
-                                className=" underline-hover my-3 px-1 py-2"
-                                onClick={() => {navigate("/Schedule")}}>Schedule / Results</div>                            
-                        </div>
-                        <div className="col-md-3 col-xl-2 d-flex justify-content-center text-center " onClick={() => setDropdownOpen(false)}>
-                            <div 
-                                className="underline-hover my-3 px-1 py-2"
-                                onClick={() => {navigate("/PastSeasons")}}>Past Seasons</div>
-                        </div>
-                        <div className="col-md-3 col-xl-2 d-flex justify-content-center text-center position-relative">
-                            <div className="underline-hover my-3 px-1 py-2 " onClick={() => setDropdownOpen(!dropdownOpen)}>
-                                Stats Central
-                            </div>
-                            {
-                                dropdownOpen ? 
-                                <div className="position-absolute dropdown-pos-top start-25 bg-white border border-1 rounded py-2 px-4 shadow-sm" onClick={() => setDropdownOpen(false)}>
-                                    <div className="mt-1">
-                                        <Link className="video-links" to="/TournamentHistory/New%20York%20State%20Championship">State Champions</Link>
-                                    </div>
-                                    <div className="my-2 ">
-                                        <Link className="video-links " to="/TotalPoints">Total Points</Link>
-                                    </div>
-                                    <div className="my-2 ">
-                                        <Link className="video-links" to="/TopRuns">Top Runs</Link>
-                                    </div>
-                                    <div className="my-2">
-                                        <Link className="video-links " to="/TeamHistory">Team Histories</Link>
-                                    </div>
-                                    <div className="my-2">
-                                        <Link className="video-links " to="/TeamSummaries">Team Seasons</Link>
-                                    </div>
-                                    <div className="my-2 "> 
-                                        <Link className="video-links" to="/RunSearch">Run Search</Link>
-                                    </div>
-                                    <div className="my-2">
-                                        <Link className="video-links " to="/Locations">Locations</Link>
-                                    </div>
-                                </div> : <></>
-
-                            }
-                        </div>
-
-                        <div className="col-md-3 col-xl-2 d-flex justify-content-center" onClick={() => setDropdownOpen(false)}>
-                            <div 
-                                className="text-center underline-hover my-3 px-1 py-2"
-                                onClick={() => {navigate("/About")}}>About</div>
-                        </div>
-                        <div className="col-xl-2" onClick={() => setDropdownOpen(false)}></div>
-
-                    </div>
-                </div>
-            </nav>
-
-
-        </div>
+                            <Nav.Link
+                                as={NavLink}
+                                to="/About"
+                                onClick={closeNav}
+                                className="nav-pill"
+                            >
+                                About
+                            </Nav.Link>
+                        </Nav>
+                    </Navbar.Collapse>
+                </Container>
+            </Navbar>
+        </header>
     );
 }

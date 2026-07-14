@@ -245,6 +245,7 @@ export type FortyForFortyGame = {
     contestPoints: number[]
     finalTimes?: (number | string)[]
     gameMode?: 'classic' | 'lifer'
+    leaderboardName?: string
 }
 
 

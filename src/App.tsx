@@ -23,6 +23,7 @@ const TopRuns = React.lazy(() => import("./Pages/TopRuns"));
 const Login = React.lazy(() => import('./Pages/Login'));
 const AdminHome = React.lazy(() => import("./features/admin/AdminHome"));
 const About = React.lazy(() => import("./Pages/About"));
+const Social = React.lazy(() => import("./Pages/Social"));
 const Search = React.lazy(() => import("./features/search/Search"));
 const TournamentHistory = React.lazy(() => import("./features/tournament/TournamentHistory"));
 const CurrentYearTotalPoints = React.lazy(() => import("./Pages/CurrentYearTotalPoints"));
@@ -53,7 +54,7 @@ const ErrorPage = (props: ErrorPageProps) => {
                 <div className="container d-flex justify-content-start p-4 "
                     onClick={() => navigate("/")}>
                     <div className="header-logo">
-                        <Image fluid src="/static/img/logo_onetone.png" />                    
+                        <Image fluid src="/static/img/logo_onetone_nysfdracing.png" alt="NYS FD Racing" />                    
                     </div>
                 </div>
             </div>
@@ -130,6 +131,10 @@ const router = createBrowserRouter([
             {
                 path: "/About", 
                 element: <About />
+            },
+            {
+                path: "/Social",
+                element: <Social />
             },
             {
                 path: "/TotalPoints", 

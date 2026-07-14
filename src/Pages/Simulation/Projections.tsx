@@ -1,386 +1,363 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft, faSort, faSortDown, faSortUp } from "@fortawesome/free-solid-svg-icons";
 import { Projection, Run } from "../../types/types";
 import { useProjections } from "../../hooks/simulation/useProjections";
 import { useTournamentByNameYear } from "../../shared/hooks/useTournament";
 import { useTournamentRuns } from "../../shared/hooks/useTournamentRuns";
-import { faSort, faSortUp, faSortDown } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { useParams } from "react-router-dom";
 
-export default function Projections(){
+const SIMULATION_RUNS = 500;
 
+type SortableProjectionField = keyof Projection;
+
+type ContestGroup = {
+    label: string;
+    winsKey?: SortableProjectionField;
+    top5Key?: SortableProjectionField;
+    /** Contest name used to look up actual run results; omit for Overall (uses top5 finish). */
+    contestName?: string;
+};
+
+const CONTEST_GROUPS: ContestGroup[] = [
+    { label: "Overall", winsKey: "Overall Wins", top5Key: "Overall Top5" },
+    {
+        label: "3 Man Ladder",
+        winsKey: "Three Man Ladder Wins",
+        top5Key: "Three Man Ladder Top5",
+        contestName: "Three Man Ladder",
+    },
+    {
+        label: "B Ladder",
+        winsKey: "B Ladder Wins",
+        top5Key: "B Ladder Top5",
+        contestName: "B Ladder",
+    },
+    {
+        label: "C Ladder",
+        winsKey: "C Ladder Wins",
+        top5Key: "C Ladder Top5",
+        contestName: "C Ladder",
+    },
+    {
+        label: "C Hose",
+        winsKey: "C Hose Wins",
+        top5Key: "C Hose Top5",
+        contestName: "C Hose",
+    },
+    {
+        label: "B Hose",
+        winsKey: "B Hose Wins",
+        top5Key: "B Hose Top5",
+        contestName: "B Hose",
+    },
+    {
+        label: "Efficiency",
+        winsKey: "Efficiency Wins",
+        top5Key: "Efficiency Top5",
+        contestName: "Efficiency",
+    },
+    {
+        label: "Motor Pump",
+        winsKey: "Motor Pump Wins",
+        top5Key: "Motor Pump Top5",
+        contestName: "Motor Pump",
+    },
+    {
+        label: "Buckets",
+        winsKey: "Buckets Wins",
+        top5Key: "Buckets Top5",
+        contestName: "Buckets",
+    },
+];
+
+type Top5Entry = { teamName: string; points: number; finishingPosition: string };
+
+function formatPercentage(count: number) {
+    if (count < 5) return "< 1%";
+    return `${((count / SIMULATION_RUNS) * 100).toFixed(1)}%`;
+}
+
+function getFinishAndPoints(teamName: string, top5: Top5Entry[] | undefined) {
+    if (!top5?.length) return "";
+    const entry = top5.find((t) => t.teamName === teamName);
+    if (!entry?.finishingPosition) return "";
+    const pts = entry.points;
+    return `${entry.finishingPosition} - ${pts} pt${pts === 1 ? "" : "s"}`;
+}
+
+function getRunPoints(teamName: string, contest: string, runs: Run[]) {
+    const run = runs.find((r) => r.team === teamName && r.contest === contest);
+    if (!run?.points) return "";
+    return `${run.time} - ${run.points} pt${run.points === 1 ? "" : "s"}`;
+}
+
+export default function Projections() {
     const { year } = useParams();
-    const [sortField, setSortField] = useState<keyof Projection>('team');
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-    
-    const { projections, isLoading, isError, error } = useProjections({ year: year.toString() });
-    const { tournaments, isLoading: tournamentLoading, isError: tournamentError } = useTournamentByNameYear('New York State Championship', year.toString());
-    const tournament =  tournaments ? tournaments[0] : null;
+    const yearStr = year?.toString() ?? "";
+
+    const [sortField, setSortField] = useState<SortableProjectionField>("Overall Wins");
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+    const { projections, isLoading, isError } = useProjections({ year: yearStr });
+    const {
+        tournaments,
+        isLoading: tournamentLoading,
+        isError: tournamentError,
+    } = useTournamentByNameYear("New York State Championship", yearStr);
+    const tournament = tournaments?.[0] ?? null;
     const top5 = tournament?.top5;
-    const { runs, isLoading: runsLoading, isError: runsError } = useTournamentRuns({ tournamentId: tournament?.id.toString() });
 
-    const handleSort = (field: keyof Projection) => {
-        if (sortField === field) {
-            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-        } else {
-            setSortField(field);
-            if(field === 'team') {
-                setSortDirection('asc');
-            } else {
-                setSortDirection('desc');
-            }
-        }
-    };
-
-    const sortedProjections = [...projections].sort((a, b) => {
-        const aValue = a[sortField];
-        const bValue = b[sortField];
-        
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-            return sortDirection === 'asc' 
-                ? aValue.localeCompare(bValue)
-                : bValue.localeCompare(aValue);
-        }
-        
-        if (typeof aValue === 'number' && typeof bValue === 'number') {
-            return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
-        }
-        
-        return 0;
+    const {
+        runs = [],
+        isLoading: runsLoading,
+        isError: runsError,
+    } = useTournamentRuns({
+        tournamentId: tournament?.id?.toString() ?? "",
+        enabled: Boolean(tournament?.id),
     });
 
-    const formatPercentage = (count: number) => {
-        if (count < 5) return '< 1%';
-        const percentage = (count / 500) * 100;
-        return `${percentage.toFixed(1)}%`;
+    const handleSort = (field: SortableProjectionField) => {
+        if (sortField === field) {
+            setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+            return;
+        }
+        setSortField(field);
+        setSortDirection(field === "team" ? "asc" : "desc");
     };
 
-    const getSortIcon = (field: keyof Projection) => {
-        if (sortField !== field) return <FontAwesomeIcon icon={faSort} className="ms-1" />;
-        return sortDirection === 'asc' ? <FontAwesomeIcon icon={faSortUp} className="ms-1" /> : <FontAwesomeIcon icon={faSortDown} className="ms-2" />;
+    const sortedProjections = useMemo(() => {
+        return [...projections].sort((a, b) => {
+            const aValue = a[sortField];
+            const bValue = b[sortField];
+
+            if (typeof aValue === "string" && typeof bValue === "string") {
+                return sortDirection === "asc"
+                    ? aValue.localeCompare(bValue)
+                    : bValue.localeCompare(aValue);
+            }
+
+            if (typeof aValue === "number" && typeof bValue === "number") {
+                return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
+            }
+
+            return 0;
+        });
+    }, [projections, sortField, sortDirection]);
+
+    const headlineRankings = useMemo(() => {
+        return [...projections].sort(
+            (a, b) => b["Overall Wins"] - a["Overall Wins"] || a.team.localeCompare(b.team)
+        );
+    }, [projections]);
+
+    const getSortIcon = (field: SortableProjectionField) => {
+        if (sortField !== field) {
+            return <FontAwesomeIcon icon={faSort} className="ms-1 opacity-50" />;
+        }
+        return sortDirection === "asc" ? (
+            <FontAwesomeIcon icon={faSortUp} className="ms-1" />
+        ) : (
+            <FontAwesomeIcon icon={faSortDown} className="ms-1" />
+        );
     };
+
+    const loading = isLoading || tournamentLoading || (Boolean(tournament?.id) && runsLoading);
+    const hasError = isError || tournamentError || runsError;
 
     return (
-        <div className="container">
-            <div className="text-center fs-4 my-3"><b>{`${year} State Tournament Projections`}</b></div>
+        <div className="container mb-3">
+            <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 my-3">
+                <Link to="/Simulation/Projections" className="video-links small">
+                    <FontAwesomeIcon icon={faArrowLeft} className="me-1" />
+                    All years
+                </Link>
+                <div className="text-center flex-grow-1 fs-4">
+                    <b>{yearStr} State Tournament Projections</b>
+                </div>
+                <div className="d-none d-md-block" style={{ width: "5.5rem" }} />
+            </div>
+
             <div className="w-100 bg-white rounded shadow-sm">
-                <div className="overflow-auto pb-3">
-                    {
-                        isLoading || tournamentLoading || runsLoading ? 
-                            <div className="text-center p-4">
-                                <div className="spinner-border text-primary" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                </div>
-                                <div className="mt-2">Loading projections data...</div>
-                            </div> : 
-                            <div className="p-4">
-                                <div className="table-responsive">
-                                    <table className="table table-sm w-100 other-tables">
-                                        <thead>
-                                            <tr>
-                                                <th 
-                                                    scope="col" 
-                                                    className="bg-white px-2 pointer fixed-col scorecard-cell-lg"
-                                                    onClick={() => handleSort('team')}
+                {loading ? (
+                    <div className="text-center p-5">
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                        <div className="mt-2 text-muted">Loading projections data...</div>
+                    </div>
+                ) : hasError ? (
+                    <div className="text-center text-muted p-5">
+                        An error occurred. Please try again.
+                    </div>
+                ) : (
+                    <div className="p-3 p-md-4">
+                        <HeadlineBoard rankings={headlineRankings} top5={top5} />
+
+                        <div className="proj-legend text-muted small my-3">
+                            Each percentage is a team&apos;s share of outcomes across{" "}
+                            {SIMULATION_RUNS} simulated tournaments — how often they would
+                            have won the day, or landed in the top five. Reminder: it&apos;s a
+                            &quot;what if,&quot; not a verdict. Actual outcomes are included.
+                        </div>
+
+
+                        <div className="proj-matrix-heading mt-4 mb-2">Full projections</div>
+
+                        <div className="table-responsive proj-table-wrap">
+                            <table className="table table-sm w-100 other-tables proj-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th
+                                            scope="col"
+                                            rowSpan={2}
+                                            className="bg-white px-2 pointer fixed-col align-middle proj-team-header"
+                                            onClick={() => handleSort("team")}
+                                        >
+                                            <span className="d-flex align-items-center">
+                                                Team {getSortIcon("team")}
+                                            </span>
+                                        </th>
+                                        {CONTEST_GROUPS.map((group) => (
+                                            <th
+                                                key={group.label}
+                                                scope="col"
+                                                colSpan={3}
+                                                className="text-center proj-group-header"
+                                            >
+                                                {group.label}
+                                            </th>
+                                        ))}
+                                    </tr>
+                                    <tr>
+                                        {CONTEST_GROUPS.map((group) => (
+                                            <React.Fragment key={`${group.label}-subs`}>
+                                                <th
+                                                    scope="col"
+                                                    className="text-center pointer proj-sub-header"
+                                                    onClick={() =>
+                                                        group.winsKey && handleSort(group.winsKey)
+                                                    }
                                                 >
-                                                    <span className="d-flex align-items-center">
-                                                        Team {getSortIcon('team')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('Overall Wins')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        Overall Wins {getSortIcon('Overall Wins')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('Overall Top5')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        Overall Top5 {getSortIcon('Overall Top5')}
+                                                    <span className="d-inline-flex align-items-center justify-content-center">
+                                                        Win%
+                                                        {group.winsKey
+                                                            ? getSortIcon(group.winsKey)
+                                                            : null}
                                                     </span>
                                                 </th>
                                                 <th
                                                     scope="col"
-                                                    className="text-center pointer scorecard-cell-lg"
+                                                    className="text-center pointer proj-sub-header"
+                                                    onClick={() =>
+                                                        group.top5Key && handleSort(group.top5Key)
+                                                    }
                                                 >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        Finish
+                                                    <span className="d-inline-flex align-items-center justify-content-center">
+                                                        Top5%
+                                                        {group.top5Key
+                                                            ? getSortIcon(group.top5Key)
+                                                            : null}
                                                     </span>
                                                 </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('Three Man Ladder Wins')}
+                                                <th
+                                                    scope="col"
+                                                    className="text-center proj-sub-header"
                                                 >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        3ML Wins {getSortIcon('Three Man Ladder Wins')}
-                                                    </span>
+                                                    {group.contestName ? "Actual" : "Finish"}
                                                 </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('Three Man Ladder Top5')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        3ML Top5 {getSortIcon('Three Man Ladder Top5')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        3ML Points
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('B Ladder Wins')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        B Ladder Wins {getSortIcon('B Ladder Wins')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('B Ladder Top5')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        B Ladder Top5 {getSortIcon('B Ladder Top5')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        B Ladder Points
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('C Ladder Wins')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        C Ladder Wins {getSortIcon('C Ladder Wins')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('C Ladder Top5')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        C Ladder Top5 {getSortIcon('C Ladder Top5')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        C Ladder Points
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('C Hose Wins')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        C Hose Wins {getSortIcon('C Hose Wins')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('C Hose Top5')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        C Hose Top5 {getSortIcon('C Hose Top5')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        C Hose Points
-                                                    </span>
-                                                </th>
+                                            </React.Fragment>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {sortedProjections.map((projection, index) => (
+                                        <tr key={`projection-${projection._id}-${index}`}>
+                                            <th
+                                                scope="row"
+                                                className="px-2 fixed-col bg-white text-nowrap"
+                                            >
+                                                {projection.team}
+                                            </th>
+                                            {CONTEST_GROUPS.map((group) => {
+                                                const wins = group.winsKey
+                                                    ? (projection[group.winsKey] as number)
+                                                    : 0;
+                                                const top5Count = group.top5Key
+                                                    ? (projection[group.top5Key] as number)
+                                                    : 0;
+                                                const actual = group.contestName
+                                                    ? getRunPoints(
+                                                          projection.team,
+                                                          group.contestName,
+                                                          runs
+                                                      )
+                                                    : getFinishAndPoints(projection.team, top5);
 
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('B Hose Wins')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        B Hose Wins {getSortIcon('B Hose Wins')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('B Hose Top5')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        B Hose Top5 {getSortIcon('B Hose Top5')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        B Hose Points
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('Efficiency Wins')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        Efficiency Wins {getSortIcon('Efficiency Wins')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('Efficiency Top5')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        Efficiency Top5 {getSortIcon('Efficiency Top5')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        Efficiency Points
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('Motor Pump Wins')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        Motor Pump Wins {getSortIcon('Motor Pump Wins')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('Motor Pump Top5')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        Motor Pump Top5 {getSortIcon('Motor Pump Top5')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        Motor Pump Points
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('Buckets Wins')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        Buckets Wins {getSortIcon('Buckets Wins')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                    onClick={() => handleSort('Buckets Top5')}
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        Buckets Top5 {getSortIcon('Buckets Top5')}
-                                                    </span>
-                                                </th>
-                                                <th 
-                                                    scope="col" 
-                                                    className="text-center pointer scorecard-cell-lg"
-                                                >
-                                                    <span className="d-flex align-items-center justify-content-center">
-                                                        Buckets Points
-                                                    </span>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {sortedProjections.map((projection, index) => (
-                                                <tr key={`projection-${projection._id}-${index}`}>
-                                                    <th scope="col" className="px-2 fixed-col bg-white">{projection.team}</th>
-                                                    <td className="text-center">{formatPercentage(projection['Overall Wins'])}</td>
-                                                    <td className="text-center">{formatPercentage(projection['Overall Top5'])}</td>
-                                                    <td className="text-center">{getFinishAndPoints(projection.team, top5)}</td>
-                                                    <td className="text-center">{formatPercentage(projection['Three Man Ladder Wins'])}</td>
-                                                    <td className="text-center">{formatPercentage(projection['Three Man Ladder Top5'])}</td>
-                                                    <td className="text-center">{getRunPoints(projection.team, 'Three Man Ladder', runs)}</td>
-                                                    <td className="text-center">{formatPercentage(projection['B Ladder Wins'])}</td>
-                                                    <td className="text-center">{formatPercentage(projection['B Ladder Top5'])}</td>
-                                                    <td className="text-center">{getRunPoints(projection.team, 'B Ladder', runs)}</td>
-                                                    <td className="text-center">{formatPercentage(projection['C Ladder Wins'])}</td>
-                                                    <td className="text-center">{formatPercentage(projection['C Ladder Top5'])}</td>
-                                                    <td className="text-center">{getRunPoints(projection.team, 'C Ladder', runs)}</td>
-                                                    <td className="text-center">{formatPercentage(projection['C Hose Wins'])}</td>
-                                                    <td className="text-center">{formatPercentage(projection['C Hose Top5'])}</td>
-                                                    <td className="text-center">{getRunPoints(projection.team, 'C Hose', runs)}</td>
-                                                    <td className="text-center">{formatPercentage(projection['B Hose Wins'])}</td>
-                                                    <td className="text-center">{formatPercentage(projection['B Hose Top5'])}</td>
-                                                    <td className="text-center">{getRunPoints(projection.team, 'B Hose', runs)}</td>
-                                                    <td className="text-center">{formatPercentage(projection['Efficiency Wins'])}</td>
-                                                    <td className="text-center">{formatPercentage(projection['Efficiency Top5'])}</td>
-                                                    <td className="text-center">{getRunPoints(projection.team, 'Efficiency', runs)}</td>
-                                                    <td className="text-center">{formatPercentage(projection['Motor Pump Wins'])}</td>
-                                                    <td className="text-center">{formatPercentage(projection['Motor Pump Top5'])}</td>
-                                                    <td className="text-center">{getRunPoints(projection.team, 'Motor Pump', runs)}</td>
-                                                    <td className="text-center">{formatPercentage(projection['Buckets Wins'])}</td>
-                                                    <td className="text-center">{formatPercentage(projection['Buckets Top5'])}</td>
-                                                    <td className="text-center">{getRunPoints(projection.team, 'Buckets', runs)}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                    }
-                    {
-                        isError || tournamentError || runsError && <div className="text-center">An error occurred please try again.</div>
-                    }
-                </div>
+                                                return (
+                                                    <React.Fragment key={`${projection._id}-${group.label}`}>
+                                                        <td className="text-center proj-pct">
+                                                            {formatPercentage(wins)}
+                                                        </td>
+                                                        <td className="text-center proj-pct">
+                                                            {formatPercentage(top5Count)}
+                                                        </td>
+                                                        <td
+                                                            className={`text-center text-nowrap px-2 `}
+                                                        >
+                                                            {actual}
+                                                        </td>
+                                                    </React.Fragment>
+                                                );
+                                            })}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
-    )
+    );
 }
 
- 
-function getFinishAndPoints(teamName: string, top5: {teamName: string, points: number, finishingPosition: string}[]) {
-    const finish = top5.find(t => t.teamName === teamName)?.finishingPosition;
-    const points = top5.find(t => t.teamName === teamName)?.points;
-    if(!finish) return ""; 
-    return `${finish} - ${points} pt${points === 1 ? "" : "s"}`;
-}; 
+interface HeadlineBoardProps {
+    rankings: Projection[];
+    top5: Top5Entry[] | undefined;
+}
 
-function getRunPoints(teamName: string, contest: string, runs: Run[]) {
-    const run = runs.find(r => r.team === teamName && r.contest === contest);
-    if(!run || !run.points) return "";
-    return `${run.time} - ${run.points} pt${run.points === 1 ? "" : "s"}`;
+function HeadlineBoard({ rankings, top5 }: HeadlineBoardProps) {
+    if (!rankings.length) return null;
+
+    return (
+        <div className="proj-headline">
+            <div className="proj-headline-title">Favorites vs finish</div>
+            <div className="proj-headline-list">
+                {rankings.map((projection, index) => {
+                    const finish = getFinishAndPoints(projection.team, top5);
+                    return (
+                        <div
+                            key={projection._id}
+                            className="proj-headline-row"
+                        >
+                            <span className="proj-headline-rank">{index + 1}</span>
+                            <span className="proj-headline-team">{projection.team}</span>
+                            <span className="proj-headline-stat">
+                                <span className="proj-headline-stat-label">Win</span>
+                                <span>{formatPercentage(projection["Overall Wins"])}</span>
+                            </span>
+                            <span className="proj-headline-stat">
+                                <span className="proj-headline-stat-label">Top5</span>
+                                <span>{formatPercentage(projection["Overall Top5"])}</span>
+                            </span>
+                            <span className="proj-headline-finish">
+                                {finish || "—"}
+                            </span>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
 }

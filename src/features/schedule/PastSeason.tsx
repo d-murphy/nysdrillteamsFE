@@ -29,8 +29,8 @@ export default function PastSeasons() {
             <div className="bg-lightgray rounded shadow-sm">
                 <Big8 year={yearNum}/>
             </div>
-            <div className="bg-lightgray rounded shadow-sm">
-                <TotalPoints year={yearNum} headingAligned={true}/>
+            <div className="mt-3">
+                <TotalPoints year={yearNum} headingAligned={true} />
             </div>
             <div className="mt-2 bg-lightgray px-2 pt-3 rounded shadow-sm">
                 <div className="h4">Schedule</div>
