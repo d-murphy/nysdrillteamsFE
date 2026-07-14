@@ -8,6 +8,7 @@ import { YearRoulette } from "../../features/fortyForForty/YearRoulette";
 import { ContestPicker } from "../../features/fortyForForty/ContestPicker";
 import { TeamPickTable } from "../../features/fortyForForty/TeamPickTable";
 import { ContestTracker } from "../../features/fortyForForty/ContestTracker";
+import { FortyForFortyScoreboard } from "../../features/fortyForForty/FortyForFortyScoreboard";
 
 export type GameMode = 'classic' | 'lifer';
 
@@ -369,6 +370,8 @@ function IntroPage({ onStart }: IntroPageProps) {
                     </div>
                 </div>
             </div>
+
+            <FortyForFortyScoreboard />
         </div>
     );
 }

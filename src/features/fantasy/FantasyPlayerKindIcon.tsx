@@ -51,9 +51,9 @@ export function FantasyPlayerKindIcon({
         ...(hasBackgroundColor ? { backgroundColor } : {}),
     };
 
-    const iconStyle: React.CSSProperties = {
+    const iconStyle = {
         fontSize: `${0.875 * sizeMultiplier}rem`,
-        verticalAlign: "middle",
+        verticalAlign: "middle" as const,
         ...(hasIconColor ? { color: iconColor } : {}),
     };
 

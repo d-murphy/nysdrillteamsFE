@@ -5,6 +5,11 @@ import SponsorBannerCarousel from "../shared/components/SponsorBannerCarousel";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDice, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { FortyForFortyAllTimePreview } from "../features/fortyForForty/FortyForFortyAllTimePreview";
+import {
+    floorToNearestHundred,
+    useFortyForFortyCompleteGamesCount,
+} from "../hooks/fortyForForty/useFortyForFortyCompleteGamesCount";
 
 export default function Home() {
     return (
@@ -24,6 +29,9 @@ export default function Home() {
 }
 
 function FortyForFortyAdvert() {
+    const { data: count, isSuccess } = useFortyForFortyCompleteGamesCount();
+    const roundedCount = isSuccess ? floorToNearestHundred(count) : null;
+
     return (
         <div
             className="w-100 rounded shadow-sm overflow-hidden"
@@ -48,6 +56,15 @@ function FortyForFortyAdvert() {
                     Can you go <span style={{ color: "#c9a000" }}>40 for 40?</span>
                 </div>
 
+                {roundedCount != null && roundedCount > 0 && (
+                    <div
+                        className="fw-semibold mb-3"
+                        style={{ fontSize: "0.95rem", color: "#c9a000" }}
+                    >
+                        Over {roundedCount.toLocaleString()} games played!
+                    </div>
+                )}
+
                 <div
                     className="mb-4"
                     style={{ fontSize: "0.9rem", color: "#8899aa", lineHeight: 1.5 }}
@@ -65,6 +82,8 @@ function FortyForFortyAdvert() {
                     Play Now
                     <FontAwesomeIcon icon={faChevronRight} style={{ fontSize: "0.7rem" }} />
                 </Link>
+
+                <FortyForFortyAllTimePreview />
             </div>
         </div>
     );

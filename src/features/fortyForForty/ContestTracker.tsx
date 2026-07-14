@@ -17,7 +17,7 @@ interface ContestTrackerProps {
 
 export function ContestTracker({ contests, picks, selectedContest, onSelectContest, disabled }: ContestTrackerProps) {
     return (
-        <div>
+        <div className="mb-3">
             <div className="text-muted small fw-semibold mb-2 text-uppercase" style={{ letterSpacing: '0.06em', fontSize: '0.7rem' }}>
                 Contests — {picks.length} / {contests.length}
             </div>

@@ -7,8 +7,11 @@ import { useFortyForFortyGame } from "../../hooks/fortyForForty/useFortyForForty
 import { useSimTeamSummariesKey } from "../../hooks/fantasy/useSimTeamSummariesKey";
 import { SimTeamSummary } from "../../hooks/fantasy/useSimTeamSummaries";
 import { ShareModal } from "../../features/fortyForForty/ShareModal";
+import { LeaderboardNameSection } from "../../features/fortyForForty/LeaderboardNameSection";
 import { SizedImage } from "../../shared/components/SizedImage";
 import getImgLocation from "../../utils/imgLU";
+
+const LEADERBOARD_NAME_NOT_SET = "not_set";
 
 const CONTEST_ABBR: Record<string, string> = {
     "Three Man Ladder": "3ML",
@@ -98,6 +101,7 @@ export default function FortyForFortyEnd() {
     }
 
     const grade = getGrade(game.totalPoints);
+    const canShare = game.leaderboardName !== LEADERBOARD_NAME_NOT_SET;
     const rows = game.contestSummaryKeys.map((key, i) => {
         const [team, year, contest] = key.split('|');
         const summary = teamSummaries.find(
@@ -188,22 +192,29 @@ export default function FortyForFortyEnd() {
                 </div>
             </div>
 
-            {/* Action buttons */}
+            <LeaderboardNameSection
+                gameId={gameId!}
+                leaderboardName={game.leaderboardName}
+            />
+
+            {/* Action buttons — Share hidden until leaderboard name is set on new games */}
             <div className="row g-2 mb-4 mx-auto" style={{ maxWidth: 480 }}>
-                <div className="col-6">
-                    <Button
-                        className="w-100 py-2 fw-bold d-flex align-items-center justify-content-center gap-2"
-                        style={{ fontSize: '1rem' }}
-                        onClick={() => setShowShare(true)}
-                    >
-                        <FontAwesomeIcon icon={faShareNodes} />
-                        Share
-                    </Button>
-                </div>
-                <div className="col-6">
+                {canShare && (
+                    <div className="col-6">
+                        <Button
+                            className="w-100 fw-bold d-flex align-items-center justify-content-center gap-2"
+                            style={{ fontSize: '1rem' }}
+                            onClick={() => setShowShare(true)}
+                        >
+                            <FontAwesomeIcon icon={faShareNodes} />
+                            Share
+                        </Button>
+                    </div>
+                )}
+                <div className={canShare ? 'col-6' : 'col-12'}>
                     <Button
                         variant="outline-secondary"
-                        className="w-100 py-2 fw-bold d-flex align-items-center justify-content-center gap-2"
+                        className="w-100 fw-bold d-flex align-items-center justify-content-center gap-2"
                         style={{ fontSize: '1rem' }}
                         onClick={() => navigate('/Forty-for-Forty')}
                     >

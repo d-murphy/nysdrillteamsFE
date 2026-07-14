@@ -3,6 +3,7 @@ import { Modal } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { FortyForFortyGame } from "../../types/types";
+import { isLeaderboardNameSet } from "./LeaderboardNameSection";
 
 const CONTEST_ABBR: Record<string, string> = {
     "Three Man Ladder": "3ML",
@@ -64,22 +65,32 @@ function ShareCard({ game, grade }: ShareCardProps) {
                 </div>
             </div>
 
-            {/* Mode badge */}
-            {game.gameMode && (
-                <div className="mb-3">
-                    <span
-                        className="badge"
-                        style={{
-                            backgroundColor: 'transparent',
-                            border: `1px solid ${NAVY}`,
-                            color: '#aab8cc',
-                            fontSize: '0.65rem',
-                            letterSpacing: '0.08em',
-                            textTransform: 'uppercase',
-                        }}
-                    >
-                        {game.gameMode === 'classic' ? 'Classic Mode' : 'Lifer Mode'}
-                    </span>
+            {/* Mode badge + leaderboard name */}
+            {(game.gameMode || isLeaderboardNameSet(game.leaderboardName)) && (
+                <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                    {game.gameMode && (
+                        <span
+                            className="badge"
+                            style={{
+                                backgroundColor: 'transparent',
+                                border: `1px solid ${NAVY}`,
+                                color: '#aab8cc',
+                                fontSize: '0.65rem',
+                                letterSpacing: '0.08em',
+                                textTransform: 'uppercase',
+                            }}
+                        >
+                            {game.gameMode === 'classic' ? 'Classic Mode' : 'Lifer Mode'}
+                        </span>
+                    )}
+                    {isLeaderboardNameSet(game.leaderboardName) && (
+                        <span
+                            className="fw-semibold"
+                            style={{ fontSize: '0.85rem', color: '#c9d6e8' }}
+                        >
+                            {game.leaderboardName}
+                        </span>
+                    )}
                 </div>
             )}
 
@@ -134,7 +145,7 @@ function ShareCard({ game, grade }: ShareCardProps) {
                 style={{ borderTop: '1px solid #1e3050' }}
             >
                 <span style={{ fontSize: '0.78rem', color: '#8899aa' }}>Can you go 40 for 40?</span>
-                <span style={{ fontSize: '0.78rem', color: '#8899aa' }}>nysdrillteams.com</span>
+                <span style={{ fontSize: '0.78rem', color: '#8899aa' }}>NYSFDRacing.com</span>
             </div>
         </div>
     );
@@ -151,7 +162,10 @@ export function ShareModal({ show, onHide, game, grade }: ShareModalProps) {
     const [copied, setCopied] = useState(false);
 
     const shareUrl = window.location.href;
-    const shareText = `I just scored ${game.totalPoints} points in 40 for 40 - a NYS FD Drill Teams game! Think you can do better?`;
+    const namePart = isLeaderboardNameSet(game.leaderboardName)
+        ? ` as ${game.leaderboardName}`
+        : '';
+    const shareText = `I just scored ${game.totalPoints} points${namePart} in 40 for 40 - a NYS FD Racing game! Think you can do better?`;
 
     const handleCopy = async () => {
         const fullText = `${shareText}\n${shareUrl}`;
