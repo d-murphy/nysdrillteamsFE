@@ -48,7 +48,7 @@ export const socialLinks: SocialLink[] = [
     {
         name: "Facebook",
         handle: "NYS Drill Teams Group",
-        url: "https://www.facebook.com/groups/NYSDrillTeams/",
+        url: "https://www.facebook.com/nysfdracing",
         description:
             "Join the community group for event chatter, results discussion, and news shared by fans and teams across the state.",
         cta: "Follow on Facebook",
@@ -66,7 +66,7 @@ export const socialLinks: SocialLink[] = [
     {
         name: "Twitch",
         handle: "nysfddrillteams",
-        url: "https://www.twitch.tv/nysfddrillteams",
+        url: "https://www.twitch.tv/nysfdracing",
         description:
             "Live streams of tournaments so you can follow the action when you can't make it to the track.",
         cta: "Watch on Twitch",

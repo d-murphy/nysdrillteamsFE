@@ -1,16 +1,34 @@
 import * as React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
+import { faEnvelope, faFlagCheckered } from "@fortawesome/free-solid-svg-icons";
 import { socialLinks } from "../shared/socialLinks";
+import UpcomingEvents from "../shared/components/UpcomingEvents";
 
 export default function Social() {
     return (
         <div className="container mb-2">
-            <div className="text-center w-100 fs-4 my-3">
-                <b>Follow the NYS FD Drill Teams</b>
+
+            <div className="bg-primary text-white rounded shadow-sm p-4 mt-3 d-flex flex-column flex-md-row align-items-md-center gap-3">
+                <FontAwesomeIcon icon={faFlagCheckered} className="fs-2 flex-shrink-0" />
+                <div className="flex-grow-1">
+                    <div className="fs-5 fw-semibold">Interested in competing?</div>
+                    <div className="text-white-50">Submit the form and get in the game!</div>
+                </div>
+                <a
+                    className="btn btn-light text-primary fw-semibold flex-shrink-0"
+                    href="https://forms.gle/taewdZdYsRbn1Uw9A"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Submit the form
+                </a>
             </div>
 
-            <div className="bg-white rounded shadow-sm p-4 mb-3">
+
+            <div className="bg-white rounded shadow-sm p-4 my-3 ">
+                <div className="text-center w-100 fs-4 my-3">
+                    <b>Follow the NYS FD Drill Teams</b>
+                </div>
                 <p className="mb-0 text-center">
                     Stay connected with New York State firematic racing across the platforms where
                     livestreams, photos, and community discussion happen. Pick a channel
@@ -71,6 +89,10 @@ export default function Social() {
                         </p>
                     </div>
                 </div>
+            </div>
+
+            <div className="mt-3 mb-3">
+                <UpcomingEvents year={new Date().getFullYear()} />
             </div>
         </div>
     );
