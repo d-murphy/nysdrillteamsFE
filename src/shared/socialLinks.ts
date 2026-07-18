@@ -65,7 +65,7 @@ export const socialLinks: SocialLink[] = [
     },
     {
         name: "Twitch",
-        handle: "nysfddrillteams",
+        handle: "nysfdracing",
         url: "https://www.twitch.tv/nysfdracing",
         description:
             "Live streams of tournaments so you can follow the action when you can't make it to the track.",
