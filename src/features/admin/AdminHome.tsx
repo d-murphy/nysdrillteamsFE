@@ -8,16 +8,18 @@ import { Team, Track } from "../../types/types"
 import AdminTournaments from "./AdminTournaments";
 import AdminUpdates from "./AdminUpdates";
 import AdminAnnouncements from "./AdminAnnouncements";
+import AdminArticles from "./AdminArticles";
 import AdminUsers from './AdminUsers';
 
 declare var SERVICE_URL: string;
 
-const TABS = ['Updates', 'Teams', 'Tracks', 'Tournaments', 'Announcements', 'Users'] as const;
-type Tab = typeof TABS[number];
+const ALL_TABS = ['Updates', 'Teams', 'Tracks', 'Tournaments', 'Announcements', 'Articles', 'Users'] as const;
+type Tab = typeof ALL_TABS[number];
 
 export default function AdminHome() {
-    let [view, setView] = useState<Tab>("Updates")
-    const { username, logout } = useLoginContext();
+    const { username, logout, role } = useLoginContext();
+    const tabs: readonly Tab[] = role === 'article' ? ['Articles'] : ALL_TABS;
+    let [view, setView] = useState<Tab>(role === 'article' ? 'Articles' : 'Updates')
 
     const teamsQuery = useQuery<Team[]>({
         queryKey: ['teams'],
@@ -69,7 +71,7 @@ export default function AdminHome() {
 
                 {!isError && (
                     <ul className="nav nav-tabs px-3">
-                        {TABS.map(tab => (
+                        {tabs.map(tab => (
                             <li className="nav-item" key={tab}>
                                 <button
                                     className={`nav-link${view === tab ? ' active' : ''}`}
@@ -87,6 +89,7 @@ export default function AdminHome() {
                 {view === "Tracks"        && <AdminTracks tracks={tracks} />}
                 {view === "Tournaments"   && <AdminTournaments tracks={tracks} teams={teams} />}
                 {view === "Announcements" && <AdminAnnouncements />}
+                {view === "Articles"      && <AdminArticles />}
                 {view === "Users"         && <AdminUsers />}
                 {isError && <div className="text-danger">Sorry, an error occurred. Please try again later.</div>}
             </div>

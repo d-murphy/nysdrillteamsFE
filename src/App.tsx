@@ -37,6 +37,8 @@ const ProjectionsHome = React.lazy(() => import("./Pages/Simulation/ProjectionsH
 const FantasyHome = React.lazy(() => import("./Pages/Simulation/FantasyHome"));
 const FortyForFortyStart = React.lazy(() => import("./Pages/Simulation/FortyForFortyStart"));
 const FortyForFortyEnd = React.lazy(() => import("./Pages/Simulation/FortyForFortyEnd"));
+const TwannyStatFiles = React.lazy(() => import("./Pages/TwannyStatFiles"));
+const TwannyStatFile = React.lazy(() => import("./Pages/TwannyStatFile"));
 
 
 interface ErrorPageProps {
@@ -191,6 +193,14 @@ const router = createBrowserRouter([
             {
                 path: "/Forty-for-Forty/:id",
                 element: <FortyForFortyEnd />
+            },
+            {
+                path: "/TwannyStatFiles",
+                element: <TwannyStatFiles />
+            },
+            {
+                path: "/TwannyStatFiles/:articleId",
+                element: <TwannyStatFile />
             },
         ],
     },

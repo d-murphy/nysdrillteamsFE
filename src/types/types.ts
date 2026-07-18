@@ -117,6 +117,20 @@ export type User = {
     role: string
 }
 
+export type Article = {
+    _id?: string
+    id: number
+    title: string
+    content: string
+    created: Date | string
+    updated: Date | string
+    author: string
+    tags: string[]
+    isPublished: boolean
+    isFeatured: boolean
+    sortOrder: number
+}
+
 export type SimilarTeam = {
     _id: string, 
     team: string, 

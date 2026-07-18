@@ -25,6 +25,7 @@ const statsLinks = [
 const funLinks = [
     { label: "Forty for Forty", to: "/Forty-for-Forty" },
     { label: "Projections", to: "/Simulation/Projections" },
+    // { label: "Twanny Stat Files", to: "/TwannyStatFiles" },
     // { label: "Fantasy Racing", to: "/Simulation/Fantasy" },
 ] as const;
 
@@ -38,6 +39,7 @@ const statsActivePrefixes = [
     "/locations",
     "/simulation",
     "/forty-for-forty",
+    "/twannystatfiles",
 ];
 
 function isStatsRoute(pathname: string) {

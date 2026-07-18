@@ -79,7 +79,10 @@ export default function AdminUpdates(_props:AdminUsersProps) {
     }
 
     const roleBadgeClass = (r: string) =>
-        r === 'admin' ? 'bg-danger' : r === 'scorekeeper' ? 'bg-primary' : 'bg-secondary';
+        r === 'admin' ? 'bg-danger'
+        : r === 'scorekeeper' ? 'bg-primary'
+        : r === 'article' ? 'bg-success'
+        : 'bg-secondary';
 
     return (
         <div>
@@ -179,6 +182,7 @@ export default function AdminUpdates(_props:AdminUsersProps) {
                                             >
                                                 <option value=""></option>
                                                 <option value="scorekeeper">Scorekeeper</option>
+                                                <option value="article">Article</option>
                                                 <option value="video">Video Only</option>
                                             </select>
                                         </div>
